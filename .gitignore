@@ -17,3 +17,8 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+.idea/go-swan-client.iml
+.idea/vcs.xml
+.idea/runConfigurations.xml
+.idea/modules.xml
+.idea/misc.xml
