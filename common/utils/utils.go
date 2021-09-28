@@ -1,4 +1,4 @@
-package common
+package utils
 
 import (
 	"context"
@@ -237,4 +237,29 @@ func GetCurrentEpoch() int {
 	currentNanoSec := time.Now().UnixNano()
 	currentEpoch := (currentNanoSec/1e9 - 1598306471) / 30
 	return int(currentEpoch)
+}
+
+func GetFieldStrFromJson(jsonStr string, fieldName string) (string){
+	var result map[string]interface{}
+	err := json.Unmarshal([]byte(jsonStr), &result)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return ""
+	}
+
+	fieldVal := result[fieldName].(interface{})
+	return fieldVal.(string)
+}
+
+func GetFieldMapFromJson(jsonStr string, fieldName string) (map[string]interface{}){
+	var result map[string]interface{}
+	err := json.Unmarshal([]byte(jsonStr), &result)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil
+	}
+
+	fieldVal := result[fieldName].(interface{})
+
+	return fieldVal.(map[string]interface{})
 }

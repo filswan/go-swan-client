@@ -15,9 +15,9 @@ type Configuration struct {
 }
 
 type main struct {
-	ApiUrl            string `toml:"api_url"`
-	ApiKey            string `toml:"api_key"`
-	AccessToken       string `toml:"access_token"`
+	SwanApiUrl        string `toml:"api_url"`
+	SwanApiKey        string `toml:"api_key"`
+	SwanAccessToken   string `toml:"access_token"`
 	StorageServerType string `toml:"storage_server_type"`
 }
 
