@@ -24,3 +24,4 @@
 .idea/misc.xml
 .idea/.gitignore
 config/config.toml
+.vscode/launch.json

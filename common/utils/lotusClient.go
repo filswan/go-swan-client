@@ -1,12 +1,13 @@
 package utils
 
 import (
+	"go-swan-client/logs"
+	"go-swan-client/models"
 	"regexp"
 	"strings"
-	"go-swan-client/logs"
 )
 
-func LotusGetDealOnChainStatus(dealCid string) (string, string){
+func LotusGetDealOnChainStatus(dealCid string) (string, string) {
 	cmd := "lotus-miner storage-deals list -v | grep " + dealCid
 	result, err := ExecOsCmd(cmd)
 
@@ -24,7 +25,7 @@ func LotusGetDealOnChainStatus(dealCid string) (string, string){
 	words := strings.Fields(result)
 	status := ""
 	for _, word := range words {
-		if strings.HasPrefix(word,"StorageDeal") {
+		if strings.HasPrefix(word, "StorageDeal") {
 			status = word
 			break
 		}
@@ -36,7 +37,7 @@ func LotusGetDealOnChainStatus(dealCid string) (string, string){
 
 	message := ""
 
-	for i :=11; i < len(words); i++ {
+	for i := 11; i < len(words); i++ {
 		message = message + words[i] + " "
 	}
 
@@ -44,7 +45,7 @@ func LotusGetDealOnChainStatus(dealCid string) (string, string){
 	return status, message
 }
 
-func LotusGetCurrentEpoch() (int) {
+func LotusGetCurrentEpoch() int {
 	cmd := "lotus-miner proving info | grep 'Current Epoch'"
 	logs.GetLogger().Info(cmd)
 	result, err := ExecOsCmd(cmd)
@@ -63,7 +64,7 @@ func LotusGetCurrentEpoch() (int) {
 
 	re := regexp.MustCompile("[0-9]+")
 	words := re.FindAllString(result, -1)
-	logs.GetLogger().Info("words:",words)
+	logs.GetLogger().Info("words:", words)
 	var currentEpoch int64 = -1
 	if words != nil && len(words) > 0 {
 		currentEpoch = GetInt64FromStr(words[0])
@@ -73,7 +74,7 @@ func LotusGetCurrentEpoch() (int) {
 	return int(currentEpoch)
 }
 
-func LotusImportData(dealCid string, filepath string) (string) {
+func LotusImportData(dealCid string, filepath string) string {
 	cmd := "lotus-miner storage-deals import-data " + dealCid + " " + filepath
 	logs.GetLogger().Info(cmd)
 
@@ -85,4 +86,55 @@ func LotusImportData(dealCid string, filepath string) (string) {
 	}
 
 	return result
+}
+
+func GetMinerInfo(miner *models.Miner) bool {
+	cmd := "lotus client query-ask " + miner.MinerFid
+	logs.GetLogger().Info(cmd)
+
+	result, err := ExecOsCmd(cmd)
+
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return false
+	}
+
+	if len(result) == 0 {
+		logs.GetLogger().Error("Failed to get miner info for:", miner.MinerFid)
+		return false
+	}
+
+	lines := strings.Split(result, "/n")
+
+	for _, line := range lines {
+		if strings.Contains(line, "Price per GiB:") {
+			miner.Price = SearchFloat64FromStr(line)
+			continue
+		}
+
+		if strings.Contains(line, "Verified Price per GiB:") {
+			miner.VerifiedPrice = SearchFloat64FromStr(line)
+			continue
+		}
+
+		if strings.Contains(line, "Max Piece size:") {
+			words := strings.Split(line, ":")
+			if len(words) == 2 {
+				maxPieceSize := strings.Trim(words[1], " ")
+				miner.MaxPieceSize = &maxPieceSize
+			}
+			continue
+		}
+
+		if strings.Contains(line, "Min Piece size:") {
+			words := strings.Split(line, ":")
+			if len(words) == 2 {
+				minPieceSize := strings.Trim(words[1], " ")
+				miner.MinPieceSize = &minPieceSize
+			}
+			continue
+		}
+	}
+
+	return true
 }

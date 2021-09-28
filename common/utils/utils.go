@@ -3,10 +3,6 @@ package utils
 import (
 	"context"
 	"encoding/json"
-	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"go-swan-client/logs"
 	"io/ioutil"
 	"math/big"
@@ -16,6 +12,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 // GetEpochInMillis get current timestamp
@@ -239,7 +240,7 @@ func GetCurrentEpoch() int {
 	return int(currentEpoch)
 }
 
-func GetFieldStrFromJson(jsonStr string, fieldName string) (string){
+func GetFieldStrFromJson(jsonStr string, fieldName string) string {
 	var result map[string]interface{}
 	err := json.Unmarshal([]byte(jsonStr), &result)
 	if err != nil {
@@ -251,7 +252,7 @@ func GetFieldStrFromJson(jsonStr string, fieldName string) (string){
 	return fieldVal.(string)
 }
 
-func GetFieldMapFromJson(jsonStr string, fieldName string) (map[string]interface{}){
+func GetFieldMapFromJson(jsonStr string, fieldName string) map[string]interface{} {
 	var result map[string]interface{}
 	err := json.Unmarshal([]byte(jsonStr), &result)
 	if err != nil {
@@ -262,4 +263,20 @@ func GetFieldMapFromJson(jsonStr string, fieldName string) (map[string]interface
 	fieldVal := result[fieldName].(interface{})
 
 	return fieldVal.(map[string]interface{})
+}
+
+func SearchFloat64FromStr(source string) *float64 {
+	re := regexp.MustCompile("[0-9]*.?[0-9]*")
+	words := re.FindAllString(source, -1)
+	logs.GetLogger().Info("words:", words)
+	if words != nil && len(words) > 0 {
+		result, err := strconv.ParseFloat(words[0], 64)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil
+		}
+		return &result
+	}
+
+	return nil
 }
