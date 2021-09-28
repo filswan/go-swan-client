@@ -7,7 +7,41 @@ import (
 )
 
 type Configuration struct {
-	Port int `toml:"port"`
+	Port       int        `toml:"port"`
+	Main       main       `toml:"main"`
+	WebServer  webServer  `toml:"web_server"`
+	IpfsServer ipfsServer `toml:"ipfs_server"`
+	Sender     sender     `toml:"sender"`
+}
+
+type main struct {
+	ApiUrl            string `toml:"api_url"`
+	ApiKey            string `toml:"api_key"`
+	AccessToken       string `toml:"access_token"`
+	StorageServerType string `toml:"storage_server_type"`
+}
+
+type webServer struct {
+	Host string `toml:"host"`
+	Port int    `toml:"port"`
+	Path string `toml:"path"`
+}
+
+type ipfsServer struct {
+	GatewayAddress  string  `toml:"gateway_address"`
+}
+
+type sender struct {
+	OfflineMode      bool   `toml:"offline_mode"`
+	OutputDir        string `toml:"output_dir"`
+	PublicDeal       bool   `toml:"public_deal"`
+	VerifiedDeal     bool   `toml:"verified_deal"`
+	FastRetrieval    bool   `toml:"fast_retrieval"`
+	SkipConfirmation bool   `toml:"skip_confirmation"`
+	GenerateMd5      bool   `toml:"generate_md5"`
+	Wallet           string `toml:"wallet"`
+	MaxPrice         string `toml:"max_price"`
+	StartEpochHours  int    `toml:"start_epoch_hours"`
 }
 
 var config *Configuration
@@ -35,6 +69,32 @@ func GetConfig() Configuration {
 func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 	requiredFields := [][]string{
 		{"port"},
+		{"main"},
+		{"web_server"},
+		{"ipfs_server"},
+		{"sender"},
+
+		{"main","api_url"},
+		{"main","api_key"},
+		{"main","access_token"},
+		{"main","storage_server_type"},
+
+		{"web_server","host"},
+		{"web_server","port"},
+		{"web_server","path"},
+
+		{"ipfs_server","gateway_address"},
+
+		{"sender", "offline_mode"},
+		{"sender", "output_dir"},
+		{"sender", "public_deal"},
+		{"sender", "verified_deal"},
+		{"sender", "fast_retrieval"},
+		{"sender", "skip_confirmation"},
+		{"sender", "generate_md5"},
+		{"sender", "wallet"},
+		{"sender", "max_price"},
+		{"sender", "start_epoch_hours"},
 	}
 
 	for _, v := range requiredFields {

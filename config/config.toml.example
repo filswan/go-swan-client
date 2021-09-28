@@ -1,1 +1,27 @@
 port = 8888
+
+[main]
+api_url = "https://api.filswan.com"
+api_key = ""
+access_token = ""
+storage_server_type = "ipfs server"
+
+[web_server]
+host = "https://nbai.io"
+port = 443
+path = "/download"
+
+[ipfs_server]
+gateway_address = "/ip4/127.0.0.1/tcp/8080"
+
+[sender]
+offline_mode = false
+output_dir = "/tmp/tasks"
+public_deal = true
+verified_deal = true
+fast_retrieval = true
+skip_confirmation = false
+generate_md5 = false
+wallet = ""
+max_price = "0"
+start_epoch_hours = 96
