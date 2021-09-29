@@ -1,5 +1,3 @@
-port = 8888
-
 [main]
 api_url = "https://api.filswan.com"
 api_key = ""

@@ -1,13 +1,13 @@
 package config
 
 import (
-	"github.com/BurntSushi/toml"
 	"log"
 	"strings"
+
+	"github.com/BurntSushi/toml"
 )
 
 type Configuration struct {
-	Port       int        `toml:"port"`
 	Main       main       `toml:"main"`
 	WebServer  webServer  `toml:"web_server"`
 	IpfsServer ipfsServer `toml:"ipfs_server"`
@@ -28,7 +28,7 @@ type webServer struct {
 }
 
 type ipfsServer struct {
-	GatewayAddress  string  `toml:"gateway_address"`
+	GatewayAddress string `toml:"gateway_address"`
 }
 
 type sender struct {
@@ -68,22 +68,21 @@ func GetConfig() Configuration {
 
 func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 	requiredFields := [][]string{
-		{"port"},
 		{"main"},
 		{"web_server"},
 		{"ipfs_server"},
 		{"sender"},
 
-		{"main","api_url"},
-		{"main","api_key"},
-		{"main","access_token"},
-		{"main","storage_server_type"},
+		{"main", "api_url"},
+		{"main", "api_key"},
+		{"main", "access_token"},
+		{"main", "storage_server_type"},
 
-		{"web_server","host"},
-		{"web_server","port"},
-		{"web_server","path"},
+		{"web_server", "host"},
+		{"web_server", "port"},
+		{"web_server", "path"},
 
-		{"ipfs_server","gateway_address"},
+		{"ipfs_server", "gateway_address"},
 
 		{"sender", "offline_mode"},
 		{"sender", "output_dir"},
