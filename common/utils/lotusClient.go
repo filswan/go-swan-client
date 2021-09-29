@@ -88,7 +88,7 @@ func LotusImportData(dealCid string, filepath string) string {
 	return result
 }
 
-func GetMinerInfo(miner *models.Miner) bool {
+func LotusGetMinerInfo(miner *models.Miner) bool {
 	cmd := "lotus client query-ask " + miner.MinerFid
 	logs.GetLogger().Info(cmd)
 
@@ -100,20 +100,33 @@ func GetMinerInfo(miner *models.Miner) bool {
 	}
 
 	if len(result) == 0 {
-		logs.GetLogger().Error("Failed to get miner info for:", miner.MinerFid)
+		logs.GetLogger().Error("Failed to get info for:", miner.MinerFid)
 		return false
 	}
 
-	lines := strings.Split(result, "/n")
+	lines := strings.Split(result, "\n")
+	logs.GetLogger().Info(lines)
 
 	for _, line := range lines {
-		if strings.Contains(line, "Price per GiB:") {
-			miner.Price = SearchFloat64FromStr(line)
+		if strings.Contains(line, "Verified Price per GiB:") {
+			miner.VerifiedPrice = SearchFloat64FromStr(line)
+			if miner.VerifiedPrice != nil {
+				logs.GetLogger().Info("miner VerifiedPrice: ", *miner.VerifiedPrice)
+			} else {
+				logs.GetLogger().Error("Failed to get miner VerifiedPrice from lotus")
+			}
+
 			continue
 		}
 
-		if strings.Contains(line, "Verified Price per GiB:") {
-			miner.VerifiedPrice = SearchFloat64FromStr(line)
+		if strings.Contains(line, "Price per GiB:") {
+			miner.Price = SearchFloat64FromStr(line)
+			if miner.Price != nil {
+				logs.GetLogger().Info("miner Price: ", *miner.Price)
+			} else {
+				logs.GetLogger().Error("Failed to get miner Price from lotus")
+			}
+
 			continue
 		}
 
@@ -122,6 +135,11 @@ func GetMinerInfo(miner *models.Miner) bool {
 			if len(words) == 2 {
 				maxPieceSize := strings.Trim(words[1], " ")
 				miner.MaxPieceSize = &maxPieceSize
+				if miner.MaxPieceSize != nil {
+					logs.GetLogger().Info("miner MaxPieceSize: ", *miner.MaxPieceSize)
+				} else {
+					logs.GetLogger().Error("Failed to get miner MaxPieceSize from lotus")
+				}
 			}
 			continue
 		}
@@ -131,6 +149,11 @@ func GetMinerInfo(miner *models.Miner) bool {
 			if len(words) == 2 {
 				minPieceSize := strings.Trim(words[1], " ")
 				miner.MinPieceSize = &minPieceSize
+				if miner.MinPieceSize != nil {
+					logs.GetLogger().Info("miner MinPieceSize: ", *miner.MinPieceSize)
+				} else {
+					logs.GetLogger().Error("Failed to get miner MinPieceSize from lotus")
+				}
 			}
 			continue
 		}

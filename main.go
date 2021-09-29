@@ -7,6 +7,10 @@ import (
 	"strconv"
 )
 
+const OPERATION_TYPE_CAR = "car"
+const OPERATION_TYPE_UPLOAD = "upload"
+const OPERATION_TYPE_TASK = "task"
+
 func main() {
 	if len(os.Args) < 2 {
 		logs.GetLogger().Error("Not enough arguments.")
@@ -16,11 +20,11 @@ func main() {
 	operationType := os.Args[1]
 
 	switch operationType {
-	case car:
+	case OPERATION_TYPE_CAR:
 		GenerateCarFiles()
-	case upload:
+	case OPERATION_TYPE_UPLOAD:
 		UploadFiles()
-	case task:
+	case OPERATION_TYPE_TASK:
 		CreateTask()
 	default:
 		logs.GetLogger().Error("Unknow operation type.")

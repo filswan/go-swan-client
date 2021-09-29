@@ -36,7 +36,7 @@ type GetOfflineDealResponse struct {
 }
 
 type GetOfflineDealData struct {
-	Deal []models.OfflineDeals `json:"deal""`
+	Deal []models.OfflineDeal `json:"deal""`
 }
 
 type UpdateOfflineDealResponse struct {
@@ -45,8 +45,8 @@ type UpdateOfflineDealResponse struct {
 }
 
 type UpdateOfflineDealData struct {
-	Deal    models.OfflineDeals `json:"deal""`
-	Message string              `json:"message"`
+	Deal    models.OfflineDeal `json:"deal""`
+	Message string             `json:"message"`
 }
 
 func GetSwanClient() *SwanClient {
@@ -91,7 +91,7 @@ func (self *SwanClient) GetMiner(minerFid string) *MinerResponse {
 	return minerResponse
 }
 
-func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string) []models.OfflineDeals {
+func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string) []models.OfflineDeal {
 	rowLimit := strconv.Itoa(GET_OFFLINEDEAL_LIMIT_DEFAULT)
 	if limit != nil && len(limit) > 0 {
 		rowLimit = limit[0]

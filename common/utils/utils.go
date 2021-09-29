@@ -141,7 +141,7 @@ func GetNumStrFromStr(numStr string) string {
 	re := regexp.MustCompile("[0-9]+.?[0-9]*")
 	words := re.FindAllString(numStr, -1)
 	//logs.GetLogger().Info("words:", words)
-	if words != nil && len(words) > 0 {
+	if len(words) > 0 {
 		return words[0]
 	}
 
@@ -203,11 +203,7 @@ func IsStrEmpty(str *string) bool {
 	}
 
 	strTrim := strings.Trim(*str, " ")
-	if len(strTrim) == 0 {
-		return true
-	}
-
-	return false
+	return len(strTrim) == 0
 }
 
 func GetDayNumFromEpoch(epoch int) int {
@@ -248,7 +244,7 @@ func GetFieldStrFromJson(jsonStr string, fieldName string) string {
 		return ""
 	}
 
-	fieldVal := result[fieldName].(interface{})
+	fieldVal := result[fieldName]
 	return fieldVal.(string)
 }
 
@@ -260,22 +256,94 @@ func GetFieldMapFromJson(jsonStr string, fieldName string) map[string]interface{
 		return nil
 	}
 
-	fieldVal := result[fieldName].(interface{})
+	fieldVal := result[fieldName]
 
 	return fieldVal.(map[string]interface{})
 }
 
 func SearchFloat64FromStr(source string) *float64 {
-	re := regexp.MustCompile("[0-9]*.?[0-9]*")
+	re := regexp.MustCompile("[0-9]+.?[0-9]*")
 	words := re.FindAllString(source, -1)
-	logs.GetLogger().Info("words:", words)
-	if words != nil && len(words) > 0 {
-		result, err := strconv.ParseFloat(words[0], 64)
+	if len(words) > 0 {
+		numStr := strings.Trim(words[0], " ")
+		result, err := strconv.ParseFloat(numStr, 64)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil
 		}
 		return &result
+	}
+
+	return nil
+}
+
+func GetDir(root string, dirs ...string) string {
+	path := root
+
+	for _, dir := range dirs {
+		if dir == "" {
+			continue
+		}
+
+		if strings.HasSuffix(path, "/") {
+			if strings.HasPrefix(dir, "/") {
+				dir = strings.TrimLeft(dir, "/")
+			}
+			path = path + dir
+		} else {
+			path = path + "/" + dir
+		}
+	}
+
+	return path
+}
+
+func IsFileExists(filePath, fileName string) bool {
+	fileFullPath := GetDir(filePath, fileName)
+	_, err := os.Stat(fileFullPath)
+
+	if err != nil {
+		logs.GetLogger().Info(err)
+		return false
+	}
+
+	return true
+}
+
+func IsFileExistsFullPath(fileFullPath string) bool {
+	_, err := os.Stat(fileFullPath)
+
+	if err != nil {
+		logs.GetLogger().Info(err)
+		return false
+	}
+
+	return true
+}
+
+func RemoveFile(filePath, fileName string) {
+	fileFullPath := GetDir(filePath, fileName)
+	err := os.Remove(fileFullPath)
+	if err != nil {
+		logs.GetLogger().Error(err.Error())
+	}
+}
+
+func GetFileSize(fileFullPath string) int64 {
+	fi, err := os.Stat(fileFullPath)
+	if err != nil {
+		logs.GetLogger().Info(err)
+		return -1
+	}
+
+	return fi.Size()
+}
+
+func CreateDir(dir string) error {
+	err := os.MkdirAll(dir, os.ModePerm)
+	if err != nil {
+		logs.GetLogger().Info(err)
+		return err
 	}
 
 	return nil
