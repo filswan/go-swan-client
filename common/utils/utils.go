@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"go-swan-client/logs"
+	"io"
 	"io/ioutil"
 	"math/big"
 	"math/rand"
@@ -262,22 +264,6 @@ func GetFieldMapFromJson(jsonStr string, fieldName string) map[string]interface{
 	return fieldVal.(map[string]interface{})
 }
 
-func SearchFloat64FromStr(source string) *float64 {
-	re := regexp.MustCompile("[0-9]+.?[0-9]*")
-	words := re.FindAllString(source, -1)
-	if len(words) > 0 {
-		numStr := strings.Trim(words[0], " ")
-		result, err := strconv.ParseFloat(numStr, 64)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return nil
-		}
-		return &result
-	}
-
-	return nil
-}
-
 func GetDir(root string, dirs ...string) string {
 	path := root
 
@@ -382,4 +368,57 @@ func ReadAllLines(filepath, filename string) ([]string, error) {
 	}
 
 	return lines, nil
+}
+
+func copy(srcFilePath, destDir string) (int64, error) {
+	sourceFileStat, err := os.Stat(srcFilePath)
+	if err != nil {
+		logs.GetLogger().Info(err)
+		return 0, err
+	}
+
+	if !sourceFileStat.Mode().IsRegular() {
+		err = errors.New(srcFilePath + " is not a regular file")
+		logs.GetLogger().Info(err)
+		return 0, err
+	}
+
+	source, err := os.Open(srcFilePath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return 0, err
+	}
+
+	defer source.Close()
+
+	destination, err := os.Create(destDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return 0, err
+	}
+
+	defer destination.Close()
+
+	nBytes, err := io.Copy(destination, source)
+	if err != nil {
+		logs.GetLogger().Error(err)
+	}
+
+	return nBytes, err
+}
+
+func SearchFloat64FromStr(source string) *float64 {
+	re := regexp.MustCompile("[0-9]+.?[0-9]*")
+	words := re.FindAllString(source, -1)
+	if len(words) > 0 {
+		numStr := strings.Trim(words[0], " ")
+		result, err := strconv.ParseFloat(numStr, 64)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil
+		}
+		return &result
+	}
+
+	return nil
 }

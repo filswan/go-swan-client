@@ -5,48 +5,99 @@ import (
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
-	"go-swan-client/models"
 	"io/ioutil"
 	"os"
 	"strconv"
+
+	"github.com/google/uuid"
 )
 
-func GenerateCarFiles(inputDir string, outDir *string) {
-	var outputDir string
-	if outDir == nil {
-		outputDir = config.GetConfig().Sender.OutputDir //+ '/' + str(uuid.uuid4())
-	} else {
-		outputDir = *outDir
+type FileDesc struct {
+	CarFileName    string
+	CarFilePath    string
+	pieceCid       string
+	DataCid        string
+	CarFileSize    string
+	CarFileMd5     string
+	SourceFileName string
+	SourceFilePath string
+	SourceFileSize string
+	SourceFileMd5  string
+	CarFileAddress string
+}
+
+func GenerateCarFiles(inputDir *string, outputDir *string) {
+	if inputDir == nil {
+		logs.GetLogger().Error("Please provide input dir.")
+		return
 	}
 
-	err := utils.CreateDir(outputDir)
+	if !utils.IsFileExistsFullPath(*inputDir) {
+		logs.GetLogger().Error("Input dir: ", *inputDir, " not exists.")
+		return
+	}
+
+	if outputDir == nil {
+		outDir := utils.GetDir(config.GetConfig().Sender.OutputDir, uuid.NewString())
+		outputDir = &outDir
+	}
+
+	err := utils.CreateDir(*outputDir)
 	if err != nil {
 		logs.GetLogger().Error("Failed to create output dir:", outputDir)
 		return
 	}
 
-	offlineDeals := []models.OfflineDeal{}
+	carFiles := []*FileDesc{}
 
-	files, err := ioutil.ReadDir(inputDir)
+	files, err := ioutil.ReadDir(*inputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return
 	}
 
-	//generateMd5 := config.GetConfig().Sender.GenerateMd5
 	for _, f := range files {
-		offlineDeal := models.OfflineDeal{}
-		offlineDeal.FileName = f.Name()
-		offlineDeal.FilePath = utils.GetDir(inputDir, offlineDeal.FileName)
-		fileSize := strconv.FormatInt(utils.GetFileSize(offlineDeal.FilePath), 10)
-		offlineDeal.FileSize = &fileSize
-		offlineDeals = append(offlineDeals, offlineDeal)
+		carFile := FileDesc{}
+		carFile.SourceFileName = f.Name()
+		carFile.SourceFilePath = utils.GetDir(*inputDir, carFile.SourceFileName)
+		carFile.SourceFileSize = strconv.FormatInt(utils.GetFileSize(carFile.SourceFilePath), 10)
+		carFile.CarFileName = carFile.SourceFileName + ".car"
+		carFile.CarFilePath = utils.GetDir(*outputDir, carFile.CarFileName)
+
+		isCarGenerated := utils.LotusGenerateCar(carFile.SourceFilePath, carFile.CarFilePath)
+		if !isCarGenerated {
+			logs.GetLogger().Error("Failed to generate car file.")
+			return
+		}
+
+		pieceCid, pieceSize := utils.LotusGeneratePieceCid(carFile.CarFilePath)
+		if pieceCid == nil || pieceSize == nil {
+			logs.GetLogger().Error("Failed to generate piece cid.")
+			return
+		}
+
+		carFile.pieceCid = *pieceCid
+
+		dataCid := utils.LotusImportCarFile(carFile.CarFilePath)
+		if dataCid == nil {
+			logs.GetLogger().Error("Failed to import car file.")
+			return
+		}
+
+		carFile.DataCid = *dataCid
+
+		carFile.CarFileSize = strconv.FormatInt(utils.GetFileSize(carFile.CarFilePath), 10)
+
+		carFiles = append(carFiles, &carFile)
 	}
 
-	GenerateCar(offlineDeals, *outDir)
+	err = GenerateSummaryFile(carFiles, *outputDir)
+	if err != nil {
+		logs.GetLogger().Error("Failed to create car files.")
+	}
 }
 
-func GenerateCar(offlineDeals []models.OfflineDeal, outputDir string) {
+func GenerateSummaryFile(carFiles []*FileDesc, outputDir string) error {
 	csvPath := utils.GetDir(outputDir, "car.csv")
 
 	var headers []string
@@ -65,7 +116,7 @@ func GenerateCar(offlineDeals []models.OfflineDeal, outputDir string) {
 	file, err := os.Create(csvPath)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return
+		return err
 	}
 	defer file.Close()
 
@@ -75,30 +126,32 @@ func GenerateCar(offlineDeals []models.OfflineDeal, outputDir string) {
 	err = writer.Write(headers)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return
+		return err
 	}
 
-	for _, offlineDeal := range offlineDeals {
-		offlineDeal.CarFileName = offlineDeal.FileName + ".car"
-		offlineDeal.CarFilePath = utils.GetDir(outputDir, offlineDeal.CarFileName)
-		utils.RemoveFile(outputDir, offlineDeal.CarFileName)
-
-		carFileSize := utils.GetFileSize(offlineDeal.FilePath)
-		carMd5 := "checksum(car_file_path)"
+	for _, carFile := range carFiles {
 		var columns []string
-		columns = append(columns, offlineDeal.CarFileName)
-		columns = append(columns, offlineDeal.CarFilePath)
-		columns = append(columns, *offlineDeal.PieceCid)
-		columns = append(columns, offlineDeal.DealCid)
-		columns = append(columns, strconv.FormatInt(carFileSize, 10))
-		columns = append(columns, carMd5)
-		columns = append(columns, offlineDeal.FileName)
-		columns = append(columns, offlineDeal.FilePath)
-		columns = append(columns, *offlineDeal.FileSize)
-		columns = append(columns, "source file md5")
+		columns = append(columns, carFile.CarFileName)
+		columns = append(columns, carFile.CarFilePath)
+		columns = append(columns, carFile.pieceCid)
+		columns = append(columns, carFile.DataCid)
+		columns = append(columns, carFile.CarFileSize)
+		columns = append(columns, carFile.CarFileMd5)
+		columns = append(columns, carFile.SourceFileName)
+		columns = append(columns, carFile.SourceFilePath)
+		columns = append(columns, carFile.CarFileSize)
+		columns = append(columns, carFile.SourceFileMd5)
 		columns = append(columns, "")
+
+		err = writer.Write(columns)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
 	}
 
 	logs.GetLogger().Info("Car files output dir: ", outputDir)
 	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
+
+	return nil
 }

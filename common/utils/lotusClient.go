@@ -161,3 +161,104 @@ func LotusGetMinerInfo(miner *models.Miner) bool {
 
 	return true
 }
+
+func LotusGeneratePieceCid(carFilePath string) (*string, *string) {
+	cmd := "lotus client commP " + carFilePath
+	logs.GetLogger().Info(cmd)
+
+	result, err := ExecOsCmd(cmd)
+
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, nil
+	}
+
+	if len(result) == 0 {
+		logs.GetLogger().Error("Failed to get info for:", carFilePath)
+		return nil, nil
+	}
+
+	lines := strings.Split(result, "\n")
+	logs.GetLogger().Info(lines)
+
+	var pieceCid, pieceSize *string
+	for _, line := range lines {
+		if strings.Contains(line, "CID:") {
+			words := strings.Split(line, " ")
+			if len(words) < 2 {
+				return nil, nil
+			}
+			fileCid := strings.Trim(words[1], " ")
+			pieceCid = &fileCid
+			continue
+		}
+
+		if strings.Contains(line, "Piece size:") {
+			words := strings.Split(line, " ")
+			if len(words) < 2 {
+				return nil, nil
+			}
+			fileSize := strings.Trim(words[1], " ")
+			pieceSize = &fileSize
+			continue
+		}
+	}
+
+	if pieceCid == nil {
+		logs.GetLogger().Error("Cannot get file cid:", carFilePath)
+		return nil, nil
+	}
+
+	if pieceSize == nil {
+		logs.GetLogger().Error("Cannot get file size:", carFilePath)
+		return nil, nil
+	}
+
+	return pieceCid, pieceSize
+}
+
+func LotusImportCarFile(carFilePath string) *string {
+	cmd := "lotus client import --car " + carFilePath
+	logs.GetLogger().Info(cmd)
+
+	result, err := ExecOsCmd(cmd)
+
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil
+	}
+
+	if len(result) == 0 {
+		logs.GetLogger().Error("Failed to import:", carFilePath)
+		return nil
+	}
+
+	words := strings.Split(result, " Root ")
+	if len(words) < 2 {
+		logs.GetLogger().Error("Failed to import:", carFilePath)
+		return nil
+	}
+
+	dataCid := strings.Trim(words[1], " ")
+
+	return &dataCid
+}
+
+func LotusGenerateCar(srcFilePath, destCarFilePath string) bool {
+	cmd := "lotus client generate-car " + srcFilePath + " " + destCarFilePath
+	logs.GetLogger().Info(cmd)
+
+	result, err := ExecOsCmd(cmd)
+
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return false
+	}
+
+	if len(result) != 0 {
+		logs.GetLogger().Error("Failed to generate car file for :", srcFilePath, " ", destCarFilePath)
+		return false
+	}
+
+	return true
+}
