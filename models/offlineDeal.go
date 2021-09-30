@@ -24,4 +24,8 @@ type OfflineDeal struct {
 	DownloadedAt         string  `json:"downloaded_at"`
 	CarFileName          string
 	CarFilePath          string
+	SourceFileName       string
+	SourceFilePath       string
+	SourceFileSize       int
+	CarFileMd5           bool
 }

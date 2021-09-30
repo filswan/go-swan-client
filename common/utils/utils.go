@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"go-swan-client/logs"
@@ -339,6 +340,17 @@ func GetFileSize(fileFullPath string) int64 {
 	return fi.Size()
 }
 
+func GetFileSize2(filePath, fileName string) int64 {
+	fileFullPath := GetDir(filePath, fileName)
+	fi, err := os.Stat(fileFullPath)
+	if err != nil {
+		logs.GetLogger().Info(err)
+		return -1
+	}
+
+	return fi.Size()
+}
+
 func CreateDir(dir string) error {
 	err := os.MkdirAll(dir, os.ModePerm)
 	if err != nil {
@@ -347,4 +359,27 @@ func CreateDir(dir string) error {
 	}
 
 	return nil
+}
+
+func ReadAllLines(filepath, filename string) ([]string, error) {
+	fileFullPath := GetDir(filepath, filename)
+
+	file, err := os.Open(fileFullPath)
+
+	if err != nil {
+		logs.GetLogger().Error("failed opening file: ", fileFullPath)
+		return nil, err
+	}
+
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+	lines := []string{}
+
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+
+	return lines, nil
 }
