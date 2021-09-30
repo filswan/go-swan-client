@@ -33,14 +33,6 @@ func DoOperation() {
 		logs.GetLogger().Error("Unknow operation type.")
 		return
 	}
-	//filepath := os.Args[1]
-	//filename := os.Args[2]
-	//filesizeInGigabyte, err := strconv.ParseInt(os.Args[3], 10, 64)
-	//if err != nil {
-	//	fmt.Println(err)
-	//}
-
-	//logs.GetLogger().Info(filepath, filename, filesizeInGigabyte)
 }
 
 func GenerateCarFiles() bool {
@@ -78,11 +70,36 @@ func GenerateCarFiles() bool {
 	return true
 }
 
-func UploadFiles() {
+func UploadFiles() bool {
 	//python3 swan_cli.py upload --input-dir /home/peware/testGoSwanProvider/output
-	inputDir := os.Args[2]
+	if len(os.Args) < 4 {
+		logs.GetLogger().Info("Not enough arguments.")
+	}
+
+	var inputDir *string = nil
+
+	i := 2
+	for i < len(os.Args)-1 {
+		switch os.Args[i] {
+		case "--input-dir":
+			inputDir = &os.Args[i+1]
+		default:
+			logs.GetLogger().Error("Invalid arguments.")
+			return false
+		}
+		i = i + 2
+	}
+
+	if inputDir == nil {
+		logs.GetLogger().Error("Invalid arguments.")
+		return false
+	}
 
 	logs.GetLogger().Info(inputDir)
+
+	operation.UploadCarFiles(*inputDir)
+
+	return true
 }
 
 func CreateTask() {

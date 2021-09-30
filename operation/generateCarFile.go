@@ -1,30 +1,14 @@
 package operation
 
 import (
-	"encoding/csv"
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"io/ioutil"
-	"os"
 	"strconv"
 
 	"github.com/google/uuid"
 )
-
-type FileDesc struct {
-	CarFileName    string
-	CarFilePath    string
-	pieceCid       string
-	DataCid        string
-	CarFileSize    string
-	CarFileMd5     string
-	SourceFileName string
-	SourceFilePath string
-	SourceFileSize string
-	SourceFileMd5  string
-	CarFileAddress string
-}
 
 func GenerateCarFiles(inputDir *string, outputDir *string) {
 	if inputDir == nil {
@@ -91,67 +75,15 @@ func GenerateCarFiles(inputDir *string, outputDir *string) {
 		carFiles = append(carFiles, &carFile)
 	}
 
-	err = GenerateSummaryFile(carFiles, *outputDir)
+	err = GenerateCsvFile(carFiles, *outputDir)
 	if err != nil {
-		logs.GetLogger().Error("Failed to create car files.")
+		logs.GetLogger().Error("Failed to create car file.")
+		return
 	}
-}
 
-func GenerateSummaryFile(carFiles []*FileDesc, outputDir string) error {
-	csvPath := utils.GetDir(outputDir, "car.csv")
-
-	var headers []string
-	headers = append(headers, "car_file_name")
-	headers = append(headers, "car_file_path")
-	headers = append(headers, "piece_cid")
-	headers = append(headers, "data_cid")
-	headers = append(headers, "car_file_size")
-	headers = append(headers, "car_file_md5")
-	headers = append(headers, "source_file_name")
-	headers = append(headers, "source_file_path")
-	headers = append(headers, "source_file_size")
-	headers = append(headers, "source_file_md5")
-	headers = append(headers, "car_file_url")
-
-	file, err := os.Create(csvPath)
+	err = GenerateJsonFile(carFiles, *outputDir)
 	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
+		logs.GetLogger().Error("Failed to create json file.")
+		return
 	}
-	defer file.Close()
-
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
-
-	err = writer.Write(headers)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	for _, carFile := range carFiles {
-		var columns []string
-		columns = append(columns, carFile.CarFileName)
-		columns = append(columns, carFile.CarFilePath)
-		columns = append(columns, carFile.pieceCid)
-		columns = append(columns, carFile.DataCid)
-		columns = append(columns, carFile.CarFileSize)
-		columns = append(columns, carFile.CarFileMd5)
-		columns = append(columns, carFile.SourceFileName)
-		columns = append(columns, carFile.SourceFilePath)
-		columns = append(columns, carFile.CarFileSize)
-		columns = append(columns, carFile.SourceFileMd5)
-		columns = append(columns, "")
-
-		err = writer.Write(columns)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return err
-		}
-	}
-
-	logs.GetLogger().Info("Car files output dir: ", outputDir)
-	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
-
-	return nil
 }
