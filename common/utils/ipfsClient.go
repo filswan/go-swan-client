@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func UploadCar2Ipfs(carFilePath string) *string {
+func IpfsUploadCarFile(carFilePath string) *string {
 	cmd := "ipfs add " + carFilePath + " | grep added"
 	logs.GetLogger().Info(cmd)
 
@@ -17,11 +17,17 @@ func UploadCar2Ipfs(carFilePath string) *string {
 	}
 
 	if result == "" {
-		logs.GetLogger().Error("Upload file to ipfs server failed.")
+		logs.GetLogger().Error("Failed to upload file to ipfs server.")
 		return nil
 	}
 
-	carFileHash := strings.Split(result, " ")[1]
+	words := strings.Split(result, " ")
+	if len(words) < 2 {
+		logs.GetLogger().Error("Failed to upload file to ipfs server.")
+		return nil
+	}
+
+	carFileHash := words[1]
 
 	return &carFileHash
 }

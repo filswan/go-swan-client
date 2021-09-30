@@ -41,9 +41,25 @@ func UploadCarFiles(inputDir string) {
 
 	for _, carFile := range carFiles {
 		logs.GetLogger().Info("Uploading car file:", carFile.CarFileName)
-		car_file_hash = SwanClient.upload_car_to_ipfs(car_file.car_file_path)
-		carFile.CarFileAddress = "http://" + gatewayIp + ":" + gatewayPort + "/ipfs/" + car_file_hash
+		carFileHash := utils.IpfsUploadCarFile(carFile.CarFilePath)
+		if carFileHash == nil {
+			logs.GetLogger().Error("Failed to upload file to ipfs.")
+			return
+		}
+
+		carFile.CarFileAddress = "http://" + gatewayIp + ":" + gatewayPort + "/ipfs/" + *carFileHash
 		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileAddress)
 	}
 
+	err = GenerateCsvFile(carFiles, inputDir)
+	if err != nil {
+		logs.GetLogger().Error("Failed to create car file.")
+		return
+	}
+
+	err = GenerateJsonFile(carFiles, inputDir)
+	if err != nil {
+		logs.GetLogger().Error("Failed to create json file.")
+		return
+	}
 }
