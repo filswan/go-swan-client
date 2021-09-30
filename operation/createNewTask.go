@@ -77,14 +77,19 @@ func CreateNewTask(inputDir, outDir, configPath, taskName, curatedDataset, descr
 	for i:=1;i<len(files);i++ {
 		fileInfo := files[i]
 		fields := strings.Split(fileInfo, ",")
-
+		carFileName := fields[0]
+		carfilePath := fields[1]
+		pieceCid := fields[2]
+		dataCid := fields[3]
+		carFileSize := fields[4]
+		carFileMd5 := fields[5]
+		sourceFileName := fields[6]
+		sourceFilePath := fields[7]
+		sourceFileSize := fields[8]
+		sourceFileMd5 := fields[9]
+		carFileUrl := fields[10]
 	}
 
-    with open(csv_file_path, "r") as csv_file:
-        fieldnames = ['car_file_name', 'car_file_path', 'piece_cid', 'data_cid', 'car_file_size', 'car_file_md5',
-                      'source_file_name', 'source_file_path', 'source_file_size', 'source_file_md5', 'car_file_url']
-        reader = csv.DictReader(csv_file, delimiter=',', fieldnames=fieldnames)
-        next(reader, None)
         for row in reader:
             deal = OfflineDeal()
             for attr in row.keys():
