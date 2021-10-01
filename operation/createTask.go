@@ -2,6 +2,7 @@ package operation
 
 import (
 	"encoding/csv"
+	"go-swan-client/common/constants"
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
@@ -55,7 +56,7 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 		carFile.Uuid = taskUuid
 	}
 
-	if storageServerType == STORAGE_SERVER_TYPE_WEB_SERVER {
+	if storageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
 		for _, carFile := range carFiles {
 			carFile.CarFileUrl = utils.GetDir(downloadUrlPrefix, carFile.CarFileName)
 		}

@@ -9,8 +9,6 @@ import (
 	"os"
 )
 
-const STORAGE_SERVER_TYPE_WEB_SERVER = "web server"
-
 func GenerateJsonFile(carFiles []*FileDesc, outputDir string) error {
 	jsonFilePath := utils.GetDir(outputDir, "car.json")
 	content, err := json.MarshalIndent(carFiles, "", " ")

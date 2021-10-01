@@ -1,6 +1,7 @@
 package operation
 
 import (
+	"go-swan-client/common/constants"
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
@@ -9,7 +10,7 @@ import (
 
 func UploadCarFiles(inputDir string) {
 	storageServerType := config.GetConfig().Main.StorageServerType
-	if storageServerType == STORAGE_SERVER_TYPE_WEB_SERVER {
+	if storageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
 		logs.GetLogger().Info("Please upload car files to web server manually.")
 		return
 	}
