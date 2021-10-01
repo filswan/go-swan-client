@@ -47,9 +47,9 @@ func httpRequest(httpMethod, uri, tokenString string, params interface{}) string
 	var request *http.Request
 	var err error
 
-	switch params.(type) {
+	switch params := params.(type) {
 	case io.Reader:
-		request, err = http.NewRequest(httpMethod, uri, params.(io.Reader))
+		request, err = http.NewRequest(httpMethod, uri, params)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return ""

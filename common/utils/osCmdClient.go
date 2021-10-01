@@ -42,10 +42,10 @@ func ExecOsCmdBase(cmdStr string, out2Screen bool) (string, error) {
 	}
 
 	if len(stderrBuf.Bytes()) != 0 {
-		outErr := errors.New(string(stderrBuf.Bytes()))
+		outErr := errors.New(stderrBuf.String())
 		logs.GetLogger().Error(cmdStr, outErr)
 		return "", outErr
 	}
 
-	return string(stdoutBuf.Bytes()), nil
+	return stdoutBuf.String(), nil
 }
