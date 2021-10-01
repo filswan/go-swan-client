@@ -25,3 +25,5 @@
 .idea/.gitignore
 config/config.toml
 .vscode/launch.json
+build/config/config.toml
+build/go-swan-client
