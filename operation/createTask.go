@@ -7,6 +7,7 @@ import (
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/models"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -153,7 +154,9 @@ func SendTask2Swan(task models.Task, carFiles []*FileDesc, outDir string) error 
 
 	swanClient := utils.SwanGetClient()
 
-	swanClient.SwanCreateTask(task)
+	ioutil.ReadFile("")
+	response := swanClient.SwanCreateTask(task, csvFilePath)
+	logs.GetLogger().Info(response)
 
 	return nil
 }

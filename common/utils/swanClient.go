@@ -5,6 +5,7 @@ import (
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/models"
+	"io/ioutil"
 	"net/url"
 	"strconv"
 	"strings"
@@ -173,10 +174,16 @@ func (swanClient *SwanClient) SwanUpdateTaskByUuid(taskUuid string, minerFid str
 	return response
 }
 
-func (swanClient *SwanClient) SwanCreateTask(task models.Task) string {
+func (swanClient *SwanClient) SwanCreateTask(task models.Task, csvFilePath string) string {
+	data, err := ioutil.ReadFile(csvFilePath)
+	if err != nil {
+		logs.GetLogger().Info("failed reading data from file: ", csvFilePath)
+	}
+
 	apiUrl := swanClient.ApiUrl + "/tasks"
 
 	params := url.Values{}
+	params.Add("file", string(data))
 	params.Add("task_name", task.TaskName)
 	params.Add("curated_dataset", task.CuratedDataset)
 	params.Add("description", task.Description)

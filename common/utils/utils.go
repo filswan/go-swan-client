@@ -370,16 +370,39 @@ func ReadAllLines(filepath, filename string) ([]string, error) {
 	return lines, nil
 }
 
+func ReadFile(filePath string) ([]byte, error) {
+	sourceFileStat, err := os.Stat(filePath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if !sourceFileStat.Mode().IsRegular() {
+		err = errors.New(filePath + " is not a regular file")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	data, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		logs.GetLogger().Error("failed reading data from file: ", filePath)
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return data, nil
+}
+
 func copy(srcFilePath, destDir string) (int64, error) {
 	sourceFileStat, err := os.Stat(srcFilePath)
 	if err != nil {
-		logs.GetLogger().Info(err)
+		logs.GetLogger().Error(err)
 		return 0, err
 	}
 
 	if !sourceFileStat.Mode().IsRegular() {
 		err = errors.New(srcFilePath + " is not a regular file")
-		logs.GetLogger().Info(err)
+		logs.GetLogger().Error(err)
 		return 0, err
 	}
 

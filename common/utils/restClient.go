@@ -6,7 +6,9 @@ import (
 	"go-swan-client/logs"
 	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -82,19 +84,7 @@ func httpRequest(httpMethod, uri, tokenString string, params interface{}) string
 		return ""
 	}
 
-	if response != nil && response.Body != nil {
-		defer response.Body.Close()
-	}
-
-	if response == nil {
-		logs.GetLogger().Error(uri, " no response")
-		return ""
-	}
-
-	if response.Body == nil {
-		logs.GetLogger().Error(uri, " no response body")
-		return ""
-	}
+	defer response.Body.Close()
 
 	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {
@@ -103,4 +93,56 @@ func httpRequest(httpMethod, uri, tokenString string, params interface{}) string
 	}
 
 	return string(responseBody)
+}
+
+func HttpPostFile(url string, paramTexts map[string]interface{}, paramFiles ...string) (*string, error) {
+	bodyBuf := &bytes.Buffer{}
+	bodyWriter := multipart.NewWriter(bodyBuf)
+	defer bodyWriter.Close()
+
+	for k, v := range paramTexts {
+		bodyWriter.WriteField(k, v.(string))
+	}
+
+	for _, paramFile := range paramFiles {
+		paramFileStat, err := os.Stat(paramFile)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
+
+		fileWriter, err := bodyWriter.CreateFormFile(paramFileStat.Mode().Type().String(), paramFileStat.Name())
+		if err != nil {
+			logs.GetLogger().Info(err)
+			return nil, err
+		}
+
+		data, err := ReadFile(paramFile)
+		if err != nil {
+			logs.GetLogger().Info(err)
+			return nil, err
+		}
+
+		fileWriter.Write(data)
+	}
+
+	contentType := bodyWriter.FormDataContentType()
+
+	response, err := http.Post(url, contentType, bodyBuf)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	defer response.Body.Close()
+
+	responseBody, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	responseStr := string(responseBody)
+
+	return &responseStr, nil
 }
