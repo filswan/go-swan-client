@@ -1,15 +1,21 @@
 package operation
 
 type FileDesc struct {
-	CarFileName    string
-	CarFilePath    string
-	pieceCid       string
-	DataCid        string
-	CarFileSize    string
-	CarFileMd5     string
+	Uuid           string
 	SourceFileName string
 	SourceFilePath string
-	SourceFileSize string
 	SourceFileMd5  string
-	CarFileAddress string
+	SourceFileUrl  string
+	SourceFileSize string
+	CarFileName    string
+	CarFilePath    string
+	CarFileMd5     string
+	CarFileUrl     string
+	CarFileSize    string
+	//CarFileAddress string
+	DealCid    string
+	DataCid    string
+	PieceCid   string
+	MinerId    string
+	StartEpoch string
 }

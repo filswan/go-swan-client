@@ -60,7 +60,7 @@ func GenerateCarFiles(inputDir *string, outputDir *string) {
 			return
 		}
 
-		carFile.pieceCid = *pieceCid
+		carFile.PieceCid = *pieceCid
 
 		dataCid := utils.LotusImportCarFile(carFile.CarFilePath)
 		if dataCid == nil {
@@ -75,7 +75,7 @@ func GenerateCarFiles(inputDir *string, outputDir *string) {
 		carFiles = append(carFiles, &carFile)
 	}
 
-	err = GenerateCsvFile(carFiles, *outputDir)
+	err = GenerateCsvFile(carFiles, *outputDir, "car.csv")
 	if err != nil {
 		logs.GetLogger().Error("Failed to create car file.")
 		return

@@ -10,49 +10,18 @@ import (
 	"strconv"
 	"strings"
 
-	"io/ioutil"
-
 	"github.com/google/uuid"
 )
 
-type Deal struct {
-	carFileName    string
-	carfilePath    string
-	pieceCid       string
-	dataCid        string
-	carFileSize    string
-	carFileMd5     string
-	sourceFileName string
-	sourceFilePath string
-	sourceFileSize string
-	sourceFileMd5  string
-	carFileUrl     string
-	uuid           string
-}
-
-type Csv struct {
-	uuid          string
-	minerId       string
-	dealCid       string
-	payloadCid    string
-	fileSourceUrl string
-	md5           string
-	startEpoch    string
-}
-
-func CreateNewTask(inputDir, outDir, configPath, taskName, curatedDataset, description string, minerId *int) {
-	outputDir := outDir
-	if outDir == "" {
-		outputDir = config.GetConfig().Sender.OutputDir
+func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *string) {
+	if outputDir == nil {
+		outDir := config.GetConfig().Sender.OutputDir
+		outputDir = &outDir
 	}
 	publicDeal := config.GetConfig().Sender.PublicDeal
 	verifiedDeal := config.GetConfig().Sender.VerifiedDeal
-	generateMd5 := config.GetConfig().Sender.GenerateMd5
+	//generateMd5 := config.GetConfig().Sender.GenerateMd5
 	offlineMode := config.GetConfig().Sender.OfflineMode
-
-	//apiUrl := config.GetConfig().Main.SwanApiUrl
-	//apiKey := config.GetConfig().Main.SwanApiKey
-	//accessToken := config.GetConfig().Main.SwanAccessToken
 
 	storageServerType := config.GetConfig().Main.StorageServerType
 	host := config.GetConfig().WebServer.Host
@@ -60,10 +29,10 @@ func CreateNewTask(inputDir, outDir, configPath, taskName, curatedDataset, descr
 	path := config.GetConfig().WebServer.Path
 
 	downloadUrlPrefix := strings.TrimRight(host, "/") + ":" + strconv.Itoa(port)
-	taskUuid := uuid.New().String()
-	//finalCsvPath := ""
+	taskUuid := uuid.NewString()
 
 	path = strings.TrimRight(path, "/")
+	//finalCsvPath := ""
 
 	logs.GetLogger().Info("Swan Client Settings: Public Task: ", publicDeal, ",  Verified Deals: ", verifiedDeal, ",  Connected to Swan: ", !offlineMode, ", CSV/car File output dir: %s", outputDir)
 
@@ -71,173 +40,119 @@ func CreateNewTask(inputDir, outDir, configPath, taskName, curatedDataset, descr
 		downloadUrlPrefix = utils.GetDir(downloadUrlPrefix, path)
 	}
 
-	if !publicDeal && minerId == nil {
+	if !publicDeal && minerFid == nil {
 		logs.GetLogger().Error("Please provide --miner for non public deal.")
 		return
 	}
 
-	files, err := ioutil.ReadDir(inputDir)
+	carFiles := ReadCarFilesFromJsonFile(*inputDir)
+	if carFiles == nil {
+		logs.GetLogger().Error("Failed to read car files from : ", inputDir)
+		return
+	}
+
+	for _, carFile := range carFiles {
+		carFile.Uuid = taskUuid
+	}
+
+	if storageServerType == STORAGE_SERVER_TYPE_WEB_SERVER {
+		for _, carFile := range carFiles {
+			carFile.CarFileUrl = utils.GetDir(downloadUrlPrefix, carFile.CarFileName)
+		}
+	}
+
+	err := utils.CreateDir(*outputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return
 	}
 
-	utils.CreateDir(outputDir)
-
-	offlineDeals := []*models.OfflineDeal{}
-
-	for _, f := range files {
-		offlineDeal := models.OfflineDeal{}
-		offlineDeal.SourceFileName = f.Name()
-		offlineDeal.SourceFilePath = inputDir
-		offlineDeal.SourceFileSize = int(utils.GetFileSize2(offlineDeal.SourceFilePath, offlineDeal.SourceFileName))
-		offlineDeal.CarFileMd5 = generateMd5
-		offlineDeals = append(offlineDeals, &offlineDeal)
+	if offlineMode {
+		logs.GetLogger().Info("Working in Offline Mode. You need to manually send out task on filwan.com.")
+	} else {
+		logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
 	}
 
-	carFiles, err := utils.ReadAllLines(inputDir, "car.csv")
-	if err != nil {
-		logs.GetLogger().Info(err)
-		return
-	}
-
-	deals := []*Deal{}
-
-	for i := 1; i < len(carFiles); i++ {
-		fileInfo := carFiles[i]
-		fields := strings.Split(fileInfo, ",")
-		deal := &Deal{
-			carFileName:    fields[0],
-			carfilePath:    fields[1],
-			pieceCid:       fields[2],
-			dataCid:        fields[3],
-			carFileSize:    fields[4],
-			carFileMd5:     fields[5],
-			sourceFileName: fields[6],
-			sourceFilePath: fields[7],
-			sourceFileSize: fields[8],
-			sourceFileMd5:  fields[9],
-			carFileUrl:     fields[10],
-		}
-
-		if storageServerType == "web server" {
-			deal.carFileUrl = utils.GetDir(downloadUrlPrefix, deal.carFileName)
-		}
-
-		if !publicDeal {
-			//final_csv_path = send_deals(config_path, miner_id, task_name, deal_list=deal_list, task_uuid=task_uuid, out_dir=output_dir)
-		}
-
-		if offlineMode {
-			logs.GetLogger().Info("Working in Offline Mode. You need to manually send out task on filwan.com. ")
-		} else {
-			//client = SwanClient(api_url, api_key, access_token)
-			logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
-		}
-
-		deals = append(deals, deal)
-	}
-
-	task := models.Task{
-		TaskName:       taskName,
-		CuratedDataset: curatedDataset,
-		Description:    description,
-	}
-
+	task := models.Task{}
+	task.TaskName = *taskName
+	task.CuratedDataset = *dataset
+	task.Description = *description
 	if publicDeal {
 		task.IsPublic = 1
 	} else {
 		task.IsPublic = 0
 	}
-
-	if minerId != nil {
-		task.MinerId = minerId
-	}
-
-	client := utils.GetSwanClient()
-
-	GenerateMetadataCsv(deals, task, outDir, taskUuid)
-	GenerateCsvAndSend(task, deals, outDir, client)
-
+	task.IsVerified = verifiedDeal
 }
 
-func GenerateMetadataCsv(deals []*Deal, task models.Task, outDir string, uuid string) {
+func GenerateMetadataCsv(task models.Task, carFiles []*FileDesc, outDir string) error {
 	csvFileName := task.TaskName + "-metadata.csv"
 	csvFilePath := utils.GetDir(outDir, csvFileName)
 
+	err := GenerateCsvFile(carFiles, outDir, csvFileName)
+	if err != nil {
+		logs.GetLogger().Error("Failed to generate metadata csv file.")
+		return err
+	}
+
 	logs.GetLogger().Info("Metadata CSV Generated: ", csvFilePath)
+
+	return nil
+}
+
+func SendTask2Swan(task models.Task, carFiles []*FileDesc, outDir string) error {
+	csvFileName := task.TaskName + ".csv"
+	csvFilePath := utils.GetDir(outDir, csvFileName)
+
+	logs.GetLogger().Info("Swan task CSV Generated: ", csvFilePath)
+
+	headers := []string{
+		"uuid",
+		"miner_id",
+		"deal_cid",
+		"payload_cid",
+		"file_source_url",
+		"md5",
+		"start_epoch",
+	}
 
 	file, err := os.Create(csvFilePath)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return
+		return err
 	}
 	defer file.Close()
 
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
 
-	var headers []string
-	headers = append(headers, "car_file_name")
-	headers = append(headers, "car_file_path")
-	headers = append(headers, "piece_cid")
-	headers = append(headers, "data_cid")
-	headers = append(headers, "car_file_size")
-	headers = append(headers, "car_file_md5")
-	headers = append(headers, "source_file_name")
-	headers = append(headers, "source_file_path")
-	headers = append(headers, "source_file_size")
-	headers = append(headers, "source_file_md5")
-	headers = append(headers, "car_file_url")
-
 	err = writer.Write(headers)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return
+		return err
 	}
 
-	for _, deal := range deals {
-		deal.uuid = uuid
-		var columns []string
-		//columns = append(columns, deal.CarFileName)
-		//columns = append(columns, offlineDeal.CarFilePath)
-		//columns = append(columns, *offlineDeal.PieceCid)
-		//columns = append(columns, offlineDeal.DealCid)
-		//columns = append(columns, strconv.FormatInt(carFileSize, 10))
-		//columns = append(columns, carMd5)
-		//columns = append(columns, offlineDeal.FileName)
-		//columns = append(columns, offlineDeal.FilePath)
-		//columns = append(columns, *offlineDeal.FileSize)
-		//columns = append(columns, "source file md5")
-		//columns = append(columns, "")
+	for _, carFile := range carFiles {
+		columns := []string{
+			carFile.Uuid,
+			carFile.MinerId,
+			carFile.DealCid,
+			"payload_cid",
+			carFile.CarFileUrl,
+			carFile.CarFileMd5,
+			carFile.StartEpoch,
+		}
+
 		err = writer.Write(columns)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
 	}
-}
 
-func GenerateCsvAndSend(task models.Task, deals []*Deal, outDir string, swanClient *utils.SwanClient) {
-	csvFileName := task.TaskName + ".csv"
-	csvFilePath := utils.GetDir(outDir, csvFileName)
+	swanClient := utils.SwanGetClient()
 
-	logs.GetLogger().Info("Swan task CSV Generated: ", csvFilePath)
+	swanClient.SwanCreateTask(task)
 
-	//fileInfos, err := utils.ReadAllLines(outDir, csvFileName)
-	//if err != nil {
-	//	logs.GetLogger().Info(err)
-	//	return
-	//}
-	//for _, fileInfo := range fileInfos {
-	//fields := strings.Split(fileInfo, ",")
-
-	//csvData := Csv{
-	//	uuid:          fields[0],
-	//	minerId:       fields[1],
-	//	dealCid:       fields[2],
-	//	payloadCid:    fields[3],
-	//	fileSourceUrl: fields[4],
-	//	md5:           fields[5],
-	//	startEpoch:    fields[0],
-	//}
-	//}
-
-	swanClient.PostTask(task)
+	return nil
 }

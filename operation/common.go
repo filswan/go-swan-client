@@ -9,6 +9,8 @@ import (
 	"os"
 )
 
+const STORAGE_SERVER_TYPE_WEB_SERVER = "web server"
+
 func GenerateJsonFile(carFiles []*FileDesc, outputDir string) error {
 	jsonFilePath := utils.GetDir(outputDir, "car.json")
 	content, err := json.MarshalIndent(carFiles, "", " ")
@@ -26,8 +28,28 @@ func GenerateJsonFile(carFiles []*FileDesc, outputDir string) error {
 	return nil
 }
 
-func GenerateCsvFile(carFiles []*FileDesc, outputDir string) error {
-	csvPath := utils.GetDir(outputDir, "car.csv")
+func ReadCarFilesFromJsonFile(inputDir string) []*FileDesc {
+	jsonFilePath := utils.GetDir(inputDir, "car.json")
+
+	contents, err := ioutil.ReadFile(jsonFilePath)
+	if err != nil {
+		logs.GetLogger().Error("Failed to read: ", jsonFilePath)
+		return nil
+	}
+
+	carFiles := []*FileDesc{}
+
+	err = json.Unmarshal(contents, &carFiles)
+	if err != nil {
+		logs.GetLogger().Error("Failed to read: ", jsonFilePath)
+		return nil
+	}
+
+	return carFiles
+}
+
+func GenerateCsvFile(carFiles []*FileDesc, outputDir, csvFileName string) error {
+	csvPath := utils.GetDir(outputDir, csvFileName)
 
 	var headers []string
 	headers = append(headers, "car_file_name")
@@ -62,7 +84,7 @@ func GenerateCsvFile(carFiles []*FileDesc, outputDir string) error {
 		var columns []string
 		columns = append(columns, carFile.CarFileName)
 		columns = append(columns, carFile.CarFilePath)
-		columns = append(columns, carFile.pieceCid)
+		columns = append(columns, carFile.PieceCid)
 		columns = append(columns, carFile.DataCid)
 		columns = append(columns, carFile.CarFileSize)
 		columns = append(columns, carFile.CarFileMd5)
@@ -70,7 +92,7 @@ func GenerateCsvFile(carFiles []*FileDesc, outputDir string) error {
 		columns = append(columns, carFile.SourceFilePath)
 		columns = append(columns, carFile.CarFileSize)
 		columns = append(columns, carFile.SourceFileMd5)
-		columns = append(columns, "")
+		columns = append(columns, carFile.CarFileUrl)
 
 		err = writer.Write(columns)
 		if err != nil {

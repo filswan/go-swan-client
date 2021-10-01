@@ -1,17 +1,15 @@
 package operation
 
 import (
-	"encoding/json"
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
-	"io/ioutil"
 	"strings"
 )
 
 func UploadCarFiles(inputDir string) {
 	storageServerType := config.GetConfig().Main.StorageServerType
-	if storageServerType == "web server" {
+	if storageServerType == STORAGE_SERVER_TYPE_WEB_SERVER {
 		logs.GetLogger().Info("Please upload car files to web server manually.")
 		return
 	}
@@ -24,17 +22,8 @@ func UploadCarFiles(inputDir string) {
 	gatewayIp := words[2]
 	gatewayPort := words[4]
 
-	jsonFilePath := utils.GetDir(inputDir, "car.json")
-	contents, err := ioutil.ReadFile(jsonFilePath)
-	if err != nil {
-		logs.GetLogger().Error("Failed to read: ", inputDir)
-		return
-	}
-
-	carFiles := []*FileDesc{}
-
-	err = json.Unmarshal(contents, &carFiles)
-	if err != nil {
+	carFiles := ReadCarFilesFromJsonFile(inputDir)
+	if carFiles == nil {
 		logs.GetLogger().Error("Failed to read: ", inputDir)
 		return
 	}
@@ -47,11 +36,11 @@ func UploadCarFiles(inputDir string) {
 			return
 		}
 
-		carFile.CarFileAddress = "http://" + gatewayIp + ":" + gatewayPort + "/ipfs/" + *carFileHash
-		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileAddress)
+		carFile.CarFileUrl = "http://" + gatewayIp + ":" + gatewayPort + "/ipfs/" + *carFileHash
+		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileUrl)
 	}
 
-	err = GenerateCsvFile(carFiles, inputDir)
+	err := GenerateCsvFile(carFiles, inputDir, "car.csv")
 	if err != nil {
 		logs.GetLogger().Error("Failed to create car file.")
 		return
