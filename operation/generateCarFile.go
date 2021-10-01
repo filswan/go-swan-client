@@ -34,13 +34,13 @@ func GenerateCarFiles(inputDir *string, outputDir *string) {
 
 	carFiles := []*FileDesc{}
 
-	files, err := ioutil.ReadDir(*inputDir)
+	srcFiles, err := ioutil.ReadDir(*inputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return
 	}
 
-	for _, f := range files {
+	for _, f := range srcFiles {
 		carFile := FileDesc{}
 		carFile.SourceFileName = f.Name()
 		carFile.SourceFilePath = utils.GetDir(*inputDir, carFile.SourceFileName)

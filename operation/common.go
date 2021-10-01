@@ -7,6 +7,7 @@ import (
 	"go-swan-client/logs"
 	"io/ioutil"
 	"os"
+	"strconv"
 )
 
 func GenerateJsonFile(carFiles []*FileDesc, outputDir string) error {
@@ -85,7 +86,7 @@ func GenerateCsvFile(carFiles []*FileDesc, outputDir, csvFileName string) error 
 		columns = append(columns, carFile.PieceCid)
 		columns = append(columns, carFile.DataCid)
 		columns = append(columns, carFile.CarFileSize)
-		columns = append(columns, carFile.CarFileMd5)
+		columns = append(columns, strconv.FormatBool(carFile.CarFileMd5))
 		columns = append(columns, carFile.SourceFileName)
 		columns = append(columns, carFile.SourceFilePath)
 		columns = append(columns, carFile.CarFileSize)

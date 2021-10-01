@@ -9,7 +9,7 @@ type FileDesc struct {
 	SourceFileSize string
 	CarFileName    string
 	CarFilePath    string
-	CarFileMd5     string
+	CarFileMd5     bool
 	CarFileUrl     string
 	CarFileSize    string
 	//CarFileAddress string
