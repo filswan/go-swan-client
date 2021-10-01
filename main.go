@@ -50,7 +50,7 @@ func GenerateCarFiles() bool {
 		case "--input-dir":
 			inputDir = &os.Args[i+1]
 		case "--out-dir":
-			outputDir = &os.Args[i+2]
+			outputDir = &os.Args[i+1]
 		default:
 			logs.GetLogger().Error("Invalid arguments.")
 			return false
@@ -102,13 +102,47 @@ func UploadFiles() bool {
 	return true
 }
 
-func CreateTask() {
+func CreateTask() bool {
 	//python3 swan_cli.py task --input-dir /home/peware/testGoSwanProvider/output --out-dir /home/peware/testGoSwanProvider/task --miner t03354 --dataset test --description test
-	inputDir := os.Args[2]
-	outputDir := os.Args[3]
-	minerFid := os.Args[4]
+	if len(os.Args) < 6 {
+		logs.GetLogger().Info("Not enough arguments.")
+	}
 
-	logs.GetLogger().Info(inputDir, outputDir, minerFid)
+	var inputDir *string = nil
+	var outputDir *string = nil
+	var minerFid *string = nil
+	var dataset *string = nil
+	var description *string = nil
+
+	i := 2
+	for i < len(os.Args)-1 {
+		switch os.Args[i] {
+		case "--input-dir":
+			inputDir = &os.Args[i+1]
+		case "--out-dir":
+			outputDir = &os.Args[i+1]
+		case "--miner":
+			minerFid = &os.Args[i+1]
+		case "--dataset":
+			dataset = &os.Args[i+1]
+		case "--description":
+			description = &os.Args[i+1]
+		default:
+			logs.GetLogger().Error("Invalid arguments.")
+			return false
+		}
+		i = i + 2
+	}
+
+	if inputDir == nil || outputDir == nil || minerFid == nil {
+		logs.GetLogger().Error("Invalid arguments.")
+		return false
+	}
+
+	logs.GetLogger().Info(inputDir, outputDir, minerFid, dataset, description)
+
+	operation.GenerateCarFiles(inputDir, outputDir)
+	return true
 }
 
 //python3 swan_cli.py car --input-dir /home/peware/testGoSwanProvider/input --out-dir /home/peware/testGoSwanProvider/output
