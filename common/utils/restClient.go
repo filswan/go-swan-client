@@ -3,43 +3,43 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
+	"go-swan-client/logs"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"go-swan-client/logs"
 )
 
 const HTTP_CONTENT_TYPE_FORM = "application/x-www-form-urlencoded"
 const HTTP_CONTENT_TYPE_JSON = "application/json; charset=utf-8"
 
 func HttpPostNoToken(uri string, params interface{}) string {
-	response := httpRequest(http.MethodPost, uri, "" , params)
+	response := httpRequest(http.MethodPost, uri, "", params)
 	return response
 }
 
-func HttpPost(uri, tokenString  string, params interface{}) string {
+func HttpPost(uri, tokenString string, params interface{}) string {
 	response := httpRequest(http.MethodPost, uri, tokenString, params)
 	return response
 }
 
 func HttpGetNoToken(uri string, params interface{}) string {
-	response := httpRequest(http.MethodGet, uri, "" , params)
+	response := httpRequest(http.MethodGet, uri, "", params)
 	return response
 }
 
-func HttpGet(uri, tokenString  string, params interface{}) string {
-	response := httpRequest(http.MethodGet, uri, tokenString , params)
+func HttpGet(uri, tokenString string, params interface{}) string {
+	response := httpRequest(http.MethodGet, uri, tokenString, params)
 	return response
 }
 
-func HttpPut(uri, tokenString  string, params interface{}) string {
-	response := httpRequest(http.MethodPut, uri, tokenString , params)
+func HttpPut(uri, tokenString string, params interface{}) string {
+	response := httpRequest(http.MethodPut, uri, tokenString, params)
 	return response
 }
 
-func HttpDelete(uri, tokenString  string, params interface{}) string {
-	response := httpRequest(http.MethodDelete, uri, tokenString , params)
+func HttpDelete(uri, tokenString string, params interface{}) string {
+	response := httpRequest(http.MethodDelete, uri, tokenString, params)
 	return response
 }
 
@@ -70,8 +70,8 @@ func httpRequest(httpMethod, uri, tokenString string, params interface{}) string
 		request.Header.Set("Content-Type", HTTP_CONTENT_TYPE_JSON)
 	}
 
-	if len(strings.Trim(tokenString," ")) > 0 {
-		request.Header.Set("Authorization","Bearer "+tokenString)
+	if len(strings.Trim(tokenString, " ")) > 0 {
+		request.Header.Set("Authorization", "Bearer "+tokenString)
 	}
 
 	client := &http.Client{}
