@@ -6,9 +6,10 @@ import (
 	"os"
 )
 
-const OPERATION_TYPE_CAR = "car"
+const OPERATION_TYPE_GENERATE_CAR = "car"
+const OPERATION_TYPE_GENERATE_GOCAR = "gocar"
 const OPERATION_TYPE_UPLOAD = "upload"
-const OPERATION_TYPE_TASK = "task"
+const OPERATION_TYPE_CREATE_TASK = "task"
 
 func main() {
 
@@ -23,11 +24,12 @@ func DoOperation() {
 	operationType := os.Args[1]
 
 	switch operationType {
-	case OPERATION_TYPE_CAR:
+	case OPERATION_TYPE_GENERATE_CAR:
+	case OPERATION_TYPE_GENERATE_GOCAR:
 		GenerateCarFiles()
 	case OPERATION_TYPE_UPLOAD:
 		UploadFiles()
-	case OPERATION_TYPE_TASK:
+	case OPERATION_TYPE_CREATE_TASK:
 		CreateTask()
 	default:
 		logs.GetLogger().Error("Unknow operation type.")
