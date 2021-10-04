@@ -5,14 +5,11 @@ import (
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"io/ioutil"
-	"strconv"
 
 	"github.com/google/uuid"
 )
 
 func GenerateGoCarFiles(inputDir, outputDir *string) bool {
-	generateMd5 := config.GetConfig().Sender.GenerateMd5
-
 	if outputDir == nil {
 		outDir := utils.GetDir(config.GetConfig().Sender.OutputDir, uuid.NewString())
 		outputDir = &outDir
@@ -36,8 +33,7 @@ func GenerateGoCarFiles(inputDir, outputDir *string) bool {
 		carFile := FileDesc{}
 		carFile.SourceFileName = srcFile.Name()
 		carFile.SourceFilePath = utils.GetDir(*inputDir, carFile.SourceFileName)
-		carFile.SourceFileSize = strconv.FormatInt(utils.GetFileSize(carFile.SourceFilePath), 10)
-		carFile.CarFileMd5 = generateMd5
+		carFile.SourceFileSize = srcFile.Size()
 
 		carFiles = append(carFiles, &carFile)
 	}

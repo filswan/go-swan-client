@@ -141,7 +141,7 @@ func SendTask2Swan(task models.Task, carFiles []*FileDesc, outDir string) error 
 			carFile.DealCid,
 			"payload_cid",
 			carFile.CarFileUrl,
-			strconv.FormatBool(carFile.CarFileMd5),
+			carFile.CarFileMd5,
 			carFile.StartEpoch,
 		}
 

@@ -13,11 +13,10 @@ const SUBCOMMAND_UPLOAD = "upload"
 const SUBCOMMAND_CREATE_TASK = "task"
 
 func main() {
-	//test.TestGenerateCarFiles()
-	execCmd()
+	execSubCmd()
 }
 
-func execCmd() {
+func execSubCmd() {
 	if len(os.Args) < 2 {
 		logs.GetLogger().Fatal("Sub command is required.")
 	}

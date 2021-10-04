@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"errors"
+	"fmt"
 	"go-swan-client/logs"
 	"go-swan-client/models"
 	"regexp"
@@ -162,7 +164,7 @@ func LotusGetMinerInfo(miner *models.Miner) bool {
 	return true
 }
 
-func LotusGeneratePieceCid(carFilePath string) (*string, *string) {
+func LotusGeneratePieceCid(carFilePath string) *string {
 	cmd := "lotus client commP " + carFilePath
 	logs.GetLogger().Info(cmd)
 
@@ -170,56 +172,38 @@ func LotusGeneratePieceCid(carFilePath string) (*string, *string) {
 
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil
+		return nil
 	}
 
 	if len(result) == 0 {
 		logs.GetLogger().Error("Failed to get info for:", carFilePath)
-		return nil, nil
+		return nil
 	}
 
 	lines := strings.Split(result, "\n")
 	logs.GetLogger().Info(lines)
 
-	var pieceCid, pieceSize *string
+	var pieceCid *string
 	for _, line := range lines {
 		if strings.Contains(line, "CID:") {
 			words := strings.Fields(line)
 			if len(words) < 2 {
-				return nil, nil
+				return nil
 			}
-			logs.GetLogger().Info(words[0])
-			logs.GetLogger().Info(words[1])
 			fileCid := strings.Trim(words[1], " ")
 			pieceCid = &fileCid
-			logs.GetLogger().Info(*pieceCid)
-			continue
-		}
-
-		if strings.Contains(line, "Piece size:") {
-			words := strings.Split(line, " ")
-			if len(words) < 2 {
-				return nil, nil
-			}
-			fileSize := strings.Trim(words[1], " ")
-			pieceSize = &fileSize
 			continue
 		}
 	}
 
 	if pieceCid == nil {
 		logs.GetLogger().Error("Cannot get file cid:", carFilePath)
-		return nil, nil
+		return nil
 	}
 
-	if pieceSize == nil {
-		logs.GetLogger().Error("Cannot get file size:", carFilePath)
-		return nil, nil
-	}
+	logs.GetLogger().Info("pieceCid:", *pieceCid)
 
-	logs.GetLogger().Info(*pieceCid, *pieceSize)
-
-	return pieceCid, pieceSize
+	return pieceCid
 }
 
 func LotusImportCarFile(carFilePath string) *string {
@@ -249,7 +233,7 @@ func LotusImportCarFile(carFilePath string) *string {
 	return &dataCid
 }
 
-func LotusGenerateCar(srcFilePath, destCarFilePath string) bool {
+func LotusGenerateCar(srcFilePath, destCarFilePath string) error {
 	cmd := "lotus client generate-car " + srcFilePath + " " + destCarFilePath
 	logs.GetLogger().Info(cmd)
 
@@ -257,13 +241,15 @@ func LotusGenerateCar(srcFilePath, destCarFilePath string) bool {
 
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return false
+		return err
 	}
 
 	if len(result) != 0 {
-		logs.GetLogger().Error("Failed to generate car file for :", srcFilePath, " ", destCarFilePath)
-		return false
+		errMsg := fmt.Sprintf("Generate car file %s for %s failed", destCarFilePath, srcFilePath)
+		err = errors.New(errMsg)
+		logs.GetLogger().Error(err)
+		return err
 	}
 
-	return true
+	return nil
 }
