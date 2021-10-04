@@ -47,7 +47,7 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 		return
 	}
 
-	carFiles := ReadCarFilesFromJsonFile(*inputDir)
+	carFiles := readCarFilesFromJsonFile(*inputDir)
 	if carFiles == nil {
 		logs.GetLogger().Error("Failed to read car files from : ", inputDir)
 		return
@@ -91,11 +91,7 @@ func GenerateMetadataCsv(task models.Task, carFiles []*FileDesc, outDir string) 
 	csvFileName := task.TaskName + "-metadata.csv"
 	csvFilePath := utils.GetDir(outDir, csvFileName)
 
-	err := GenerateCsvFile(carFiles, outDir, csvFileName)
-	if err != nil {
-		logs.GetLogger().Error("Failed to generate metadata csv file.")
-		return err
-	}
+	generateCsvFile(carFiles, outDir, csvFileName)
 
 	logs.GetLogger().Info("Metadata CSV Generated: ", csvFilePath)
 

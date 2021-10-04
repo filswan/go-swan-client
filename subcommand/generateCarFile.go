@@ -84,13 +84,9 @@ func GenerateCarFiles(inputDir, outputDir *string) {
 		carFiles = append(carFiles, &carFile)
 	}
 
-	err = GenerateCsvFile(carFiles, *outputDir, "car.csv")
-	if err != nil {
-		logs.GetLogger().Fatal("Failed to create car file.")
-	}
+	generateCsvFile(carFiles, *outputDir, "car.csv")
+	generateJsonFile(carFiles, *outputDir)
 
-	err = GenerateJsonFile(carFiles, *outputDir)
-	if err != nil {
-		logs.GetLogger().Fatal("Failed to create json file.")
-	}
+	logs.GetLogger().Info("Car files output dir: ", outputDir)
+	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
 }

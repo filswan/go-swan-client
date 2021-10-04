@@ -23,7 +23,7 @@ func UploadCarFiles(inputDir string) {
 	gatewayIp := words[2]
 	gatewayPort := words[4]
 
-	carFiles := ReadCarFilesFromJsonFile(inputDir)
+	carFiles := readCarFilesFromJsonFile(inputDir)
 	if carFiles == nil {
 		logs.GetLogger().Error("Failed to read: ", inputDir)
 		return
@@ -41,15 +41,6 @@ func UploadCarFiles(inputDir string) {
 		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileUrl)
 	}
 
-	err := GenerateCsvFile(carFiles, inputDir, "car.csv")
-	if err != nil {
-		logs.GetLogger().Error("Failed to create car file.")
-		return
-	}
-
-	err = GenerateJsonFile(carFiles, inputDir)
-	if err != nil {
-		logs.GetLogger().Error("Failed to create json file.")
-		return
-	}
+	generateCsvFile(carFiles, inputDir, "car.csv")
+	generateJsonFile(carFiles, inputDir)
 }

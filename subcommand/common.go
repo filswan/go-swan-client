@@ -10,24 +10,20 @@ import (
 	"strconv"
 )
 
-func GenerateJsonFile(carFiles []*FileDesc, outputDir string) error {
+func generateJsonFile(carFiles []*FileDesc, outputDir string) {
 	jsonFilePath := utils.GetDir(outputDir, "car.json")
 	content, err := json.MarshalIndent(carFiles, "", " ")
 	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
+		logs.GetLogger().Fatal(err)
 	}
 
 	err = ioutil.WriteFile(jsonFilePath, content, 0644)
 	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
+		logs.GetLogger().Fatal(err)
 	}
-
-	return nil
 }
 
-func ReadCarFilesFromJsonFile(inputDir string) []*FileDesc {
+func readCarFilesFromJsonFile(inputDir string) []*FileDesc {
 	jsonFilePath := utils.GetDir(inputDir, "car.json")
 
 	contents, err := ioutil.ReadFile(jsonFilePath)
@@ -47,7 +43,7 @@ func ReadCarFilesFromJsonFile(inputDir string) []*FileDesc {
 	return carFiles
 }
 
-func GenerateCsvFile(carFiles []*FileDesc, outputDir, csvFileName string) error {
+func generateCsvFile(carFiles []*FileDesc, outputDir, csvFileName string) {
 	csvPath := utils.GetDir(outputDir, csvFileName)
 
 	var headers []string
@@ -65,8 +61,7 @@ func GenerateCsvFile(carFiles []*FileDesc, outputDir, csvFileName string) error 
 
 	file, err := os.Create(csvPath)
 	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
+		logs.GetLogger().Fatal(err)
 	}
 	defer file.Close()
 
@@ -75,8 +70,7 @@ func GenerateCsvFile(carFiles []*FileDesc, outputDir, csvFileName string) error 
 
 	err = writer.Write(headers)
 	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
+		logs.GetLogger().Fatal(err)
 	}
 
 	for _, carFile := range carFiles {
@@ -95,13 +89,7 @@ func GenerateCsvFile(carFiles []*FileDesc, outputDir, csvFileName string) error 
 
 		err = writer.Write(columns)
 		if err != nil {
-			logs.GetLogger().Error(err)
-			return err
+			logs.GetLogger().Fatal(err)
 		}
 	}
-
-	logs.GetLogger().Info("Car files output dir: ", outputDir)
-	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
-
-	return nil
 }
