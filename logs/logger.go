@@ -41,6 +41,7 @@ func initLogger() {
 	))
 	logger.WriterLevel(logrus.InfoLevel)
 }
+
 func GetLogger() *logrus.Logger {
 	if logger == nil {
 		initLogger()

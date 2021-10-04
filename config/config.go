@@ -2,7 +2,6 @@ package config
 
 import (
 	"log"
-	"strings"
 
 	"github.com/BurntSushi/toml"
 )
@@ -46,10 +45,8 @@ type sender struct {
 
 var config *Configuration
 
-func InitConfig(configFile string) {
-	if strings.Trim(configFile, " ") == "" {
-		configFile = "./config/config.toml"
-	}
+func initConfig() {
+	configFile := "./config/config.toml"
 	if metaData, err := toml.DecodeFile(configFile, &config); err != nil {
 		log.Fatal("error:", err)
 	} else {
@@ -61,7 +58,7 @@ func InitConfig(configFile string) {
 
 func GetConfig() Configuration {
 	if config == nil {
-		InitConfig("")
+		initConfig()
 	}
 	return *config
 }

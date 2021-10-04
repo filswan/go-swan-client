@@ -28,3 +28,4 @@ config/config.toml
 build/config/config.toml
 build/go-swan-client
 graphsplit
+go-swan-client

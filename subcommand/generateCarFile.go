@@ -77,6 +77,7 @@ func GenerateCarFiles(inputDir, outputDir *string) {
 				logs.GetLogger().Error(err)
 				logs.GetLogger().Fatal("Failed to generate md5 for car file:", carFile.CarFilePath)
 			}
+			logs.GetLogger().Info("carFileMd5:", carFileMd5)
 			carFile.CarFileMd5 = carFileMd5
 		}
 
