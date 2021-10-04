@@ -2,10 +2,11 @@ package logs
 
 import (
 	"fmt"
-	"github.com/rifflock/lfshook"
-	"github.com/sirupsen/logrus"
 	"runtime"
 	"strings"
+
+	"github.com/rifflock/lfshook"
+	"github.com/sirupsen/logrus"
 )
 
 var logger *logrus.Logger
@@ -19,9 +20,9 @@ func initLogger() {
 		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
 			fileRelativePathIndex := strings.LastIndex(f.File, "/") + 1
 			filename := f.File[fileRelativePathIndex:]
-			funcRelativePathIndex := strings.LastIndex(f.Function, "/") + 1
+			funcRelativePathIndex := strings.LastIndex(f.Function, ".") + 1
 			funcName := f.Function[funcRelativePathIndex:]
-			return fmt.Sprintf("%s", funcName), fmt.Sprintf("%s:%d", filename, f.Line)
+			return funcName, fmt.Sprintf("%s:%d", filename, f.Line)
 		},
 	}
 

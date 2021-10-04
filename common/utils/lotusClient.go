@@ -184,12 +184,15 @@ func LotusGeneratePieceCid(carFilePath string) (*string, *string) {
 	var pieceCid, pieceSize *string
 	for _, line := range lines {
 		if strings.Contains(line, "CID:") {
-			words := strings.Split(line, " ")
+			words := strings.Fields(line)
 			if len(words) < 2 {
 				return nil, nil
 			}
+			logs.GetLogger().Info(words[0])
+			logs.GetLogger().Info(words[1])
 			fileCid := strings.Trim(words[1], " ")
 			pieceCid = &fileCid
+			logs.GetLogger().Info(*pieceCid)
 			continue
 		}
 
@@ -213,6 +216,8 @@ func LotusGeneratePieceCid(carFilePath string) (*string, *string) {
 		logs.GetLogger().Error("Cannot get file size:", carFilePath)
 		return nil, nil
 	}
+
+	logs.GetLogger().Info(*pieceCid, *pieceSize)
 
 	return pieceCid, pieceSize
 }
