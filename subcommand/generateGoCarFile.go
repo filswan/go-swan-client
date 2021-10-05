@@ -11,7 +11,7 @@ import (
 
 func GenerateGoCarFiles(inputDir, outputDir *string) bool {
 	if outputDir == nil {
-		outDir := utils.GetDir(config.GetConfig().Sender.OutputDir, uuid.NewString())
+		outDir := utils.GetPath(config.GetConfig().Sender.OutputDir, uuid.NewString())
 		outputDir = &outDir
 	}
 
@@ -32,7 +32,7 @@ func GenerateGoCarFiles(inputDir, outputDir *string) bool {
 	for _, srcFile := range srcFiles {
 		carFile := FileDesc{}
 		carFile.SourceFileName = srcFile.Name()
-		carFile.SourceFilePath = utils.GetDir(*inputDir, carFile.SourceFileName)
+		carFile.SourceFilePath = utils.GetPath(*inputDir, carFile.SourceFileName)
 		carFile.SourceFileSize = srcFile.Size()
 
 		carFiles = append(carFiles, &carFile)
@@ -46,7 +46,7 @@ func GenerateGoCarFiles(inputDir, outputDir *string) bool {
 func GenerateGoCar(carFiles []*FileDesc, outputDir string) bool {
 	for _, carFile := range carFiles {
 		carFile.CarFileName = carFile.SourceFileName + ".car"
-		carFile.CarFilePath = utils.GetDir(outputDir, carFile.CarFileName)
+		carFile.CarFilePath = utils.GetPath(outputDir, carFile.CarFileName)
 
 		dataCid, carFileName, isSucceed := utils.GraphSlit(outputDir, carFile.SourceFileName, carFile.CarFilePath)
 		if !isSucceed {

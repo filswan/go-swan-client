@@ -2,10 +2,10 @@ package utils
 
 import (
 	"encoding/json"
+	"go-swan-client/common/constants"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/models"
-	"io/ioutil"
 	"net/url"
 	"strconv"
 	"strings"
@@ -174,24 +174,29 @@ func (swanClient *SwanClient) SwanUpdateTaskByUuid(taskUuid string, minerFid str
 	return response
 }
 
-func (swanClient *SwanClient) SwanCreateTask(task models.Task, csvFilePath string) string {
-	data, err := ioutil.ReadFile(csvFilePath)
-	if err != nil {
-		logs.GetLogger().Info("failed reading data from file: ", csvFilePath)
-	}
-
+func (swanClient *SwanClient) SwanCreateTask(task models.Task, minerId *string, csvFilePath string) string {
 	apiUrl := swanClient.ApiUrl + "/tasks"
 
-	params := url.Values{}
-	params.Add("file", string(data))
-	params.Add("task_name", task.TaskName)
-	params.Add("curated_dataset", task.CuratedDataset)
-	params.Add("description", task.Description)
-	params.Add("is_public", strconv.Itoa(task.IsPublic))
-	params.Add("type", *task.Type)
-	params.Add("miner_id", strconv.Itoa(*task.MinerId))
+	params := map[string]string{}
+	params["task_name"] = task.TaskName
+	params["curated_dataset"] = task.CuratedDataset
+	params["description"] = task.Description
+	params["is_public"] = strconv.FormatBool(task.IsPublic)
+	if task.IsVerified {
+		params["type"] = constants.TASK_TYPE_VERIFIED
+	} else {
+		params["type"] = constants.TASK_TYPE_REGULAR
+	}
 
-	response := HttpPost(apiUrl, swanClient.Token, params)
+	if minerId != nil {
+		params["miner_id"] = *minerId
+	}
+
+	response, err := HttpPostFile(apiUrl, swanClient.Token, params, csvFilePath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return ""
+	}
 	return response
 }
 

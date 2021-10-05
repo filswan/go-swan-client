@@ -44,7 +44,7 @@ func getCarArgs() (*string, *string) {
 	cmd := flag.NewFlagSet("car", flag.ExitOnError)
 
 	inputDir := cmd.String("input-dir", "", "Directory where source file(s) is(are) in.")
-	outputDir := cmd.String("output-dir", "", "Directory where car file(s) will be generated.")
+	outputDir := cmd.String("out-dir", "", "Directory where car file(s) will be generated.")
 
 	err := cmd.Parse(os.Args[2:])
 	if err != nil {
@@ -90,7 +90,7 @@ func getTaskArgs() (*string, *string, *string, *string, *string, *string) {
 
 	taskName := cmd.String("name", "", "Directory where source files are in.")
 	inputDir := cmd.String("input-dir", "", "Directory where source files are in.")
-	outputDir := cmd.String("output-dir", "", "Directory where target files will in.")
+	outputDir := cmd.String("out-dir", "", "Directory where target files will in.")
 	minerFid := cmd.String("miner", "", "Target miner fid")
 	dataset := cmd.String("dataset", "", "Curated dataset.")
 	description := cmd.String("description", "", "Task description.")

@@ -95,32 +95,32 @@ func httpRequest(httpMethod, uri, tokenString string, params interface{}) string
 	return string(responseBody)
 }
 
-func HttpPostFile(url string, paramTexts map[string]interface{}, paramFiles ...string) (*string, error) {
+func HttpPostFile(url string, tokenString string, paramTexts map[string]string, paramFiles ...string) (string, error) {
 	bodyBuf := &bytes.Buffer{}
 	bodyWriter := multipart.NewWriter(bodyBuf)
 	defer bodyWriter.Close()
 
-	for k, v := range paramTexts {
-		bodyWriter.WriteField(k, v.(string))
+	for key, val := range paramTexts {
+		bodyWriter.WriteField(key, val)
 	}
 
 	for _, paramFile := range paramFiles {
 		paramFileStat, err := os.Stat(paramFile)
 		if err != nil {
 			logs.GetLogger().Error(err)
-			return nil, err
+			return "", err
 		}
 
 		fileWriter, err := bodyWriter.CreateFormFile(paramFileStat.Mode().Type().String(), paramFileStat.Name())
 		if err != nil {
 			logs.GetLogger().Info(err)
-			return nil, err
+			return "", err
 		}
 
 		data, err := ReadFile(paramFile)
 		if err != nil {
 			logs.GetLogger().Info(err)
-			return nil, err
+			return "", err
 		}
 
 		fileWriter.Write(data)
@@ -131,7 +131,7 @@ func HttpPostFile(url string, paramTexts map[string]interface{}, paramFiles ...s
 	response, err := http.Post(url, contentType, bodyBuf)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, err
+		return "", err
 	}
 
 	defer response.Body.Close()
@@ -139,10 +139,8 @@ func HttpPostFile(url string, paramTexts map[string]interface{}, paramFiles ...s
 	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, err
+		return "", err
 	}
 
-	responseStr := string(responseBody)
-
-	return &responseStr, nil
+	return string(responseBody), nil
 }

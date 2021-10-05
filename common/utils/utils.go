@@ -264,29 +264,24 @@ func GetFieldMapFromJson(jsonStr string, fieldName string) map[string]interface{
 	return fieldVal.(map[string]interface{})
 }
 
-func GetDir(root string, dirs ...string) string {
-	path := root
+func GetPath(root string, paths ...string) string {
+	separator := "/"
+	result := strings.TrimRight(root, separator)
 
-	for _, dir := range dirs {
-		if dir == "" {
+	for _, path := range paths {
+		path = strings.Trim(path, separator)
+		if path == "" {
 			continue
 		}
 
-		if strings.HasSuffix(path, "/") {
-			if strings.HasPrefix(dir, "/") {
-				dir = strings.TrimLeft(dir, "/")
-			}
-			path = path + dir
-		} else {
-			path = path + "/" + dir
-		}
+		result = strings.TrimRight(result, separator) + separator + strings.Trim(path, separator)
 	}
 
-	return path
+	return result
 }
 
 func IsFileExists(filePath, fileName string) bool {
-	fileFullPath := GetDir(filePath, fileName)
+	fileFullPath := GetPath(filePath, fileName)
 	_, err := os.Stat(fileFullPath)
 
 	if err != nil {
@@ -309,7 +304,7 @@ func IsFileExistsFullPath(fileFullPath string) bool {
 }
 
 func RemoveFile(filePath, fileName string) {
-	fileFullPath := GetDir(filePath, fileName)
+	fileFullPath := GetPath(filePath, fileName)
 	err := os.Remove(fileFullPath)
 	if err != nil {
 		logs.GetLogger().Error(err.Error())
@@ -327,7 +322,7 @@ func GetFileSize(fileFullPath string) int64 {
 }
 
 func GetFileSize2(filePath, fileName string) int64 {
-	fileFullPath := GetDir(filePath, fileName)
+	fileFullPath := GetPath(filePath, fileName)
 	fi, err := os.Stat(fileFullPath)
 	if err != nil {
 		logs.GetLogger().Info(err)
@@ -348,7 +343,7 @@ func CreateDir(dir string) error {
 }
 
 func ReadAllLines(filepath, filename string) ([]string, error) {
-	fileFullPath := GetDir(filepath, filename)
+	fileFullPath := GetPath(filepath, filename)
 
 	file, err := os.Open(fileFullPath)
 

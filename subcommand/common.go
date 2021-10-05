@@ -11,7 +11,7 @@ import (
 )
 
 func generateJsonFile(carFiles []*FileDesc, outputDir string) {
-	jsonFilePath := utils.GetDir(outputDir, "car.json")
+	jsonFilePath := utils.GetPath(outputDir, "car.json")
 	content, err := json.MarshalIndent(carFiles, "", " ")
 	if err != nil {
 		logs.GetLogger().Fatal(err)
@@ -24,7 +24,7 @@ func generateJsonFile(carFiles []*FileDesc, outputDir string) {
 }
 
 func readCarFilesFromJsonFile(inputDir string) []*FileDesc {
-	jsonFilePath := utils.GetDir(inputDir, "car.json")
+	jsonFilePath := utils.GetPath(inputDir, "car.json")
 
 	contents, err := ioutil.ReadFile(jsonFilePath)
 	if err != nil {
@@ -44,7 +44,7 @@ func readCarFilesFromJsonFile(inputDir string) []*FileDesc {
 }
 
 func generateCsvFile(carFiles []*FileDesc, outputDir, csvFileName string) {
-	csvPath := utils.GetDir(outputDir, csvFileName)
+	csvPath := utils.GetPath(outputDir, csvFileName)
 
 	var headers []string
 	headers = append(headers, "car_file_name")

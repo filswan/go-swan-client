@@ -7,7 +7,6 @@ import (
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/models"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -22,7 +21,6 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 	}
 	publicDeal := config.GetConfig().Sender.PublicDeal
 	verifiedDeal := config.GetConfig().Sender.VerifiedDeal
-	//generateMd5 := config.GetConfig().Sender.GenerateMd5
 	offlineMode := config.GetConfig().Sender.OfflineMode
 
 	storageServerType := config.GetConfig().Main.StorageServerType
@@ -33,74 +31,114 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 	downloadUrlPrefix := strings.TrimRight(host, "/") + ":" + strconv.Itoa(port)
 	taskUuid := uuid.NewString()
 
-	path = strings.TrimRight(path, "/")
-	//finalCsvPath := ""
-
 	logs.GetLogger().Info("Swan Client Settings: Public Task: ", publicDeal, ",  Verified Deals: ", verifiedDeal, ",  Connected to Swan: ", !offlineMode, ", CSV/car File output dir: %s", outputDir)
 
-	if path != "" {
-		downloadUrlPrefix = utils.GetDir(downloadUrlPrefix, path)
-	}
+	downloadUrlPrefix = utils.GetPath(downloadUrlPrefix, path)
 
 	if !publicDeal && minerFid == nil {
-		logs.GetLogger().Error("Please provide --miner for non public deal.")
-		return
+		logs.GetLogger().Fatal("Please provide -miner for non public deal.")
 	}
 
 	carFiles := readCarFilesFromJsonFile(*inputDir)
 	if carFiles == nil {
-		logs.GetLogger().Error("Failed to read car files from : ", inputDir)
-		return
+		logs.GetLogger().Fatal("Failed to read car files from : ", inputDir)
+	}
+
+	if storageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
+		for _, carFile := range carFiles {
+			carFile.CarFileUrl = utils.GetPath(downloadUrlPrefix, carFile.CarFileName)
+		}
 	}
 
 	for _, carFile := range carFiles {
 		carFile.Uuid = taskUuid
 	}
 
-	if storageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
-		for _, carFile := range carFiles {
-			carFile.CarFileUrl = utils.GetDir(downloadUrlPrefix, carFile.CarFileName)
-		}
-	}
-
 	err := utils.CreateDir(*outputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return
-	}
-
-	if offlineMode {
-		logs.GetLogger().Info("Working in Offline Mode. You need to manually send out task on filwan.com.")
-	} else {
-		logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
+		logs.GetLogger().Fatal("Failed to create output dir:", *outputDir)
 	}
 
 	task := models.Task{}
 	task.TaskName = *taskName
 	task.CuratedDataset = *dataset
 	task.Description = *description
-	if publicDeal {
-		task.IsPublic = 1
-	} else {
-		task.IsPublic = 0
-	}
+	task.IsPublic = publicDeal
 	task.IsVerified = verifiedDeal
 }
 
-func GenerateMetadataCsv(task models.Task, carFiles []*FileDesc, outDir string) error {
-	csvFileName := task.TaskName + "-metadata.csv"
-	csvFilePath := utils.GetDir(outDir, csvFileName)
+func GenerateMetadataCsv(task models.Task, carFiles []*FileDesc, minerId *string, outDir string) error {
+	csvFilePath := utils.GetPath(outDir, task.TaskName+"-metadata.csv")
+	var headers []string
+	headers = append(headers, "uuid")
+	headers = append(headers, "source_file_name")
+	headers = append(headers, "source_file_path")
+	headers = append(headers, "source_file_md5")
+	headers = append(headers, "source_file_url")
+	headers = append(headers, "source_file_size")
+	headers = append(headers, "car_file_name")
+	headers = append(headers, "car_file_path")
+	headers = append(headers, "car_file_md5")
+	headers = append(headers, "car_file_url")
+	headers = append(headers, "car_file_size")
+	headers = append(headers, "deal_cid")
+	headers = append(headers, "data_cid")
+	headers = append(headers, "piece_cid")
+	headers = append(headers, "miner_id")
+	headers = append(headers, "start_epoch")
 
-	generateCsvFile(carFiles, outDir, csvFileName)
+	file, err := os.Create(csvFilePath)
+	if err != nil {
+		logs.GetLogger().Fatal(err)
+	}
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	err = writer.Write(headers)
+	if err != nil {
+		logs.GetLogger().Fatal(err)
+	}
+
+	for _, carFile := range carFiles {
+		var columns []string
+		columns = append(columns, carFile.Uuid)
+		columns = append(columns, carFile.SourceFileName)
+		columns = append(columns, carFile.SourceFilePath)
+		columns = append(columns, strconv.FormatBool(carFile.SourceFileMd5))
+		columns = append(columns, carFile.SourceFileUrl)
+		columns = append(columns, strconv.FormatInt(carFile.SourceFileSize, 10))
+		columns = append(columns, carFile.CarFileName)
+		columns = append(columns, carFile.CarFilePath)
+		columns = append(columns, carFile.CarFileMd5)
+		columns = append(columns, carFile.CarFileUrl)
+		columns = append(columns, strconv.FormatInt(carFile.CarFileSize, 10))
+		columns = append(columns, carFile.DealCid)
+		columns = append(columns, carFile.DataCid)
+		columns = append(columns, carFile.PieceCid)
+		if minerId != nil {
+			columns = append(columns, *minerId)
+		} else {
+			columns = append(columns, "")
+		}
+		columns = append(columns, carFile.StartEpoch)
+
+		err = writer.Write(columns)
+		if err != nil {
+			logs.GetLogger().Fatal(err)
+		}
+	}
 
 	logs.GetLogger().Info("Metadata CSV Generated: ", csvFilePath)
 
 	return nil
 }
 
-func SendTask2Swan(task models.Task, carFiles []*FileDesc, outDir string) error {
+func SendTask2Swan(task models.Task, carFiles []*FileDesc, minerId *string, outDir string) error {
 	csvFileName := task.TaskName + ".csv"
-	csvFilePath := utils.GetDir(outDir, csvFileName)
+	csvFilePath := utils.GetPath(outDir, csvFileName)
 
 	logs.GetLogger().Info("Swan task CSV Generated: ", csvFilePath)
 
@@ -131,15 +169,18 @@ func SendTask2Swan(task models.Task, carFiles []*FileDesc, outDir string) error 
 	}
 
 	for _, carFile := range carFiles {
-		columns := []string{
-			carFile.Uuid,
-			carFile.MinerId,
-			carFile.DealCid,
-			"payload_cid",
-			carFile.CarFileUrl,
-			carFile.CarFileMd5,
-			carFile.StartEpoch,
+		var columns []string
+		columns = append(columns, carFile.Uuid)
+		if minerId != nil {
+			columns = append(columns, *minerId)
+		} else {
+			columns = append(columns, "")
 		}
+		columns = append(columns, carFile.DealCid)
+		columns = append(columns, carFile.DataCid)
+		columns = append(columns, carFile.CarFileUrl)
+		columns = append(columns, carFile.CarFileMd5)
+		columns = append(columns, carFile.StartEpoch)
 
 		err = writer.Write(columns)
 		if err != nil {
@@ -148,10 +189,16 @@ func SendTask2Swan(task models.Task, carFiles []*FileDesc, outDir string) error 
 		}
 	}
 
+	if config.GetConfig().Sender.OfflineMode {
+		logs.GetLogger().Info("Working in Offline Mode. You need to manually send out task on filwan.com.")
+		return nil
+	}
+
+	logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
+
 	swanClient := utils.SwanGetClient()
 
-	ioutil.ReadFile("")
-	response := swanClient.SwanCreateTask(task, csvFilePath)
+	response := swanClient.SwanCreateTask(task, minerId, csvFilePath)
 	logs.GetLogger().Info(response)
 
 	return nil
