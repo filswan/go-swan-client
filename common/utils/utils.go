@@ -445,10 +445,3 @@ func SearchFloat64FromStr(source string) *float64 {
 
 	return nil
 }
-
-//    h = hash_factory()
-//    with open(filename, 'rb') as f:
-//        for chunk in iter(lambda: f.read(chunk_num_blocks * h.block_size), b''):
-//            h.update(chunk)
-//
-//    _checksum = h.hexdigest()
