@@ -9,7 +9,7 @@ import (
 func GraphSlit(outputDir, sourceFileName, sourceFilePath string) (*string, *string, bool) {
 	//./graphsplit chunk --car-dir=/Users/dorachen/go-workspace/src/go-graphsplit/output  --slice-size=1000000000 --parallel=2 --graph-name=test.txt  --parent-path=. /Users/dorachen/go-workspace/src/go-graphsplit/input
 	cmd := fmt.Sprintf("./graphsplit chunk --car-dir=%s --slice-size=1000000000 --parallel=2 --graph-name=%s --parent-path=. %s", outputDir, sourceFileName, sourceFilePath)
-	result, err := ExecOsCmd(cmd)
+	result, err := ExecOsCmd(cmd, true)
 
 	if err != nil {
 		logs.GetLogger().Error("Failed to get deal on chain status, please check if lotus-miner is running properly.")

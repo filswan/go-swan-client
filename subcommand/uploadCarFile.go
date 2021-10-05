@@ -18,23 +18,21 @@ func UploadCarFiles(inputDir string) {
 	gatewayAddress := config.GetConfig().IpfsServer.GatewayAddress
 	words := strings.Split(gatewayAddress, "/")
 	if len(words) < 5 {
-		logs.GetLogger().Error("Invalid gateway address:", gatewayAddress)
+		logs.GetLogger().Fatal("Invalid gateway address:", gatewayAddress)
 	}
 	gatewayIp := words[2]
 	gatewayPort := words[4]
 
 	carFiles := readCarFilesFromJsonFile(inputDir)
 	if carFiles == nil {
-		logs.GetLogger().Error("Failed to read: ", inputDir)
-		return
+		logs.GetLogger().Fatal("Failed to read: ", inputDir)
 	}
 
 	for _, carFile := range carFiles {
 		logs.GetLogger().Info("Uploading car file:", carFile.CarFileName)
 		carFileHash := utils.IpfsUploadCarFile(carFile.CarFilePath)
 		if carFileHash == nil {
-			logs.GetLogger().Error("Failed to upload file to ipfs.")
-			return
+			logs.GetLogger().Fatal("Failed to upload file to ipfs.")
 		}
 
 		carFile.CarFileUrl = "http://" + gatewayIp + ":" + gatewayPort + "/ipfs/" + *carFileHash

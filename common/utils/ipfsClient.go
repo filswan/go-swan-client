@@ -6,25 +6,24 @@ import (
 )
 
 func IpfsUploadCarFile(carFilePath string) *string {
-	cmd := "ipfs add " + carFilePath + " | grep added"
+	cmd := "ipfs add " + carFilePath
 	logs.GetLogger().Info(cmd)
 
-	result, err := ExecOsCmd(cmd)
+	result, err := ExecOsCmd(cmd, false)
 
+	errMsg := "Failed to upload file to ipfs server."
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil
+		logs.GetLogger().Fatal(errMsg)
 	}
 
 	if result == "" {
-		logs.GetLogger().Error("Failed to upload file to ipfs server.")
-		return nil
+		logs.GetLogger().Fatal(errMsg)
 	}
 
-	words := strings.Split(result, " ")
+	words := strings.Fields(result)
 	if len(words) < 2 {
-		logs.GetLogger().Error("Failed to upload file to ipfs server.")
-		return nil
+		logs.GetLogger().Fatal(errMsg)
 	}
 
 	carFileHash := words[1]

@@ -11,7 +11,7 @@ import (
 
 func LotusGetDealOnChainStatus(dealCid string) (string, string) {
 	cmd := "lotus-miner storage-deals list -v | grep " + dealCid
-	result, err := ExecOsCmd(cmd)
+	result, err := ExecOsCmd(cmd, true)
 
 	if err != nil {
 		logs.GetLogger().Error("Failed to get deal on chain status, please check if lotus-miner is running properly.")
@@ -50,7 +50,7 @@ func LotusGetDealOnChainStatus(dealCid string) (string, string) {
 func LotusGetCurrentEpoch() int {
 	cmd := "lotus-miner proving info | grep 'Current Epoch'"
 	logs.GetLogger().Info(cmd)
-	result, err := ExecOsCmd(cmd)
+	result, err := ExecOsCmd(cmd, true)
 
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -80,7 +80,7 @@ func LotusImportData(dealCid string, filepath string) string {
 	cmd := "lotus-miner storage-deals import-data " + dealCid + " " + filepath
 	logs.GetLogger().Info(cmd)
 
-	result, err := ExecOsCmd(cmd)
+	result, err := ExecOsCmd(cmd, true)
 
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -94,7 +94,7 @@ func LotusGetMinerInfo(miner *models.Miner) bool {
 	cmd := "lotus client query-ask " + miner.MinerFid
 	logs.GetLogger().Info(cmd)
 
-	result, err := ExecOsCmd(cmd)
+	result, err := ExecOsCmd(cmd, true)
 
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -168,7 +168,7 @@ func LotusGeneratePieceCid(carFilePath string) *string {
 	cmd := "lotus client commP " + carFilePath
 	logs.GetLogger().Info(cmd)
 
-	result, err := ExecOsCmd(cmd)
+	result, err := ExecOsCmd(cmd, true)
 
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -210,7 +210,7 @@ func LotusImportCarFile(carFilePath string) *string {
 	cmd := "lotus client import --car " + carFilePath
 	logs.GetLogger().Info(cmd)
 
-	result, err := ExecOsCmd(cmd)
+	result, err := ExecOsCmd(cmd, true)
 
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -237,7 +237,7 @@ func LotusGenerateCar(srcFilePath, destCarFilePath string) error {
 	cmd := "lotus client generate-car " + srcFilePath + " " + destCarFilePath
 	logs.GetLogger().Info(cmd)
 
-	result, err := ExecOsCmd(cmd)
+	result, err := ExecOsCmd(cmd, true)
 
 	if err != nil {
 		logs.GetLogger().Error(err)

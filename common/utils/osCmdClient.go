@@ -11,17 +11,17 @@ import (
 
 const SHELL_TO_USE = "bash"
 
-func ExecOsCmd2Screen(cmdStr string) (string, error) {
-	out, err := ExecOsCmdBase(cmdStr, true)
+func ExecOsCmd2Screen(cmdStr string, checkStdErr bool) (string, error) {
+	out, err := ExecOsCmdBase(cmdStr, true, checkStdErr)
 	return out, err
 }
 
-func ExecOsCmd(cmdStr string) (string, error) {
-	out, err := ExecOsCmdBase(cmdStr, false)
+func ExecOsCmd(cmdStr string, checkStdErr bool) (string, error) {
+	out, err := ExecOsCmdBase(cmdStr, false, checkStdErr)
 	return out, err
 }
 
-func ExecOsCmdBase(cmdStr string, out2Screen bool) (string, error) {
+func ExecOsCmdBase(cmdStr string, out2Screen bool, checkStdErr bool) (string, error) {
 	var stdoutBuf bytes.Buffer
 	var stderrBuf bytes.Buffer
 
@@ -37,14 +37,18 @@ func ExecOsCmdBase(cmdStr string, out2Screen bool) (string, error) {
 
 	err := cmd.Run()
 	if err != nil {
-		logs.GetLogger().Error(cmdStr, err)
+		logs.GetLogger().Error(cmdStr)
+		logs.GetLogger().Error(err)
 		return "", err
 	}
 
-	if len(stderrBuf.Bytes()) != 0 {
-		outErr := errors.New(stderrBuf.String())
-		logs.GetLogger().Error(cmdStr, outErr)
-		return "", outErr
+	if checkStdErr {
+		if len(stderrBuf.String()) != 0 {
+			outErr := errors.New(stderrBuf.String())
+			logs.GetLogger().Error(cmdStr)
+			logs.GetLogger().Error(outErr)
+			return "", outErr
+		}
 	}
 
 	return stdoutBuf.String(), nil
