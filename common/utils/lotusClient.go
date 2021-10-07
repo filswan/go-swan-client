@@ -3,9 +3,11 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"go-swan-client/common/constants"
+	"go-swan-client/config"
 	"go-swan-client/logs"
-	"go-swan-client/models"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -90,30 +92,34 @@ func LotusImportData(dealCid string, filepath string) string {
 	return result
 }
 
-func LotusGetMinerInfo(miner *models.Miner) bool {
-	cmd := "lotus client query-ask " + miner.MinerFid
+func LotusGetMinerConfig(minerFid string) (*float64, *float64, *string, *string) {
+	cmd := "lotus client query-ask " + minerFid
 	logs.GetLogger().Info(cmd)
 
 	result, err := ExecOsCmd(cmd, true)
 
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return false
+		return nil, nil, nil, nil
 	}
 
 	if len(result) == 0 {
-		logs.GetLogger().Error("Failed to get info for:", miner.MinerFid)
-		return false
+		logs.GetLogger().Error("Failed to get info for:", minerFid)
+		return nil, nil, nil, nil
 	}
 
 	lines := strings.Split(result, "\n")
 	logs.GetLogger().Info(lines)
 
+	var verifiedPrice *float64
+	var price *float64
+	var maxPieceSize string
+	var minPieceSize string
 	for _, line := range lines {
 		if strings.Contains(line, "Verified Price per GiB:") {
-			miner.VerifiedPrice = SearchFloat64FromStr(line)
-			if miner.VerifiedPrice != nil {
-				logs.GetLogger().Info("miner VerifiedPrice: ", *miner.VerifiedPrice)
+			verifiedPrice = SearchFloat64FromStr(line)
+			if verifiedPrice != nil {
+				logs.GetLogger().Info("miner verifiedPrice: ", *verifiedPrice)
 			} else {
 				logs.GetLogger().Error("Failed to get miner VerifiedPrice from lotus")
 			}
@@ -122,9 +128,9 @@ func LotusGetMinerInfo(miner *models.Miner) bool {
 		}
 
 		if strings.Contains(line, "Price per GiB:") {
-			miner.Price = SearchFloat64FromStr(line)
-			if miner.Price != nil {
-				logs.GetLogger().Info("miner Price: ", *miner.Price)
+			price = SearchFloat64FromStr(line)
+			if price != nil {
+				logs.GetLogger().Info("miner Price: ", *price)
 			} else {
 				logs.GetLogger().Error("Failed to get miner Price from lotus")
 			}
@@ -135,10 +141,9 @@ func LotusGetMinerInfo(miner *models.Miner) bool {
 		if strings.Contains(line, "Max Piece size:") {
 			words := strings.Split(line, ":")
 			if len(words) == 2 {
-				maxPieceSize := strings.Trim(words[1], " ")
-				miner.MaxPieceSize = &maxPieceSize
-				if miner.MaxPieceSize != nil {
-					logs.GetLogger().Info("miner MaxPieceSize: ", *miner.MaxPieceSize)
+				maxPieceSize = strings.Trim(words[1], " ")
+				if maxPieceSize == "" {
+					logs.GetLogger().Info("miner MaxPieceSize: ", maxPieceSize)
 				} else {
 					logs.GetLogger().Error("Failed to get miner MaxPieceSize from lotus")
 				}
@@ -149,10 +154,9 @@ func LotusGetMinerInfo(miner *models.Miner) bool {
 		if strings.Contains(line, "Min Piece size:") {
 			words := strings.Split(line, ":")
 			if len(words) == 2 {
-				minPieceSize := strings.Trim(words[1], " ")
-				miner.MinPieceSize = &minPieceSize
-				if miner.MinPieceSize != nil {
-					logs.GetLogger().Info("miner MinPieceSize: ", *miner.MinPieceSize)
+				minPieceSize = strings.Trim(words[1], " ")
+				if minPieceSize == "" {
+					logs.GetLogger().Info("miner MinPieceSize: ", minPieceSize)
 				} else {
 					logs.GetLogger().Error("Failed to get miner MinPieceSize from lotus")
 				}
@@ -161,7 +165,7 @@ func LotusGetMinerInfo(miner *models.Miner) bool {
 		}
 	}
 
-	return true
+	return price, verifiedPrice, &maxPieceSize, &minPieceSize
 }
 
 func LotusGeneratePieceCid(carFilePath string) *string {
@@ -252,4 +256,49 @@ func LotusGenerateCar(srcFilePath, destCarFilePath string) error {
 	}
 
 	return nil
+}
+
+func LotusProposeOfflineDeal(price, cost float64, pieceSize int64, dataCid, pieceCid, minerId string) (*string, *int) {
+	epochIntervalHours := config.GetConfig().Sender.StartEpochHours
+	fromWallet := config.GetConfig().Sender.Wallet
+	startEpoch := GetCurrentEpoch() + (epochIntervalHours+1)*constants.EPOCH_PER_HOUR
+	fastRetrieval := strings.ToLower(strconv.FormatBool(config.GetConfig().Sender.FastRetrieval))
+	verifiedDeal := strings.ToLower(strconv.FormatBool(config.GetConfig().Sender.VerifiedDeal))
+	cmd := "lotus client deal --from " + fromWallet + " --start-epoch " + strconv.Itoa(startEpoch) + " --fast-retrieval=" + fastRetrieval + " --verified-deal=" + verifiedDeal
+	cmd = cmd + " --manual-piece-cid " + pieceCid + " --manual-piece-size " + strconv.FormatInt(pieceSize, 10) + " " + dataCid + " " + minerId + " " + strconv.FormatFloat(cost, 'f', -1, 10)
+
+	logs.GetLogger().Info(cmd)
+	logs.GetLogger().Info("wallet:", fromWallet)
+	logs.GetLogger().Info("miner:", minerId)
+	logs.GetLogger().Info("price:", price)
+	logs.GetLogger().Info("total cost:", cost)
+	logs.GetLogger().Info("start epoch:", startEpoch)
+	logs.GetLogger().Info("fast-retrieval:", fastRetrieval)
+	logs.GetLogger().Info("verified-deal:", verifiedDeal)
+
+	skipConfirmation := config.GetConfig().Sender.SkipConfirmation
+	if !skipConfirmation {
+		logs.GetLogger().Info("Press Enter to continue...")
+		var response string
+		_, err := fmt.Scanln(&response)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, nil
+		}
+
+		if response != "/n" {
+			return nil, nil
+		}
+	}
+
+	result, err := ExecOsCmd(cmd, false)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, nil
+	}
+
+	result = strings.Trim(result, " ")
+	dealCid := result
+
+	return &dealCid, &startEpoch
 }

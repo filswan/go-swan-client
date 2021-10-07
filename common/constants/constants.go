@@ -7,4 +7,7 @@ const (
 
 	TASK_TYPE_VERIFIED = "verified"
 	TASK_TYPE_REGULAR  = "regular"
+
+	DURATION       = "1051200"
+	EPOCH_PER_HOUR = 120
 )

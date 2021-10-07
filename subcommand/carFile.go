@@ -17,4 +17,5 @@ type FileDesc struct {
 	DataCid    string
 	PieceCid   string
 	StartEpoch string
+	miner      string
 }
