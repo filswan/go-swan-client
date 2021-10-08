@@ -85,7 +85,12 @@ func sendDeals2Miner1(outputDir string, taskName string, taskUuid string, minerI
 		}
 
 		maxPrice := config.GetConfig().Sender.MaxPrice
-		if price > maxPrice {
+		maxPriceFloat, err := strconv.ParseFloat(maxPrice, 32)
+		if err == nil {
+			logs.GetLogger().Error("Failed to convert maxPrice to float.")
+			return
+		}
+		if price > maxPriceFloat {
 			msg := fmt.Sprintf("miner %s price %s higher than max price %s", minerId, price, maxPrice)
 			logs.GetLogger().Warn(msg)
 			continue
@@ -169,7 +174,7 @@ func createCsv4Deal(task models.Task, carFiles []*FileDesc, minerId *string, out
 
 	swanClient := utils.SwanGetClient()
 
-	response := swanClient.SwanCreateTask(task, minerId, csvFilePath)
+	response := swanClient.SwanCreateTask(task, csvFilePath)
 	logs.GetLogger().Info(response)
 
 	return nil

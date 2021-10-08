@@ -174,7 +174,7 @@ func (swanClient *SwanClient) SwanUpdateTaskByUuid(taskUuid string, minerFid str
 	return response
 }
 
-func (swanClient *SwanClient) SwanCreateTask(task models.Task, minerId *string, csvFilePath string) string {
+func (swanClient *SwanClient) SwanCreateTask(task models.Task, csvFilePath string) string {
 	apiUrl := swanClient.ApiUrl + "/tasks"
 
 	params := map[string]string{}
@@ -188,8 +188,8 @@ func (swanClient *SwanClient) SwanCreateTask(task models.Task, minerId *string, 
 		params["type"] = constants.TASK_TYPE_REGULAR
 	}
 
-	if minerId != nil {
-		params["miner_id"] = *minerId
+	if task.MinerId != nil {
+		params["miner_id"] = *task.MinerId
 	}
 
 	response, err := HttpPostFile(apiUrl, swanClient.Token, params, csvFilePath)
