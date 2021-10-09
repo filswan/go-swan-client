@@ -57,7 +57,7 @@ func calculateRealCost(sectorSizeBytes float64, pricePerGiB float64) float64 {
 }
 
 func sendDeals2Miner1(outputDir string, taskName string, taskUuid string, minerId string, carFiles []*FileDesc) {
-	err := utils.CreateDir(outputDir)
+	err := os.MkdirAll(outputDir, os.ModePerm)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return

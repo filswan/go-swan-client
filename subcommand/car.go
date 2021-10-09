@@ -5,6 +5,7 @@ import (
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"io/ioutil"
+	"os"
 
 	"github.com/codingsince1985/checksum"
 	"github.com/google/uuid"
@@ -30,7 +31,7 @@ func GenerateCarFiles(inputDir, outputDir *string) {
 		logs.GetLogger().Info("output-dir is not provided, use default:", outputDir)
 	}
 
-	err := utils.CreateDir(*outputDir)
+	err := os.MkdirAll(*outputDir, os.ModePerm)
 	if err != nil {
 		logs.GetLogger().Fatal("Failed to create output dir:", outputDir)
 	}

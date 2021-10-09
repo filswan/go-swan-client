@@ -23,8 +23,7 @@ func execSubCmd() bool {
 
 	subCmd := os.Args[1]
 	switch subCmd {
-	case SUBCOMMAND_GENERATE_CAR:
-	case SUBCOMMAND_GENERATE_GOCAR:
+	case SUBCOMMAND_GENERATE_CAR, SUBCOMMAND_GENERATE_GOCAR:
 		createCarFile(subCmd)
 	case SUBCOMMAND_UPLOAD:
 		uploadFile()
@@ -41,7 +40,7 @@ func execSubCmd() bool {
 //python3 swan_cli.py car --input-dir /home/peware/testGoSwanProvider/input --out-dir /home/peware/testGoSwanProvider/output
 //go-swan-client car -input-dir ~/go-workspace/input/ -out-dir ~/go-workspace/output/
 func createCarFile(subCmd string) bool {
-	cmd := flag.NewFlagSet("car", flag.ExitOnError)
+	cmd := flag.NewFlagSet(subCmd, flag.ExitOnError)
 
 	inputDir := cmd.String("input-dir", "", "Directory where source file(s) is(are) in.")
 	outputDir := cmd.String("out-dir", "", "Directory where car file(s) will be generated.")

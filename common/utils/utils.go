@@ -332,16 +332,6 @@ func GetFileSize2(filePath, fileName string) int64 {
 	return fi.Size()
 }
 
-func CreateDir(dir string) error {
-	err := os.MkdirAll(dir, os.ModePerm)
-	if err != nil {
-		logs.GetLogger().Info(err)
-		return err
-	}
-
-	return nil
-}
-
 func ReadAllLines(filepath, filename string) ([]string, error) {
 	fileFullPath := GetPath(filepath, filename)
 

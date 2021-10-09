@@ -27,7 +27,7 @@ func sendDeals(outputDir *string, task models.Task, carFiles []*FileDesc, taskUu
 }
 
 func sendDeals2Miner(task models.Task, outputDir string, carFiles []*FileDesc, taskUuid string) {
-	err := utils.CreateDir(outputDir)
+	err := os.MkdirAll(outputDir, os.ModePerm)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return

@@ -5,6 +5,7 @@ import (
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"io/ioutil"
+	"os"
 
 	"github.com/google/uuid"
 )
@@ -15,7 +16,7 @@ func GenerateGoCarFiles(inputDir, outputDir *string) bool {
 		outputDir = &outDir
 	}
 
-	err := utils.CreateDir(*outputDir)
+	err := os.MkdirAll(*outputDir, os.ModePerm)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return false

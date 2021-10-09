@@ -56,10 +56,11 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 		//sendDeals(outputDir,task)
 	}
 
-	err := utils.CreateDir(*outputDir)
+	err := os.MkdirAll(*outputDir, os.ModePerm)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		logs.GetLogger().Fatal("Failed to create output dir:", *outputDir)
+		logs.GetLogger().Error("Failed to create output dir:", *outputDir)
+		return false
 	}
 
 	task := models.Task{}
