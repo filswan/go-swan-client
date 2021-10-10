@@ -7,4 +7,5 @@ type Task struct {
 	IsPublic       bool    `json:"is_public"`
 	IsVerified     bool    `json:"is_verified"`
 	MinerId        *string `json:"miner_id"`
+	Uuid           string  `json:"uuid`
 }

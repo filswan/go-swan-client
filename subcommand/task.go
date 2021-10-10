@@ -24,6 +24,7 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 	publicDeal := config.GetConfig().Sender.PublicDeal
 	verifiedDeal := config.GetConfig().Sender.VerifiedDeal
 	offlineMode := config.GetConfig().Sender.OfflineMode
+	//generateMd5 := config.GetConfig().Sender.GenerateMd5
 
 	storageServerType := config.GetConfig().Main.StorageServerType
 	host := config.GetConfig().WebServer.Host
@@ -47,12 +48,6 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 		return false
 	}
 
-	if storageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
-		for _, carFile := range carFiles {
-			carFile.CarFileUrl = utils.GetPath(downloadUrlPrefix, carFile.CarFileName)
-		}
-	}
-
 	if !publicDeal {
 		//sendDeals(outputDir,task)
 	}
@@ -64,17 +59,22 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 		return false
 	}
 
-	task := model.Task{}
-	task.TaskName = *taskName
-	task.CuratedDataset = *dataset
-	task.Description = *description
-	task.IsPublic = publicDeal
-	task.IsVerified = verifiedDeal
-	task.MinerId = minerFid
+	task := model.Task{
+		TaskName:       *taskName,
+		CuratedDataset: *dataset,
+		Description:    *description,
+		IsPublic:       publicDeal,
+		IsVerified:     verifiedDeal,
+		MinerId:        minerFid,
+		Uuid:           uuid.NewString(),
+	}
 
-	taskUuid := uuid.NewString()
 	for _, carFile := range carFiles {
-		carFile.Uuid = taskUuid
+		carFile.Uuid = task.Uuid
+
+		if storageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
+			carFile.CarFileUrl = filepath.Join(downloadUrlPrefix, carFile.CarFileName)
+		}
 	}
 
 	GenerateMetadataCsv(task, carFiles, *outputDir)
@@ -82,7 +82,7 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 	return true
 }
 
-func GenerateMetadataCsv(task model.Task, carFiles []*model.FileDesc, outDir string) error {
+func GenerateMetadataCsv(task model.Task, carFiles []*model.FileDesc, outDir string) bool {
 	csvFilePath := utils.GetPath(outDir, task.TaskName+"-metadata.csv")
 	var headers []string
 	headers = append(headers, "uuid")
@@ -104,7 +104,8 @@ func GenerateMetadataCsv(task model.Task, carFiles []*model.FileDesc, outDir str
 
 	file, err := os.Create(csvFilePath)
 	if err != nil {
-		logs.GetLogger().Fatal(err)
+		logs.GetLogger().Error(err)
+		return false
 	}
 	defer file.Close()
 
@@ -113,7 +114,8 @@ func GenerateMetadataCsv(task model.Task, carFiles []*model.FileDesc, outDir str
 
 	err = writer.Write(headers)
 	if err != nil {
-		logs.GetLogger().Fatal(err)
+		logs.GetLogger().Error(err)
+		return false
 	}
 
 	for _, carFile := range carFiles {
@@ -141,13 +143,14 @@ func GenerateMetadataCsv(task model.Task, carFiles []*model.FileDesc, outDir str
 
 		err = writer.Write(columns)
 		if err != nil {
-			logs.GetLogger().Fatal(err)
+			logs.GetLogger().Error(err)
+			return false
 		}
 	}
 
 	logs.GetLogger().Info("Metadata CSV Generated: ", csvFilePath)
 
-	return nil
+	return true
 }
 
 func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) bool {
