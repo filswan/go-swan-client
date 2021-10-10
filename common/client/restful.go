@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -96,43 +95,50 @@ func httpRequest(httpMethod, uri, tokenString string, params interface{}) string
 	return string(responseBody)
 }
 
-func HttpPostFile(url string, tokenString string, paramTexts map[string]string, paramFiles ...string) (string, error) {
-	bodyBuf := &bytes.Buffer{}
+func HttpPostFile(url string, tokenString string, paramTexts map[string]string, paramFilename, paramFilepath string) (string, error) {
+	filename, fileContent, err := utils.ReadFile(paramFilepath)
+	if err != nil {
+		logs.GetLogger().Info(err)
+		return "", err
+	}
+
+	bodyBuf := new(bytes.Buffer)
 	bodyWriter := multipart.NewWriter(bodyBuf)
-	defer bodyWriter.Close()
+
+	fileWriter, err := bodyWriter.CreateFormFile(paramFilename, filename)
+	if err != nil {
+		logs.GetLogger().Info(err)
+		return "", err
+	}
+
+	fileWriter.Write(fileContent)
 
 	for key, val := range paramTexts {
-		bodyWriter.WriteField(key, val)
-	}
-
-	for _, paramFile := range paramFiles {
-		paramFileStat, err := os.Stat(paramFile)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return "", err
-		}
-
-		fileWriter, err := bodyWriter.CreateFormFile(paramFileStat.Mode().Type().String(), paramFileStat.Name())
+		err = bodyWriter.WriteField(key, val)
 		if err != nil {
 			logs.GetLogger().Info(err)
 			return "", err
 		}
-
-		data, err := utils.ReadFile(paramFile)
-		if err != nil {
-			logs.GetLogger().Info(err)
-			return "", err
-		}
-
-		fileWriter.Write(data)
 	}
 
-	contentType := bodyWriter.FormDataContentType()
+	bodyWriter.Close()
 
-	response, err := http.Post(url, contentType, bodyBuf)
+	request, err := http.NewRequest(http.MethodPost, url, bodyBuf)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return "", err
+		return "", nil
+	}
+
+	request.Header.Set("Content-Type", bodyWriter.FormDataContentType())
+	if len(strings.Trim(tokenString, " ")) > 0 {
+		request.Header.Set("Authorization", "Bearer "+tokenString)
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return "", nil
 	}
 
 	defer response.Body.Close()
@@ -143,5 +149,7 @@ func HttpPostFile(url string, tokenString string, paramTexts map[string]string, 
 		return "", err
 	}
 
-	return string(responseBody), nil
+	responseStr := string(responseBody)
+
+	return responseStr, nil
 }

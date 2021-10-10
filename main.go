@@ -4,6 +4,7 @@ import (
 	"flag"
 	"go-swan-client/logs"
 	"go-swan-client/subcommand"
+	"go-swan-client/test"
 	"os"
 )
 
@@ -13,8 +14,9 @@ const SUBCOMMAND_UPLOAD = "upload"
 const SUBCOMMAND_CREATE_TASK = "task"
 
 func main() {
-	execSubCmd()
-	logs.GetLogger().Info("Hello")
+	//execSubCmd()
+	//logs.GetLogger().Info("Hello")
+	test.TestCreateTask()
 }
 
 func execSubCmd() bool {

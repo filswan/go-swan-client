@@ -355,27 +355,50 @@ func ReadAllLines(filepath, filename string) ([]string, error) {
 	return lines, nil
 }
 
-func ReadFile(filePath string) ([]byte, error) {
+func ReadFile(filePath string) (string, []byte, error) {
 	sourceFileStat, err := os.Stat(filePath)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, err
+		return "", nil, err
 	}
 
 	if !sourceFileStat.Mode().IsRegular() {
 		err = errors.New(filePath + " is not a regular file")
 		logs.GetLogger().Error(err)
-		return nil, err
+		return "", nil, err
 	}
 
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		logs.GetLogger().Error("failed reading data from file: ", filePath)
 		logs.GetLogger().Error(err)
-		return nil, err
+		return "", nil, err
 	}
 
-	return data, nil
+	return sourceFileStat.Name(), data, nil
+}
+
+func ReadFile1(filePath string) (string, []byte, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return "", nil, nil
+	}
+	defer file.Close()
+
+	fileContents, err := ioutil.ReadAll(file)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return "", nil, nil
+	}
+
+	fileStat, err := file.Stat()
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return "", nil, nil
+	}
+
+	return fileStat.Name(), fileContents, nil
 }
 
 func copy(srcFilePath, destDir string) (int64, error) {

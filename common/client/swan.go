@@ -164,7 +164,7 @@ func (swanClient *SwanClient) SwanCreateTask(task model.Task, csvFilePath string
 		params["miner_id"] = *task.MinerId
 	}
 
-	response, err := HttpPostFile(apiUrl, swanClient.Token, params, csvFilePath)
+	response, err := HttpPostFile(apiUrl, swanClient.Token, params, "file", csvFilePath)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return ""

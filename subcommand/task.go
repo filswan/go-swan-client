@@ -211,9 +211,9 @@ func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) b
 
 	logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
 
-	swanClient := client.SwanGetClient()
+	swan := client.SwanGetClient()
 
-	response := swanClient.SwanCreateTask(task, csvFilePath)
+	response := swan.SwanCreateTask(task, csvFilePath)
 	logs.GetLogger().Info(response)
 
 	return true
