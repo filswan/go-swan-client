@@ -1,4 +1,4 @@
-package subcommand
+package model
 
 type FileDesc struct {
 	Uuid           string
@@ -17,5 +17,5 @@ type FileDesc struct {
 	DataCid    string
 	PieceCid   string
 	StartEpoch string
-	miner      string
+	MinerId    string
 }

@@ -5,6 +5,7 @@ import (
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
+	"go-swan-client/model"
 	"io/ioutil"
 	"os"
 
@@ -23,7 +24,7 @@ func GenerateGoCarFiles(inputDir, outputDir *string) bool {
 		return false
 	}
 
-	carFiles := []*FileDesc{}
+	carFiles := []*model.FileDesc{}
 
 	srcFiles, err := ioutil.ReadDir(*inputDir)
 	if err != nil {
@@ -32,7 +33,7 @@ func GenerateGoCarFiles(inputDir, outputDir *string) bool {
 	}
 
 	for _, srcFile := range srcFiles {
-		carFile := FileDesc{}
+		carFile := model.FileDesc{}
 		carFile.SourceFileName = srcFile.Name()
 		carFile.SourceFilePath = utils.GetPath(*inputDir, carFile.SourceFileName)
 		carFile.SourceFileSize = srcFile.Size()
@@ -45,7 +46,7 @@ func GenerateGoCarFiles(inputDir, outputDir *string) bool {
 	return result
 }
 
-func GenerateGoCar(carFiles []*FileDesc, outputDir string) bool {
+func GenerateGoCar(carFiles []*model.FileDesc, outputDir string) bool {
 	for _, carFile := range carFiles {
 		carFile.CarFileName = carFile.SourceFileName + ".car"
 		carFile.CarFilePath = utils.GetPath(outputDir, carFile.CarFileName)

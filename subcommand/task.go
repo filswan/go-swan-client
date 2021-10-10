@@ -7,7 +7,7 @@ import (
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
-	"go-swan-client/models"
+	"go-swan-client/model"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -64,7 +64,7 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 		return false
 	}
 
-	task := models.Task{}
+	task := model.Task{}
 	task.TaskName = *taskName
 	task.CuratedDataset = *dataset
 	task.Description = *description
@@ -82,7 +82,7 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 	return true
 }
 
-func GenerateMetadataCsv(task models.Task, carFiles []*FileDesc, outDir string) error {
+func GenerateMetadataCsv(task model.Task, carFiles []*model.FileDesc, outDir string) error {
 	csvFilePath := utils.GetPath(outDir, task.TaskName+"-metadata.csv")
 	var headers []string
 	headers = append(headers, "uuid")
@@ -150,7 +150,7 @@ func GenerateMetadataCsv(task models.Task, carFiles []*FileDesc, outDir string) 
 	return nil
 }
 
-func SendTask2Swan(task models.Task, carFiles []*FileDesc, outDir string) bool {
+func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) bool {
 	csvFileName := task.TaskName + ".csv"
 	csvFilePath := filepath.Join(outDir, csvFileName)
 

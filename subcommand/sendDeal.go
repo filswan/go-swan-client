@@ -5,11 +5,11 @@ import (
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
-	"go-swan-client/models"
+	"go-swan-client/model"
 	"os"
 )
 
-func sendDeals(outputDir *string, task models.Task, carFiles []*FileDesc, taskUuid string) {
+func sendDeals(outputDir *string, task model.Task, carFiles []*model.FileDesc, taskUuid string) {
 	//fromWallet := config.GetConfig().Sender.Wallet
 	//maxPrice := config.GetConfig().Sender.MaxPrice
 	//verifiedDeal := config.GetConfig().Sender.VerifiedDeal
@@ -26,7 +26,7 @@ func sendDeals(outputDir *string, task models.Task, carFiles []*FileDesc, taskUu
 	sendDeals2Miner(task, *outputDir, carFiles, taskUuid)
 }
 
-func sendDeals2Miner(task models.Task, outputDir string, carFiles []*FileDesc, taskUuid string) {
+func sendDeals2Miner(task model.Task, outputDir string, carFiles []*model.FileDesc, taskUuid string) {
 	err := os.MkdirAll(outputDir, os.ModePerm)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -45,7 +45,7 @@ func sendDeals2Miner(task models.Task, outputDir string, carFiles []*FileDesc, t
 
 }
 
-func createCsv4SendDeal(carFiles []*FileDesc, minerId *string, outDir string, task *models.Task) error {
+func createCsv4SendDeal(carFiles []*model.FileDesc, minerId *string, outDir string, task *model.Task) error {
 	csvFileName := task.TaskName + ".csv"
 	csvFilePath := utils.GetPath(outDir, csvFileName)
 

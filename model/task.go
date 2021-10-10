@@ -1,4 +1,4 @@
-package models
+package model
 
 type Task struct {
 	TaskName       string  `json:"task_name"`

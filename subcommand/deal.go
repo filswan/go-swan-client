@@ -7,7 +7,7 @@ import (
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
-	"go-swan-client/models"
+	"go-swan-client/model"
 	"math"
 	"os"
 	"strconv"
@@ -57,7 +57,7 @@ func calculateRealCost(sectorSizeBytes float64, pricePerGiB float64) float64 {
 	return realCost
 }
 
-func sendDeals2Miner1(outputDir string, taskName string, taskUuid string, minerId string, carFiles []*FileDesc) {
+func sendDeals2Miner1(outputDir string, taskName string, taskUuid string, minerId string, carFiles []*model.FileDesc) {
 	err := os.MkdirAll(outputDir, os.ModePerm)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -106,7 +106,7 @@ func sendDeals2Miner1(outputDir string, taskName string, taskUuid string, minerI
 		cost := calculateRealCost(sectorSize, price)
 		dealCid, startEpoch := client.LotusProposeOfflineDeal(price, cost, pieceSize, carFile.DataCid, carFile.PieceCid, minerId)
 		outputCsvPath := ""
-		carFile.miner = minerId
+		carFile.MinerId = minerId
 		carFile.DealCid = *dealCid
 		carFile.StartEpoch = strconv.Itoa(*startEpoch)
 
@@ -115,7 +115,7 @@ func sendDeals2Miner1(outputDir string, taskName string, taskUuid string, minerI
 	}
 }
 
-func createCsv4Deal(task models.Task, carFiles []*FileDesc, minerId *string, outDir string) error {
+func createCsv4Deal(task model.Task, carFiles []*model.FileDesc, minerId *string, outDir string) error {
 	csvFileName := task.TaskName + ".csv"
 	csvFilePath := utils.GetPath(outDir, csvFileName)
 

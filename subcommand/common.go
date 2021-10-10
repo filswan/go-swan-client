@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 	"go-swan-client/common/utils"
 	"go-swan-client/logs"
+	"go-swan-client/model"
+
 	"io/ioutil"
 	"os"
 	"strconv"
 )
 
-func generateJsonFile(carFiles []*FileDesc, outputDir string) {
+func generateJsonFile(carFiles []*model.FileDesc, outputDir string) {
 	jsonFilePath := utils.GetPath(outputDir, "car.json")
 	content, err := json.MarshalIndent(carFiles, "", " ")
 	if err != nil {
@@ -23,7 +25,7 @@ func generateJsonFile(carFiles []*FileDesc, outputDir string) {
 	}
 }
 
-func readCarFilesFromJsonFile(inputDir string) []*FileDesc {
+func readCarFilesFromJsonFile(inputDir string) []*model.FileDesc {
 	jsonFilePath := utils.GetPath(inputDir, "car.json")
 
 	contents, err := ioutil.ReadFile(jsonFilePath)
@@ -32,7 +34,7 @@ func readCarFilesFromJsonFile(inputDir string) []*FileDesc {
 		return nil
 	}
 
-	carFiles := []*FileDesc{}
+	carFiles := []*model.FileDesc{}
 
 	err = json.Unmarshal(contents, &carFiles)
 	if err != nil {
@@ -43,7 +45,7 @@ func readCarFilesFromJsonFile(inputDir string) []*FileDesc {
 	return carFiles
 }
 
-func generateCsvFile(carFiles []*FileDesc, outputDir, csvFileName string) {
+func generateCsvFile(carFiles []*model.FileDesc, outputDir, csvFileName string) {
 	csvPath := utils.GetPath(outputDir, csvFileName)
 
 	var headers []string

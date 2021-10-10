@@ -5,6 +5,7 @@ import (
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
+	"go-swan-client/model"
 	"io/ioutil"
 	"os"
 
@@ -37,7 +38,7 @@ func GenerateCarFiles(inputDir, outputDir *string) {
 		logs.GetLogger().Fatal("Failed to create output dir:", outputDir)
 	}
 
-	carFiles := []*FileDesc{}
+	carFiles := []*model.FileDesc{}
 
 	srcFiles, err := ioutil.ReadDir(*inputDir)
 	if err != nil {
@@ -45,7 +46,7 @@ func GenerateCarFiles(inputDir, outputDir *string) {
 	}
 
 	for _, srcFile := range srcFiles {
-		carFile := FileDesc{}
+		carFile := model.FileDesc{}
 		carFile.SourceFileName = srcFile.Name()
 		carFile.SourceFilePath = utils.GetPath(*inputDir, carFile.SourceFileName)
 		carFile.SourceFileSize = srcFile.Size()

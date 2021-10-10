@@ -6,7 +6,7 @@ import (
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
-	"go-swan-client/models"
+	"go-swan-client/model"
 	"net/url"
 	"strconv"
 	"strings"
@@ -26,19 +26,13 @@ type SwanClient struct {
 	Token  string
 }
 
-type MinerResponse struct {
-	Status  string       `json:"status"`
-	Message string       `json:"message"`
-	Data    models.Miner `json:"data"`
-}
-
 type GetOfflineDealResponse struct {
 	Data   GetOfflineDealData `json:"data"`
 	Status string             `json:"status"`
 }
 
 type GetOfflineDealData struct {
-	Deal []models.OfflineDeal `json:"deal"`
+	Deal []model.OfflineDeal `json:"deal"`
 }
 
 type UpdateOfflineDealResponse struct {
@@ -47,8 +41,8 @@ type UpdateOfflineDealResponse struct {
 }
 
 type UpdateOfflineDealData struct {
-	Deal    models.OfflineDeal `json:"deal"`
-	Message string             `json:"message"`
+	Deal    model.OfflineDeal `json:"deal"`
+	Message string            `json:"message"`
 }
 
 func SwanGetClient() *SwanClient {
@@ -79,21 +73,7 @@ func SwanGetClient() *SwanClient {
 	return swanClient
 }
 
-func (swanClient *SwanClient) SwanGetMiner(minerFid string) *MinerResponse {
-	apiUrl := swanClient.ApiUrl + "/miner/info/" + minerFid
-
-	response := HttpGetNoToken(apiUrl, "")
-	minerResponse := &MinerResponse{}
-	err := json.Unmarshal([]byte(response), minerResponse)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil
-	}
-
-	return minerResponse
-}
-
-func (swanClient *SwanClient) SwanGetOfflineDeals(minerFid, status string, limit ...string) []models.OfflineDeal {
+func (swanClient *SwanClient) SwanGetOfflineDeals(minerFid, status string, limit ...string) []model.OfflineDeal {
 	rowLimit := strconv.Itoa(GET_OFFLINEDEAL_LIMIT_DEFAULT)
 	if len(limit) > 0 {
 		rowLimit = limit[0]
@@ -156,15 +136,6 @@ func (swanClient *SwanClient) SwanUpdateOfflineDealStatus(dealId int, status str
 	return true
 }
 
-func (swanClient *SwanClient) SwanSendHeartbeatRequest(minerFid string) string {
-	apiUrl := swanClient.ApiUrl + "/heartbeat"
-	params := url.Values{}
-	params.Add("miner_id", minerFid)
-
-	response := HttpPost(apiUrl, swanClient.Token, strings.NewReader(params.Encode()))
-	return response
-}
-
 func (swanClient *SwanClient) SwanUpdateTaskByUuid(taskUuid string, minerFid string) string {
 	apiUrl := swanClient.ApiUrl + "/uuid_tasks/" + taskUuid
 	params := url.Values{}
@@ -175,7 +146,7 @@ func (swanClient *SwanClient) SwanUpdateTaskByUuid(taskUuid string, minerFid str
 	return response
 }
 
-func (swanClient *SwanClient) SwanCreateTask(task models.Task, csvFilePath string) string {
+func (swanClient *SwanClient) SwanCreateTask(task model.Task, csvFilePath string) string {
 	apiUrl := swanClient.ApiUrl + "/tasks"
 
 	params := map[string]string{}
@@ -198,17 +169,5 @@ func (swanClient *SwanClient) SwanCreateTask(task models.Task, csvFilePath strin
 		logs.GetLogger().Error(err)
 		return ""
 	}
-	return response
-}
-
-func (swanClient *SwanClient) SwanUpdateMiner(miner models.Miner) string {
-	apiUrl := swanClient.ApiUrl + "/miners/" + strconv.Itoa(miner.Id) + "/status"
-	params := url.Values{}
-	params.Add("price", strconv.FormatFloat(*miner.Price, 'E', -1, 64))
-	params.Add("verified_price", strconv.FormatFloat(*miner.VerifiedPrice, 'E', -1, 64))
-	params.Add("min_piece_size", *miner.MinPieceSize)
-	params.Add("max_piece_size", *miner.MaxPieceSize)
-
-	response := HttpPut(apiUrl, swanClient.Token, params)
 	return response
 }
