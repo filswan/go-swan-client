@@ -378,29 +378,6 @@ func ReadFile(filePath string) (string, []byte, error) {
 	return sourceFileStat.Name(), data, nil
 }
 
-func ReadFile1(filePath string) (string, []byte, error) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return "", nil, nil
-	}
-	defer file.Close()
-
-	fileContents, err := ioutil.ReadAll(file)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return "", nil, nil
-	}
-
-	fileStat, err := file.Stat()
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return "", nil, nil
-	}
-
-	return fileStat.Name(), fileContents, nil
-}
-
 func copy(srcFilePath, destDir string) (int64, error) {
 	sourceFileStat, err := os.Stat(srcFilePath)
 	if err != nil {
