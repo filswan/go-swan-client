@@ -153,7 +153,12 @@ func (swanClient *SwanClient) SwanCreateTask(task model.Task, csvFilePath string
 	params["task_name"] = task.TaskName
 	params["curated_dataset"] = task.CuratedDataset
 	params["description"] = task.Description
-	params["is_public"] = strconv.FormatBool(task.IsPublic)
+	if task.IsPublic {
+		params["is_public"] = "1"
+	} else {
+		params["is_public"] = "0"
+	}
+
 	if task.IsVerified {
 		params["type"] = constants.TASK_TYPE_VERIFIED
 	} else {
