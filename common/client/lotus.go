@@ -1,9 +1,10 @@
-package utils
+package client
 
 import (
 	"errors"
 	"fmt"
 	"go-swan-client/common/constants"
+	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"regexp"
@@ -71,7 +72,7 @@ func LotusGetCurrentEpoch() int {
 	logs.GetLogger().Info("words:", words)
 	var currentEpoch int64 = -1
 	if len(words) > 0 {
-		currentEpoch = GetInt64FromStr(words[0])
+		currentEpoch = utils.GetInt64FromStr(words[0])
 	}
 
 	logs.GetLogger().Info("currentEpoch: ", currentEpoch)
@@ -117,7 +118,7 @@ func LotusGetMinerConfig(minerFid string) (*float64, *float64, *string, *string)
 	var minPieceSize string
 	for _, line := range lines {
 		if strings.Contains(line, "Verified Price per GiB:") {
-			verifiedPrice = SearchFloat64FromStr(line)
+			verifiedPrice = utils.SearchFloat64FromStr(line)
 			if verifiedPrice != nil {
 				logs.GetLogger().Info("miner verifiedPrice: ", *verifiedPrice)
 			} else {
@@ -128,7 +129,7 @@ func LotusGetMinerConfig(minerFid string) (*float64, *float64, *string, *string)
 		}
 
 		if strings.Contains(line, "Price per GiB:") {
-			price = SearchFloat64FromStr(line)
+			price = utils.SearchFloat64FromStr(line)
 			if price != nil {
 				logs.GetLogger().Info("miner Price: ", *price)
 			} else {
@@ -261,7 +262,7 @@ func LotusGenerateCar(srcFilePath, destCarFilePath string) error {
 func LotusProposeOfflineDeal(price, cost float64, pieceSize int64, dataCid, pieceCid, minerId string) (*string, *int) {
 	epochIntervalHours := config.GetConfig().Sender.StartEpochHours
 	fromWallet := config.GetConfig().Sender.Wallet
-	startEpoch := GetCurrentEpoch() + (epochIntervalHours+1)*constants.EPOCH_PER_HOUR
+	startEpoch := utils.GetCurrentEpoch() + (epochIntervalHours+1)*constants.EPOCH_PER_HOUR
 	fastRetrieval := strings.ToLower(strconv.FormatBool(config.GetConfig().Sender.FastRetrieval))
 	verifiedDeal := strings.ToLower(strconv.FormatBool(config.GetConfig().Sender.VerifiedDeal))
 	cmd := "lotus client deal --from " + fromWallet + " --start-epoch " + strconv.Itoa(startEpoch) + " --fast-retrieval=" + fastRetrieval + " --verified-deal=" + verifiedDeal

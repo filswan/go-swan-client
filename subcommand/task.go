@@ -2,6 +2,7 @@ package subcommand
 
 import (
 	"encoding/csv"
+	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
@@ -77,6 +78,7 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 	}
 
 	GenerateMetadataCsv(task, carFiles, *outputDir)
+	SendTask2Swan(task, carFiles, *outputDir)
 	return true
 }
 
@@ -209,7 +211,7 @@ func SendTask2Swan(task models.Task, carFiles []*FileDesc, outDir string) bool {
 
 	logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
 
-	swanClient := utils.SwanGetClient()
+	swanClient := client.SwanGetClient()
 
 	response := swanClient.SwanCreateTask(task, csvFilePath)
 	logs.GetLogger().Info(response)

@@ -1,6 +1,7 @@
 package subcommand
 
 import (
+	"go-swan-client/common/client"
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
@@ -49,7 +50,7 @@ func GenerateGoCar(carFiles []*FileDesc, outputDir string) bool {
 		carFile.CarFileName = carFile.SourceFileName + ".car"
 		carFile.CarFilePath = utils.GetPath(outputDir, carFile.CarFileName)
 
-		dataCid, carFileName, isSucceed := utils.GraphSlit(outputDir, carFile.SourceFileName, carFile.CarFilePath)
+		dataCid, carFileName, isSucceed := client.GraphSlit(outputDir, carFile.SourceFileName, carFile.CarFilePath)
 		if !isSucceed {
 			logs.GetLogger().Error("Failed to generate car file.")
 			return false

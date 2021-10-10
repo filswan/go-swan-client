@@ -1,8 +1,9 @@
-package utils
+package client
 
 import (
 	"encoding/json"
 	"go-swan-client/common/constants"
+	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/models"
@@ -57,12 +58,12 @@ func SwanGetClient() *SwanClient {
 	response := HttpPostNoToken(uri, data)
 
 	if strings.Contains(response, "fail") {
-		message := GetFieldStrFromJson(response, "message")
-		status := GetFieldStrFromJson(response, "status")
+		message := utils.GetFieldStrFromJson(response, "message")
+		status := utils.GetFieldStrFromJson(response, "status")
 		logs.GetLogger().Fatal(status, ": ", message)
 	}
 
-	jwtToken := GetFieldMapFromJson(response, "data")
+	jwtToken := utils.GetFieldMapFromJson(response, "data")
 	if jwtToken == nil {
 		logs.GetLogger().Fatal("Error: fail to connect swan api")
 	}

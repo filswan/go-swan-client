@@ -1,4 +1,4 @@
-package utils
+package client
 
 import (
 	"go-swan-client/logs"

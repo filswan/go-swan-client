@@ -1,6 +1,7 @@
 package subcommand
 
 import (
+	"go-swan-client/common/client"
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
@@ -51,19 +52,19 @@ func GenerateCarFiles(inputDir, outputDir *string) {
 		carFile.CarFileName = carFile.SourceFileName + ".car"
 		carFile.CarFilePath = utils.GetPath(*outputDir, carFile.CarFileName)
 
-		err := utils.LotusGenerateCar(carFile.SourceFilePath, carFile.CarFilePath)
+		err := client.LotusGenerateCar(carFile.SourceFilePath, carFile.CarFilePath)
 		if err != nil {
 			logs.GetLogger().Fatal("Failed to generate car file.")
 		}
 
-		pieceCid := utils.LotusGeneratePieceCid(carFile.CarFilePath)
+		pieceCid := client.LotusGeneratePieceCid(carFile.CarFilePath)
 		if pieceCid == nil {
 			logs.GetLogger().Fatal("Failed to generate piece cid.")
 		}
 
 		carFile.PieceCid = *pieceCid
 
-		dataCid := utils.LotusImportCarFile(carFile.CarFilePath)
+		dataCid := client.LotusImportCarFile(carFile.CarFilePath)
 		if dataCid == nil {
 			logs.GetLogger().Fatal("Failed to import car file.")
 		}

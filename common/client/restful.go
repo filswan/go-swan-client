@@ -1,8 +1,9 @@
-package utils
+package client
 
 import (
 	"bytes"
 	"encoding/json"
+	"go-swan-client/common/utils"
 	"go-swan-client/logs"
 	"io"
 	"io/ioutil"
@@ -117,7 +118,7 @@ func HttpPostFile(url string, tokenString string, paramTexts map[string]string, 
 			return "", err
 		}
 
-		data, err := ReadFile(paramFile)
+		data, err := utils.ReadFile(paramFile)
 		if err != nil {
 			logs.GetLogger().Info(err)
 			return "", err

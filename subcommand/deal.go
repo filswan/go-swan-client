@@ -3,6 +3,7 @@ package subcommand
 import (
 	"encoding/csv"
 	"fmt"
+	"go-swan-client/common/client"
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
@@ -69,7 +70,7 @@ func sendDeals2Miner1(outputDir string, taskName string, taskUuid string, minerI
 		//sourceFileUrl := carFile.CarFileUrl
 		//md5 := carFile.CarFileMd5
 		fileSize := carFile.CarFileSize
-		minerPrice, minerVerifiedPrice, _, _ := utils.LotusGetMinerConfig(minerId)
+		minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(minerId)
 
 		var price float64
 		if config.GetConfig().Sender.VerifiedDeal {
@@ -103,7 +104,7 @@ func sendDeals2Miner1(outputDir string, taskName string, taskUuid string, minerI
 		}
 		pieceSize, sectorSize := calculatePieceSizeFromFileSize(fileSize)
 		cost := calculateRealCost(sectorSize, price)
-		dealCid, startEpoch := utils.LotusProposeOfflineDeal(price, cost, pieceSize, carFile.DataCid, carFile.PieceCid, minerId)
+		dealCid, startEpoch := client.LotusProposeOfflineDeal(price, cost, pieceSize, carFile.DataCid, carFile.PieceCid, minerId)
 		outputCsvPath := ""
 		carFile.miner = minerId
 		carFile.DealCid = *dealCid
@@ -172,7 +173,7 @@ func createCsv4Deal(task models.Task, carFiles []*FileDesc, minerId *string, out
 
 	logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
 
-	swanClient := utils.SwanGetClient()
+	swanClient := client.SwanGetClient()
 
 	response := swanClient.SwanCreateTask(task, csvFilePath)
 	logs.GetLogger().Info(response)

@@ -1,8 +1,8 @@
 package subcommand
 
 import (
+	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
-	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"strings"
@@ -30,7 +30,7 @@ func UploadCarFiles(inputDir string) {
 
 	for _, carFile := range carFiles {
 		logs.GetLogger().Info("Uploading car file:", carFile.CarFileName)
-		carFileHash := utils.IpfsUploadCarFile(carFile.CarFilePath)
+		carFileHash := client.IpfsUploadCarFile(carFile.CarFilePath)
 		if carFileHash == nil {
 			logs.GetLogger().Fatal("Failed to upload file to ipfs.")
 		}
