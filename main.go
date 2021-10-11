@@ -4,7 +4,6 @@ import (
 	"flag"
 	"go-swan-client/logs"
 	"go-swan-client/subcommand"
-	"go-swan-client/test"
 	"os"
 )
 
@@ -15,9 +14,9 @@ const SUBCOMMAND_TASK = "task"
 const SUBCOMMAND_DEAL = "deal"
 
 func main() {
-	//execSubCmd()
+	execSubCmd()
 	//logs.GetLogger().Info("Hello")
-	test.Test()
+	//test.Test()
 }
 
 func execSubCmd() bool {

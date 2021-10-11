@@ -16,12 +16,12 @@ import (
 )
 
 func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *string) (*string, bool) {
-	if outputDir == nil {
+	if outputDir == nil || len(*outputDir) == 0 {
 		outDir := config.GetConfig().Sender.OutputDir
 		outputDir = &outDir
 	}
 
-	if taskName == nil {
+	if taskName == nil || len(*taskName) == 0 {
 		nowStr := "task_" + time.Now().Format("2006-01-02_15:04:05")
 		taskName = &nowStr
 	}
@@ -41,7 +41,7 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 
 	downloadUrlPrefix = filepath.Join(downloadUrlPrefix, path)
 
-	if !publicDeal && minerFid == nil {
+	if !publicDeal && (minerFid == nil || len(*minerFid) == 0) {
 		logs.GetLogger().Error("Please provide -miner for non public deal.")
 		return nil, false
 	}
