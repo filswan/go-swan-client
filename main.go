@@ -143,7 +143,7 @@ func createTask() bool {
 func sendDeal() bool {
 	cmd := flag.NewFlagSet(SUBCOMMAND_DEAL, flag.ExitOnError)
 
-	metadataCsvPath := cmd.String("csv", "", "The CSV file path of deal metadata.")
+	metadataJsonPath := cmd.String("csv", "", "The JSON file path of deal metadata.")
 	outputDir := cmd.String("out-dir", "", "Directory where target files will in.")
 	minerFid := cmd.String("miner", "", "Target miner fid")
 
@@ -158,7 +158,7 @@ func sendDeal() bool {
 		return false
 	}
 
-	if metadataCsvPath == nil || len(*metadataCsvPath) == 0 {
+	if metadataJsonPath == nil || len(*metadataJsonPath) == 0 {
 		logs.GetLogger().Error("input-dir is required.")
 		return false
 	}
@@ -168,7 +168,7 @@ func sendDeal() bool {
 		return false
 	}
 
-	logs.GetLogger().Info(metadataCsvPath, outputDir, minerFid)
+	logs.GetLogger().Info(metadataJsonPath, outputDir, minerFid)
 
 	//subcommand.CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description)
 	return true

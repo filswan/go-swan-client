@@ -60,7 +60,11 @@ func WriteCarFilesToJsonFile(carFiles []*model.FileDesc, outputDir, jsonFilename
 
 func ReadCarFilesFromJsonFile(inputDir, jsonFilename string) []*model.FileDesc {
 	jsonFilePath := filepath.Join(inputDir, jsonFilename)
+	result := ReadCarFilesFromJsonFileByFullPath(jsonFilePath)
+	return result
+}
 
+func ReadCarFilesFromJsonFileByFullPath(jsonFilePath string) []*model.FileDesc {
 	contents, err := ioutil.ReadFile(jsonFilePath)
 	if err != nil {
 		logs.GetLogger().Error("Failed to read: ", jsonFilePath)

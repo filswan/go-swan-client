@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 const DURATION = "1051200"
@@ -25,18 +26,25 @@ type DealConfig struct {
 	SkipConfirmation   bool   `json:"skip_confirmation"`
 }
 
-func SendDeals(minerFid string, outputDir *string, inputDir, taskName string) bool {
+func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) bool {
 	if outputDir == nil {
-		outputDir = &inputDir
+		outDir := filepath.Dir(metadataJsonPath)
+		outputDir = &outDir
 	}
-	carFiles := ReadCarFilesFromJsonFile(inputDir, taskName)
+	filename := filepath.Base(metadataJsonPath)
+	taskName := strings.TrimSuffix(filename, filepath.Ext(filename))
+	carFiles := ReadCarFilesFromJsonFileByFullPath(metadataJsonPath)
+	if carFiles == nil {
+		logs.GetLogger().Error("Failed to read car files from json.")
+		return false
+	}
 
-	result := SendDeals2Miner(minerFid, *outputDir, carFiles)
+	result := SendDeals2Miner(taskName, minerFid, *outputDir, carFiles)
 
 	return result
 }
 
-func SendDeals2Miner(minerFid string, outputDir string, carFiles []*model.FileDesc) bool {
+func SendDeals2Miner(taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) bool {
 	//dealConfig := DealConfig{
 	//	SenderWallet:       config.GetConfig().Sender.Wallet,
 	//	MaxPrice:           config.GetConfig().Sender.MaxPrice,
