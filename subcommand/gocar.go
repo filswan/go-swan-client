@@ -2,19 +2,19 @@ package subcommand
 
 import (
 	"go-swan-client/common/client"
-	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/google/uuid"
 )
 
 func GenerateGoCarFiles(inputDir, outputDir *string) bool {
 	if outputDir == nil {
-		outDir := utils.GetPath(config.GetConfig().Sender.OutputDir, uuid.NewString())
+		outDir := filepath.Join(config.GetConfig().Sender.OutputDir, uuid.NewString())
 		outputDir = &outDir
 	}
 
@@ -35,7 +35,7 @@ func GenerateGoCarFiles(inputDir, outputDir *string) bool {
 	for _, srcFile := range srcFiles {
 		carFile := model.FileDesc{}
 		carFile.SourceFileName = srcFile.Name()
-		carFile.SourceFilePath = utils.GetPath(*inputDir, carFile.SourceFileName)
+		carFile.SourceFilePath = filepath.Join(*inputDir, carFile.SourceFileName)
 		carFile.SourceFileSize = srcFile.Size()
 
 		carFiles = append(carFiles, &carFile)
@@ -49,7 +49,7 @@ func GenerateGoCarFiles(inputDir, outputDir *string) bool {
 func GenerateGoCar(carFiles []*model.FileDesc, outputDir string) bool {
 	for _, carFile := range carFiles {
 		carFile.CarFileName = carFile.SourceFileName + ".car"
-		carFile.CarFilePath = utils.GetPath(outputDir, carFile.CarFileName)
+		carFile.CarFilePath = filepath.Join(outputDir, carFile.CarFileName)
 
 		dataCid, carFileName, isSucceed := client.GraphSlit(outputDir, carFile.SourceFileName, carFile.CarFilePath)
 		if !isSucceed {

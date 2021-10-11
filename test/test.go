@@ -5,7 +5,12 @@ import (
 	"go-swan-client/logs"
 	"go-swan-client/model"
 	"go-swan-client/subcommand"
+	"path/filepath"
 )
+
+func Test() {
+	TestFilePathJoin()
+}
 
 func TestGenerateCarFiles() {
 	inputDir := "/home/peware/go-swan-client/input"
@@ -28,4 +33,10 @@ func TestCreateTask() {
 
 	response := swan.SwanCreateTask(task, "/Users/dorachen/go-workspace/src/go-swan-client/test/car.csv")
 	logs.GetLogger().Info(response)
+}
+
+func TestFilePathJoin() {
+	logs.GetLogger().Info(filepath.Join("/abc////", "path2"))
+	logs.GetLogger().Info(filepath.Join("/abc////", ""))
+	logs.GetLogger().Info(filepath.Join("/abc////", "", "test"))
 }

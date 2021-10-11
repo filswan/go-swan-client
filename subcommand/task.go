@@ -4,7 +4,6 @@ import (
 	"encoding/csv"
 	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
-	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
@@ -83,7 +82,7 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 }
 
 func GenerateMetadataCsv(task model.Task, carFiles []*model.FileDesc, outDir string) bool {
-	csvFilePath := utils.GetPath(outDir, task.TaskName+"-metadata.csv")
+	csvFilePath := filepath.Join(outDir, task.TaskName+"-metadata.csv")
 	var headers []string
 	headers = append(headers, "uuid")
 	headers = append(headers, "source_file_name")
@@ -157,16 +156,6 @@ func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) b
 	csvFileName := task.TaskName + ".csv"
 	csvFilePath := filepath.Join(outDir, csvFileName)
 
-	headers := []string{
-		"uuid",
-		"miner_id",
-		"deal_cid",
-		"payload_cid",
-		"file_source_url",
-		"md5",
-		"start_epoch",
-	}
-
 	file, err := os.Create(csvFilePath)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -177,6 +166,16 @@ func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) b
 
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
+
+	headers := []string{
+		"uuid",
+		"miner_id",
+		"deal_cid",
+		"payload_cid",
+		"file_source_url",
+		"md5",
+		"start_epoch",
+	}
 
 	err = writer.Write(headers)
 	if err != nil {
@@ -214,9 +213,8 @@ func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) b
 
 	logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
 
-	swan := client.SwanGetClient()
-
-	response := swan.SwanCreateTask(task, csvFilePath)
+	swanClient := client.SwanGetClient()
+	response := swanClient.SwanCreateTask(task, csvFilePath)
 	logs.GetLogger().Info(response)
 
 	return true

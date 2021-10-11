@@ -3,9 +3,9 @@ package subcommand
 import (
 	"encoding/csv"
 	"encoding/json"
-	"go-swan-client/common/utils"
 	"go-swan-client/logs"
 	"go-swan-client/model"
+	"path/filepath"
 
 	"io/ioutil"
 	"os"
@@ -13,7 +13,7 @@ import (
 )
 
 func generateJsonFile(carFiles []*model.FileDesc, outputDir string) {
-	jsonFilePath := utils.GetPath(outputDir, "car.json")
+	jsonFilePath := filepath.Join(outputDir, "car.json")
 	content, err := json.MarshalIndent(carFiles, "", " ")
 	if err != nil {
 		logs.GetLogger().Fatal(err)
@@ -26,7 +26,7 @@ func generateJsonFile(carFiles []*model.FileDesc, outputDir string) {
 }
 
 func readCarFilesFromJsonFile(inputDir string) []*model.FileDesc {
-	jsonFilePath := utils.GetPath(inputDir, "car.json")
+	jsonFilePath := filepath.Join(inputDir, "car.json")
 
 	contents, err := ioutil.ReadFile(jsonFilePath)
 	if err != nil {
@@ -46,7 +46,7 @@ func readCarFilesFromJsonFile(inputDir string) []*model.FileDesc {
 }
 
 func generateCsvFile(carFiles []*model.FileDesc, outputDir, csvFileName string) {
-	csvPath := utils.GetPath(outputDir, csvFileName)
+	csvPath := filepath.Join(outputDir, csvFileName)
 
 	var headers []string
 	headers = append(headers, "car_file_name")

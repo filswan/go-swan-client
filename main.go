@@ -16,7 +16,7 @@ const SUBCOMMAND_CREATE_TASK = "task"
 func main() {
 	//execSubCmd()
 	//logs.GetLogger().Info("Hello")
-	test.TestCreateTask()
+	test.Test()
 }
 
 func execSubCmd() bool {

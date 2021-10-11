@@ -8,6 +8,7 @@ import (
 	"go-swan-client/model"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/codingsince1985/checksum"
 	"github.com/google/uuid"
@@ -24,10 +25,10 @@ func GenerateCarFiles(inputDir, outputDir *string) {
 
 	if outputDir == nil || len(*outputDir) == 0 {
 		if outputDir == nil {
-			outDir := utils.GetPath(config.GetConfig().Sender.OutputDir, uuid.NewString())
+			outDir := filepath.Join(config.GetConfig().Sender.OutputDir, uuid.NewString())
 			outputDir = &outDir
 		} else {
-			*outputDir = utils.GetPath(config.GetConfig().Sender.OutputDir, uuid.NewString())
+			*outputDir = filepath.Join(config.GetConfig().Sender.OutputDir, uuid.NewString())
 		}
 
 		logs.GetLogger().Info("output-dir is not provided, use default:", outputDir)
@@ -48,10 +49,10 @@ func GenerateCarFiles(inputDir, outputDir *string) {
 	for _, srcFile := range srcFiles {
 		carFile := model.FileDesc{}
 		carFile.SourceFileName = srcFile.Name()
-		carFile.SourceFilePath = utils.GetPath(*inputDir, carFile.SourceFileName)
+		carFile.SourceFilePath = filepath.Join(*inputDir, carFile.SourceFileName)
 		carFile.SourceFileSize = srcFile.Size()
 		carFile.CarFileName = carFile.SourceFileName + ".car"
-		carFile.CarFilePath = utils.GetPath(*outputDir, carFile.CarFileName)
+		carFile.CarFilePath = filepath.Join(*outputDir, carFile.CarFileName)
 
 		err := client.LotusGenerateCar(carFile.SourceFilePath, carFile.CarFilePath)
 		if err != nil {

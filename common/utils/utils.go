@@ -11,6 +11,7 @@ import (
 	"math/big"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -264,24 +265,8 @@ func GetFieldMapFromJson(jsonStr string, fieldName string) map[string]interface{
 	return fieldVal.(map[string]interface{})
 }
 
-func GetPath(root string, paths ...string) string {
-	separator := "/"
-	result := strings.TrimRight(root, separator)
-
-	for _, path := range paths {
-		path = strings.Trim(path, separator)
-		if path == "" {
-			continue
-		}
-
-		result = strings.TrimRight(result, separator) + separator + strings.Trim(path, separator)
-	}
-
-	return result
-}
-
-func IsFileExists(filePath, fileName string) bool {
-	fileFullPath := GetPath(filePath, fileName)
+func IsFileExists(dir, fileName string) bool {
+	fileFullPath := filepath.Join(dir, fileName)
 	_, err := os.Stat(fileFullPath)
 
 	if err != nil {
@@ -303,8 +288,8 @@ func IsFileExistsFullPath(fileFullPath string) bool {
 	return true
 }
 
-func RemoveFile(filePath, fileName string) {
-	fileFullPath := GetPath(filePath, fileName)
+func RemoveFile(dir, fileName string) {
+	fileFullPath := filepath.Join(dir, fileName)
 	err := os.Remove(fileFullPath)
 	if err != nil {
 		logs.GetLogger().Error(err.Error())
@@ -321,8 +306,8 @@ func GetFileSize(fileFullPath string) int64 {
 	return fi.Size()
 }
 
-func GetFileSize2(filePath, fileName string) int64 {
-	fileFullPath := GetPath(filePath, fileName)
+func GetFileSize2(dir, fileName string) int64 {
+	fileFullPath := filepath.Join(dir, fileName)
 	fi, err := os.Stat(fileFullPath)
 	if err != nil {
 		logs.GetLogger().Info(err)
@@ -332,8 +317,8 @@ func GetFileSize2(filePath, fileName string) int64 {
 	return fi.Size()
 }
 
-func ReadAllLines(filepath, filename string) ([]string, error) {
-	fileFullPath := GetPath(filepath, filename)
+func ReadAllLines(dir, filename string) ([]string, error) {
+	fileFullPath := filepath.Join(dir, filename)
 
 	file, err := os.Open(fileFullPath)
 

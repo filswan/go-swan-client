@@ -4,12 +4,12 @@ import (
 	"encoding/csv"
 	"fmt"
 	"go-swan-client/common/client"
-	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
 	"math"
 	"os"
+	"path/filepath"
 	"strconv"
 )
 
@@ -117,7 +117,7 @@ func sendDeals2Miner1(outputDir string, taskName string, taskUuid string, minerI
 
 func createCsv4Deal(task model.Task, carFiles []*model.FileDesc, minerId *string, outDir string) error {
 	csvFileName := task.TaskName + ".csv"
-	csvFilePath := utils.GetPath(outDir, csvFileName)
+	csvFilePath := filepath.Join(outDir, csvFileName)
 
 	logs.GetLogger().Info("Swan task CSV Generated: ", csvFilePath)
 
