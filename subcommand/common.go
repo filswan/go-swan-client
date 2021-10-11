@@ -12,7 +12,7 @@ import (
 	"strconv"
 )
 
-func generateJsonFile(carFiles []*model.FileDesc, outputDir string) {
+func writeCarFilesToJsonFile(carFiles []*model.FileDesc, outputDir string) {
 	jsonFilePath := filepath.Join(outputDir, "car.json")
 	content, err := json.MarshalIndent(carFiles, "", " ")
 	if err != nil {

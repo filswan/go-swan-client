@@ -40,5 +40,5 @@ func UploadCarFiles(inputDir string) {
 	}
 
 	generateMetadataCsv(nil, carFiles, inputDir, "car.csv")
-	generateJsonFile(carFiles, inputDir)
+	writeCarFilesToJsonFile(carFiles, inputDir)
 }
