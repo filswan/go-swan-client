@@ -11,14 +11,20 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 )
 
-func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *string) bool {
+func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *string) (*string, bool) {
 	if outputDir == nil {
 		outDir := config.GetConfig().Sender.OutputDir
 		outputDir = &outDir
+	}
+
+	if taskName == nil {
+		nowStr := "task_" + time.Now().Format("2006-01-02_15:04:05")
+		taskName = &nowStr
 	}
 	publicDeal := config.GetConfig().Sender.PublicDeal
 	verifiedDeal := config.GetConfig().Sender.VerifiedDeal
@@ -38,20 +44,20 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 
 	if !publicDeal && minerFid == nil {
 		logs.GetLogger().Error("Please provide -miner for non public deal.")
-		return false
+		return nil, false
 	}
 
-	carFiles := ReadCarFilesFromJsonFile(*inputDir, JSON_FILE_NAME_AFTER_UPLOAD)
+	carFiles := ReadCarFilesFromJsonFile(*inputDir, JSON_FILE_NAME_BY_UPLOAD)
 	if carFiles == nil {
 		logs.GetLogger().Error("Failed to read car files from : ", *inputDir)
-		return false
+		return nil, false
 	}
 
 	err := os.MkdirAll(*outputDir, os.ModePerm)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		logs.GetLogger().Error("Failed to create output dir:", *outputDir)
-		return false
+		return nil, false
 	}
 
 	task := model.Task{
@@ -75,14 +81,15 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 	if !publicDeal {
 		result := SendDeals2Miner(*minerFid, *outputDir, carFiles)
 		if !result {
-			return result
+			return nil, result
 		}
 	}
 
-	GenerateMetadataCsv(task.MinerId, carFiles, *outputDir, task.TaskName+"-metadata.csv")
-	WriteCarFilesToJsonFile(carFiles, *outputDir, JSON_FILE_NAME_AFTER_TASK)
+	jsonFileName := *taskName + JSON_FILE_NAME_BY_TASK_SUFFIX
+	csvFileName := *taskName + CSV_FILE_NAME_BY_TASK_SUFFIX
+	WriteCarFilesToFiles(carFiles, *outputDir, jsonFileName, csvFileName)
 	SendTask2Swan(task, carFiles, *outputDir)
-	return true
+	return &jsonFileName, true
 }
 
 func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) bool {

@@ -25,11 +25,11 @@ type DealConfig struct {
 	SkipConfirmation   bool   `json:"skip_confirmation"`
 }
 
-func SendDeals(minerFid string, taskName *string, outputDir *string, inputDir string) bool {
+func SendDeals(minerFid string, outputDir *string, inputDir, taskName string) bool {
 	if outputDir == nil {
 		outputDir = &inputDir
 	}
-	carFiles := ReadCarFilesFromJsonFile(inputDir, JSON_FILE_NAME_AFTER_TASK)
+	carFiles := ReadCarFilesFromJsonFile(inputDir, taskName)
 
 	result := SendDeals2Miner(minerFid, *outputDir, carFiles)
 
@@ -80,7 +80,7 @@ func SendDeals2Miner(minerFid string, outputDir string, carFiles []*model.FileDe
 			return false
 		}
 		if price > maxPriceFloat {
-			msg := fmt.Sprintf("miner %s price %s higher than max price %s", minerFid, price, maxPrice)
+			msg := fmt.Sprintf("miner %s price %f higher than max price %s", minerFid, price, maxPrice)
 			logs.GetLogger().Warn(msg)
 			continue
 		}
@@ -94,7 +94,7 @@ func SendDeals2Miner(minerFid string, outputDir string, carFiles []*model.FileDe
 		cost := calculateRealCost(sectorSize, price)
 		dealCid, startEpoch := client.LotusProposeOfflineDeal(price, cost, pieceSize, carFile.DataCid, carFile.PieceCid, minerFid)
 		outputCsvPath := ""
-		carFile.MinerId = minerFid
+		carFile.MinerFid = &minerFid
 		carFile.DealCid = *dealCid
 		carFile.StartEpoch = strconv.Itoa(*startEpoch)
 

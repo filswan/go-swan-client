@@ -88,8 +88,7 @@ func GenerateCarFiles(inputDir, outputDir *string) {
 		carFiles = append(carFiles, &carFile)
 	}
 
-	GenerateMetadataCsv(nil, carFiles, *outputDir, "car.csv")
-	WriteCarFilesToJsonFile(carFiles, *outputDir, JSON_FILE_NAME_AFTER_CAR)
+	WriteCarFilesToFiles(carFiles, *outputDir, JSON_FILE_NAME_BY_CAR, CSV_FILE_NAME_BY_CAR)
 
 	logs.GetLogger().Info("Car files output dir: ", outputDir)
 	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")

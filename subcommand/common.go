@@ -13,23 +13,49 @@ import (
 )
 
 const (
-	JSON_FILE_NAME_AFTER_CAR    = "car.json"
-	JSON_FILE_NAME_AFTER_UPLOAD = "upload.json"
-	JSON_FILE_NAME_AFTER_TASK   = "task.json"
-	JSON_FILE_NAME_AFTER_DEAL   = "deal.json"
+	JSON_FILE_NAME_BY_CAR         = "car.json"
+	JSON_FILE_NAME_BY_UPLOAD      = "upload.json"
+	JSON_FILE_NAME_BY_TASK_SUFFIX = "task.json"
+	JSON_FILE_NAME_BY_DEAL_SUFFIX = "deal.json"
+
+	CSV_FILE_NAME_BY_CAR         = "car.csv"
+	CSV_FILE_NAME_BY_UPLOAD      = "upload.csv"
+	CSV_FILE_NAME_BY_TASK_SUFFIX = "task.csv"
+	CSV_FILE_NAME_BY_DEAL_SUFFIX = "deal.csv"
 )
 
-func WriteCarFilesToJsonFile(carFiles []*model.FileDesc, outputDir, jsonFilename string) {
+func WriteCarFilesToFiles(carFiles []*model.FileDesc, outputDir, jsonFilename, csvFileName string) bool {
+	result := WriteCarFilesToJsonFile(carFiles, outputDir, jsonFilename)
+	if !result {
+		logs.GetLogger().Error("Failed to generate json file.")
+		return result
+	}
+
+	result = WriteCarFilesToCsvFile(carFiles, outputDir, csvFileName)
+	if !result {
+		logs.GetLogger().Error("Failed to generate json file.")
+		return result
+	}
+
+	return true
+}
+
+func WriteCarFilesToJsonFile(carFiles []*model.FileDesc, outputDir, jsonFilename string) bool {
 	jsonFilePath := filepath.Join(outputDir, jsonFilename)
 	content, err := json.MarshalIndent(carFiles, "", " ")
 	if err != nil {
-		logs.GetLogger().Fatal(err)
+		logs.GetLogger().Error(err)
+		return false
 	}
 
 	err = ioutil.WriteFile(jsonFilePath, content, 0644)
 	if err != nil {
-		logs.GetLogger().Fatal(err)
+		logs.GetLogger().Error(err)
+		return false
 	}
+
+	logs.GetLogger().Info("Metadata CSV Generated: ", jsonFilePath)
+	return true
 }
 
 func ReadCarFilesFromJsonFile(inputDir, jsonFilename string) []*model.FileDesc {
@@ -52,7 +78,7 @@ func ReadCarFilesFromJsonFile(inputDir, jsonFilename string) []*model.FileDesc {
 	return carFiles
 }
 
-func GenerateMetadataCsv(minerFid *string, carFiles []*model.FileDesc, outDir, csvFileName string) bool {
+func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName string) bool {
 	csvFilePath := filepath.Join(outDir, csvFileName)
 	var headers []string
 	headers = append(headers, "uuid")
@@ -104,8 +130,8 @@ func GenerateMetadataCsv(minerFid *string, carFiles []*model.FileDesc, outDir, c
 		columns = append(columns, carFile.DealCid)
 		columns = append(columns, carFile.DataCid)
 		columns = append(columns, carFile.PieceCid)
-		if minerFid != nil {
-			columns = append(columns, *minerFid)
+		if carFile.MinerFid != nil {
+			columns = append(columns, *carFile.MinerFid)
 		} else {
 			columns = append(columns, "")
 		}

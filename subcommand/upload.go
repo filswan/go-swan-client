@@ -23,7 +23,7 @@ func UploadCarFiles(inputDir string) {
 	gatewayIp := words[2]
 	gatewayPort := words[4]
 
-	carFiles := ReadCarFilesFromJsonFile(inputDir, JSON_FILE_NAME_AFTER_CAR)
+	carFiles := ReadCarFilesFromJsonFile(inputDir, JSON_FILE_NAME_BY_CAR)
 	if carFiles == nil {
 		logs.GetLogger().Fatal("Failed to read: ", inputDir)
 	}
@@ -39,6 +39,5 @@ func UploadCarFiles(inputDir string) {
 		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileUrl)
 	}
 
-	GenerateMetadataCsv(nil, carFiles, inputDir, "car.csv")
-	WriteCarFilesToJsonFile(carFiles, inputDir, JSON_FILE_NAME_AFTER_UPLOAD)
+	WriteCarFilesToFiles(carFiles, inputDir, JSON_FILE_NAME_BY_UPLOAD, CSV_FILE_NAME_BY_UPLOAD)
 }
