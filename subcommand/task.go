@@ -41,14 +41,10 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 		return false
 	}
 
-	carFiles := readCarFilesFromJsonFile(*inputDir)
+	carFiles := ReadCarFilesFromJsonFile(*inputDir, JSON_FILE_NAME_AFTER_UPLOAD)
 	if carFiles == nil {
 		logs.GetLogger().Error("Failed to read car files from : ", *inputDir)
 		return false
-	}
-
-	if !publicDeal {
-		//sendDeals(outputDir,task)
 	}
 
 	err := os.MkdirAll(*outputDir, os.ModePerm)
@@ -76,7 +72,15 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 		}
 	}
 
-	generateMetadataCsv(task.MinerId, carFiles, *outputDir, task.TaskName+"-metadata.csv")
+	if !publicDeal {
+		result := SendDeals2Miner(*minerFid, *outputDir, carFiles)
+		if !result {
+			return result
+		}
+	}
+
+	GenerateMetadataCsv(task.MinerId, carFiles, *outputDir, task.TaskName+"-metadata.csv")
+	WriteCarFilesToJsonFile(carFiles, *outputDir, JSON_FILE_NAME_AFTER_TASK)
 	SendTask2Swan(task, carFiles, *outputDir)
 	return true
 }

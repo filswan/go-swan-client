@@ -6,10 +6,11 @@ import (
 	"go-swan-client/model"
 	"go-swan-client/subcommand"
 	"path/filepath"
+	"strings"
 )
 
 func Test() {
-	TestFilePathJoin()
+	TestFilePath()
 }
 
 func TestGenerateCarFiles() {
@@ -35,7 +36,10 @@ func TestCreateTask() {
 	logs.GetLogger().Info(response)
 }
 
-func TestFilePathJoin() {
+func TestFilePath() {
+	filename := filepath.Base("/Users/dorachen/go-workspace/src/go-swan-client/test.go")
+	logs.GetLogger().Info(filename)
+	logs.GetLogger().Info(strings.TrimSuffix(filename, filepath.Ext(filename)))
 	logs.GetLogger().Info(filepath.Join("/abc////", "path2"))
 	logs.GetLogger().Info(filepath.Join("/abc////", ""))
 	logs.GetLogger().Info(filepath.Join("/abc////", "", "test"))
