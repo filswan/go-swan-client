@@ -29,11 +29,11 @@ type DealConfig struct {
 
 func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) bool {
 	if outputDir == nil {
-		outDir := filepath.Dir(metadataJsonPath)
+		outDir := config.GetConfig().Sender.OutputDir
 		outputDir = &outDir
 	}
-	filename := filepath.Base(metadataJsonPath)
-	taskName := strings.TrimSuffix(filename, JSON_FILE_NAME_BY_TASK_SUFFIX)
+	metadataJsonFilename := filepath.Base(metadataJsonPath)
+	taskName := strings.TrimSuffix(metadataJsonFilename, JSON_FILE_NAME_BY_TASK_SUFFIX)
 	carFiles := ReadCarFilesFromJsonFileByFullPath(metadataJsonPath)
 	if carFiles == nil {
 		logs.GetLogger().Error("Failed to read car files from json.")
