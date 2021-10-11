@@ -6,7 +6,6 @@ import (
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -49,13 +48,6 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 	carFiles := ReadCarFilesFromJsonFile(*inputDir, JSON_FILE_NAME_BY_UPLOAD)
 	if carFiles == nil {
 		logs.GetLogger().Error("Failed to read car files from : ", *inputDir)
-		return nil, false
-	}
-
-	err := os.MkdirAll(*outputDir, os.ModePerm)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		logs.GetLogger().Error("Failed to create output dir:", *outputDir)
 		return nil, false
 	}
 

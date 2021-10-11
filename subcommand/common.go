@@ -25,6 +25,13 @@ const (
 )
 
 func WriteCarFilesToFiles(carFiles []*model.FileDesc, outputDir, jsonFilename, csvFileName string) bool {
+	err := os.MkdirAll(outputDir, os.ModePerm)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		logs.GetLogger().Error("Failed to create output dir:", outputDir)
+		return false
+	}
+
 	result := WriteCarFilesToJsonFile(carFiles, outputDir, jsonFilename)
 	if !result {
 		logs.GetLogger().Error("Failed to generate json file.")

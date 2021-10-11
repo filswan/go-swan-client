@@ -7,7 +7,6 @@ import (
 	"go-swan-client/logs"
 	"go-swan-client/model"
 	"math"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -86,6 +85,8 @@ func CheckDealConfig(dealConfig DealConfig) bool {
 		return false
 	}
 
+	logs.GetLogger().Info("Deal check passed.")
+
 	return true
 }
 
@@ -102,19 +103,13 @@ func SendDeals2Miner(taskName string, minerFid string, outputDir string, carFile
 		return false
 	}
 
-	err := os.MkdirAll(outputDir, os.ModePerm)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return false
-	}
-
 	for _, carFile := range carFiles {
 		if carFile.CarFileSize <= 0 {
 			msg := fmt.Sprintf("File %s is too small", carFile.CarFilePath)
 			logs.GetLogger().Error(msg)
 			continue
 		}
-		pieceSize, sectorSize := calculatePieceSizeFromFileSize(carFile.CarFileSize)
+		pieceSize, sectorSize := calculatePieceSize(carFile.CarFileSize)
 		cost := calculateRealCost(sectorSize, dealConfig.Price)
 		dealCid, startEpoch := client.LotusProposeOfflineDeal(dealConfig.Price, cost, pieceSize, carFile.DataCid, carFile.PieceCid, minerFid)
 		outputCsvPath := ""
@@ -129,12 +124,13 @@ func SendDeals2Miner(taskName string, minerFid string, outputDir string, carFile
 	jsonFileName := taskName + JSON_FILE_NAME_BY_DEAL_SUFFIX
 	csvFileName := taskName + CSV_FILE_NAME_BY_DEAL_SUFFIX
 	WriteCarFilesToFiles(carFiles, outputDir, jsonFileName, csvFileName)
+	CreateCsv4TaskDeal(taskName, carFiles, &minerFid, outputDir)
 
 	return true
 }
 
 // https://docs.filecoin.io/store/lotus/very-large-files/#maximizing-storage-per-sector
-func calculatePieceSizeFromFileSize(fileSize int64) (int64, float64) {
+func calculatePieceSize(fileSize int64) (int64, float64) {
 	exp := math.Ceil(math.Log2(float64(fileSize)))
 	sectorSize2Check := math.Pow(2, exp)
 	pieceSize2Check := int64(sectorSize2Check * 254 / 256)
