@@ -164,7 +164,7 @@ func sendDeal() bool {
 	}
 
 	if minerFid == nil || len(*minerFid) == 0 {
-		logs.GetLogger().Error("input-dir is required.")
+		logs.GetLogger().Error("miner is required.")
 		return false
 	}
 

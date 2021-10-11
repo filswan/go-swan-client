@@ -1,7 +1,6 @@
 package subcommand
 
 import (
-	"encoding/csv"
 	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
 	"go-swan-client/config"
@@ -93,57 +92,10 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 }
 
 func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) bool {
-	csvFileName := task.TaskName + ".csv"
-	csvFilePath := filepath.Join(outDir, csvFileName)
-
-	file, err := os.Create(csvFilePath)
+	csvFilePath, err := CreateCsv4TaskDeal(task.TaskName, carFiles, task.MinerId, outDir)
 	if err != nil {
-		logs.GetLogger().Error(err)
-		logs.GetLogger().Error("Failed to genereate:", csvFilePath)
+		logs.GetLogger().Error("Failed to generate csv for task.")
 		return false
-	}
-	defer file.Close()
-
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
-
-	headers := []string{
-		"uuid",
-		"miner_id",
-		"deal_cid",
-		"payload_cid",
-		"file_source_url",
-		"md5",
-		"start_epoch",
-	}
-
-	err = writer.Write(headers)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		logs.GetLogger().Error("Failed to genereate:", csvFilePath)
-		return false
-	}
-
-	for _, carFile := range carFiles {
-		var columns []string
-		columns = append(columns, carFile.Uuid)
-		if task.MinerId != nil {
-			columns = append(columns, *task.MinerId)
-		} else {
-			columns = append(columns, "")
-		}
-		columns = append(columns, carFile.DealCid)
-		columns = append(columns, carFile.DataCid)
-		columns = append(columns, carFile.CarFileUrl)
-		columns = append(columns, carFile.CarFileMd5)
-		columns = append(columns, carFile.StartEpoch)
-
-		err = writer.Write(columns)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			logs.GetLogger().Error("Failed to genereate:", csvFilePath)
-			return false
-		}
 	}
 
 	if config.GetConfig().Sender.OfflineMode {

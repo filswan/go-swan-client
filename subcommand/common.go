@@ -152,3 +152,59 @@ func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName stri
 
 	return true
 }
+
+func CreateCsv4TaskDeal(taskName string, carFiles []*model.FileDesc, minerId *string, outDir string) (string, error) {
+	csvFileName := taskName + ".csv"
+	csvFilePath := filepath.Join(outDir, csvFileName)
+
+	logs.GetLogger().Info("Swan task CSV Generated: ", csvFilePath)
+
+	headers := []string{
+		"uuid",
+		"miner_id",
+		"deal_cid",
+		"payload_cid",
+		"file_source_url",
+		"md5",
+		"start_epoch",
+	}
+
+	file, err := os.Create(csvFilePath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return "", err
+	}
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	err = writer.Write(headers)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return "", err
+	}
+
+	for _, carFile := range carFiles {
+		var columns []string
+		columns = append(columns, carFile.Uuid)
+		if minerId != nil {
+			columns = append(columns, *minerId)
+		} else {
+			columns = append(columns, "")
+		}
+		columns = append(columns, carFile.DealCid)
+		columns = append(columns, carFile.DataCid)
+		columns = append(columns, carFile.CarFileUrl)
+		columns = append(columns, carFile.CarFileMd5)
+		columns = append(columns, carFile.StartEpoch)
+
+		err = writer.Write(columns)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return "", err
+		}
+	}
+
+	return csvFilePath, nil
+}
