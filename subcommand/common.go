@@ -45,25 +45,30 @@ func readCarFilesFromJsonFile(inputDir string) []*model.FileDesc {
 	return carFiles
 }
 
-func generateCsvFile(carFiles []*model.FileDesc, outputDir, csvFileName string) {
-	csvPath := filepath.Join(outputDir, csvFileName)
-
+func generateMetadataCsv(minerFid *string, carFiles []*model.FileDesc, outDir, csvFileName string) bool {
+	csvFilePath := filepath.Join(outDir, csvFileName)
 	var headers []string
-	headers = append(headers, "car_file_name")
-	headers = append(headers, "car_file_path")
-	headers = append(headers, "piece_cid")
-	headers = append(headers, "data_cid")
-	headers = append(headers, "car_file_size")
-	headers = append(headers, "car_file_md5")
+	headers = append(headers, "uuid")
 	headers = append(headers, "source_file_name")
 	headers = append(headers, "source_file_path")
-	headers = append(headers, "source_file_size")
 	headers = append(headers, "source_file_md5")
+	headers = append(headers, "source_file_url")
+	headers = append(headers, "source_file_size")
+	headers = append(headers, "car_file_name")
+	headers = append(headers, "car_file_path")
+	headers = append(headers, "car_file_md5")
 	headers = append(headers, "car_file_url")
+	headers = append(headers, "car_file_size")
+	headers = append(headers, "deal_cid")
+	headers = append(headers, "data_cid")
+	headers = append(headers, "piece_cid")
+	headers = append(headers, "miner_id")
+	headers = append(headers, "start_epoch")
 
-	file, err := os.Create(csvPath)
+	file, err := os.Create(csvFilePath)
 	if err != nil {
-		logs.GetLogger().Fatal(err)
+		logs.GetLogger().Error(err)
+		return false
 	}
 	defer file.Close()
 
@@ -72,26 +77,41 @@ func generateCsvFile(carFiles []*model.FileDesc, outputDir, csvFileName string) 
 
 	err = writer.Write(headers)
 	if err != nil {
-		logs.GetLogger().Fatal(err)
+		logs.GetLogger().Error(err)
+		return false
 	}
 
 	for _, carFile := range carFiles {
 		var columns []string
-		columns = append(columns, carFile.CarFileName)
-		columns = append(columns, carFile.CarFilePath)
-		columns = append(columns, carFile.PieceCid)
-		columns = append(columns, carFile.DataCid)
-		columns = append(columns, strconv.FormatInt(carFile.CarFileSize, 10))
-		columns = append(columns, carFile.CarFileMd5)
+		columns = append(columns, carFile.Uuid)
 		columns = append(columns, carFile.SourceFileName)
 		columns = append(columns, carFile.SourceFilePath)
-		columns = append(columns, strconv.FormatInt(carFile.CarFileSize, 10))
 		columns = append(columns, strconv.FormatBool(carFile.SourceFileMd5))
+		columns = append(columns, carFile.SourceFileUrl)
+		columns = append(columns, strconv.FormatInt(carFile.SourceFileSize, 10))
+		columns = append(columns, carFile.CarFileName)
+		columns = append(columns, carFile.CarFilePath)
+		columns = append(columns, carFile.CarFileMd5)
 		columns = append(columns, carFile.CarFileUrl)
+		columns = append(columns, strconv.FormatInt(carFile.CarFileSize, 10))
+		columns = append(columns, carFile.DealCid)
+		columns = append(columns, carFile.DataCid)
+		columns = append(columns, carFile.PieceCid)
+		if minerFid != nil {
+			columns = append(columns, *minerFid)
+		} else {
+			columns = append(columns, "")
+		}
+		columns = append(columns, carFile.StartEpoch)
 
 		err = writer.Write(columns)
 		if err != nil {
-			logs.GetLogger().Fatal(err)
+			logs.GetLogger().Error(err)
+			return false
 		}
 	}
+
+	logs.GetLogger().Info("Metadata CSV Generated: ", csvFilePath)
+
+	return true
 }

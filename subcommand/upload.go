@@ -39,6 +39,6 @@ func UploadCarFiles(inputDir string) {
 		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileUrl)
 	}
 
-	generateCsvFile(carFiles, inputDir, "car.csv")
+	generateMetadataCsv(nil, carFiles, inputDir, "car.csv")
 	generateJsonFile(carFiles, inputDir)
 }

@@ -88,7 +88,7 @@ func GenerateCarFiles(inputDir, outputDir *string) {
 		carFiles = append(carFiles, &carFile)
 	}
 
-	generateCsvFile(carFiles, *outputDir, "car.csv")
+	generateMetadataCsv(nil, carFiles, *outputDir, "car.csv")
 	generateJsonFile(carFiles, *outputDir)
 
 	logs.GetLogger().Info("Car files output dir: ", outputDir)
