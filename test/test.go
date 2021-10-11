@@ -10,7 +10,7 @@ import (
 )
 
 func Test() {
-	TestFilePath()
+	TestDealConfig()
 }
 
 func TestGenerateCarFiles() {
@@ -43,4 +43,9 @@ func TestFilePath() {
 	logs.GetLogger().Info(filepath.Join("/abc////", "path2"))
 	logs.GetLogger().Info(filepath.Join("/abc////", ""))
 	logs.GetLogger().Info(filepath.Join("/abc////", "", "test"))
+}
+
+func TestDealConfig() {
+	dealConfig := subcommand.GetDealConfig("t03354")
+	subcommand.CheckDealConfig(*dealConfig)
 }

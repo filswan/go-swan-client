@@ -143,7 +143,7 @@ func LotusGetMinerConfig(minerFid string) (*float64, *float64, *string, *string)
 			words := strings.Split(line, ":")
 			if len(words) == 2 {
 				maxPieceSize = strings.Trim(words[1], " ")
-				if maxPieceSize == "" {
+				if maxPieceSize != "" {
 					logs.GetLogger().Info("miner MaxPieceSize: ", maxPieceSize)
 				} else {
 					logs.GetLogger().Error("Failed to get miner MaxPieceSize from lotus")
@@ -156,7 +156,7 @@ func LotusGetMinerConfig(minerFid string) (*float64, *float64, *string, *string)
 			words := strings.Split(line, ":")
 			if len(words) == 2 {
 				minPieceSize = strings.Trim(words[1], " ")
-				if minPieceSize == "" {
+				if minPieceSize != "" {
 					logs.GetLogger().Info("miner MinPieceSize: ", minPieceSize)
 				} else {
 					logs.GetLogger().Error("Failed to get miner MinPieceSize from lotus")

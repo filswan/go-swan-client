@@ -70,7 +70,7 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 	}
 
 	if !publicDeal {
-		result := SendDeals2Miner(*taskName, *minerFid, *outputDir, carFiles)
+		result := SendDeals2Miner(nil, *taskName, *minerFid, *outputDir, carFiles)
 		if !result {
 			return nil, result
 		}

@@ -23,7 +23,7 @@ type DealConfig struct {
 	FastRetrieval      bool
 	EpochIntervalHours int
 	SkipConfirmation   bool
-	Price              float64
+	MinerPrice         float64
 }
 
 func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) bool {
@@ -39,7 +39,7 @@ func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) bool
 		return false
 	}
 
-	result := SendDeals2Miner(taskName, minerFid, *outputDir, carFiles)
+	result := SendDeals2Miner(nil, taskName, minerFid, *outputDir, carFiles)
 
 	return result
 }
@@ -55,8 +55,8 @@ func GetDealConfig(minerFid string) *DealConfig {
 	}
 	maxPriceStr := config.GetConfig().Sender.MaxPrice
 	maxPrice, err := strconv.ParseFloat(maxPriceStr, 64)
-	if err == nil {
-		logs.GetLogger().Error("Failed to convert maxPrice to float.")
+	if err != nil {
+		logs.GetLogger().Error("Failed to convert maxPrice to float, MaxPrice:", maxPriceStr)
 		return nil
 	}
 	dealConfig.MaxPrice = maxPrice
@@ -67,20 +67,22 @@ func GetDealConfig(minerFid string) *DealConfig {
 func CheckDealConfig(dealConfig DealConfig) bool {
 	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(dealConfig.MinerFid)
 
-	if config.GetConfig().Sender.VerifiedDeal {
+	if dealConfig.VerifiedDeal {
 		if minerVerifiedPrice == nil {
 			return false
 		}
-		dealConfig.Price = *minerVerifiedPrice
+		dealConfig.MinerPrice = *minerVerifiedPrice
 	} else {
 		if minerPrice == nil {
 			return false
 		}
-		dealConfig.Price = *minerPrice
+		dealConfig.MinerPrice = *minerPrice
 	}
 
-	if dealConfig.Price > dealConfig.MaxPrice {
-		msg := fmt.Sprintf("miner %s price %f higher than max price %f", dealConfig.MinerFid, dealConfig.Price, dealConfig.MaxPrice)
+	msg := fmt.Sprintf("Miner price is:%f, VerifiedDeal:%t", dealConfig.MinerPrice, dealConfig.VerifiedDeal)
+	logs.GetLogger().Info(msg)
+	if dealConfig.MaxPrice < dealConfig.MinerPrice {
+		msg := fmt.Sprintf("miner %s price %f higher than max price %f", dealConfig.MinerFid, dealConfig.MinerPrice, dealConfig.MaxPrice)
 		logs.GetLogger().Error(msg)
 		return false
 	}
@@ -90,11 +92,13 @@ func CheckDealConfig(dealConfig DealConfig) bool {
 	return true
 }
 
-func SendDeals2Miner(taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) bool {
-	dealConfig := GetDealConfig(minerFid)
+func SendDeals2Miner(dealConfig *DealConfig, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) bool {
 	if dealConfig == nil {
-		logs.GetLogger().Error("Failed to get deal config.")
-		return false
+		dealConfig := GetDealConfig(minerFid)
+		if dealConfig == nil {
+			logs.GetLogger().Error("Failed to get deal config.")
+			return false
+		}
 	}
 
 	result := CheckDealConfig(*dealConfig)
@@ -110,8 +114,8 @@ func SendDeals2Miner(taskName string, minerFid string, outputDir string, carFile
 			continue
 		}
 		pieceSize, sectorSize := calculatePieceSize(carFile.CarFileSize)
-		cost := calculateRealCost(sectorSize, dealConfig.Price)
-		dealCid, startEpoch := client.LotusProposeOfflineDeal(dealConfig.Price, cost, pieceSize, carFile.DataCid, carFile.PieceCid, minerFid)
+		cost := calculateRealCost(sectorSize, dealConfig.MinerPrice)
+		dealCid, startEpoch := client.LotusProposeOfflineDeal(dealConfig.MinerPrice, cost, pieceSize, carFile.DataCid, carFile.PieceCid, minerFid)
 		outputCsvPath := ""
 		carFile.MinerFid = &minerFid
 		carFile.DealCid = *dealCid
