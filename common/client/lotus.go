@@ -7,6 +7,7 @@ import (
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
+	"go-swan-client/model"
 	"regexp"
 	"strconv"
 	"strings"
@@ -259,26 +260,24 @@ func LotusGenerateCar(srcFilePath, destCarFilePath string) error {
 	return nil
 }
 
-func LotusProposeOfflineDeal(price, cost float64, pieceSize int64, dataCid, pieceCid, minerId string) (*string, *int) {
-	epochIntervalHours := config.GetConfig().Sender.StartEpochHours
+func LotusProposeOfflineDeal(price, cost float64, pieceSize int64, dataCid, pieceCid string, dealConfig model.DealConfig) (*string, *int) {
 	fromWallet := config.GetConfig().Sender.Wallet
-	startEpoch := utils.GetCurrentEpoch() + (epochIntervalHours+1)*constants.EPOCH_PER_HOUR
-	fastRetrieval := strings.ToLower(strconv.FormatBool(config.GetConfig().Sender.FastRetrieval))
+	startEpoch := utils.GetCurrentEpoch() + (dealConfig.EpochIntervalHours+1)*constants.EPOCH_PER_HOUR
+	fastRetrieval := strings.ToLower(strconv.FormatBool(dealConfig.FastRetrieval))
 	verifiedDeal := strings.ToLower(strconv.FormatBool(config.GetConfig().Sender.VerifiedDeal))
 	cmd := "lotus client deal --from " + fromWallet + " --start-epoch " + strconv.Itoa(startEpoch) + " --fast-retrieval=" + fastRetrieval + " --verified-deal=" + verifiedDeal
-	cmd = cmd + " --manual-piece-cid " + pieceCid + " --manual-piece-size " + strconv.FormatInt(pieceSize, 10) + " " + dataCid + " " + minerId + " " + strconv.FormatFloat(cost, 'f', -1, 10)
+	cmd = cmd + " --manual-piece-cid " + pieceCid + " --manual-piece-size " + strconv.FormatInt(pieceSize, 10) + " " + dataCid + " " + dealConfig.MinerFid + " " + strconv.FormatFloat(cost, 'f', -1, 10)
 
 	logs.GetLogger().Info(cmd)
-	logs.GetLogger().Info("wallet:", fromWallet)
-	logs.GetLogger().Info("miner:", minerId)
+	logs.GetLogger().Info("wallet:", dealConfig.SenderWallet)
+	logs.GetLogger().Info("miner:", dealConfig.MinerFid)
 	logs.GetLogger().Info("price:", price)
 	logs.GetLogger().Info("total cost:", cost)
 	logs.GetLogger().Info("start epoch:", startEpoch)
 	logs.GetLogger().Info("fast-retrieval:", fastRetrieval)
 	logs.GetLogger().Info("verified-deal:", verifiedDeal)
 
-	skipConfirmation := config.GetConfig().Sender.SkipConfirmation
-	if !skipConfirmation {
+	if !dealConfig.SkipConfirmation {
 		logs.GetLogger().Info("Press Enter to continue...")
 		var response string
 		_, err := fmt.Scanln(&response)

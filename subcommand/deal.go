@@ -15,17 +15,6 @@ import (
 const DURATION = "1051200"
 const EPOCH_PER_HOUR = 120
 
-type DealConfig struct {
-	MinerFid           string
-	SenderWallet       string
-	MaxPrice           float64
-	VerifiedDeal       bool
-	FastRetrieval      bool
-	EpochIntervalHours int
-	SkipConfirmation   bool
-	MinerPrice         float64
-}
-
 func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) bool {
 	if outputDir == nil {
 		outDir := config.GetConfig().Sender.OutputDir
@@ -44,14 +33,15 @@ func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) bool
 	return result
 }
 
-func GetDealConfig(minerFid string) *DealConfig {
-	dealConfig := DealConfig{
+func GetDealConfig(minerFid string) *model.DealConfig {
+	dealConfig := model.DealConfig{
 		MinerFid:           minerFid,
 		SenderWallet:       config.GetConfig().Sender.Wallet,
 		VerifiedDeal:       config.GetConfig().Sender.VerifiedDeal,
 		FastRetrieval:      config.GetConfig().Sender.FastRetrieval,
 		EpochIntervalHours: config.GetConfig().Sender.StartEpochHours,
 		SkipConfirmation:   config.GetConfig().Sender.SkipConfirmation,
+		StartEpochHours:    config.GetConfig().Sender.StartEpochHours,
 	}
 	maxPriceStr := config.GetConfig().Sender.MaxPrice
 	maxPrice, err := strconv.ParseFloat(maxPriceStr, 64)
@@ -64,7 +54,7 @@ func GetDealConfig(minerFid string) *DealConfig {
 	return &dealConfig
 }
 
-func CheckDealConfig(dealConfig DealConfig) bool {
+func CheckDealConfig(dealConfig model.DealConfig) bool {
 	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(dealConfig.MinerFid)
 
 	if dealConfig.VerifiedDeal {
@@ -92,7 +82,7 @@ func CheckDealConfig(dealConfig DealConfig) bool {
 	return true
 }
 
-func SendDeals2Miner(dealConfig *DealConfig, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) bool {
+func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) bool {
 	if dealConfig == nil {
 		dealConfig := GetDealConfig(minerFid)
 		if dealConfig == nil {
@@ -113,16 +103,12 @@ func SendDeals2Miner(dealConfig *DealConfig, taskName string, minerFid string, o
 			logs.GetLogger().Error(msg)
 			continue
 		}
-		pieceSize, sectorSize := calculatePieceSize(carFile.CarFileSize)
-		cost := calculateRealCost(sectorSize, dealConfig.MinerPrice)
-		dealCid, startEpoch := client.LotusProposeOfflineDeal(dealConfig.MinerPrice, cost, pieceSize, carFile.DataCid, carFile.PieceCid, minerFid)
-		outputCsvPath := ""
+		pieceSize, sectorSize := CalculatePieceSize(carFile.CarFileSize)
+		cost := CalculateRealCost(sectorSize, dealConfig.MinerPrice)
+		dealCid, startEpoch := client.LotusProposeOfflineDeal(dealConfig.MinerPrice, cost, pieceSize, carFile.DataCid, carFile.PieceCid, *dealConfig)
 		carFile.MinerFid = &minerFid
 		carFile.DealCid = *dealCid
 		carFile.StartEpoch = strconv.Itoa(*startEpoch)
-
-		logs.GetLogger().Info("Swan deal final CSV Generated: %s", outputCsvPath)
-
 	}
 
 	jsonFileName := taskName + JSON_FILE_NAME_BY_DEAL_SUFFIX
@@ -134,7 +120,7 @@ func SendDeals2Miner(dealConfig *DealConfig, taskName string, minerFid string, o
 }
 
 // https://docs.filecoin.io/store/lotus/very-large-files/#maximizing-storage-per-sector
-func calculatePieceSize(fileSize int64) (int64, float64) {
+func CalculatePieceSize(fileSize int64) (int64, float64) {
 	exp := math.Ceil(math.Log2(float64(fileSize)))
 	sectorSize2Check := math.Pow(2, exp)
 	pieceSize2Check := int64(sectorSize2Check * 254 / 256)
@@ -148,7 +134,7 @@ func calculatePieceSize(fileSize int64) (int64, float64) {
 	return realPieceSize, realSectorSize
 }
 
-func calculateRealCost(sectorSizeBytes float64, pricePerGiB float64) float64 {
+func CalculateRealCost(sectorSizeBytes float64, pricePerGiB float64) float64 {
 	var bytesPerGiB float64 = 1024 * 1024 * 1024
 	sectorSizeGiB := float64(sectorSizeBytes) / bytesPerGiB
 
