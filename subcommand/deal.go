@@ -16,24 +16,36 @@ import (
 const DURATION = "1051200"
 const EPOCH_PER_HOUR = 120
 
+type DealConfig struct {
+	MinerId            string `json:"miner_id"`
+	SenderWallet       string `json:"sender_wallet"`
+	MaxPrice           string `json:"max_price"`
+	VerifiedDeal       bool   `json:"verified_deal"`
+	FastRetrieval      bool   `json:"fast_retrieval"`
+	EpochIntervalHours int    `json:"epoch_interval_hours"`
+	SkipConfirmation   bool   `json:"skip_confirmation"`
+}
+
 func sendDeals(outputDir *string, task model.Task, carFiles []*model.FileDesc, taskUuid string) {
-	//fromWallet := config.GetConfig().Sender.Wallet
-	//maxPrice := config.GetConfig().Sender.MaxPrice
-	//verifiedDeal := config.GetConfig().Sender.VerifiedDeal
-	//fastRetrieval := config.GetConfig().Sender.FastRetrieval
-	//epochIntervalHours := config.GetConfig().Sender.StartEpochHours
+	dealConfig := DealConfig{
+		MinerId:            *task.MinerId,
+		SenderWallet:       config.GetConfig().Sender.Wallet,
+		MaxPrice:           config.GetConfig().Sender.MaxPrice,
+		VerifiedDeal:       config.GetConfig().Sender.VerifiedDeal,
+		FastRetrieval:      config.GetConfig().Sender.FastRetrieval,
+		EpochIntervalHours: config.GetConfig().Sender.StartEpochHours,
+		SkipConfirmation:   config.GetConfig().Sender.SkipConfirmation,
+	}
 
 	if outputDir == nil {
 		outDir := config.GetConfig().Sender.OutputDir
 		outputDir = &outDir
 	}
 
-	//deal_config = DealConfig(miner_id, fromWallet, maxPrice, verifiedDeal, fastRetrieval, epochIntervalHours)
-
-	sendDeals2Miner(task, *outputDir, carFiles, taskUuid)
+	sendDeals2Miner(dealConfig, task, *outputDir, carFiles, taskUuid)
 }
 
-func sendDeals2Miner(task model.Task, outputDir string, carFiles []*model.FileDesc, taskUuid string) {
+func sendDeals2Miner(dealConfig DealConfig, task model.Task, outputDir string, carFiles []*model.FileDesc, taskUuid string) {
 	err := os.MkdirAll(outputDir, os.ModePerm)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -49,7 +61,6 @@ func sendDeals2Miner(task model.Task, outputDir string, carFiles []*model.FileDe
 		logs.GetLogger().Error(err)
 		return
 	}
-
 }
 
 func createCsv4SendDeal(carFiles []*model.FileDesc, minerId *string, outDir string, task *model.Task) error {
@@ -105,24 +116,6 @@ func createCsv4SendDeal(carFiles []*model.FileDesc, minerId *string, outDir stri
 
 	return nil
 }
-
-/*
-class DealConfig:
-    miner_id = None
-    sender_wallet = None
-    max_price = None
-    verified_deal = None
-    fast_retrieval = None
-    epoch_interval_hours = None
-
-    def __init__(self, miner_id, sender_wallet, max_price, verified_deal, fast_retrieval, epoch_interval_hours):
-        self.miner_id = miner_id
-        self.sender_wallet = sender_wallet
-        self.max_price = max_price
-        self.verified_deal = verified_deal
-        self.fast_retrieval = fast_retrieval
-        self.epoch_interval_hours = epoch_interval_hours
-*/
 
 // https://docs.filecoin.io/store/lotus/very-large-files/#maximizing-storage-per-sector
 func calculatePieceSizeFromFileSize(fileSize int64) (int64, float64) {
