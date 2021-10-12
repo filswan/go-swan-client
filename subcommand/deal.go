@@ -12,9 +12,6 @@ import (
 	"strings"
 )
 
-const DURATION = "1051200"
-const EPOCH_PER_HOUR = 120
-
 func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) bool {
 	if outputDir == nil {
 		outDir := config.GetConfig().Sender.OutputDir
@@ -43,6 +40,12 @@ func GetDealConfig(minerFid string) *model.DealConfig {
 		SkipConfirmation:   config.GetConfig().Sender.SkipConfirmation,
 		StartEpochHours:    config.GetConfig().Sender.StartEpochHours,
 	}
+
+	if dealConfig.SenderWallet == "" {
+		logs.GetLogger().Error("Sender.wallet should be set in config file.")
+		return nil
+	}
+
 	maxPriceStr := config.GetConfig().Sender.MaxPrice
 	maxPrice, err := strconv.ParseFloat(maxPriceStr, 64)
 	if err != nil {
@@ -106,6 +109,10 @@ func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid str
 		pieceSize, sectorSize := CalculatePieceSize(carFile.CarFileSize)
 		cost := CalculateRealCost(sectorSize, dealConfig.MinerPrice)
 		dealCid, startEpoch := client.LotusProposeOfflineDeal(dealConfig.MinerPrice, cost, pieceSize, carFile.DataCid, carFile.PieceCid, *dealConfig)
+		if dealCid == nil || startEpoch == nil {
+			logs.GetLogger().Error("Failed to propose offline deal")
+			return false
+		}
 		carFile.MinerFid = &minerFid
 		carFile.DealCid = *dealCid
 		carFile.StartEpoch = strconv.Itoa(*startEpoch)

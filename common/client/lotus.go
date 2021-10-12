@@ -1,17 +1,20 @@
 package client
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
-	"go-swan-client/common/constants"
 	"go-swan-client/common/utils"
-	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
 )
+
+const DURATION = "1051200"
+const EPOCH_PER_HOUR = 120
 
 func LotusGetDealOnChainStatus(dealCid string) (string, string) {
 	cmd := "lotus-miner storage-deals list -v | grep " + dealCid
@@ -235,6 +238,7 @@ func LotusImportCarFile(carFilePath string) *string {
 	}
 
 	dataCid := strings.Trim(words[1], " ")
+	dataCid = strings.TrimRight(dataCid, "\n")
 
 	return &dataCid
 }
@@ -261,41 +265,48 @@ func LotusGenerateCar(srcFilePath, destCarFilePath string) error {
 }
 
 func LotusProposeOfflineDeal(price, cost float64, pieceSize int64, dataCid, pieceCid string, dealConfig model.DealConfig) (*string, *int) {
-	fromWallet := config.GetConfig().Sender.Wallet
-	startEpoch := utils.GetCurrentEpoch() + (dealConfig.EpochIntervalHours+1)*constants.EPOCH_PER_HOUR
+	startEpoch := utils.GetCurrentEpoch() + (dealConfig.EpochIntervalHours+1)*EPOCH_PER_HOUR
 	fastRetrieval := strings.ToLower(strconv.FormatBool(dealConfig.FastRetrieval))
-	verifiedDeal := strings.ToLower(strconv.FormatBool(config.GetConfig().Sender.VerifiedDeal))
-	cmd := "lotus client deal --from " + fromWallet + " --start-epoch " + strconv.Itoa(startEpoch) + " --fast-retrieval=" + fastRetrieval + " --verified-deal=" + verifiedDeal
-	cmd = cmd + " --manual-piece-cid " + pieceCid + " --manual-piece-size " + strconv.FormatInt(pieceSize, 10) + " " + dataCid + " " + dealConfig.MinerFid + " " + strconv.FormatFloat(cost, 'f', -1, 10)
-
-	logs.GetLogger().Info(cmd)
+	verifiedDeal := strings.ToLower(strconv.FormatBool(dealConfig.VerifiedDeal))
+	costStr := fmt.Sprintf("%f", cost)
 	logs.GetLogger().Info("wallet:", dealConfig.SenderWallet)
 	logs.GetLogger().Info("miner:", dealConfig.MinerFid)
 	logs.GetLogger().Info("price:", price)
-	logs.GetLogger().Info("total cost:", cost)
+	logs.GetLogger().Info("total cost:", costStr)
 	logs.GetLogger().Info("start epoch:", startEpoch)
 	logs.GetLogger().Info("fast-retrieval:", fastRetrieval)
 	logs.GetLogger().Info("verified-deal:", verifiedDeal)
 
+	cmd := "lotus client deal --from " + dealConfig.SenderWallet + " --start-epoch " + strconv.Itoa(startEpoch)
+	cmd = cmd + " --fast-retrieval=" + fastRetrieval + " --verified-deal=" + verifiedDeal
+	cmd = cmd + " --manual-piece-cid " + pieceCid + " --manual-piece-size " + strconv.FormatInt(pieceSize, 10)
+	cmd = cmd + " " + dataCid + " " + dealConfig.MinerFid + " " + costStr + " " + DURATION
+	logs.GetLogger().Info(cmd)
+
 	if !dealConfig.SkipConfirmation {
-		logs.GetLogger().Info("Press Enter to continue...")
-		var response string
-		_, err := fmt.Scanln(&response)
+		logs.GetLogger().Info("Do you confirm to submit the deal? Press Y/y to continue, other key to quit")
+		reader := bufio.NewReader(os.Stdin)
+		response, err := reader.ReadString('\n')
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, nil
 		}
 
-		if response != "/n" {
+		response = strings.TrimRight(response, "\n")
+
+		if strings.ToUpper(response) != "Y" {
+			logs.GetLogger().Info("Your input is ", response, ". Now give up submit the deal.")
 			return nil, nil
 		}
 	}
 
 	result, err := ExecOsCmd(cmd, false)
+
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil
 	}
+	logs.GetLogger().Info(result)
 
 	result = strings.Trim(result, " ")
 	dealCid := result
