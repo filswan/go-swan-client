@@ -160,8 +160,7 @@ func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName stri
 	return true
 }
 
-func CreateCsv4TaskDeal(taskName string, carFiles []*model.FileDesc, minerId *string, outDir string) (string, error) {
-	csvFileName := taskName + ".csv"
+func CreateCsv4TaskDeal(carFiles []*model.FileDesc, minerId *string, outDir, csvFileName string) (string, error) {
 	csvFilePath := filepath.Join(outDir, csvFileName)
 
 	logs.GetLogger().Info("Swan task CSV Generated: ", csvFilePath)

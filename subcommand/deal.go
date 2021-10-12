@@ -84,7 +84,7 @@ func CheckDealConfig(dealConfig model.DealConfig) bool {
 
 func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) bool {
 	if dealConfig == nil {
-		dealConfig := GetDealConfig(minerFid)
+		dealConfig = GetDealConfig(minerFid)
 		if dealConfig == nil {
 			logs.GetLogger().Error("Failed to get deal config.")
 			return false
@@ -114,7 +114,9 @@ func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid str
 	jsonFileName := taskName + JSON_FILE_NAME_BY_DEAL_SUFFIX
 	csvFileName := taskName + CSV_FILE_NAME_BY_DEAL_SUFFIX
 	WriteCarFilesToFiles(carFiles, outputDir, jsonFileName, csvFileName)
-	CreateCsv4TaskDeal(taskName, carFiles, &minerFid, outputDir)
+
+	csvFilename := taskName + "_deal.csv"
+	CreateCsv4TaskDeal(carFiles, &minerFid, outputDir, csvFilename)
 
 	return true
 }

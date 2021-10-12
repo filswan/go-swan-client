@@ -84,7 +84,8 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 }
 
 func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) bool {
-	csvFilePath, err := CreateCsv4TaskDeal(task.TaskName, carFiles, task.MinerId, outDir)
+	csvFilename := task.TaskName + "_task.csv"
+	csvFilePath, err := CreateCsv4TaskDeal(carFiles, task.MinerId, outDir, csvFilename)
 	if err != nil {
 		logs.GetLogger().Error("Failed to generate csv for task.")
 		return false

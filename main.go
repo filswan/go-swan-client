@@ -4,7 +4,6 @@ import (
 	"flag"
 	"go-swan-client/logs"
 	"go-swan-client/subcommand"
-	"go-swan-client/test"
 	"os"
 )
 
@@ -15,9 +14,9 @@ const SUBCOMMAND_TASK = "task"
 const SUBCOMMAND_DEAL = "deal"
 
 func main() {
-	//execSubCmd()
+	execSubCmd()
 	//logs.GetLogger().Info("Hello")
-	test.Test()
+	//test.Test()
 }
 
 func execSubCmd() bool {
@@ -143,7 +142,7 @@ func createTask() bool {
 func sendDeal() bool {
 	cmd := flag.NewFlagSet(SUBCOMMAND_DEAL, flag.ExitOnError)
 
-	metadataJsonPath := cmd.String("csv", "", "The JSON file path of deal metadata.")
+	metadataJsonPath := cmd.String("json", "", "The JSON file path of deal metadata.")
 	outputDir := cmd.String("out-dir", "", "Directory where target files will in.")
 	minerFid := cmd.String("miner", "", "Target miner fid")
 
@@ -168,8 +167,10 @@ func sendDeal() bool {
 		return false
 	}
 
-	logs.GetLogger().Info(metadataJsonPath, outputDir, minerFid)
+	logs.GetLogger().Info("metadata json file:", *metadataJsonPath)
+	logs.GetLogger().Info("output dir:", *outputDir)
+	logs.GetLogger().Info("miner:", *minerFid)
 
-	//subcommand.CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description)
-	return true
+	result := subcommand.SendDeals(*minerFid, outputDir, *metadataJsonPath)
+	return result
 }
