@@ -11,6 +11,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/shopspring/decimal"
 )
 
 const DURATION = "1051200"
@@ -97,7 +99,7 @@ func LotusImportData(dealCid string, filepath string) string {
 	return result
 }
 
-func LotusGetMinerConfig(minerFid string) (*float64, *float64, *string, *string) {
+func LotusGetMinerConfig(minerFid string) (*decimal.Decimal, *decimal.Decimal, *string, *string) {
 	cmd := "lotus client query-ask " + minerFid
 	logs.GetLogger().Info(cmd)
 
@@ -116,28 +118,28 @@ func LotusGetMinerConfig(minerFid string) (*float64, *float64, *string, *string)
 	lines := strings.Split(result, "\n")
 	logs.GetLogger().Info(lines)
 
-	var verifiedPrice *float64
-	var price *float64
+	var verifiedPrice *decimal.Decimal
+	var price *decimal.Decimal
 	var maxPieceSize string
 	var minPieceSize string
 	for _, line := range lines {
 		if strings.Contains(line, "Verified Price per GiB:") {
-			verifiedPrice = utils.SearchFloat64FromStr(line)
-			if verifiedPrice != nil {
-				logs.GetLogger().Info("miner verifiedPrice: ", *verifiedPrice)
-			} else {
+			verifiedPrice, err = utils.GetDecimalFromStr(line)
+			if err != nil {
 				logs.GetLogger().Error("Failed to get miner VerifiedPrice from lotus")
+			} else {
+				logs.GetLogger().Info("miner verifiedPrice: ", *verifiedPrice)
 			}
 
 			continue
 		}
 
 		if strings.Contains(line, "Price per GiB:") {
-			price = utils.SearchFloat64FromStr(line)
-			if price != nil {
-				logs.GetLogger().Info("miner Price: ", *price)
-			} else {
+			price, err = utils.GetDecimalFromStr(line)
+			if err != nil {
 				logs.GetLogger().Error("Failed to get miner Price from lotus")
+			} else {
+				logs.GetLogger().Info("miner Price: ", *price)
 			}
 
 			continue
@@ -264,11 +266,11 @@ func LotusGenerateCar(srcFilePath, destCarFilePath string) error {
 	return nil
 }
 
-func LotusProposeOfflineDeal(price, cost float64, pieceSize int64, dataCid, pieceCid string, dealConfig model.DealConfig) (*string, *int) {
+func LotusProposeOfflineDeal(price, cost decimal.Decimal, pieceSize int64, dataCid, pieceCid string, dealConfig model.DealConfig) (*string, *int) {
 	startEpoch := utils.GetCurrentEpoch() + (dealConfig.EpochIntervalHours+1)*EPOCH_PER_HOUR
 	fastRetrieval := strings.ToLower(strconv.FormatBool(dealConfig.FastRetrieval))
 	verifiedDeal := strings.ToLower(strconv.FormatBool(dealConfig.VerifiedDeal))
-	costStr := fmt.Sprintf("%f", cost)
+	costStr := fmt.Sprintf("%d", cost)
 	logs.GetLogger().Info("wallet:", dealConfig.SenderWallet)
 	logs.GetLogger().Info("miner:", dealConfig.MinerFid)
 	logs.GetLogger().Info("price:", price)

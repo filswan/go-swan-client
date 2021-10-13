@@ -21,6 +21,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/shopspring/decimal"
 )
 
 // GetEpochInMillis get current timestamp
@@ -400,18 +401,18 @@ func copy(srcFilePath, destDir string) (int64, error) {
 	return nBytes, err
 }
 
-func SearchFloat64FromStr(source string) *float64 {
+func GetDecimalFromStr(source string) (*decimal.Decimal, error) {
 	re := regexp.MustCompile("[0-9]+.?[0-9]*")
 	words := re.FindAllString(source, -1)
 	if len(words) > 0 {
 		numStr := strings.Trim(words[0], " ")
-		result, err := strconv.ParseFloat(numStr, 64)
+		result, err := decimal.NewFromString(numStr)
 		if err != nil {
 			logs.GetLogger().Error(err)
-			return nil
+			return nil, err
 		}
-		return &result
+		return &result, nil
 	}
 
-	return nil
+	return nil, nil
 }

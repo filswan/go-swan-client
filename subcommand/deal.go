@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/shopspring/decimal"
 )
 
 func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) bool {
@@ -47,7 +49,7 @@ func GetDealConfig(minerFid string) *model.DealConfig {
 	}
 
 	maxPriceStr := config.GetConfig().Sender.MaxPrice
-	maxPrice, err := strconv.ParseFloat(maxPriceStr, 64)
+	maxPrice, err := decimal.NewFromString(maxPriceStr)
 	if err != nil {
 		logs.GetLogger().Error("Failed to convert maxPrice to float, MaxPrice:", maxPriceStr)
 		return nil
@@ -74,7 +76,8 @@ func CheckDealConfig(dealConfig model.DealConfig) bool {
 
 	msg := fmt.Sprintf("Miner price is:%f, VerifiedDeal:%t", dealConfig.MinerPrice, dealConfig.VerifiedDeal)
 	logs.GetLogger().Info(msg)
-	if dealConfig.MaxPrice < dealConfig.MinerPrice {
+
+	if dealConfig.MaxPrice.Cmp(dealConfig.MinerPrice) < 0 {
 		msg := fmt.Sprintf("miner %s price %f higher than max price %f", dealConfig.MinerFid, dealConfig.MinerPrice, dealConfig.MaxPrice)
 		logs.GetLogger().Error(msg)
 		return false
@@ -143,10 +146,9 @@ func CalculatePieceSize(fileSize int64) (int64, float64) {
 	return realPieceSize, realSectorSize
 }
 
-func CalculateRealCost(sectorSizeBytes float64, pricePerGiB float64) float64 {
-	var bytesPerGiB float64 = 1024 * 1024 * 1024
-	sectorSizeGiB := float64(sectorSizeBytes) / bytesPerGiB
-
-	realCost := sectorSizeGiB * pricePerGiB
+func CalculateRealCost(sectorSizeBytes float64, pricePerGiB decimal.Decimal) decimal.Decimal {
+	bytesPerGiB := decimal.NewFromInt(1024 * 1024 * 1024)
+	sectorSizeGiB := decimal.NewFromFloat(sectorSizeBytes).Div(bytesPerGiB)
+	realCost := sectorSizeGiB.Mul(pricePerGiB)
 	return realCost
 }

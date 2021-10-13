@@ -36,7 +36,7 @@ func execSubCmd() bool {
 	case SUBCOMMAND_DEAL:
 		result = sendDeal()
 	default:
-		logs.GetLogger().Error("Sub command should be: car|gocar|upload|task")
+		logs.GetLogger().Error("Sub command should be: car|gocar|upload|task|deal")
 		result = false
 	}
 
