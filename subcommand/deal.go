@@ -66,20 +66,21 @@ func CheckDealConfig(dealConfig model.DealConfig) bool {
 		if minerVerifiedPrice == nil {
 			return false
 		}
+		logs.GetLogger().Info("Miner price is:", *minerVerifiedPrice)
 		dealConfig.MinerPrice = *minerVerifiedPrice
 	} else {
 		if minerPrice == nil {
 			return false
 		}
+		logs.GetLogger().Info("Miner price is:", *minerPrice)
 		dealConfig.MinerPrice = *minerPrice
 	}
 
-	msg := fmt.Sprintf("Miner price is:%f, VerifiedDeal:%t", dealConfig.MinerPrice, dealConfig.VerifiedDeal)
-	logs.GetLogger().Info(msg)
-
-	if dealConfig.MaxPrice.Cmp(dealConfig.MinerPrice) < 0 {
-		msg := fmt.Sprintf("miner %s price %f higher than max price %f", dealConfig.MinerFid, dealConfig.MinerPrice, dealConfig.MaxPrice)
-		logs.GetLogger().Error(msg)
+	logs.GetLogger().Info("Miner price is:", dealConfig.MinerPrice, " MaxPrice:", dealConfig.MaxPrice, " VerifiedDeal:", dealConfig.VerifiedDeal)
+	priceCmp := dealConfig.MaxPrice.Cmp(dealConfig.MinerPrice)
+	logs.GetLogger().Info("priceCmp:", priceCmp)
+	if priceCmp < 0 {
+		logs.GetLogger().Error("miner price is higher than deal max price")
 		return false
 	}
 
