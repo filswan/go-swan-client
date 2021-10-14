@@ -266,20 +266,22 @@ func LotusGenerateCar(srcFilePath, destCarFilePath string) error {
 	return nil
 }
 
-func LotusProposeOfflineDeal(price, cost decimal.Decimal, pieceSize int64, dataCid, pieceCid string, dealConfig model.DealConfig) (*string, *int) {
+func LotusProposeOfflineDeal(cost decimal.Decimal, pieceSize int64, dataCid, pieceCid string, dealConfig model.DealConfig) (*string, *int) {
 	startEpoch := utils.GetCurrentEpoch() + (dealConfig.EpochIntervalHours+1)*EPOCH_PER_HOUR
 	fastRetrieval := strings.ToLower(strconv.FormatBool(dealConfig.FastRetrieval))
 	verifiedDeal := strings.ToLower(strconv.FormatBool(dealConfig.VerifiedDeal))
-	costStr := "5960" // cost.String()
+	costFloat, _ := cost.Float64()
+	costStr := fmt.Sprintf("%.18f", costFloat)
 	logs.GetLogger().Info("wallet:", dealConfig.SenderWallet)
 	logs.GetLogger().Info("miner:", dealConfig.MinerFid)
-	logs.GetLogger().Info("price:", price)
+	logs.GetLogger().Info("price:", dealConfig.MinerPrice)
 	logs.GetLogger().Info("total cost:", costStr)
 	logs.GetLogger().Info("start epoch:", startEpoch)
 	logs.GetLogger().Info("fast-retrieval:", fastRetrieval)
 	logs.GetLogger().Info("verified-deal:", verifiedDeal)
 
-	cmd := "lotus client deal --from " + dealConfig.SenderWallet + " --start-epoch " + strconv.Itoa(startEpoch)
+	cmd := "lotus client deal --from " + dealConfig.SenderWallet
+	cmd = cmd + " --start-epoch " + strconv.Itoa(startEpoch)
 	cmd = cmd + " --fast-retrieval=" + fastRetrieval + " --verified-deal=" + verifiedDeal
 	cmd = cmd + " --manual-piece-cid " + pieceCid + " --manual-piece-size " + strconv.FormatInt(pieceSize, 10)
 	cmd = cmd + " " + dataCid + " " + dealConfig.MinerFid + " " + costStr + " " + DURATION
@@ -302,9 +304,10 @@ func LotusProposeOfflineDeal(price, cost decimal.Decimal, pieceSize int64, dataC
 		}
 	}
 
-	result, err := ExecOsCmd(cmd, false)
+	result, err := ExecOsCmd(cmd, true)
 
 	if err != nil {
+		logs.GetLogger().Error("Failed to submit the deal.")
 		logs.GetLogger().Error(err)
 		return nil, nil
 	}

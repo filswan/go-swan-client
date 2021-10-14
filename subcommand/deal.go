@@ -1,7 +1,6 @@
 package subcommand
 
 import (
-	"fmt"
 	"go-swan-client/common/client"
 	"go-swan-client/config"
 	"go-swan-client/logs"
@@ -43,15 +42,10 @@ func GetDealConfig(minerFid string) *model.DealConfig {
 		StartEpochHours:    config.GetConfig().Sender.StartEpochHours,
 	}
 
-	if dealConfig.SenderWallet == "" {
-		logs.GetLogger().Error("Sender.wallet should be set in config file.")
-		return nil
-	}
-
 	maxPriceStr := config.GetConfig().Sender.MaxPrice
 	maxPrice, err := decimal.NewFromString(maxPriceStr)
 	if err != nil {
-		logs.GetLogger().Error("Failed to convert maxPrice to float, MaxPrice:", maxPriceStr)
+		logs.GetLogger().Error("Failed to convert maxPrice(" + maxPriceStr + ") to decimal, MaxPrice:")
 		return nil
 	}
 	dealConfig.MaxPrice = maxPrice
@@ -59,21 +53,26 @@ func GetDealConfig(minerFid string) *model.DealConfig {
 	return &dealConfig
 }
 
-func CheckDealConfig(dealConfig model.DealConfig) bool {
+func CheckDealConfig(dealConfig *model.DealConfig) bool {
 	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(dealConfig.MinerFid)
+
+	if dealConfig.SenderWallet == "" {
+		logs.GetLogger().Error("Sender.wallet should be set in config file.")
+		return false
+	}
 
 	if dealConfig.VerifiedDeal {
 		if minerVerifiedPrice == nil {
 			return false
 		}
-		logs.GetLogger().Info("Miner price is:", *minerVerifiedPrice)
 		dealConfig.MinerPrice = *minerVerifiedPrice
+		logs.GetLogger().Info("Miner price is:", *minerVerifiedPrice)
 	} else {
 		if minerPrice == nil {
 			return false
 		}
-		logs.GetLogger().Info("Miner price is:", *minerPrice)
 		dealConfig.MinerPrice = *minerPrice
+		logs.GetLogger().Info("Miner price is:", *minerPrice)
 	}
 
 	logs.GetLogger().Info("Miner price is:", dealConfig.MinerPrice, " MaxPrice:", dealConfig.MaxPrice, " VerifiedDeal:", dealConfig.VerifiedDeal)
@@ -98,7 +97,7 @@ func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid str
 		}
 	}
 
-	result := CheckDealConfig(*dealConfig)
+	result := CheckDealConfig(dealConfig)
 	if !result {
 		logs.GetLogger().Error("Failed to pass deal config check.")
 		return false
@@ -106,13 +105,13 @@ func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid str
 
 	for _, carFile := range carFiles {
 		if carFile.CarFileSize <= 0 {
-			msg := fmt.Sprintf("File %s is too small", carFile.CarFilePath)
-			logs.GetLogger().Error(msg)
+			logs.GetLogger().Error("File:" + carFile.CarFilePath + " %s is too small")
 			continue
 		}
 		pieceSize, sectorSize := CalculatePieceSize(carFile.CarFileSize)
+		logs.GetLogger().Info("dealConfig.MinerPrice:", dealConfig.MinerPrice)
 		cost := CalculateRealCost(sectorSize, dealConfig.MinerPrice)
-		dealCid, startEpoch := client.LotusProposeOfflineDeal(dealConfig.MinerPrice, cost, pieceSize, carFile.DataCid, carFile.PieceCid, *dealConfig)
+		dealCid, startEpoch := client.LotusProposeOfflineDeal(cost, pieceSize, carFile.DataCid, carFile.PieceCid, *dealConfig)
 		if dealCid == nil || startEpoch == nil {
 			logs.GetLogger().Error("Failed to propose offline deal")
 			return false
@@ -148,8 +147,10 @@ func CalculatePieceSize(fileSize int64) (int64, float64) {
 }
 
 func CalculateRealCost(sectorSizeBytes float64, pricePerGiB decimal.Decimal) decimal.Decimal {
+	logs.GetLogger().Info("sectorSizeBytes:", sectorSizeBytes, " pricePerGiB:", pricePerGiB)
 	bytesPerGiB := decimal.NewFromInt(1024 * 1024 * 1024)
 	sectorSizeGiB := decimal.NewFromFloat(sectorSizeBytes).Div(bytesPerGiB)
 	realCost := sectorSizeGiB.Mul(pricePerGiB)
+	logs.GetLogger().Info("realCost:", realCost)
 	return realCost
 }

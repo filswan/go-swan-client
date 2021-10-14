@@ -48,7 +48,7 @@ func TestFilePath() {
 
 func TestDealConfig() {
 	dealConfig := subcommand.GetDealConfig("t03354")
-	subcommand.CheckDealConfig(*dealConfig)
+	subcommand.CheckDealConfig(dealConfig)
 	pieceSize, sectorSize := subcommand.CalculatePieceSize(2049)
 	cost := subcommand.CalculateRealCost(sectorSize, dealConfig.MinerPrice)
 	msg := fmt.Sprintf("Piece size:%d, sector size:%f,cost:%f", pieceSize, sectorSize, cost)
