@@ -4,6 +4,10 @@
 *.dll
 *.so
 *.dylib
+*.log
+./.idea
+./.idea/*.*
+. idea
 
 # Test binary, built with `go test -c`
 *.test
@@ -13,3 +17,17 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+.idea/go-swan-client.iml
+.idea/vcs.xml
+.idea/runConfigurations.xml
+.idea/modules.xml
+.idea/misc.xml
+.idea/.gitignore
+config/config.toml
+.vscode/launch.json
+build/config/config.toml
+build/go-swan-client
+graphsplit
+go-swan-client
+test/car.csv
+.DS_Store
