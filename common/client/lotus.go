@@ -270,7 +270,7 @@ func LotusProposeOfflineDeal(price, cost decimal.Decimal, pieceSize int64, dataC
 	startEpoch := utils.GetCurrentEpoch() + (dealConfig.EpochIntervalHours+1)*EPOCH_PER_HOUR
 	fastRetrieval := strings.ToLower(strconv.FormatBool(dealConfig.FastRetrieval))
 	verifiedDeal := strings.ToLower(strconv.FormatBool(dealConfig.VerifiedDeal))
-	costStr := cost.String()
+	costStr := "5960" // cost.String()
 	logs.GetLogger().Info("wallet:", dealConfig.SenderWallet)
 	logs.GetLogger().Info("miner:", dealConfig.MinerFid)
 	logs.GetLogger().Info("price:", price)
@@ -308,9 +308,9 @@ func LotusProposeOfflineDeal(price, cost decimal.Decimal, pieceSize int64, dataC
 		logs.GetLogger().Error(err)
 		return nil, nil
 	}
+	result = strings.Trim(result, "\n")
 	logs.GetLogger().Info(result)
 
-	result = strings.Trim(result, " ")
 	dealCid := result
 
 	return &dealCid, &startEpoch
