@@ -141,7 +141,11 @@ func (swanClient *SwanClient) SwanUpdateTaskByUuid(taskUuid string, minerFid str
 	params := map[string]string{}
 	params["miner_fid"] = minerFid
 
-	response, err := HttpPostFile(apiUrl, swanClient.Token, params, "file", csvFilePath)
+	response, err := HttpPutFile(apiUrl, swanClient.Token, params, "file", csvFilePath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return ""
+	}
 
 	return response
 }

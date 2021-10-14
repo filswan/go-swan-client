@@ -1,6 +1,7 @@
 package subcommand
 
 import (
+	"errors"
 	"go-swan-client/common/client"
 	"go-swan-client/config"
 	"go-swan-client/logs"
@@ -26,13 +27,16 @@ func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) bool
 		return false
 	}
 
-	result := SendDeals2Miner(nil, taskName, minerFid, *outputDir, carFiles)
+	csvFilepath, err := SendDeals2Miner(nil, taskName, minerFid, *outputDir, carFiles)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return false
+	}
 
 	swanClient := client.SwanGetClient()
-	response := swanClient.SwanUpdateTaskByUuid(carFiles[0].Uuid, minerFid, "")
+	response := swanClient.SwanUpdateTaskByUuid(carFiles[0].Uuid, minerFid, csvFilepath)
 	logs.GetLogger().Info(response)
-
-	return result
+	return true
 }
 
 func GetDealConfig(minerFid string) *model.DealConfig {
@@ -92,19 +96,21 @@ func CheckDealConfig(dealConfig *model.DealConfig) bool {
 	return true
 }
 
-func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) bool {
+func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) (string, error) {
 	if dealConfig == nil {
 		dealConfig = GetDealConfig(minerFid)
 		if dealConfig == nil {
-			logs.GetLogger().Error("Failed to get deal config.")
-			return false
+			err := errors.New("Failed to get deal config.")
+			logs.GetLogger().Error(err)
+			return "", err
 		}
 	}
 
 	result := CheckDealConfig(dealConfig)
 	if !result {
-		logs.GetLogger().Error("Failed to pass deal config check.")
-		return false
+		err := errors.New("Failed to pass deal config check.")
+		logs.GetLogger().Error(err)
+		return "", err
 	}
 
 	for _, carFile := range carFiles {
@@ -117,8 +123,9 @@ func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid str
 		cost := CalculateRealCost(sectorSize, dealConfig.MinerPrice)
 		dealCid, startEpoch := client.LotusProposeOfflineDeal(cost, pieceSize, carFile.DataCid, carFile.PieceCid, *dealConfig)
 		if dealCid == nil || startEpoch == nil {
-			logs.GetLogger().Error("Failed to propose offline deal")
-			return false
+			err := errors.New("Failed to propose offline deal")
+			logs.GetLogger().Error(err)
+			return "", err
 		}
 		carFile.MinerFid = &minerFid
 		carFile.DealCid = *dealCid
@@ -130,9 +137,9 @@ func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid str
 	WriteCarFilesToFiles(carFiles, outputDir, jsonFileName, csvFileName)
 
 	csvFilename := taskName + "_deal.csv"
-	CreateCsv4TaskDeal(carFiles, &minerFid, outputDir, csvFilename)
+	csvFilepath, err := CreateCsv4TaskDeal(carFiles, &minerFid, outputDir, csvFilename)
 
-	return true
+	return csvFilepath, err
 }
 
 // https://docs.filecoin.io/store/lotus/very-large-files/#maximizing-storage-per-sector
