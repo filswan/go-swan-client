@@ -28,6 +28,10 @@ func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) bool
 
 	result := SendDeals2Miner(nil, taskName, minerFid, *outputDir, carFiles)
 
+	swanClient := client.SwanGetClient()
+	response := swanClient.SwanUpdateTaskByUuid(carFiles[0].Uuid, minerFid, "")
+	logs.GetLogger().Info(response)
+
 	return result
 }
 

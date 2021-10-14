@@ -95,7 +95,17 @@ func httpRequest(httpMethod, uri, tokenString string, params interface{}) string
 	return string(responseBody)
 }
 
+func HttpPutFile(url string, tokenString string, paramTexts map[string]string, paramFilename, paramFilepath string) (string, error) {
+	response, err := HttpRequestFile(http.MethodPut, url, tokenString, paramTexts, paramFilename, paramFilepath)
+	return response, err
+}
+
 func HttpPostFile(url string, tokenString string, paramTexts map[string]string, paramFilename, paramFilepath string) (string, error) {
+	response, err := HttpRequestFile(http.MethodPost, url, tokenString, paramTexts, paramFilename, paramFilepath)
+	return response, err
+}
+
+func HttpRequestFile(httpMethod, url string, tokenString string, paramTexts map[string]string, paramFilename, paramFilepath string) (string, error) {
 	filename, fileContent, err := utils.ReadFile(paramFilepath)
 	if err != nil {
 		logs.GetLogger().Info(err)
@@ -123,7 +133,7 @@ func HttpPostFile(url string, tokenString string, paramTexts map[string]string, 
 
 	bodyWriter.Close()
 
-	request, err := http.NewRequest(http.MethodPost, url, bodyBuf)
+	request, err := http.NewRequest(httpMethod, url, bodyBuf)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return "", nil

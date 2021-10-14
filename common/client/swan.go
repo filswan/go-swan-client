@@ -136,12 +136,12 @@ func (swanClient *SwanClient) SwanUpdateOfflineDealStatus(dealId int, status str
 	return true
 }
 
-func (swanClient *SwanClient) SwanUpdateTaskByUuid(taskUuid string, minerFid string) string {
+func (swanClient *SwanClient) SwanUpdateTaskByUuid(taskUuid string, minerFid string, csvFilePath string) string {
 	apiUrl := swanClient.ApiUrl + "/uuid_tasks/" + taskUuid
-	params := url.Values{}
-	params.Add("miner_fid", minerFid)
+	params := map[string]string{}
+	params["miner_fid"] = minerFid
 
-	response := HttpPut(apiUrl, swanClient.Token, params)
+	response, err := HttpPostFile(apiUrl, swanClient.Token, params, "file", csvFilePath)
 
 	return response
 }
