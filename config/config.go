@@ -7,10 +7,17 @@ import (
 )
 
 type Configuration struct {
+	Lotus      lotus      `toml:"lotus"`
 	Main       main       `toml:"main"`
 	WebServer  webServer  `toml:"web_server"`
 	IpfsServer ipfsServer `toml:"ipfs_server"`
 	Sender     sender     `toml:"sender"`
+}
+
+type lotus struct {
+	ApiUrl           string `toml:"api_url"`
+	MinerApiUrl      string `toml:"miner_api_url"`
+	MinerAccessToken string `toml:"miner_access_token"`
 }
 
 type main struct {
@@ -68,10 +75,15 @@ func GetConfig() Configuration {
 
 func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 	requiredFields := [][]string{
+		{"lotus"},
 		{"main"},
 		{"web_server"},
 		{"ipfs_server"},
 		{"sender"},
+
+		{"lotus", "api_url"},
+		{"lotus", "miner_api_url"},
+		{"lotus", "miner_access_token"},
 
 		{"main", "api_url"},
 		{"main", "api_key"},
