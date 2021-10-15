@@ -270,6 +270,20 @@ func (swanClient *SwanClient) GetOfflineDealsByTaskUuid(taskUuid string) (*GetOf
 	return getOfflineDealsByTaskUuidResult, nil
 }
 
+func (swanClient *SwanClient) UpdateAssignedTask(taskUuid, csvFilePath string) string {
+	apiUrl := swanClient.ApiUrl + "/tasks/" + taskUuid
+	logs.GetLogger().Info("Updating Swan task")
+	params := map[string]string{}
+	params["status"] = "DealSent"
+
+	response, err := HttpPutFile(apiUrl, swanClient.Token, params, "file", csvFilePath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return ""
+	}
+	return response
+}
+
 //    limit=resp['total_task_count']
 //    logging.info('Swan task count %s'%str(limit))
 //    get_task_url = api_url + get_task_url_suffix+"?limit="+str(limit)

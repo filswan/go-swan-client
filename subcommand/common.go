@@ -17,11 +17,13 @@ const (
 	JSON_FILE_NAME_BY_UPLOAD      = "upload.json"
 	JSON_FILE_NAME_BY_TASK_SUFFIX = "task.json"
 	JSON_FILE_NAME_BY_DEAL_SUFFIX = "deal.json"
+	JSON_FILE_NAME_BY_AUTO_SUFFIX = "deal_autobid.json"
 
 	CSV_FILE_NAME_BY_CAR         = "car.csv"
 	CSV_FILE_NAME_BY_UPLOAD      = "upload.csv"
 	CSV_FILE_NAME_BY_TASK_SUFFIX = "task.csv"
 	CSV_FILE_NAME_BY_DEAL_SUFFIX = "deal.csv"
+	CSV_FILE_NAME_BY_AUTO_SUFFIX = "deal_autobid.csv"
 )
 
 func WriteCarFilesToFiles(carFiles []*model.FileDesc, outputDir, jsonFilename, csvFileName string) bool {
