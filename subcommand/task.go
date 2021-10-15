@@ -63,13 +63,19 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 		CuratedDataset: *dataset,
 		Description:    *description,
 		IsPublic:       publicDeal,
-		IsVerified:     verifiedDeal,
-		FastRetrieval:  fastRetrieval,
-		MaxPrice:       maxPrice,
-		BidMode:        bidMode,
-		ExpireDays:     expireDays,
-		MinerId:        minerFid,
-		Uuid:           uuid.NewString(),
+		//IsVerified:     verifiedDeal,
+		FastRetrieval: fastRetrieval,
+		MaxPrice:      maxPrice,
+		BidMode:       bidMode,
+		ExpireDays:    expireDays,
+		MinerId:       minerFid,
+		Uuid:          uuid.NewString(),
+	}
+
+	if verifiedDeal {
+		task.TaskType = constants.TASK_TYPE_VERIFIED
+	} else {
+		task.TaskType = constants.TASK_TYPE_REGULAR
 	}
 
 	for _, carFile := range carFiles {

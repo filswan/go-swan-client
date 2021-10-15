@@ -11,7 +11,7 @@ path = "/download"
 
 [ipfs_server]
 gateway_address = "/ip4/127.0.0.1/tcp/8080"
-upstream_url = "http://127.0.0.1:5001"
+# upstream_url = "http://127.0.0.1:5001"
 download_stream_url = "https://ipfs.io"
 
 

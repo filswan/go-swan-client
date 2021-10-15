@@ -2,7 +2,6 @@ package client
 
 import (
 	"encoding/json"
-	"go-swan-client/common/constants"
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
@@ -163,15 +162,15 @@ func (swanClient *SwanClient) SwanCreateTask(task model.Task, csvFilePath string
 		params["is_public"] = "0"
 	}
 
-	if task.IsVerified {
-		params["type"] = constants.TASK_TYPE_VERIFIED
-	} else {
-		params["type"] = constants.TASK_TYPE_REGULAR
-	}
+	params["type"] = task.TaskType
 
 	if task.MinerId != nil {
 		params["miner_id"] = *task.MinerId
 	}
+	params["fast_retrieval"] = strconv.FormatBool(task.FastRetrieval)
+	params["bid_mode"] = strconv.Itoa(task.BidMode)
+	params["max_price"] = task.MaxPrice
+	params["expire_days"] = strconv.Itoa(task.ExpireDays)
 
 	response, err := HttpPostFile(apiUrl, swanClient.Token, params, "file", csvFilePath)
 	if err != nil {

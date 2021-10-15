@@ -27,8 +27,8 @@ func TestCreateTask() {
 		CuratedDataset: "dataset",
 		Description:    "description",
 		IsPublic:       true,
-		IsVerified:     true,
-		MinerId:        &minerId,
+		//IsVerified:     true,
+		MinerId: &minerId,
 	}
 
 	swan := client.SwanGetClient()

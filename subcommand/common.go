@@ -173,6 +173,8 @@ func CreateCsv4TaskDeal(carFiles []*model.FileDesc, minerId *string, outDir, csv
 		"file_source_url",
 		"md5",
 		"start_epoch",
+		"piece_cid",
+		"file_size",
 	}
 
 	file, err := os.Create(csvFilePath)
@@ -204,6 +206,8 @@ func CreateCsv4TaskDeal(carFiles []*model.FileDesc, minerId *string, outDir, csv
 		columns = append(columns, carFile.CarFileUrl)
 		columns = append(columns, carFile.CarFileMd5)
 		columns = append(columns, strconv.Itoa(carFile.StartEpoch))
+		columns = append(columns, carFile.PieceCid)
+		columns = append(columns, strconv.FormatInt(carFile.CarFileSize, 10))
 
 		err = writer.Write(columns)
 		if err != nil {

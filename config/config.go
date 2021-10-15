@@ -27,7 +27,7 @@ type webServer struct {
 }
 
 type ipfsServer struct {
-	UpstreamUrl       string `toml:"upstream_url"`
+	GatewayAddress    string `toml:"gateway_address"`
 	DownloadStreamUrl string `toml:"download_stream_url"`
 }
 
@@ -82,7 +82,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"web_server", "port"},
 		{"web_server", "path"},
 
-		{"ipfs_server", "upstream_url"},
+		{"ipfs_server", "gateway_address"},
 		{"ipfs_server", "download_stream_url"},
 
 		{"sender", "bid_mode"},
