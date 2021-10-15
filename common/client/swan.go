@@ -2,6 +2,8 @@ package client
 
 import (
 	"encoding/json"
+	"errors"
+	"go-swan-client/common/constants"
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
@@ -179,3 +181,105 @@ func (swanClient *SwanClient) SwanCreateTask(task model.Task, csvFilePath string
 	}
 	return response
 }
+
+type GetTaskResult struct {
+	Data   GetTaskResultData `json:"data"`
+	Status string            `json:"status"`
+}
+
+type GetTaskResultData struct {
+	Task           []model.DbTask `json:"task"`
+	TotalItems     int            `json:"total_items"`
+	TotalTaskCount int            `json:"total_task_count"`
+}
+
+func (swanClient *SwanClient) GetTasks() ([]model.DbTask, error) {
+	apiUrl := swanClient.ApiUrl + "/tasks"
+	logs.GetLogger().Info("Getting My swan tasks info")
+	response := HttpGet(apiUrl, swanClient.Token, "")
+
+	if response == "" {
+		err := errors.New("failed to get tasks from swan")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	//logs.GetLogger().Info(response)
+
+	getTaskResult := &GetTaskResult{}
+	err := json.Unmarshal([]byte(response), getTaskResult)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return getTaskResult.Data.Task, nil
+}
+
+func (swanClient *SwanClient) GetAssignedTasks() ([]model.DbTask, error) {
+	tasks, err := swanClient.GetTasks()
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if len(tasks) == 0 {
+		return nil, nil
+	}
+	result := []model.DbTask{}
+
+	for _, task := range tasks {
+		if task.Status == constants.TASK_STATUS_ASSIGNED && task.MinerFid != nil {
+			result = append(result, task)
+		}
+	}
+
+	return result, err
+}
+
+type GetOfflineDealsByTaskUuidResult struct {
+	Data   GetOfflineDealsByTaskUuidResultData `json:"data"`
+	Status string                              `json:"status"`
+}
+type GetOfflineDealsByTaskUuidResultData struct {
+	AverageBid       string              `json:"average_bid"`
+	BidCount         int                 `json:"bid_count"`
+	DealCompleteRate string              `json:"deal_complete_rate"`
+	Deal             []model.OfflineDeal `json:"deal"`
+	Miner            model.Miner         `json:"miner"`
+	Task             model.DbTask        `json:"task"`
+}
+
+func (swanClient *SwanClient) GetOfflineDealsByTaskUuid(taskUuid string) (*GetOfflineDealsByTaskUuidResult, error) {
+	apiUrl := swanClient.ApiUrl + "/tasks/" + taskUuid
+	logs.GetLogger().Info("Getting My swan tasks info")
+	response := HttpGet(apiUrl, swanClient.Token, "")
+
+	if response == "" {
+		err := errors.New("failed to get tasks from swan")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+	getOfflineDealsByTaskUuidResult := &GetOfflineDealsByTaskUuidResult{}
+	err := json.Unmarshal([]byte(response), getOfflineDealsByTaskUuidResult)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return getOfflineDealsByTaskUuidResult, nil
+}
+
+//    limit=resp['total_task_count']
+//    logging.info('Swan task count %s'%str(limit))
+//    get_task_url = api_url + get_task_url_suffix+"?limit="+str(limit)
+//    payload_data = ""
+//    resp=send_http_request(get_task_url, get_task_method,jwt_token, payload_data)
+//    tasks = resp['task']
+//    assigned_task_list=[]
+//    for task in tasks:
+//        if task["status"] == 'Assigned' and task["miner_id"]:
+//            assigned_task_list.append(task)
+//    logging.info('Assigned autobid Swan task count %s'%str(len(assigned_task_list)))
+//    assigned_task_dict={'Assigned tasks': assigned_task_list}
+//    return assigned_task_dict

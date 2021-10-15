@@ -38,6 +38,7 @@ func ExecOsCmdBase(cmdStr string, out2Screen bool, checkStdErr bool) (string, er
 	err := cmd.Run()
 	if err != nil {
 		logs.GetLogger().Error(cmdStr)
+		logs.GetLogger().Error(stderrBuf.String())
 		logs.GetLogger().Error(err)
 		return "", err
 	}

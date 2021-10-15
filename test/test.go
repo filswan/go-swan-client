@@ -11,7 +11,12 @@ import (
 )
 
 func Test() {
-	TestDealConfig()
+	TestGetTasks()
+}
+
+func TestGetTasks() {
+	swanClient := client.SwanGetClient()
+	swanClient.GetAssignedTasks()
 }
 
 func TestGenerateCarFiles() {

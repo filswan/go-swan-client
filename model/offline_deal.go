@@ -22,10 +22,4 @@ type OfflineDeal struct {
 	PayloadCid           *string `json:"payload_cid"`
 	PieceCid             *string `json:"piece_cid"`
 	DownloadedAt         string  `json:"downloaded_at"`
-	CarFileName          string
-	CarFilePath          string
-	SourceFileName       string
-	SourceFilePath       string
-	SourceFileSize       int
-	CarFileMd5           bool
 }

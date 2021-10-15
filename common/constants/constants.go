@@ -8,6 +8,8 @@ const (
 	TASK_TYPE_VERIFIED = "verified"
 	TASK_TYPE_REGULAR  = "regular"
 
+	TASK_STATUS_ASSIGNED = "Assigned"
+
 	DURATION       = "1051200"
 	EPOCH_PER_HOUR = 120
 )

@@ -4,6 +4,7 @@ import (
 	"flag"
 	"go-swan-client/logs"
 	"go-swan-client/subcommand"
+	"go-swan-client/test"
 	"os"
 )
 
@@ -12,11 +13,12 @@ const SUBCOMMAND_GOCAR = "gocar"
 const SUBCOMMAND_UPLOAD = "upload"
 const SUBCOMMAND_TASK = "task"
 const SUBCOMMAND_DEAL = "deal"
+const SUBCOMMAND_AUTO = "auto"
 
 func main() {
-	execSubCmd()
+	//execSubCmd()
 	//logs.GetLogger().Info("Hello")
-	//test.Test()
+	test.Test()
 }
 
 func execSubCmd() bool {
@@ -35,6 +37,8 @@ func execSubCmd() bool {
 		result = createTask()
 	case SUBCOMMAND_DEAL:
 		result = sendDeal()
+	case SUBCOMMAND_AUTO:
+		result = sendAutoBidDeal()
 	default:
 		logs.GetLogger().Error("Sub command should be: car|gocar|upload|task|deal")
 		result = false
@@ -173,4 +177,32 @@ func sendDeal() bool {
 
 	result := subcommand.SendDeals(*minerFid, outputDir, *metadataJsonPath)
 	return result
+}
+
+func sendAutoBidDeal() bool {
+	cmd := flag.NewFlagSet(SUBCOMMAND_DEAL, flag.ExitOnError)
+
+	outputDir := cmd.String("out-dir", "", "Directory where target files will in.")
+	minerFid := cmd.String("miner", "", "Target miner fid")
+
+	err := cmd.Parse(os.Args[2:])
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return false
+	}
+
+	if !cmd.Parsed() {
+		logs.GetLogger().Error("Sub command parse failed.")
+		return false
+	}
+
+	if minerFid == nil || len(*minerFid) == 0 {
+		logs.GetLogger().Error("miner is required.")
+		return false
+	}
+
+	logs.GetLogger().Info("output dir:", *outputDir)
+	logs.GetLogger().Info("miner:", *minerFid)
+
+	return true
 }
