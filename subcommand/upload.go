@@ -15,7 +15,7 @@ func UploadCarFiles(inputDir string) {
 		return
 	}
 
-	gatewayAddress := config.GetConfig().IpfsServer.GatewayAddress
+	gatewayAddress := config.GetConfig().IpfsServer.DownloadStreamUrl
 	words := strings.Split(gatewayAddress, "/")
 	if len(words) < 5 {
 		logs.GetLogger().Fatal("Invalid gateway address:", gatewayAddress)

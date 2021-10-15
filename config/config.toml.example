@@ -11,8 +11,12 @@ path = "/download"
 
 [ipfs_server]
 gateway_address = "/ip4/127.0.0.1/tcp/8080"
+upstream_url = "http://127.0.0.1:5001"
+download_stream_url = "https://ipfs.io"
+
 
 [sender]
+bid_mode = 1
 offline_mode = false
 output_dir = "/tmp/tasks"
 public_deal = true
@@ -23,3 +27,4 @@ generate_md5 = false
 wallet = ""
 max_price = "0"
 start_epoch_hours = 96
+expire_days = 4

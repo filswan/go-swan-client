@@ -27,10 +27,12 @@ type webServer struct {
 }
 
 type ipfsServer struct {
-	GatewayAddress string `toml:"gateway_address"`
+	UpstreamUrl       string `toml:"upstream_url"`
+	DownloadStreamUrl string `toml:"download_stream_url"`
 }
 
 type sender struct {
+	BidMode          int    `toml:"bid_mode"`
 	OfflineMode      bool   `toml:"offline_mode"`
 	OutputDir        string `toml:"output_dir"`
 	PublicDeal       bool   `toml:"public_deal"`
@@ -41,6 +43,7 @@ type sender struct {
 	Wallet           string `toml:"wallet"`
 	MaxPrice         string `toml:"max_price"`
 	StartEpochHours  int    `toml:"start_epoch_hours"`
+	ExpireDays       int    `toml:"expire_days"`
 }
 
 var config *Configuration
@@ -79,8 +82,10 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"web_server", "port"},
 		{"web_server", "path"},
 
-		{"ipfs_server", "gateway_address"},
+		{"ipfs_server", "upstream_url"},
+		{"ipfs_server", "download_stream_url"},
 
+		{"sender", "bid_mode"},
 		{"sender", "offline_mode"},
 		{"sender", "output_dir"},
 		{"sender", "public_deal"},
@@ -91,6 +96,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"sender", "wallet"},
 		{"sender", "max_price"},
 		{"sender", "start_epoch_hours"},
+		{"sender", "expire_days"},
 	}
 
 	for _, v := range requiredFields {
