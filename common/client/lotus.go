@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"go-swan-client/common/constants"
 	"go-swan-client/common/utils"
 	"go-swan-client/logs"
 	"go-swan-client/model"
@@ -14,9 +15,6 @@ import (
 
 	"github.com/shopspring/decimal"
 )
-
-const DURATION = "1051200"
-const EPOCH_PER_HOUR = 120
 
 func LotusGetDealOnChainStatus(dealCid string) (string, string) {
 	cmd := "lotus-miner storage-deals list -v | grep " + dealCid
@@ -266,8 +264,7 @@ func LotusGenerateCar(srcFilePath, destCarFilePath string) error {
 	return nil
 }
 
-func LotusProposeOfflineDeal(cost decimal.Decimal, pieceSize int64, dataCid, pieceCid string, dealConfig model.DealConfig) (*string, *int) {
-	startEpoch := utils.GetCurrentEpoch() + (dealConfig.EpochIntervalHours+1)*EPOCH_PER_HOUR
+func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.DealConfig) *string {
 	fastRetrieval := strings.ToLower(strconv.FormatBool(dealConfig.FastRetrieval))
 	verifiedDeal := strings.ToLower(strconv.FormatBool(dealConfig.VerifiedDeal))
 	costFloat, _ := cost.Float64()
@@ -276,15 +273,15 @@ func LotusProposeOfflineDeal(cost decimal.Decimal, pieceSize int64, dataCid, pie
 	logs.GetLogger().Info("miner:", dealConfig.MinerFid)
 	logs.GetLogger().Info("price:", dealConfig.MinerPrice)
 	logs.GetLogger().Info("total cost:", costStr)
-	logs.GetLogger().Info("start epoch:", startEpoch)
+	logs.GetLogger().Info("start epoch:", carFile.StartEpoch)
 	logs.GetLogger().Info("fast-retrieval:", fastRetrieval)
 	logs.GetLogger().Info("verified-deal:", verifiedDeal)
 
 	cmd := "lotus client deal --from " + dealConfig.SenderWallet
-	cmd = cmd + " --start-epoch " + strconv.Itoa(startEpoch)
+	cmd = cmd + " --start-epoch " + strconv.Itoa(carFile.StartEpoch)
 	cmd = cmd + " --fast-retrieval=" + fastRetrieval + " --verified-deal=" + verifiedDeal
-	cmd = cmd + " --manual-piece-cid " + pieceCid + " --manual-piece-size " + strconv.FormatInt(pieceSize, 10)
-	cmd = cmd + " " + dataCid + " " + dealConfig.MinerFid + " " + costStr + " " + DURATION
+	cmd = cmd + " --manual-piece-cid " + carFile.PieceCid + " --manual-piece-size " + strconv.FormatInt(pieceSize, 10)
+	cmd = cmd + " " + carFile.DataCid + " " + dealConfig.MinerFid + " " + costStr + " " + constants.DURATION
 	logs.GetLogger().Info(cmd)
 
 	if !dealConfig.SkipConfirmation {
@@ -293,14 +290,14 @@ func LotusProposeOfflineDeal(cost decimal.Decimal, pieceSize int64, dataCid, pie
 		response, err := reader.ReadString('\n')
 		if err != nil {
 			logs.GetLogger().Error(err)
-			return nil, nil
+			return nil
 		}
 
 		response = strings.TrimRight(response, "\n")
 
 		if strings.ToUpper(response) != "Y" {
 			logs.GetLogger().Info("Your input is ", response, ". Now give up submit the deal.")
-			return nil, nil
+			return nil
 		}
 	}
 
@@ -309,12 +306,12 @@ func LotusProposeOfflineDeal(cost decimal.Decimal, pieceSize int64, dataCid, pie
 	if err != nil {
 		logs.GetLogger().Error("Failed to submit the deal.")
 		logs.GetLogger().Error(err)
-		return nil, nil
+		return nil
 	}
 	result = strings.Trim(result, "\n")
 	logs.GetLogger().Info(result)
 
 	dealCid := result
 
-	return &dealCid, &startEpoch
+	return &dealCid
 }

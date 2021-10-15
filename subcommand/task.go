@@ -3,6 +3,7 @@ package subcommand
 import (
 	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
+	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
@@ -27,9 +28,15 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 	publicDeal := config.GetConfig().Sender.PublicDeal
 	verifiedDeal := config.GetConfig().Sender.VerifiedDeal
 	offlineMode := config.GetConfig().Sender.OfflineMode
+	fastRetrieval := config.GetConfig().Sender.FastRetrieval
+	maxPrice := config.GetConfig().Sender.MaxPrice
+	bidMode := config.GetConfig().Sender.BidMode
+	startEpochHours := config.GetConfig().Sender.StartEpochHours
+	expireDays := config.GetConfig().Sender.ExpireDays
 	//generateMd5 := config.GetConfig().Sender.GenerateMd5
 
 	storageServerType := config.GetConfig().Main.StorageServerType
+
 	host := config.GetConfig().WebServer.Host
 	port := config.GetConfig().WebServer.Port
 	path := config.GetConfig().WebServer.Path
@@ -57,12 +64,17 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 		Description:    *description,
 		IsPublic:       publicDeal,
 		IsVerified:     verifiedDeal,
+		FastRetrieval:  fastRetrieval,
+		MaxPrice:       maxPrice,
+		BidMode:        bidMode,
+		ExpireDays:     expireDays,
 		MinerId:        minerFid,
 		Uuid:           uuid.NewString(),
 	}
 
 	for _, carFile := range carFiles {
 		carFile.Uuid = task.Uuid
+		carFile.StartEpoch = utils.GetCurrentEpoch() + (startEpochHours+1)*constants.EPOCH_PER_HOUR
 
 		if storageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
 			carFile.CarFileUrl = filepath.Join(downloadUrlPrefix, carFile.CarFileName)

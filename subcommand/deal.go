@@ -8,7 +8,6 @@ import (
 	"go-swan-client/model"
 	"math"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/shopspring/decimal"
@@ -100,7 +99,7 @@ func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid str
 	if dealConfig == nil {
 		dealConfig = GetDealConfig(minerFid)
 		if dealConfig == nil {
-			err := errors.New("Failed to get deal config.")
+			err := errors.New("failed to get deal config")
 			logs.GetLogger().Error(err)
 			return "", err
 		}
@@ -108,7 +107,7 @@ func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid str
 
 	result := CheckDealConfig(dealConfig)
 	if !result {
-		err := errors.New("Failed to pass deal config check.")
+		err := errors.New("failed to pass deal config check")
 		logs.GetLogger().Error(err)
 		return "", err
 	}
@@ -121,15 +120,14 @@ func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid str
 		pieceSize, sectorSize := CalculatePieceSize(carFile.CarFileSize)
 		logs.GetLogger().Info("dealConfig.MinerPrice:", dealConfig.MinerPrice)
 		cost := CalculateRealCost(sectorSize, dealConfig.MinerPrice)
-		dealCid, startEpoch := client.LotusProposeOfflineDeal(cost, pieceSize, carFile.DataCid, carFile.PieceCid, *dealConfig)
-		if dealCid == nil || startEpoch == nil {
-			err := errors.New("Failed to propose offline deal")
+		dealCid := client.LotusProposeOfflineDeal(*carFile, cost, pieceSize, *dealConfig)
+		if dealCid == nil {
+			err := errors.New("failed to propose offline deal")
 			logs.GetLogger().Error(err)
 			return "", err
 		}
 		carFile.MinerFid = &minerFid
 		carFile.DealCid = *dealCid
-		carFile.StartEpoch = strconv.Itoa(*startEpoch)
 	}
 
 	jsonFileName := taskName + JSON_FILE_NAME_BY_DEAL_SUFFIX

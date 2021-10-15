@@ -146,7 +146,7 @@ func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName stri
 		} else {
 			columns = append(columns, "")
 		}
-		columns = append(columns, carFile.StartEpoch)
+		columns = append(columns, strconv.Itoa(carFile.StartEpoch))
 
 		err = writer.Write(columns)
 		if err != nil {
@@ -203,7 +203,7 @@ func CreateCsv4TaskDeal(carFiles []*model.FileDesc, minerId *string, outDir, csv
 		columns = append(columns, carFile.DataCid)
 		columns = append(columns, carFile.CarFileUrl)
 		columns = append(columns, carFile.CarFileMd5)
-		columns = append(columns, carFile.StartEpoch)
+		columns = append(columns, strconv.Itoa(carFile.StartEpoch))
 
 		err = writer.Write(columns)
 		if err != nil {
