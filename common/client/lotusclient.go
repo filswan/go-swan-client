@@ -66,7 +66,7 @@ func LotusGetClient() *LotusClient {
 }
 
 //"lotus-miner storage-deals list -v | grep -a " + dealCid
-func LotusGetDealStatus() *MarketGetAskResultAsk {
+func LotusMarketGetAsk() *MarketGetAskResultAsk {
 	lotusClient := LotusGetClient()
 
 	var params []interface{}
@@ -78,14 +78,18 @@ func LotusGetDealStatus() *MarketGetAskResultAsk {
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := HttpGetNoToken(lotusClient.ApiUrl, jsonRpcParams)
+	response := HttpGetNoToken(lotusClient.MinerApiUrl, jsonRpcParams)
 
-	marketGetAskResultAsk := &MarketGetAskResultAsk{}
-	err := json.Unmarshal([]byte(response), marketGetAskResultAsk)
+	marketGetAsk := &MarketGetAsk{}
+	err := json.Unmarshal([]byte(response), marketGetAsk)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil
 	}
 
-	return marketGetAskResultAsk
+	if marketGetAsk.Result == nil {
+		return nil
+	}
+
+	return &marketGetAsk.Result.Ask
 }

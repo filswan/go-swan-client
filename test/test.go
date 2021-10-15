@@ -11,7 +11,12 @@ import (
 )
 
 func Test() {
-	TestGetTasks()
+	TestLotusClient()
+}
+
+func TestLotusClient() {
+	result := client.LotusMarketGetAsk()
+	logs.GetLogger().Info(*result)
 }
 
 func TestGetTasks() {
