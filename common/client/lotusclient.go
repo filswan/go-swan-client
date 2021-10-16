@@ -14,6 +14,7 @@ const (
 	LOTUS_CHAIN_HEAD             = "Filecoin.ChainHead"
 	LOTUS_MARKET_GET_ASK         = "Filecoin.MarketGetAsk"
 	LOTUS_CLIENT_CALC_COMM_P     = "Filecoin.ClientCalcCommP"
+	LOTUS_CLIENT_IMPORT          = "Filecoin.ClientImport"
 )
 
 type LotusJsonRpcParams struct {
@@ -62,15 +63,24 @@ type MarketGetAskResultAsk struct {
 
 type ClientCalcCommP struct {
 	LotusJsonRpcResult
-	Result ClientCalcCommPResult `json:"result"`
+	Result *ClientCalcCommPResult `json:"result"`
 }
 
 type ClientCalcCommPResult struct {
-	Root DealCid
+	Root Cid
 	Size int
 }
-type DealCid struct {
-	DealCid string `json:"/"`
+type Cid struct {
+	Cid string `json:"/"`
+}
+
+type ClientImport struct {
+	LotusJsonRpcResult
+	Result *ClientImportResult `json:"result"`
+}
+type ClientImportResult struct {
+	Root     Cid
+	ImportID int64
 }
 
 func LotusGetClient() *LotusClient {
@@ -84,7 +94,7 @@ func LotusGetClient() *LotusClient {
 	return lotusClient
 }
 
-//"lotus-miner storage-deals list -v | grep -a " + dealCid
+//"lotus client query-ask " + minerFid
 func LotusMarketGetAsk() *MarketGetAskResultAsk {
 	lotusClient := LotusGetClient()
 
@@ -98,6 +108,9 @@ func LotusMarketGetAsk() *MarketGetAskResultAsk {
 	}
 
 	response := HttpGetNoToken(lotusClient.MinerApiUrl, jsonRpcParams)
+	if response == "" {
+		return nil
+	}
 
 	marketGetAsk := &MarketGetAsk{}
 	err := json.Unmarshal([]byte(response), marketGetAsk)
@@ -113,30 +126,80 @@ func LotusMarketGetAsk() *MarketGetAskResultAsk {
 	return &marketGetAsk.Result.Ask
 }
 
-func LotusClientCalcCommP(filepath string) *MarketGetAskResultAsk {
+//"lotus client commP " + carFilePath
+func LotusClientCalcCommP(filepath string) *string {
 	lotusClient := LotusGetClient()
 
 	var params []interface{}
+	params = append(params, filepath)
 
 	jsonRpcParams := LotusJsonRpcParams{
 		JsonRpc: LOTUS_JSON_RPC_VERSION,
-		Method:  LOTUS_MARKET_GET_ASK,
+		Method:  LOTUS_CLIENT_CALC_COMM_P,
 		Params:  params,
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := HttpPost(lotusClient.MinerApiUrl, lotusClient.AccessToken, jsonRpcParams)
+	response := HttpPost(lotusClient.ApiUrl, lotusClient.AccessToken, jsonRpcParams)
+	if response == "" {
+		return nil
+	}
 
-	marketGetAsk := &MarketGetAsk{}
-	err := json.Unmarshal([]byte(response), marketGetAsk)
+	clientCalcCommP := &ClientCalcCommP{}
+	err := json.Unmarshal([]byte(response), clientCalcCommP)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil
 	}
 
-	if marketGetAsk.Result == nil {
+	if clientCalcCommP.Result == nil {
 		return nil
 	}
 
-	return &marketGetAsk.Result.Ask
+	pieceCid := clientCalcCommP.Result.Root.Cid
+	return &pieceCid
+}
+
+type ClientImportParam struct {
+	Path  string
+	IsCAR bool
+}
+
+//"lotus client import --car " + carFilePath
+func LotusClientImport(filepath string, isCar bool) *string {
+	lotusClient := LotusGetClient()
+
+	var params []interface{}
+	clientImportParam := ClientImportParam{
+		Path:  filepath,
+		IsCAR: isCar,
+	}
+	params = append(params, clientImportParam)
+
+	jsonRpcParams := LotusJsonRpcParams{
+		JsonRpc: LOTUS_JSON_RPC_VERSION,
+		Method:  LOTUS_CLIENT_IMPORT,
+		Params:  params,
+		Id:      LOTUS_JSON_RPC_ID,
+	}
+
+	response := HttpGet(lotusClient.ApiUrl, lotusClient.AccessToken, jsonRpcParams)
+	if response == "" {
+		return nil
+	}
+
+	clientImport := &ClientImport{}
+	err := json.Unmarshal([]byte(response), clientImport)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil
+	}
+
+	if clientImport.Result == nil {
+		return nil
+	}
+
+	dataCid := clientImport.Result.Root.Cid
+
+	return &dataCid
 }
