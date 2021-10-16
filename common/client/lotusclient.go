@@ -2,6 +2,8 @@ package client
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 )
@@ -15,6 +17,7 @@ const (
 	LOTUS_MARKET_GET_ASK         = "Filecoin.MarketGetAsk"
 	LOTUS_CLIENT_CALC_COMM_P     = "Filecoin.ClientCalcCommP"
 	LOTUS_CLIENT_IMPORT          = "Filecoin.ClientImport"
+	LOTUS_CLIENT_GEN_CAR         = "Filecoin.ClientGenCar"
 )
 
 type LotusJsonRpcParams struct {
@@ -160,7 +163,7 @@ func LotusClientCalcCommP(filepath string) *string {
 	return &pieceCid
 }
 
-type ClientImportParam struct {
+type ClientFileParam struct {
 	Path  string
 	IsCAR bool
 }
@@ -170,11 +173,11 @@ func LotusClientImport(filepath string, isCar bool) *string {
 	lotusClient := LotusGetClient()
 
 	var params []interface{}
-	clientImportParam := ClientImportParam{
+	clientFileParam := ClientFileParam{
 		Path:  filepath,
 		IsCAR: isCar,
 	}
-	params = append(params, clientImportParam)
+	params = append(params, clientFileParam)
 
 	jsonRpcParams := LotusJsonRpcParams{
 		JsonRpc: LOTUS_JSON_RPC_VERSION,
@@ -202,4 +205,47 @@ func LotusClientImport(filepath string, isCar bool) *string {
 	dataCid := clientImport.Result.Root.Cid
 
 	return &dataCid
+}
+
+//"lotus client generate-car " + srcFilePath + " " + destCarFilePath
+func LotusClientGenCar(srcFilePath, destCarFilePath string, srcFilePathIsCar bool) error {
+	lotusClient := LotusGetClient()
+
+	var params []interface{}
+	clientFileParam := ClientFileParam{
+		Path:  srcFilePath,
+		IsCAR: srcFilePathIsCar,
+	}
+	params = append(params, clientFileParam)
+	params = append(params, destCarFilePath)
+
+	jsonRpcParams := LotusJsonRpcParams{
+		JsonRpc: LOTUS_JSON_RPC_VERSION,
+		Method:  LOTUS_CLIENT_GEN_CAR,
+		Params:  params,
+		Id:      LOTUS_JSON_RPC_ID,
+	}
+
+	response := HttpGet(lotusClient.ApiUrl, lotusClient.AccessToken, jsonRpcParams)
+	if response == "" {
+		err := errors.New("failed to generate car, no response")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	lotusJsonRpcResult := &LotusJsonRpcResult{}
+	err := json.Unmarshal([]byte(response), lotusJsonRpcResult)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if lotusJsonRpcResult.Error != nil {
+		msg := fmt.Sprintf("error, code:%d, message:%s", lotusJsonRpcResult.Error.Code, lotusJsonRpcResult.Error.Message)
+		err := errors.New(msg)
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	return nil
 }
