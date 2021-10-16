@@ -16,6 +16,7 @@ type Configuration struct {
 
 type lotus struct {
 	ApiUrl           string `toml:"api_url"`
+	AccessToken      string `toml:"access_token"`
 	MinerApiUrl      string `toml:"miner_api_url"`
 	MinerAccessToken string `toml:"miner_access_token"`
 }

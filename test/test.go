@@ -17,6 +17,8 @@ func Test() {
 func TestLotusClient() {
 	result := client.LotusMarketGetAsk()
 	logs.GetLogger().Info(*result)
+	result1 := client.LotusClientCalcCommP("/home/peware/go-swan-client/carFiles/hello2.txt.car")
+	logs.GetLogger().Info(*result1)
 }
 
 func TestGetTasks() {
