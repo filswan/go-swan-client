@@ -44,10 +44,8 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 	publicDeal := config.GetConfig().Sender.PublicDeal
 	verifiedDeal := config.GetConfig().Sender.VerifiedDeal
 	offlineMode := config.GetConfig().Sender.OfflineMode
-	fastRetrieval := 0
-	if config.GetConfig().Sender.FastRetrieval {
-		fastRetrieval = 1
-	}
+	fastRetrieval := config.GetConfig().Sender.FastRetrieval
+
 	maxPrice := config.GetConfig().Sender.MaxPrice
 	bidMode := config.GetConfig().Sender.BidMode
 	startEpochHours := config.GetConfig().Sender.StartEpochHours
@@ -68,6 +66,7 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 	logs.GetLogger().Info("verified deals: ", verifiedDeal)
 	logs.GetLogger().Info("connected to swan: ", !offlineMode)
 	logs.GetLogger().Info("csv/car file output dir: %s", outputDir)
+	logs.GetLogger().Info("fastRetrieval: ", fastRetrieval)
 
 	if !publicDeal && (minerFid == nil || len(*minerFid) == 0) {
 		err := fmt.Errorf("please provide -miner for non public deal")
@@ -83,16 +82,15 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 	}
 
 	task := model.Task{
-		TaskName:       *taskName,
-		CuratedDataset: *dataset,
-		Description:    *description,
-		//IsVerified:     verifiedDeal,
-		FastRetrieval: &fastRetrieval,
-		MaxPrice:      &maxPrice,
-		BidMode:       &bidMode,
-		ExpireDays:    &expireDays,
-		MinerFid:      minerFid,
-		Uuid:          uuid.NewString(),
+		TaskName:          *taskName,
+		CuratedDataset:    *dataset,
+		Description:       *description,
+		FastRetrievalBool: fastRetrieval,
+		MaxPrice:          &maxPrice,
+		BidMode:           &bidMode,
+		ExpireDays:        &expireDays,
+		MinerFid:          minerFid,
+		Uuid:              uuid.NewString(),
 	}
 	if publicDeal {
 		task.IsPublic = 1
@@ -126,22 +124,27 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 
 	jsonFileName := *taskName + constants.JSON_FILE_NAME_BY_TASK_SUFFIX
 	csvFileName := *taskName + constants.CSV_FILE_NAME_BY_TASK_SUFFIX
-	WriteCarFilesToFiles(carFiles, *outputDir, jsonFileName, csvFileName)
+	err = WriteCarFilesToFiles(carFiles, *outputDir, jsonFileName, csvFileName)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	SendTask2Swan(task, carFiles, *outputDir)
 	return &jsonFileName, nil
 }
 
-func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) bool {
+func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) error {
 	csvFilename := task.TaskName + "_task.csv"
 	csvFilePath, err := CreateCsv4TaskDeal(carFiles, task.MinerFid, outDir, csvFilename)
 	if err != nil {
-		logs.GetLogger().Error("Failed to generate csv for task.")
-		return false
+		logs.GetLogger().Error(err)
+		return err
 	}
 
 	if config.GetConfig().Sender.OfflineMode {
 		logs.GetLogger().Info("Working in Offline Mode. You need to manually send out task on filwan.com.")
-		return true
+		return nil
 	}
 
 	logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
@@ -150,5 +153,5 @@ func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) b
 	response := swanClient.SwanCreateTask(task, csvFilePath)
 	logs.GetLogger().Info(response)
 
-	return true
+	return nil
 }

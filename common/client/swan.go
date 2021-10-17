@@ -166,7 +166,7 @@ func (swanClient *SwanClient) SwanCreateTask(task model.Task, csvFilePath string
 	if task.MinerFid != nil {
 		params["miner_id"] = *task.MinerFid
 	}
-	params["fast_retrieval"] = strconv.Itoa(*task.FastRetrieval)
+	params["fast_retrieval"] = strconv.FormatBool(task.FastRetrievalBool)
 	params["bid_mode"] = strconv.Itoa(*task.BidMode)
 	params["max_price"] = *task.MaxPrice
 	params["expire_days"] = strconv.Itoa(*task.ExpireDays)
