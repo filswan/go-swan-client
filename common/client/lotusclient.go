@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"go-swan-client/common/constants"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 )
@@ -18,6 +19,7 @@ const (
 	LOTUS_CLIENT_CALC_COMM_P     = "Filecoin.ClientCalcCommP"
 	LOTUS_CLIENT_IMPORT          = "Filecoin.ClientImport"
 	LOTUS_CLIENT_GEN_CAR         = "Filecoin.ClientGenCar"
+	LOTUS_CLIENT_START_DEAL      = "Filecoin.ClientStartDeal"
 )
 
 type LotusJsonRpcParams struct {
@@ -248,4 +250,87 @@ func LotusClientGenCar(srcFilePath, destCarFilePath string, srcFilePathIsCar boo
 	}
 
 	return nil
+}
+
+type ClientStartDealParamData struct {
+	TransferType string
+	Root         Cid
+	PieceCid     Cid
+	PieceSize    int
+	RawBlockSize int
+}
+
+type ClientStartDealParam struct {
+	Data               ClientStartDealParamData
+	Wallet             string
+	Miner              string
+	EpochPrice         string
+	MinBlocksDuration  int
+	ProviderCollateral string
+	DealStartEpoch     int
+	FastRetrieval      bool
+	VerifiedDeal       bool
+}
+
+type ClientStartDeal struct {
+	LotusJsonRpcResult
+	Result *Cid `json:"result"`
+}
+
+//"lotus client generate-car " + srcFilePath + " " + destCarFilePath
+func LotusClientStartDeal(minerFid, dataCid, pieceCid, wallet, epochPrice string, pieceSize, startEpoch int, fastRetrieval, verifiedDeal bool) (*string, error) {
+	lotusClient := LotusGetClient()
+
+	var params []interface{}
+	clientStartDealParamData := ClientStartDealParamData{
+		Root: Cid{
+			Cid: dataCid,
+		},
+		PieceCid: Cid{
+			Cid: pieceCid,
+		},
+		PieceSize: pieceSize,
+	}
+	clientStartDealParam := ClientStartDealParam{
+		Data:              clientStartDealParamData,
+		Wallet:            wallet,
+		Miner:             minerFid,
+		EpochPrice:        epochPrice,
+		MinBlocksDuration: constants.DURATION,
+		//ProviderCollateral :
+		DealStartEpoch: startEpoch,
+		FastRetrieval:  fastRetrieval,
+		VerifiedDeal:   verifiedDeal,
+	}
+	params = append(params, clientStartDealParam)
+
+	jsonRpcParams := LotusJsonRpcParams{
+		JsonRpc: LOTUS_JSON_RPC_VERSION,
+		Method:  LOTUS_CLIENT_START_DEAL,
+		Params:  params,
+		Id:      LOTUS_JSON_RPC_ID,
+	}
+
+	response := HttpGet(lotusClient.ApiUrl, lotusClient.AccessToken, jsonRpcParams)
+	if response == "" {
+		err := errors.New("failed to generate car, no response")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	clientStartDeal := &ClientStartDeal{}
+	err := json.Unmarshal([]byte(response), clientStartDeal)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if clientStartDeal.Error != nil {
+		msg := fmt.Sprintf("error, code:%d, message:%s", clientStartDeal.Error.Code, clientStartDeal.Error.Message)
+		err := errors.New(msg)
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return &clientStartDeal.Result.Cid, nil
 }

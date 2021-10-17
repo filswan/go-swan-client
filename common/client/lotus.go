@@ -199,7 +199,7 @@ func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, piece
 	cmd = cmd + " --start-epoch " + strconv.Itoa(carFile.StartEpoch)
 	cmd = cmd + " --fast-retrieval=" + fastRetrieval + " --verified-deal=" + verifiedDeal
 	cmd = cmd + " --manual-piece-cid " + carFile.PieceCid + " --manual-piece-size " + strconv.FormatInt(pieceSize, 10)
-	cmd = cmd + " " + carFile.DataCid + " " + dealConfig.MinerFid + " " + costStr + " " + constants.DURATION
+	cmd = cmd + " " + carFile.DataCid + " " + dealConfig.MinerFid + " " + costStr + " " + strconv.Itoa(constants.DURATION)
 	logs.GetLogger().Info(cmd)
 
 	if !dealConfig.SkipConfirmation {

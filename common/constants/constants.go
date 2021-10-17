@@ -10,6 +10,6 @@ const (
 
 	TASK_STATUS_ASSIGNED = "Assigned"
 
-	DURATION       = "1051200"
+	DURATION       = 1051200
 	EPOCH_PER_HOUR = 120
 )
