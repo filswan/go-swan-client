@@ -17,7 +17,7 @@ func Test() {
 func TestGenerateCarFiles() {
 	inputDir := "/Users/dorachen/go-workspace/srcFiles"
 	outputDir := "/Users/dorachen/go-workspace/carFiles"
-	outDir, carFiles, err := subcommand.GenerateCarFiles(&inputDir, &outputDir)
+	outDir, carFiles, err := subcommand.GenerateCarFiles(inputDir, &outputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return

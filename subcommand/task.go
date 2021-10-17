@@ -17,7 +17,19 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *string) (*string, error) {
+func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, description *string) (*string, error) {
+	if len(inputDir) == 0 {
+		err := fmt.Errorf("please provide input dir")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if utils.GetPathType(inputDir) != constants.PATH_TYPE_DIR {
+		err := fmt.Errorf("%s is not a directory", inputDir)
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	outputDir, err := CreateOutputDir(outputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -28,8 +40,8 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 		nowStr := "task_" + time.Now().Format("2006-01-02_15:04:05")
 		taskName = &nowStr
 	}
-	publicDeal := config.GetConfig().Sender.PublicDeal
 
+	publicDeal := config.GetConfig().Sender.PublicDeal
 	verifiedDeal := config.GetConfig().Sender.VerifiedDeal
 	offlineMode := config.GetConfig().Sender.OfflineMode
 	fastRetrieval := 0
@@ -49,10 +61,13 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 	path := config.GetConfig().WebServer.Path
 
 	downloadUrlPrefix := strings.TrimRight(host, "/") + ":" + strconv.Itoa(port)
-
-	logs.GetLogger().Info("Swan Client Settings: Public Task: ", publicDeal, ",  Verified Deals: ", verifiedDeal, ",  Connected to Swan: ", !offlineMode, ", CSV/car File output dir: %s", outputDir)
-
 	downloadUrlPrefix = filepath.Join(downloadUrlPrefix, path)
+
+	logs.GetLogger().Info("swan client settings:")
+	logs.GetLogger().Info("public task: ", publicDeal)
+	logs.GetLogger().Info("verified deals: ", verifiedDeal)
+	logs.GetLogger().Info("connected to swan: ", !offlineMode)
+	logs.GetLogger().Info("csv/car file output dir: %s", outputDir)
 
 	if !publicDeal && (minerFid == nil || len(*minerFid) == 0) {
 		err := fmt.Errorf("please provide -miner for non public deal")
@@ -60,9 +75,9 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 		return nil, err
 	}
 
-	carFiles := ReadCarFilesFromJsonFile(*inputDir, constants.JSON_FILE_NAME_BY_UPLOAD)
+	carFiles := ReadCarFilesFromJsonFile(inputDir, constants.JSON_FILE_NAME_BY_UPLOAD)
 	if carFiles == nil {
-		err := fmt.Errorf("failed to read car files from :%s", *inputDir)
+		err := fmt.Errorf("failed to read car files from :%s", inputDir)
 		logs.GetLogger().Error(err)
 		return nil, err
 	}

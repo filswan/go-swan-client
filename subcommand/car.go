@@ -15,15 +15,15 @@ import (
 	"github.com/codingsince1985/checksum"
 )
 
-func GenerateCarFiles(inputDir, outputDir *string) (*string, []*model.FileDesc, error) {
-	if inputDir == nil || len(*inputDir) == 0 {
+func GenerateCarFiles(inputDir string, outputDir *string) (*string, []*model.FileDesc, error) {
+	if len(inputDir) == 0 {
 		err := fmt.Errorf("please provide input dir")
 		logs.GetLogger().Error(err)
 		return nil, nil, err
 	}
 
-	if utils.GetPathType(*inputDir) != constants.PATH_TYPE_DIR {
-		err := fmt.Errorf("input dir: %s not exists", *inputDir)
+	if utils.GetPathType(inputDir) != constants.PATH_TYPE_DIR {
+		err := fmt.Errorf("%s is not a directory", inputDir)
 		logs.GetLogger().Error(err)
 		return nil, nil, err
 	}
@@ -34,7 +34,7 @@ func GenerateCarFiles(inputDir, outputDir *string) (*string, []*model.FileDesc, 
 		return nil, nil, err
 	}
 
-	srcFiles, err := ioutil.ReadDir(*inputDir)
+	srcFiles, err := ioutil.ReadDir(inputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, err
@@ -45,7 +45,7 @@ func GenerateCarFiles(inputDir, outputDir *string) (*string, []*model.FileDesc, 
 	for _, srcFile := range srcFiles {
 		carFile := model.FileDesc{}
 		carFile.SourceFileName = srcFile.Name()
-		carFile.SourceFilePath = filepath.Join(*inputDir, carFile.SourceFileName)
+		carFile.SourceFilePath = filepath.Join(inputDir, carFile.SourceFileName)
 		carFile.SourceFileSize = srcFile.Size()
 		carFile.CarFileName = carFile.SourceFileName + ".car"
 		carFile.CarFilePath = filepath.Join(*outputDir, carFile.CarFileName)

@@ -6,11 +6,24 @@ import (
 
 	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
+	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 )
 
 func UploadCarFiles(inputDir string) error {
+	if len(inputDir) == 0 {
+		err := fmt.Errorf("please provide input dir")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if utils.GetPathType(inputDir) != constants.PATH_TYPE_DIR {
+		err := fmt.Errorf("%s is not a directory", inputDir)
+		logs.GetLogger().Error(err)
+		return err
+	}
+
 	storageServerType := config.GetConfig().Main.StorageServerType
 	if storageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
 		logs.GetLogger().Info("Please upload car files to web server manually.")

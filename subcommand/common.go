@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+	"time"
 
 	"go-swan-client/config"
 	"go-swan-client/logs"
@@ -13,17 +14,15 @@ import (
 	"io/ioutil"
 	"os"
 	"strconv"
-
-	"github.com/google/uuid"
 )
 
 func CreateOutputDir(outputDir *string) (*string, error) {
 	if outputDir == nil || len(*outputDir) == 0 {
 		if outputDir == nil {
-			outDir := filepath.Join(config.GetConfig().Sender.OutputDir, uuid.NewString())
+			outDir := filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05"))
 			outputDir = &outDir
 		} else {
-			*outputDir = filepath.Join(config.GetConfig().Sender.OutputDir, uuid.NewString())
+			*outputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05"))
 		}
 
 		logs.GetLogger().Info("output-dir is not provided, use default:", outputDir)

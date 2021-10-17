@@ -76,7 +76,7 @@ func createCarFile(subCmd string) error {
 
 	switch subCmd {
 	case SUBCOMMAND_CAR:
-		outputDir, carFiles, err := subcommand.GenerateCarFiles(inputDir, outputDir)
+		outputDir, carFiles, err := subcommand.GenerateCarFiles(*inputDir, outputDir)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
@@ -157,7 +157,7 @@ func createTask() error {
 
 	logs.GetLogger().Info(inputDir, outputDir, minerFid, dataset, description)
 
-	subcommand.CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description)
+	subcommand.CreateTask(*inputDir, taskName, outputDir, minerFid, dataset, description)
 	return nil
 }
 
