@@ -4,7 +4,7 @@ type FileDesc struct {
 	Uuid           string
 	SourceFileName string
 	SourceFilePath string
-	SourceFileMd5  bool
+	SourceFileMd5  string
 	SourceFileUrl  string
 	SourceFileSize int64
 	CarFileName    string

@@ -145,7 +145,7 @@ func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName stri
 		columns = append(columns, carFile.Uuid)
 		columns = append(columns, carFile.SourceFileName)
 		columns = append(columns, carFile.SourceFilePath)
-		columns = append(columns, strconv.FormatBool(carFile.SourceFileMd5))
+		columns = append(columns, carFile.SourceFileMd5)
 		columns = append(columns, carFile.SourceFileUrl)
 		columns = append(columns, strconv.FormatInt(carFile.SourceFileSize, 10))
 		columns = append(columns, carFile.CarFileName)

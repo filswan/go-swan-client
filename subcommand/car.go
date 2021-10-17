@@ -50,21 +50,26 @@ func GenerateCarFiles(inputDir, outputDir *string) (*string, []*model.FileDesc, 
 		carFile.CarFileName = carFile.SourceFileName + ".car"
 		carFile.CarFilePath = filepath.Join(*outputDir, carFile.CarFileName)
 
-		err := client.LotusGenerateCar(carFile.SourceFilePath, carFile.CarFilePath)
+		err := client.LotusClientGenCar(carFile.SourceFilePath, carFile.CarFilePath, false)
 		if err != nil {
-			logs.GetLogger().Fatal("Failed to generate car file.")
+			logs.GetLogger().Error(err)
+			return nil, nil, err
 		}
 
-		pieceCid := client.LotusGeneratePieceCid(carFile.CarFilePath)
+		pieceCid := client.LotusClientCalcCommP(carFile.CarFilePath)
 		if pieceCid == nil {
-			logs.GetLogger().Fatal("Failed to generate piece cid.")
+			err := fmt.Errorf("failed to generate piece cid")
+			logs.GetLogger().Error(err)
+			return nil, nil, err
 		}
 
 		carFile.PieceCid = *pieceCid
 
-		dataCid := client.LotusImportCarFile(carFile.CarFilePath)
+		dataCid := client.LotusClientImport(carFile.CarFilePath, true)
 		if dataCid == nil {
-			logs.GetLogger().Fatal("Failed to import car file.")
+			err := fmt.Errorf("failed to import car file")
+			logs.GetLogger().Error(err)
+			return nil, nil, err
 		}
 
 		carFile.DataCid = *dataCid
@@ -72,10 +77,18 @@ func GenerateCarFiles(inputDir, outputDir *string) (*string, []*model.FileDesc, 
 		carFile.CarFileSize = utils.GetFileSize(carFile.CarFilePath)
 
 		if config.GetConfig().Sender.GenerateMd5 {
+			srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return nil, nil, err
+			}
+			logs.GetLogger().Info("srcFileMd5:", srcFileMd5)
+			carFile.SourceFileMd5 = srcFileMd5
+
 			carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
 			if err != nil {
 				logs.GetLogger().Error(err)
-				logs.GetLogger().Fatal("Failed to generate md5 for car file:", carFile.CarFilePath)
+				return nil, nil, err
 			}
 			logs.GetLogger().Info("carFileMd5:", carFileMd5)
 			carFile.CarFileMd5 = carFileMd5

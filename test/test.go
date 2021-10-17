@@ -12,9 +12,19 @@ import (
 )
 
 func Test() {
-	TestLotusClient()
+	TestGenerateCarFiles()
 }
+func TestGenerateCarFiles() {
+	inputDir := "/Users/dorachen/go-workspace/srcFiles"
+	outputDir := "/Users/dorachen/go-workspace/carFiles"
+	outDir, carFiles, err := subcommand.GenerateCarFiles(&inputDir, &outputDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
 
+	logs.GetLogger().Info("generate ", len(carFiles), " car files generated to ", *outDir)
+}
 func TestLotusClient() {
 	result := client.LotusMarketGetAsk()
 	logs.GetLogger().Info(*result)
@@ -38,12 +48,6 @@ func TestLotusClient() {
 func TestGetTasks() {
 	swanClient := client.SwanGetClient()
 	swanClient.GetAssignedTasks()
-}
-
-func TestGenerateCarFiles() {
-	inputDir := "/home/peware/go-swan-client/input"
-	outputDir := "/home/peware/go-swan-client/output"
-	subcommand.GenerateCarFiles(&inputDir, &outputDir)
 }
 
 func TestCreateTask() {
