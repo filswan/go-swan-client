@@ -152,7 +152,18 @@ func (swanClient *SwanClient) SwanUpdateTaskByUuid(taskUuid string, minerFid str
 	return response
 }
 
-func (swanClient *SwanClient) SwanCreateTask(task model.Task, csvFilePath string) string {
+type SwanCreateTaskResponse struct {
+	Data    SwanCreateTaskResponseData `json:"data"`
+	Status  string                     `json:"status"`
+	Message string                     `json:"message"`
+}
+
+type SwanCreateTaskResponseData struct {
+	Filename string `json:"filename"`
+	Uuid     string `json:"uuid"`
+}
+
+func (swanClient *SwanClient) SwanCreateTask(task model.Task, csvFilePath string) (*SwanCreateTaskResponse, error) {
 	apiUrl := swanClient.ApiUrl + "/tasks"
 
 	params := map[string]string{}
@@ -174,9 +185,17 @@ func (swanClient *SwanClient) SwanCreateTask(task model.Task, csvFilePath string
 	response, err := HttpPostFile(apiUrl, swanClient.Token, params, "file", csvFilePath)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return ""
+		return nil, err
 	}
-	return response
+
+	swanCreateTaskResponse := &SwanCreateTaskResponse{}
+	err = json.Unmarshal([]byte(response), swanCreateTaskResponse)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return swanCreateTaskResponse, nil
 }
 
 type GetTaskResult struct {

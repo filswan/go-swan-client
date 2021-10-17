@@ -63,8 +63,8 @@ func TestCreateTask() {
 
 	swan := client.SwanGetClient()
 
-	response := swan.SwanCreateTask(task, "/Users/dorachen/go-workspace/src/go-swan-client/test/car.csv")
-	logs.GetLogger().Info(response)
+	response, err := swan.SwanCreateTask(task, "/Users/dorachen/go-workspace/src/go-swan-client/test/car.csv")
+	logs.GetLogger().Info(response, err)
 }
 
 func TestFilePath() {
