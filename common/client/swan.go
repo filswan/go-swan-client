@@ -3,14 +3,15 @@ package client
 import (
 	"encoding/json"
 	"errors"
-	"go-swan-client/common/constants"
-	"go-swan-client/common/utils"
-	"go-swan-client/config"
-	"go-swan-client/logs"
-	"go-swan-client/model"
 	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/DoraNebula/go-swan-client/common/constants"
+	"github.com/DoraNebula/go-swan-client/common/utils"
+	"github.com/DoraNebula/go-swan-client/config"
+	"github.com/DoraNebula/go-swan-client/logs"
+	"github.com/DoraNebula/go-swan-client/model"
 )
 
 const GET_OFFLINEDEAL_LIMIT_DEFAULT = 50

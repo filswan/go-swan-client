@@ -3,11 +3,12 @@ package utils
 import (
 	"bufio"
 	"errors"
-	"go-swan-client/logs"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/DoraNebula/go-swan-client/logs"
 )
 
 func IsFileExists(filePath, fileName string) bool {

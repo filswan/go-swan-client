@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"go-swan-client/common/constants"
-	"go-swan-client/config"
-	"go-swan-client/logs"
+
+	"github.com/DoraNebula/go-swan-client/common/constants"
+	"github.com/DoraNebula/go-swan-client/config"
+	"github.com/DoraNebula/go-swan-client/logs"
 )
 
 const (

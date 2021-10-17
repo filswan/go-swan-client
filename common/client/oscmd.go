@@ -3,10 +3,11 @@ package client
 import (
 	"bytes"
 	"errors"
-	"go-swan-client/logs"
 	"io"
 	"os"
 	"os/exec"
+
+	"github.com/DoraNebula/go-swan-client/logs"
 )
 
 const SHELL_TO_USE = "bash"
