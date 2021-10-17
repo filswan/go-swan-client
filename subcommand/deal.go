@@ -21,7 +21,7 @@ func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) bool
 		outputDir = &outDir
 	}
 	metadataJsonFilename := filepath.Base(metadataJsonPath)
-	taskName := strings.TrimSuffix(metadataJsonFilename, constants.JSON_FILE_NAME_BY_TASK_SUFFIX)
+	taskName := strings.TrimSuffix(metadataJsonFilename, constants.JSON_FILE_NAME_BY_TASK)
 	carFiles := ReadCarFilesFromJsonFileByFullPath(metadataJsonPath)
 	if carFiles == nil {
 		logs.GetLogger().Error("Failed to read car files from json.")
@@ -132,8 +132,8 @@ func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid str
 		carFile.DealCid = *dealCid
 	}
 
-	jsonFileName := taskName + constants.JSON_FILE_NAME_BY_DEAL_SUFFIX
-	csvFileName := taskName + constants.CSV_FILE_NAME_BY_DEAL_SUFFIX
+	jsonFileName := taskName + constants.JSON_FILE_NAME_BY_DEAL
+	csvFileName := taskName + constants.CSV_FILE_NAME_BY_DEAL
 	WriteCarFilesToFiles(carFiles, outputDir, jsonFileName, csvFileName)
 
 	csvFilename := taskName + "_deal.csv"

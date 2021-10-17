@@ -122,8 +122,8 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 		}
 	}
 
-	jsonFileName := *taskName + constants.JSON_FILE_NAME_BY_TASK_SUFFIX
-	csvFileName := *taskName + constants.CSV_FILE_NAME_BY_TASK_SUFFIX
+	jsonFileName := *taskName + constants.JSON_FILE_NAME_BY_TASK
+	csvFileName := *taskName + constants.CSV_FILE_NAME_BY_TASK
 	err = WriteCarFilesToFiles(carFiles, *outputDir, jsonFileName, csvFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)

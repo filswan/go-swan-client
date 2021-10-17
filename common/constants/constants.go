@@ -18,15 +18,15 @@ const (
 	PATH_TYPE_DIR       = 2 //directory
 	PATH_TYPE_UNKNOWN   = 3 //unknown path type
 
-	JSON_FILE_NAME_BY_CAR         = "car.json"
-	JSON_FILE_NAME_BY_UPLOAD      = "upload.json"
-	JSON_FILE_NAME_BY_TASK_SUFFIX = "task.json"
-	JSON_FILE_NAME_BY_DEAL_SUFFIX = "deal.json"
-	JSON_FILE_NAME_BY_AUTO_SUFFIX = "deal_autobid.json"
+	JSON_FILE_NAME_BY_CAR    = "car.json"
+	JSON_FILE_NAME_BY_UPLOAD = "car.json"
+	JSON_FILE_NAME_BY_TASK   = "car.json"
+	JSON_FILE_NAME_BY_DEAL   = "car.json"
+	JSON_FILE_NAME_BY_AUTO   = "car.json"
 
-	CSV_FILE_NAME_BY_CAR         = "car.csv"
-	CSV_FILE_NAME_BY_UPLOAD      = "upload.csv"
-	CSV_FILE_NAME_BY_TASK_SUFFIX = "task.csv"
-	CSV_FILE_NAME_BY_DEAL_SUFFIX = "deal.csv"
-	CSV_FILE_NAME_BY_AUTO_SUFFIX = "deal_autobid.csv"
+	CSV_FILE_NAME_BY_CAR    = "car.csv"
+	CSV_FILE_NAME_BY_UPLOAD = "car.csv"
+	CSV_FILE_NAME_BY_TASK   = "car.csv"
+	CSV_FILE_NAME_BY_DEAL   = "car.csv"
+	CSV_FILE_NAME_BY_AUTO   = "car.csv"
 )

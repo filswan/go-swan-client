@@ -75,8 +75,8 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Ta
 		outputDir = &outDir
 	}
 
-	jsonFileName := task.TaskName + constants.JSON_FILE_NAME_BY_AUTO_SUFFIX
-	csvFileName := task.TaskName + constants.CSV_FILE_NAME_BY_AUTO_SUFFIX
+	jsonFileName := task.TaskName + constants.JSON_FILE_NAME_BY_AUTO
+	csvFileName := task.TaskName + constants.CSV_FILE_NAME_BY_AUTO
 	WriteCarFilesToFiles(carFiles, *outputDir, jsonFileName, csvFileName)
 
 	csvFilename := task.TaskName + "_deal.csv"
