@@ -20,6 +20,7 @@ const (
 	LOTUS_CLIENT_IMPORT          = "Filecoin.ClientImport"
 	LOTUS_CLIENT_GEN_CAR         = "Filecoin.ClientGenCar"
 	LOTUS_CLIENT_START_DEAL      = "Filecoin.ClientStartDeal"
+	LOTUS_VERSION                = "Filecoin.Version"
 )
 
 type LotusJsonRpcParams struct {
@@ -97,6 +98,54 @@ func LotusGetClient() *LotusClient {
 	}
 
 	return lotusClient
+}
+
+type LotusVersionResult struct {
+	Version    string
+	APIVersion int
+	BlockDelay int
+}
+
+type LotusVersionResponse struct {
+	LotusJsonRpcResult
+	Result LotusVersionResult `json:"result"`
+}
+
+//"lotus client query-ask " + minerFid
+func LotusVersion() (*string, error) {
+	lotusClient := LotusGetClient()
+
+	var params []interface{}
+
+	jsonRpcParams := LotusJsonRpcParams{
+		JsonRpc: LOTUS_JSON_RPC_VERSION,
+		Method:  LOTUS_VERSION,
+		Params:  params,
+		Id:      LOTUS_JSON_RPC_ID,
+	}
+
+	response := HttpGetNoToken(lotusClient.MinerApiUrl, jsonRpcParams)
+	if response == "" {
+		err := errors.New("no response from api")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	lotusVersionResponse := &LotusVersionResponse{}
+	err := json.Unmarshal([]byte(response), lotusVersionResponse)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if lotusVersionResponse.Error != nil {
+		msg := fmt.Sprintf("error, code:%d, message:%s", lotusVersionResponse.Error.Code, lotusVersionResponse.Error.Message)
+		err := errors.New(msg)
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return &lotusVersionResponse.Result.Version, nil
 }
 
 //"lotus client query-ask " + minerFid
@@ -283,24 +332,26 @@ func LotusClientStartDeal(minerFid, dataCid, pieceCid, wallet, epochPrice string
 
 	var params []interface{}
 	clientStartDealParamData := ClientStartDealParamData{
+		TransferType: "string value",
 		Root: Cid{
 			Cid: dataCid,
 		},
 		PieceCid: Cid{
 			Cid: pieceCid,
 		},
-		PieceSize: pieceSize,
+		PieceSize:    pieceSize,
+		RawBlockSize: 42,
 	}
 	clientStartDealParam := ClientStartDealParam{
-		Data:              clientStartDealParamData,
-		Wallet:            wallet,
-		Miner:             minerFid,
-		EpochPrice:        epochPrice,
-		MinBlocksDuration: constants.DURATION,
-		//ProviderCollateral :
-		DealStartEpoch: startEpoch,
-		FastRetrieval:  fastRetrieval,
-		VerifiedDeal:   verifiedDeal,
+		Data:               clientStartDealParamData,
+		Wallet:             wallet,
+		Miner:              minerFid,
+		EpochPrice:         epochPrice,
+		MinBlocksDuration:  constants.DURATION,
+		ProviderCollateral: "0",
+		DealStartEpoch:     startEpoch,
+		FastRetrieval:      fastRetrieval,
+		VerifiedDeal:       verifiedDeal,
 	}
 	params = append(params, clientStartDealParam)
 
