@@ -377,8 +377,7 @@ func LotusClientStartDeal(minerFid, dataCid, pieceCid, wallet, epochPrice string
 	}
 
 	if clientStartDeal.Error != nil {
-		msg := fmt.Sprintf("error, code:%d, message:%s", clientStartDeal.Error.Code, clientStartDeal.Error.Message)
-		err := errors.New(msg)
+		err := fmt.Errorf("error, code:%d, message:%s", clientStartDeal.Error.Code, clientStartDeal.Error.Message)
 		logs.GetLogger().Error(err)
 		return nil, err
 	}

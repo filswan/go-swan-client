@@ -24,8 +24,14 @@ func TestLotusClient() {
 	client.LotusClientGenCar("/home/peware/go-swan-client/srcFiles/hello2.txtd", "/home/peware/go-swan-client/srcFiles/hello2.txt.car", false)
 	version, err := client.LotusVersion()
 	logs.GetLogger().Info(*version, err)
-	version, err = client.LotusClientStartDeal("t03354", "bafykbzaceciszub37cz6vtj2vq2x3cofgiiksqsmym3k23cf2jyhnq5dwvvas", "baga6ea4seaqh2pi3qfhhghuxuz2iwpclr6xfosdzo5nd2sdjqynh3ddvkrorgla", "t3u7pumush376xbytsgs5wabkhtadjzfydxxda2vzyasg7cimkcphswrq66j4dubbhwpnojqd3jie6ermpwvvq", "0", 1024, 10101, true, true)
-	logs.GetLogger().Info(*version, err)
+	cid, err := client.LotusClientStartDeal("t03354", "bafykbzaceciszub37cz6vtj2vq2x3cofgiiksqsmym3k23cf2jyhnq5dwvvas", "baga6ea4seaqh2pi3qfhhghuxuz2iwpclr6xfosdzo5nd2sdjqynh3ddvkrorgla", "t3u7pumush376xbytsgs5wabkhtadjzfydxxda2vzyasg7cimkcphswrq66j4dubbhwpnojqd3jie6ermpwvvq", "0", 1024, 10101, true, true)
+	if cid != nil {
+		logs.GetLogger().Info(*cid)
+	}
+	if err != nil {
+		logs.GetLogger().Error(err)
+	}
+
 }
 
 func TestGetTasks() {
@@ -45,9 +51,9 @@ func TestCreateTask() {
 		TaskName:       "task_dora_test",
 		CuratedDataset: "dataset",
 		Description:    "description",
-		IsPublic:       true,
+		IsPublic:       1,
 		//IsVerified:     true,
-		MinerId: &minerId,
+		MinerFid: &minerId,
 	}
 
 	swan := client.SwanGetClient()

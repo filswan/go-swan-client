@@ -26,9 +26,13 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 		taskName = &nowStr
 	}
 	publicDeal := config.GetConfig().Sender.PublicDeal
+
 	verifiedDeal := config.GetConfig().Sender.VerifiedDeal
 	offlineMode := config.GetConfig().Sender.OfflineMode
-	fastRetrieval := config.GetConfig().Sender.FastRetrieval
+	fastRetrieval := 0
+	if config.GetConfig().Sender.FastRetrieval {
+		fastRetrieval = 1
+	}
 	maxPrice := config.GetConfig().Sender.MaxPrice
 	bidMode := config.GetConfig().Sender.BidMode
 	startEpochHours := config.GetConfig().Sender.StartEpochHours
@@ -62,20 +66,26 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 		TaskName:       *taskName,
 		CuratedDataset: *dataset,
 		Description:    *description,
-		IsPublic:       publicDeal,
 		//IsVerified:     verifiedDeal,
-		FastRetrieval: fastRetrieval,
-		MaxPrice:      maxPrice,
-		BidMode:       bidMode,
-		ExpireDays:    expireDays,
-		MinerId:       minerFid,
+		FastRetrieval: &fastRetrieval,
+		MaxPrice:      &maxPrice,
+		BidMode:       &bidMode,
+		ExpireDays:    &expireDays,
+		MinerFid:      minerFid,
 		Uuid:          uuid.NewString(),
+	}
+	if publicDeal {
+		task.IsPublic = 1
+	} else {
+		task.IsPublic = 0
 	}
 
 	if verifiedDeal {
-		task.TaskType = constants.TASK_TYPE_VERIFIED
+		taskType := constants.TASK_TYPE_VERIFIED
+		task.Type = &taskType
 	} else {
-		task.TaskType = constants.TASK_TYPE_REGULAR
+		taskType := constants.TASK_TYPE_REGULAR
+		task.Type = &taskType
 	}
 
 	for _, carFile := range carFiles {
@@ -103,7 +113,7 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 
 func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) bool {
 	csvFilename := task.TaskName + "_task.csv"
-	csvFilePath, err := CreateCsv4TaskDeal(carFiles, task.MinerId, outDir, csvFilename)
+	csvFilePath, err := CreateCsv4TaskDeal(carFiles, task.MinerFid, outDir, csvFilename)
 	if err != nil {
 		logs.GetLogger().Error("Failed to generate csv for task.")
 		return false

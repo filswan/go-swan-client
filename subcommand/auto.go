@@ -38,7 +38,7 @@ func SendAutoBidDeal(outputDir *string) {
 	}
 }
 
-func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.DbTask, outputDir *string) (string, error) {
+func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Task, outputDir *string) (string, error) {
 	carFiles := []*model.FileDesc{}
 
 	for _, deal := range deals {
@@ -83,7 +83,7 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Db
 	return csvFilepath, err
 }
 
-func GetDealConfig1(task model.DbTask, deal model.OfflineDeal) *model.DealConfig {
+func GetDealConfig1(task model.Task, deal model.OfflineDeal) *model.DealConfig {
 	dealConfig := model.DealConfig{
 		MinerFid:           *task.MinerFid,
 		SenderWallet:       config.GetConfig().Sender.Wallet,

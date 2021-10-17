@@ -158,21 +158,17 @@ func (swanClient *SwanClient) SwanCreateTask(task model.Task, csvFilePath string
 	params["task_name"] = task.TaskName
 	params["curated_dataset"] = task.CuratedDataset
 	params["description"] = task.Description
-	if task.IsPublic {
-		params["is_public"] = "1"
-	} else {
-		params["is_public"] = "0"
-	}
+	params["is_public"] = strconv.Itoa(task.IsPublic)
 
-	params["type"] = task.TaskType
+	params["type"] = *task.Type
 
-	if task.MinerId != nil {
-		params["miner_id"] = *task.MinerId
+	if task.MinerFid != nil {
+		params["miner_id"] = *task.MinerFid
 	}
-	params["fast_retrieval"] = strconv.FormatBool(task.FastRetrieval)
-	params["bid_mode"] = strconv.Itoa(task.BidMode)
-	params["max_price"] = task.MaxPrice
-	params["expire_days"] = strconv.Itoa(task.ExpireDays)
+	params["fast_retrieval"] = strconv.Itoa(*task.FastRetrieval)
+	params["bid_mode"] = strconv.Itoa(*task.BidMode)
+	params["max_price"] = *task.MaxPrice
+	params["expire_days"] = strconv.Itoa(*task.ExpireDays)
 
 	response, err := HttpPostFile(apiUrl, swanClient.Token, params, "file", csvFilePath)
 	if err != nil {
@@ -188,12 +184,12 @@ type GetTaskResult struct {
 }
 
 type GetTaskResultData struct {
-	Task           []model.DbTask `json:"task"`
-	TotalItems     int            `json:"total_items"`
-	TotalTaskCount int            `json:"total_task_count"`
+	Task           []model.Task `json:"task"`
+	TotalItems     int          `json:"total_items"`
+	TotalTaskCount int          `json:"total_task_count"`
 }
 
-func (swanClient *SwanClient) GetTasks() ([]model.DbTask, error) {
+func (swanClient *SwanClient) GetTasks() ([]model.Task, error) {
 	apiUrl := swanClient.ApiUrl + "/tasks"
 	logs.GetLogger().Info("Getting My swan tasks info")
 	response := HttpGet(apiUrl, swanClient.Token, "")
@@ -216,7 +212,7 @@ func (swanClient *SwanClient) GetTasks() ([]model.DbTask, error) {
 	return getTaskResult.Data.Task, nil
 }
 
-func (swanClient *SwanClient) GetAssignedTasks() ([]model.DbTask, error) {
+func (swanClient *SwanClient) GetAssignedTasks() ([]model.Task, error) {
 	tasks, err := swanClient.GetTasks()
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -226,7 +222,7 @@ func (swanClient *SwanClient) GetAssignedTasks() ([]model.DbTask, error) {
 	if len(tasks) == 0 {
 		return nil, nil
 	}
-	result := []model.DbTask{}
+	result := []model.Task{}
 
 	for _, task := range tasks {
 		if task.Status == constants.TASK_STATUS_ASSIGNED && task.MinerFid != nil {
@@ -247,7 +243,7 @@ type GetOfflineDealsByTaskUuidResultData struct {
 	DealCompleteRate string              `json:"deal_complete_rate"`
 	Deal             []model.OfflineDeal `json:"deal"`
 	Miner            model.Miner         `json:"miner"`
-	Task             model.DbTask        `json:"task"`
+	Task             model.Task          `json:"task"`
 }
 
 func (swanClient *SwanClient) GetOfflineDealsByTaskUuid(taskUuid string) (*GetOfflineDealsByTaskUuidResult, error) {
