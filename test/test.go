@@ -5,10 +5,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/DoraNebula/go-swan-client/common/client"
-	"github.com/DoraNebula/go-swan-client/logs"
-	"github.com/DoraNebula/go-swan-client/model"
-	"github.com/DoraNebula/go-swan-client/subcommand"
+	"go-swan-client/common/client"
+	"go-swan-client/logs"
+	"go-swan-client/model"
+	"go-swan-client/subcommand"
 )
 
 func Test() {

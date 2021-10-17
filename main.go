@@ -4,9 +4,9 @@ import (
 	"flag"
 	"os"
 
-	"github.com/DoraNebula/go-swan-client/logs"
-	"github.com/DoraNebula/go-swan-client/subcommand"
-	"github.com/DoraNebula/go-swan-client/test"
+	"go-swan-client/logs"
+	"go-swan-client/subcommand"
+	"go-swan-client/test"
 )
 
 const SUBCOMMAND_CAR = "car"
