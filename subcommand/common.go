@@ -39,45 +39,44 @@ func CreateOutputDir(outputDir *string) (*string, error) {
 	return outputDir, nil
 }
 
-func WriteCarFilesToFiles(carFiles []*model.FileDesc, outputDir, jsonFilename, csvFileName string) bool {
+func WriteCarFilesToFiles(carFiles []*model.FileDesc, outputDir, jsonFilename, csvFileName string) error {
 	err := os.MkdirAll(outputDir, os.ModePerm)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		logs.GetLogger().Error("Failed to create output dir:", outputDir)
-		return false
+		return err
 	}
 
-	result := WriteCarFilesToJsonFile(carFiles, outputDir, jsonFilename)
-	if !result {
-		logs.GetLogger().Error("Failed to generate json file.")
-		return result
+	err = WriteCarFilesToJsonFile(carFiles, outputDir, jsonFilename)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
 	}
 
-	result = WriteCarFilesToCsvFile(carFiles, outputDir, csvFileName)
-	if !result {
-		logs.GetLogger().Error("Failed to generate json file.")
-		return result
+	err = WriteCarFilesToCsvFile(carFiles, outputDir, csvFileName)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
 	}
 
-	return true
+	return nil
 }
 
-func WriteCarFilesToJsonFile(carFiles []*model.FileDesc, outputDir, jsonFilename string) bool {
+func WriteCarFilesToJsonFile(carFiles []*model.FileDesc, outputDir, jsonFilename string) error {
 	jsonFilePath := filepath.Join(outputDir, jsonFilename)
 	content, err := json.MarshalIndent(carFiles, "", " ")
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return false
+		return err
 	}
 
 	err = ioutil.WriteFile(jsonFilePath, content, 0644)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return false
+		return err
 	}
 
-	logs.GetLogger().Info("Metadata CSV Generated: ", jsonFilePath)
-	return true
+	logs.GetLogger().Info("Metadata json generated: ", jsonFilePath)
+	return nil
 }
 
 func ReadCarFilesFromJsonFile(inputDir, jsonFilename string) []*model.FileDesc {
@@ -104,7 +103,7 @@ func ReadCarFilesFromJsonFileByFullPath(jsonFilePath string) []*model.FileDesc {
 	return carFiles
 }
 
-func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName string) bool {
+func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName string) error {
 	csvFilePath := filepath.Join(outDir, csvFileName)
 	var headers []string
 	headers = append(headers, "uuid")
@@ -127,7 +126,7 @@ func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName stri
 	file, err := os.Create(csvFilePath)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return false
+		return err
 	}
 	defer file.Close()
 
@@ -137,7 +136,7 @@ func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName stri
 	err = writer.Write(headers)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return false
+		return err
 	}
 
 	for _, carFile := range carFiles {
@@ -166,13 +165,13 @@ func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName stri
 		err = writer.Write(columns)
 		if err != nil {
 			logs.GetLogger().Error(err)
-			return false
+			return err
 		}
 	}
 
-	logs.GetLogger().Info("Metadata CSV Generated: ", csvFilePath)
+	logs.GetLogger().Info("Metadata csv generated: ", csvFilePath)
 
-	return true
+	return nil
 }
 
 func CreateCsv4TaskDeal(carFiles []*model.FileDesc, minerId *string, outDir, csvFileName string) (string, error) {

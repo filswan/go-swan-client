@@ -82,7 +82,6 @@ func GenerateCarFiles(inputDir, outputDir *string) (*string, []*model.FileDesc, 
 				logs.GetLogger().Error(err)
 				return nil, nil, err
 			}
-			logs.GetLogger().Info("srcFileMd5:", srcFileMd5)
 			carFile.SourceFileMd5 = srcFileMd5
 
 			carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
@@ -90,15 +89,19 @@ func GenerateCarFiles(inputDir, outputDir *string) (*string, []*model.FileDesc, 
 				logs.GetLogger().Error(err)
 				return nil, nil, err
 			}
-			logs.GetLogger().Info("carFileMd5:", carFileMd5)
 			carFile.CarFileMd5 = carFileMd5
 		}
 
 		carFiles = append(carFiles, &carFile)
 	}
 
-	WriteCarFilesToFiles(carFiles, *outputDir, constants.JSON_FILE_NAME_BY_CAR, constants.CSV_FILE_NAME_BY_CAR)
-	logs.GetLogger().Info("Car files output dir: ", outputDir)
+	err = WriteCarFilesToFiles(carFiles, *outputDir, constants.JSON_FILE_NAME_BY_CAR, constants.CSV_FILE_NAME_BY_CAR)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, nil, err
+	}
+
+	logs.GetLogger().Info("Car files output dir: ", *outputDir)
 	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
 
 	return outputDir, carFiles, nil

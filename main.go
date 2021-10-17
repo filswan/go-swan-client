@@ -7,7 +7,6 @@ import (
 
 	"go-swan-client/logs"
 	"go-swan-client/subcommand"
-	"go-swan-client/test"
 )
 
 const SUBCOMMAND_CAR = "car"
@@ -18,9 +17,9 @@ const SUBCOMMAND_DEAL = "deal"
 const SUBCOMMAND_AUTO = "auto"
 
 func main() {
-	//execSubCmd()
+	execSubCmd()
 	//logs.GetLogger().Info("Hello")
-	test.Test()
+	//test.Test()
 }
 
 func execSubCmd() error {
@@ -34,7 +33,7 @@ func execSubCmd() error {
 	case SUBCOMMAND_CAR, SUBCOMMAND_GOCAR:
 		err = createCarFile(subCmd)
 	case SUBCOMMAND_UPLOAD:
-		uploadFile()
+		err = uploadFile()
 	case SUBCOMMAND_TASK:
 		createTask()
 	case SUBCOMMAND_DEAL:
@@ -82,7 +81,7 @@ func createCarFile(subCmd string) error {
 			logs.GetLogger().Error(err)
 			return err
 		}
-		logs.GetLogger().Info("generate ", len(carFiles), " car files generated to ", *outputDir)
+		logs.GetLogger().Info(len(carFiles), " car files generated to directory:", *outputDir)
 	case SUBCOMMAND_GOCAR:
 		subcommand.GenerateGoCarFiles(inputDir, outputDir)
 	default:
@@ -95,7 +94,7 @@ func createCarFile(subCmd string) error {
 }
 
 //python3 swan_cli.py upload --input-dir /home/peware/testGoSwanProvider/output
-func uploadFile() bool {
+func uploadFile() error {
 	cmd := flag.NewFlagSet(SUBCOMMAND_UPLOAD, flag.ExitOnError)
 
 	inputDir := cmd.String("input-dir", "", "Directory where source files are in.")
@@ -103,22 +102,28 @@ func uploadFile() bool {
 	err := cmd.Parse(os.Args[2:])
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return false
+		return err
 	}
 
 	if !cmd.Parsed() {
-		logs.GetLogger().Error("Sub command parse failed.")
-		return false
+		err := fmt.Errorf("sub command parse failed")
+		logs.GetLogger().Error(err)
+		return err
 	}
 
 	if inputDir == nil || len(*inputDir) == 0 {
-		logs.GetLogger().Error("input-dir is required.")
-		return false
+		err := fmt.Errorf("input-dir is required")
+		logs.GetLogger().Error(err)
+		return err
 	}
 
-	subcommand.UploadCarFiles(*inputDir)
+	err = subcommand.UploadCarFiles(*inputDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
 
-	return true
+	return nil
 }
 
 //python3 swan_cli.py task --input-dir /home/peware/testGoSwanProvider/output --out-dir /home/peware/testGoSwanProvider/task --miner t03354 --dataset test --description test
