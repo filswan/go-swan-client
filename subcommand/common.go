@@ -3,29 +3,41 @@ package subcommand
 import (
 	"encoding/csv"
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 
+	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
 
 	"io/ioutil"
 	"os"
 	"strconv"
+
+	"github.com/google/uuid"
 )
 
-const (
-	JSON_FILE_NAME_BY_CAR         = "car.json"
-	JSON_FILE_NAME_BY_UPLOAD      = "upload.json"
-	JSON_FILE_NAME_BY_TASK_SUFFIX = "task.json"
-	JSON_FILE_NAME_BY_DEAL_SUFFIX = "deal.json"
-	JSON_FILE_NAME_BY_AUTO_SUFFIX = "deal_autobid.json"
+func CreateOutputDir(outputDir *string) (*string, error) {
+	if outputDir == nil || len(*outputDir) == 0 {
+		if outputDir == nil {
+			outDir := filepath.Join(config.GetConfig().Sender.OutputDir, uuid.NewString())
+			outputDir = &outDir
+		} else {
+			*outputDir = filepath.Join(config.GetConfig().Sender.OutputDir, uuid.NewString())
+		}
 
-	CSV_FILE_NAME_BY_CAR         = "car.csv"
-	CSV_FILE_NAME_BY_UPLOAD      = "upload.csv"
-	CSV_FILE_NAME_BY_TASK_SUFFIX = "task.csv"
-	CSV_FILE_NAME_BY_DEAL_SUFFIX = "deal.csv"
-	CSV_FILE_NAME_BY_AUTO_SUFFIX = "deal_autobid.csv"
-)
+		logs.GetLogger().Info("output-dir is not provided, use default:", outputDir)
+	}
+
+	err := os.MkdirAll(*outputDir, os.ModePerm)
+	if err != nil {
+		err := fmt.Errorf("failed to create output dir:%s", *outputDir)
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return outputDir, nil
+}
 
 func WriteCarFilesToFiles(carFiles []*model.FileDesc, outputDir, jsonFilename, csvFileName string) bool {
 	err := os.MkdirAll(outputDir, os.ModePerm)

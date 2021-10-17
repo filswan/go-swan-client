@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 
 	"go-swan-client/logs"
@@ -22,35 +23,35 @@ func main() {
 	test.Test()
 }
 
-func execSubCmd() bool {
+func execSubCmd() error {
 	if len(os.Args) < 2 {
 		logs.GetLogger().Fatal("Sub command is required.")
 	}
 
-	result := true
+	var err error
 	subCmd := os.Args[1]
 	switch subCmd {
 	case SUBCOMMAND_CAR, SUBCOMMAND_GOCAR:
-		result = createCarFile(subCmd)
+		err = createCarFile(subCmd)
 	case SUBCOMMAND_UPLOAD:
-		result = uploadFile()
+		uploadFile()
 	case SUBCOMMAND_TASK:
-		result = createTask()
+		createTask()
 	case SUBCOMMAND_DEAL:
-		result = sendDeal()
+		sendDeal()
 	case SUBCOMMAND_AUTO:
-		result = sendAutoBidDeal()
+		sendAutoBidDeal()
 	default:
-		logs.GetLogger().Error("Sub command should be: car|gocar|upload|task|deal")
-		result = false
+		err = fmt.Errorf("sub command should be: car|gocar|upload|task|deal")
+		logs.GetLogger().Error(err)
 	}
 
-	return result
+	return err
 }
 
 //python3 swan_cli.py car --input-dir /home/peware/testGoSwanProvider/input --out-dir /home/peware/testGoSwanProvider/output
 //go-swan-client car -input-dir ~/go-workspace/input/ -out-dir ~/go-workspace/output/
-func createCarFile(subCmd string) bool {
+func createCarFile(subCmd string) error {
 	cmd := flag.NewFlagSet(subCmd, flag.ExitOnError)
 
 	inputDir := cmd.String("input-dir", "", "Directory where source file(s) is(are) in.")
@@ -59,29 +60,38 @@ func createCarFile(subCmd string) bool {
 	err := cmd.Parse(os.Args[2:])
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return false
+		return err
 	}
 
 	if !cmd.Parsed() {
-		logs.GetLogger().Error("Sub command parse failed.")
-		return false
+		err = fmt.Errorf("sub command parse failed")
+		logs.GetLogger().Error(err)
+		return err
 	}
 
 	if inputDir == nil || len(*inputDir) == 0 {
-		logs.GetLogger().Error("input-dir is required.")
-		return false
+		err = fmt.Errorf("input-dir is required")
+		logs.GetLogger().Error(err)
+		return err
 	}
 
 	switch subCmd {
 	case SUBCOMMAND_CAR:
-		subcommand.GenerateCarFiles(inputDir, outputDir)
+		outputDir, carFiles, err := subcommand.GenerateCarFiles(inputDir, outputDir)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
+		logs.GetLogger().Info("generate ", len(carFiles), " car files generated to ", *outputDir)
 	case SUBCOMMAND_GOCAR:
 		subcommand.GenerateGoCarFiles(inputDir, outputDir)
 	default:
-		return false
+		err := fmt.Errorf("unknown sub command:%s", subCmd)
+		logs.GetLogger().Error(err)
+		return err
 	}
 
-	return true
+	return nil
 }
 
 //python3 swan_cli.py upload --input-dir /home/peware/testGoSwanProvider/output
@@ -112,7 +122,7 @@ func uploadFile() bool {
 }
 
 //python3 swan_cli.py task --input-dir /home/peware/testGoSwanProvider/output --out-dir /home/peware/testGoSwanProvider/task --miner t03354 --dataset test --description test
-func createTask() bool {
+func createTask() error {
 	cmd := flag.NewFlagSet(SUBCOMMAND_TASK, flag.ExitOnError)
 
 	taskName := cmd.String("name", "", "Directory where source files are in.")
@@ -125,23 +135,25 @@ func createTask() bool {
 	err := cmd.Parse(os.Args[2:])
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return false
+		return err
 	}
 
 	if !cmd.Parsed() {
-		logs.GetLogger().Error("Sub command parse failed.")
-		return false
+		err = fmt.Errorf("sub command parse failed")
+		logs.GetLogger().Error(err)
+		return err
 	}
 
 	if inputDir == nil || len(*inputDir) == 0 {
-		logs.GetLogger().Error("input-dir is required.")
-		return false
+		err = fmt.Errorf("input-dir is required")
+		logs.GetLogger().Error(err)
+		return err
 	}
 
 	logs.GetLogger().Info(inputDir, outputDir, minerFid, dataset, description)
 
 	subcommand.CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description)
-	return true
+	return nil
 }
 
 func sendDeal() bool {

@@ -1,51 +1,46 @@
 package subcommand
 
 import (
+	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 
 	"go-swan-client/common/client"
+	"go-swan-client/common/constants"
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
 
 	"github.com/codingsince1985/checksum"
-	"github.com/google/uuid"
 )
 
-func GenerateCarFiles(inputDir, outputDir *string) {
+func GenerateCarFiles(inputDir, outputDir *string) (*string, []*model.FileDesc, error) {
 	if inputDir == nil || len(*inputDir) == 0 {
-		logs.GetLogger().Fatal("Please provide input dir.")
+		err := fmt.Errorf("please provide input dir")
+		logs.GetLogger().Error(err)
+		return nil, nil, err
 	}
 
-	if !utils.IsFileExistsFullPath(*inputDir) {
-		logs.GetLogger().Fatal("Input dir: ", inputDir, " not exists.")
+	if utils.GetPathType(*inputDir) != constants.PATH_TYPE_DIR {
+		err := fmt.Errorf("input dir: %s not exists", *inputDir)
+		logs.GetLogger().Error(err)
+		return nil, nil, err
 	}
 
-	if outputDir == nil || len(*outputDir) == 0 {
-		if outputDir == nil {
-			outDir := filepath.Join(config.GetConfig().Sender.OutputDir, uuid.NewString())
-			outputDir = &outDir
-		} else {
-			*outputDir = filepath.Join(config.GetConfig().Sender.OutputDir, uuid.NewString())
-		}
-
-		logs.GetLogger().Info("output-dir is not provided, use default:", outputDir)
-	}
-
-	err := os.MkdirAll(*outputDir, os.ModePerm)
+	outputDir, err := CreateOutputDir(outputDir)
 	if err != nil {
-		logs.GetLogger().Fatal("Failed to create output dir:", outputDir)
+		logs.GetLogger().Error(err)
+		return nil, nil, err
 	}
-
-	carFiles := []*model.FileDesc{}
 
 	srcFiles, err := ioutil.ReadDir(*inputDir)
 	if err != nil {
-		logs.GetLogger().Fatal(err)
+		logs.GetLogger().Error(err)
+		return nil, nil, err
 	}
+
+	carFiles := []*model.FileDesc{}
 
 	for _, srcFile := range srcFiles {
 		carFile := model.FileDesc{}
@@ -89,8 +84,9 @@ func GenerateCarFiles(inputDir, outputDir *string) {
 		carFiles = append(carFiles, &carFile)
 	}
 
-	WriteCarFilesToFiles(carFiles, *outputDir, JSON_FILE_NAME_BY_CAR, CSV_FILE_NAME_BY_CAR)
-
+	WriteCarFilesToFiles(carFiles, *outputDir, constants.JSON_FILE_NAME_BY_CAR, constants.CSV_FILE_NAME_BY_CAR)
 	logs.GetLogger().Info("Car files output dir: ", outputDir)
 	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
+
+	return outputDir, carFiles, nil
 }

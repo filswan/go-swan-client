@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"go-swan-client/common/client"
+	"go-swan-client/common/constants"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
@@ -20,7 +21,7 @@ func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) bool
 		outputDir = &outDir
 	}
 	metadataJsonFilename := filepath.Base(metadataJsonPath)
-	taskName := strings.TrimSuffix(metadataJsonFilename, JSON_FILE_NAME_BY_TASK_SUFFIX)
+	taskName := strings.TrimSuffix(metadataJsonFilename, constants.JSON_FILE_NAME_BY_TASK_SUFFIX)
 	carFiles := ReadCarFilesFromJsonFileByFullPath(metadataJsonPath)
 	if carFiles == nil {
 		logs.GetLogger().Error("Failed to read car files from json.")
@@ -131,8 +132,8 @@ func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid str
 		carFile.DealCid = *dealCid
 	}
 
-	jsonFileName := taskName + JSON_FILE_NAME_BY_DEAL_SUFFIX
-	csvFileName := taskName + CSV_FILE_NAME_BY_DEAL_SUFFIX
+	jsonFileName := taskName + constants.JSON_FILE_NAME_BY_DEAL_SUFFIX
+	csvFileName := taskName + constants.CSV_FILE_NAME_BY_DEAL_SUFFIX
 	WriteCarFilesToFiles(carFiles, outputDir, jsonFileName, csvFileName)
 
 	csvFilename := taskName + "_deal.csv"

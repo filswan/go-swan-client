@@ -1,6 +1,7 @@
 package subcommand
 
 import (
+	"fmt"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -16,10 +17,11 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *string) (*string, bool) {
-	if outputDir == nil || len(*outputDir) == 0 {
-		outDir := config.GetConfig().Sender.OutputDir
-		outputDir = &outDir
+func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *string) (*string, error) {
+	outputDir, err := CreateOutputDir(outputDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
 	}
 
 	if taskName == nil || len(*taskName) == 0 {
@@ -53,14 +55,16 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 	downloadUrlPrefix = filepath.Join(downloadUrlPrefix, path)
 
 	if !publicDeal && (minerFid == nil || len(*minerFid) == 0) {
-		logs.GetLogger().Error("Please provide -miner for non public deal.")
-		return nil, false
+		err := fmt.Errorf("please provide -miner for non public deal")
+		logs.GetLogger().Error(err)
+		return nil, err
 	}
 
-	carFiles := ReadCarFilesFromJsonFile(*inputDir, JSON_FILE_NAME_BY_UPLOAD)
+	carFiles := ReadCarFilesFromJsonFile(*inputDir, constants.JSON_FILE_NAME_BY_UPLOAD)
 	if carFiles == nil {
-		logs.GetLogger().Error("Failed to read car files from : ", *inputDir)
-		return nil, false
+		err := fmt.Errorf("failed to read car files from :%s", *inputDir)
+		logs.GetLogger().Error(err)
+		return nil, err
 	}
 
 	task := model.Task{
@@ -101,15 +105,15 @@ func CreateTask(taskName, inputDir, outputDir, minerFid, dataset, description *s
 	if !publicDeal {
 		_, err := SendDeals2Miner(nil, *taskName, *minerFid, *outputDir, carFiles)
 		if err != nil {
-			return nil, false
+			return nil, err
 		}
 	}
 
-	jsonFileName := *taskName + JSON_FILE_NAME_BY_TASK_SUFFIX
-	csvFileName := *taskName + CSV_FILE_NAME_BY_TASK_SUFFIX
+	jsonFileName := *taskName + constants.JSON_FILE_NAME_BY_TASK_SUFFIX
+	csvFileName := *taskName + constants.CSV_FILE_NAME_BY_TASK_SUFFIX
 	WriteCarFilesToFiles(carFiles, *outputDir, jsonFileName, csvFileName)
 	SendTask2Swan(task, carFiles, *outputDir)
-	return &jsonFileName, true
+	return &jsonFileName, nil
 }
 
 func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) bool {

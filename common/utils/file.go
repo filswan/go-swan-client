@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"go-swan-client/common/constants"
 	"go-swan-client/logs"
 )
 
@@ -23,15 +24,22 @@ func IsFileExists(filePath, fileName string) bool {
 	return true
 }
 
-func IsFileExistsFullPath(fileFullPath string) bool {
-	_, err := os.Stat(fileFullPath)
+func GetPathType(dirFullPath string) int {
+	fi, err := os.Stat(dirFullPath)
 
 	if err != nil {
 		logs.GetLogger().Info(err)
-		return false
+		return constants.PATH_TYPE_NOT_EXIST
 	}
 
-	return true
+	switch mode := fi.Mode(); {
+	case mode.IsDir():
+		return constants.PATH_TYPE_DIR
+	case mode.IsRegular():
+		return constants.PATH_TYPE_FILE
+	default:
+		return constants.PATH_TYPE_UNKNOWN
+	}
 }
 
 func RemoveFile(filePath, fileName string) {

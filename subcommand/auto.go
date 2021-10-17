@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"go-swan-client/common/client"
+	"go-swan-client/common/constants"
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
@@ -74,8 +75,8 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Ta
 		outputDir = &outDir
 	}
 
-	jsonFileName := task.TaskName + JSON_FILE_NAME_BY_AUTO_SUFFIX
-	csvFileName := task.TaskName + CSV_FILE_NAME_BY_AUTO_SUFFIX
+	jsonFileName := task.TaskName + constants.JSON_FILE_NAME_BY_AUTO_SUFFIX
+	csvFileName := task.TaskName + constants.CSV_FILE_NAME_BY_AUTO_SUFFIX
 	WriteCarFilesToFiles(carFiles, *outputDir, jsonFileName, csvFileName)
 
 	csvFilename := task.TaskName + "_deal.csv"
