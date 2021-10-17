@@ -130,7 +130,12 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 		return nil, err
 	}
 
-	SendTask2Swan(task, carFiles, *outputDir)
+	err = SendTask2Swan(task, carFiles, *outputDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	return &jsonFileName, nil
 }
 
@@ -151,7 +156,21 @@ func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) e
 
 	swanClient := client.SwanGetClient()
 	response := swanClient.SwanCreateTask(task, csvFilePath)
-	logs.GetLogger().Info(response)
+	if response == "" {
+		err := fmt.Errorf("no response")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	status := utils.GetFieldStrFromJson(response, "status")
+	message := utils.GetFieldStrFromJson(response, "message")
+	if status != "success" {
+		err := fmt.Errorf("error, status%s, message:%s", status, message)
+		logs.GetLogger().Info(err)
+		return err
+	}
+
+	logs.GetLogger().Info("status:", status, ", message:", message)
 
 	return nil
 }
