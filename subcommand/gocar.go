@@ -1,13 +1,14 @@
 package subcommand
 
 import (
-	"go-swan-client/common/client"
-	"go-swan-client/config"
-	"go-swan-client/logs"
-	"go-swan-client/model"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/DoraNebula/go-swan-client/common/client"
+	"github.com/DoraNebula/go-swan-client/config"
+	"github.com/DoraNebula/go-swan-client/logs"
+	"github.com/DoraNebula/go-swan-client/model"
 
 	"github.com/google/uuid"
 )

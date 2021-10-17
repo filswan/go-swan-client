@@ -3,9 +3,10 @@ package subcommand
 import (
 	"encoding/csv"
 	"encoding/json"
-	"go-swan-client/logs"
-	"go-swan-client/model"
 	"path/filepath"
+
+	"github.com/DoraNebula/go-swan-client/logs"
+	"github.com/DoraNebula/go-swan-client/model"
 
 	"io/ioutil"
 	"os"

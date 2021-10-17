@@ -279,7 +279,7 @@ func LotusClientGenCar(srcFilePath, destCarFilePath string, srcFilePathIsCar boo
 
 	response := HttpGet(lotusClient.ApiUrl, lotusClient.AccessToken, jsonRpcParams)
 	if response == "" {
-		err := errors.New("failed to generate car, no response")
+		err := fmt.Errorf("failed to generate car, no response")
 		logs.GetLogger().Error(err)
 		return err
 	}
@@ -292,8 +292,7 @@ func LotusClientGenCar(srcFilePath, destCarFilePath string, srcFilePathIsCar boo
 	}
 
 	if lotusJsonRpcResult.Error != nil {
-		msg := fmt.Sprintf("error, code:%d, message:%s", lotusJsonRpcResult.Error.Code, lotusJsonRpcResult.Error.Message)
-		err := errors.New(msg)
+		err := fmt.Errorf("error, code:%d, message:%s", lotusJsonRpcResult.Error.Code, lotusJsonRpcResult.Error.Message)
 		logs.GetLogger().Error(err)
 		return err
 	}
@@ -364,7 +363,7 @@ func LotusClientStartDeal(minerFid, dataCid, pieceCid, wallet, epochPrice string
 
 	response := HttpGet(lotusClient.ApiUrl, lotusClient.AccessToken, jsonRpcParams)
 	if response == "" {
-		err := errors.New("failed to generate car, no response")
+		err := fmt.Errorf("failed to generate car, no response")
 		logs.GetLogger().Error(err)
 		return nil, err
 	}

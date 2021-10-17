@@ -1,11 +1,12 @@
 package subcommand
 
 import (
-	"go-swan-client/common/client"
-	"go-swan-client/common/constants"
-	"go-swan-client/config"
-	"go-swan-client/logs"
 	"strings"
+
+	"github.com/DoraNebula/go-swan-client/common/client"
+	"github.com/DoraNebula/go-swan-client/common/constants"
+	"github.com/DoraNebula/go-swan-client/config"
+	"github.com/DoraNebula/go-swan-client/logs"
 )
 
 func UploadCarFiles(inputDir string) {
