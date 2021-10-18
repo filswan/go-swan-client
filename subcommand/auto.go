@@ -29,7 +29,10 @@ func SendAutoBidDeal(outputDir *string) {
 			continue
 		}
 
-		csvFilePath, err := SendAutobidDeal(assignedTaskInfo.Data.Deal, assignedTaskInfo.Data.Miner, assignedTaskInfo.Data.Task, outputDir)
+		deals := assignedTaskInfo.Data.Deal
+		miner := assignedTaskInfo.Data.Miner
+		task := assignedTaskInfo.Data.Task
+		csvFilePath, err := SendAutobidDeal(deals, miner, task, outputDir)
 
 		if err != nil {
 			logs.GetLogger().Error(err)
@@ -45,8 +48,13 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Ta
 	carFiles := []*model.FileDesc{}
 
 	for _, deal := range deals {
-		dealConfig := GetDealConfig1(task, deal)
-		CheckDealConfig1(dealConfig)
+		dealConfig := GetDealConfig4Autobid(task, deal)
+		err := CheckDealConfig(dealConfig)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			continue
+		}
+
 		fileSizeInt := utils.GetInt64FromStr(*deal.FileSize)
 		if fileSizeInt <= 0 {
 			logs.GetLogger().Error("file is too small")
@@ -88,7 +96,7 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Ta
 	return csvFilepath, err
 }
 
-func GetDealConfig1(task model.Task, deal model.OfflineDeal) *model.DealConfig {
+func GetDealConfig4Autobid(task model.Task, deal model.OfflineDeal) *model.DealConfig {
 	dealConfig := model.DealConfig{
 		MinerFid:           *task.MinerFid,
 		SenderWallet:       config.GetConfig().Sender.Wallet,
@@ -102,39 +110,4 @@ func GetDealConfig1(task model.Task, deal model.OfflineDeal) *model.DealConfig {
 	dealConfig.MaxPrice = *task.MaxPrice
 
 	return &dealConfig
-}
-
-func CheckDealConfig1(dealConfig *model.DealConfig) bool {
-	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(dealConfig.MinerFid)
-
-	if dealConfig.SenderWallet == "" {
-		logs.GetLogger().Error("Sender.wallet should be set in config file.")
-		return false
-	}
-
-	if dealConfig.VerifiedDeal {
-		if minerVerifiedPrice == nil {
-			return false
-		}
-		dealConfig.MinerPrice = *minerVerifiedPrice
-		logs.GetLogger().Info("Miner price is:", *minerVerifiedPrice)
-	} else {
-		if minerPrice == nil {
-			return false
-		}
-		dealConfig.MinerPrice = *minerPrice
-		logs.GetLogger().Info("Miner price is:", *minerPrice)
-	}
-
-	logs.GetLogger().Info("Miner price is:", dealConfig.MinerPrice, " MaxPrice:", dealConfig.MaxPrice, " VerifiedDeal:", dealConfig.VerifiedDeal)
-	priceCmp := dealConfig.MaxPrice.Cmp(dealConfig.MinerPrice)
-	logs.GetLogger().Info("priceCmp:", priceCmp)
-	if priceCmp < 0 {
-		logs.GetLogger().Error("miner price is higher than deal max price")
-		return false
-	}
-
-	logs.GetLogger().Info("Deal check passed.")
-
-	return true
 }

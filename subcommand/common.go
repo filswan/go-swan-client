@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
@@ -54,6 +55,47 @@ func CreateOutputDir(outputDir *string) (*string, error) {
 	}
 
 	return outputDir, nil
+}
+
+func CheckDealConfig(dealConfig *model.DealConfig) error {
+	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(dealConfig.MinerFid)
+
+	if dealConfig.SenderWallet == "" {
+		err := fmt.Errorf("sender.wallet should be set in config file")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if dealConfig.VerifiedDeal {
+		if minerVerifiedPrice == nil {
+			err := fmt.Errorf("cannot get miner verified price for verified deal")
+			logs.GetLogger().Error(err)
+			return err
+		}
+		dealConfig.MinerPrice = *minerVerifiedPrice
+		logs.GetLogger().Info("Miner price is:", *minerVerifiedPrice)
+	} else {
+		if minerPrice == nil {
+			err := fmt.Errorf("cannot get miner price for non-verified deal")
+			logs.GetLogger().Error(err)
+			return err
+		}
+		dealConfig.MinerPrice = *minerPrice
+		logs.GetLogger().Info("Miner price is:", *minerPrice)
+	}
+
+	logs.GetLogger().Info("Miner price is:", dealConfig.MinerPrice, " MaxPrice:", dealConfig.MaxPrice, " VerifiedDeal:", dealConfig.VerifiedDeal)
+	priceCmp := dealConfig.MaxPrice.Cmp(dealConfig.MinerPrice)
+	logs.GetLogger().Info("priceCmp:", priceCmp)
+	if priceCmp < 0 {
+		err := fmt.Errorf("miner price is higher than deal max price")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	logs.GetLogger().Info("Deal check passed.")
+
+	return nil
 }
 
 func WriteCarFilesToFiles(carFiles []*model.FileDesc, outputDir, jsonFilename, csvFileName string) error {

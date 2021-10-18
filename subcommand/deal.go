@@ -62,41 +62,6 @@ func GetDealConfig(minerFid string) *model.DealConfig {
 	return &dealConfig
 }
 
-func CheckDealConfig(dealConfig *model.DealConfig) bool {
-	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(dealConfig.MinerFid)
-
-	if dealConfig.SenderWallet == "" {
-		logs.GetLogger().Error("Sender.wallet should be set in config file.")
-		return false
-	}
-
-	if dealConfig.VerifiedDeal {
-		if minerVerifiedPrice == nil {
-			return false
-		}
-		dealConfig.MinerPrice = *minerVerifiedPrice
-		logs.GetLogger().Info("Miner price is:", *minerVerifiedPrice)
-	} else {
-		if minerPrice == nil {
-			return false
-		}
-		dealConfig.MinerPrice = *minerPrice
-		logs.GetLogger().Info("Miner price is:", *minerPrice)
-	}
-
-	logs.GetLogger().Info("Miner price is:", dealConfig.MinerPrice, " MaxPrice:", dealConfig.MaxPrice, " VerifiedDeal:", dealConfig.VerifiedDeal)
-	priceCmp := dealConfig.MaxPrice.Cmp(dealConfig.MinerPrice)
-	logs.GetLogger().Info("priceCmp:", priceCmp)
-	if priceCmp < 0 {
-		logs.GetLogger().Error("miner price is higher than deal max price")
-		return false
-	}
-
-	logs.GetLogger().Info("Deal check passed.")
-
-	return true
-}
-
 func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) (*string, error) {
 	if dealConfig == nil {
 		dealConfig = GetDealConfig(minerFid)
@@ -107,8 +72,8 @@ func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid str
 		}
 	}
 
-	result := CheckDealConfig(dealConfig)
-	if !result {
+	err := CheckDealConfig(dealConfig)
+	if err != nil {
 		err := errors.New("failed to pass deal config check")
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -139,7 +104,7 @@ func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid str
 
 	jsonFileName := taskName + constants.JSON_FILE_NAME_BY_DEAL
 	csvFileName := taskName + constants.CSV_FILE_NAME_BY_DEAL
-	err := WriteCarFilesToFiles(carFiles, outputDir, jsonFileName, csvFileName)
+	err = WriteCarFilesToFiles(carFiles, outputDir, jsonFileName, csvFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
