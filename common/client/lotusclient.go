@@ -8,6 +8,9 @@ import (
 	"go-swan-client/common/constants"
 	"go-swan-client/config"
 	"go-swan-client/logs"
+	"go-swan-client/model"
+
+	"github.com/shopspring/decimal"
 )
 
 const (
@@ -327,31 +330,34 @@ type ClientStartDeal struct {
 }
 
 //"lotus client generate-car " + srcFilePath + " " + destCarFilePath
-func LotusClientStartDeal(minerFid, dataCid, pieceCid, wallet, epochPrice string, pieceSize, startEpoch int, fastRetrieval, verifiedDeal bool) (*string, error) {
+func LotusClientStartDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.DealConfig) (*string, error) {
 	lotusClient := LotusGetClient()
+
+	//costFloat, _ := cost.Float64()
+	//costStr := fmt.Sprintf("%.18f", costFloat)
 
 	var params []interface{}
 	clientStartDealParamData := ClientStartDealParamData{
 		TransferType: "string value",
 		Root: Cid{
-			Cid: dataCid,
+			Cid: carFile.DataCid,
 		},
 		PieceCid: Cid{
-			Cid: pieceCid,
+			Cid: carFile.PieceCid,
 		},
-		PieceSize:    pieceSize,
+		PieceSize:    int(pieceSize),
 		RawBlockSize: 42,
 	}
 	clientStartDealParam := ClientStartDealParam{
 		Data:               clientStartDealParamData,
-		Wallet:             wallet,
-		Miner:              minerFid,
-		EpochPrice:         epochPrice,
+		Wallet:             dealConfig.SenderWallet,
+		Miner:              dealConfig.MinerFid,
+		EpochPrice:         "2",
 		MinBlocksDuration:  constants.DURATION,
 		ProviderCollateral: "0",
-		DealStartEpoch:     startEpoch,
-		FastRetrieval:      fastRetrieval,
-		VerifiedDeal:       verifiedDeal,
+		DealStartEpoch:     carFile.StartEpoch,
+		FastRetrieval:      dealConfig.FastRetrieval,
+		VerifiedDeal:       dealConfig.VerifiedDeal,
 	}
 	params = append(params, clientStartDealParam)
 
