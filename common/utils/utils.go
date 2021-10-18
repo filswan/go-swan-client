@@ -2,7 +2,6 @@ package utils
 
 import (
 	"context"
-	"go-swan-client/logs"
 	"io/ioutil"
 	"math/big"
 	"math/rand"
@@ -11,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"go-swan-client/logs"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"

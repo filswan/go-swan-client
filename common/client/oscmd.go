@@ -3,10 +3,11 @@ package client
 import (
 	"bytes"
 	"errors"
-	"go-swan-client/logs"
 	"io"
 	"os"
 	"os/exec"
+
+	"go-swan-client/logs"
 )
 
 const SHELL_TO_USE = "bash"
@@ -38,6 +39,7 @@ func ExecOsCmdBase(cmdStr string, out2Screen bool, checkStdErr bool) (string, er
 	err := cmd.Run()
 	if err != nil {
 		logs.GetLogger().Error(cmdStr)
+		logs.GetLogger().Error(stderrBuf.String())
 		logs.GetLogger().Error(err)
 		return "", err
 	}

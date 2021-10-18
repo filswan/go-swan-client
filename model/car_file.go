@@ -4,7 +4,7 @@ type FileDesc struct {
 	Uuid           string
 	SourceFileName string
 	SourceFilePath string
-	SourceFileMd5  bool
+	SourceFileMd5  string
 	SourceFileUrl  string
 	SourceFileSize int64
 	CarFileName    string
@@ -16,6 +16,6 @@ type FileDesc struct {
 	DealCid    string
 	DataCid    string
 	PieceCid   string
-	StartEpoch string
 	MinerFid   *string
+	StartEpoch int
 }

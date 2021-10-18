@@ -4,100 +4,17 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"go-swan-client/common/utils"
-	"go-swan-client/logs"
-	"go-swan-client/model"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 
+	"go-swan-client/common/constants"
+	"go-swan-client/common/utils"
+	"go-swan-client/logs"
+	"go-swan-client/model"
+
 	"github.com/shopspring/decimal"
 )
-
-const DURATION = "1051200"
-const EPOCH_PER_HOUR = 120
-
-func LotusGetDealOnChainStatus(dealCid string) (string, string) {
-	cmd := "lotus-miner storage-deals list -v | grep " + dealCid
-	result, err := ExecOsCmd(cmd, true)
-
-	if err != nil {
-		logs.GetLogger().Error("Failed to get deal on chain status, please check if lotus-miner is running properly.")
-		logs.GetLogger().Error(err)
-		return "", ""
-	}
-
-	if len(result) == 0 {
-		logs.GetLogger().Error("Deal does not found on chain. DealCid:", dealCid)
-		return "", ""
-	}
-
-	words := strings.Fields(result)
-	status := ""
-	for _, word := range words {
-		if strings.HasPrefix(word, "StorageDeal") {
-			status = word
-			break
-		}
-	}
-
-	if len(status) == 0 {
-		return "", ""
-	}
-
-	message := ""
-
-	for i := 11; i < len(words); i++ {
-		message = message + words[i] + " "
-	}
-
-	message = strings.TrimRight(message, " ")
-	return status, message
-}
-
-func LotusGetCurrentEpoch() int {
-	cmd := "lotus-miner proving info | grep 'Current Epoch'"
-	logs.GetLogger().Info(cmd)
-	result, err := ExecOsCmd(cmd, true)
-
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return -1
-	}
-
-	if len(result) == 0 {
-		logs.GetLogger().Error("Failed to get current epoch. Please check if miner is running properly.")
-		return -1
-	}
-
-	logs.GetLogger().Info(result)
-
-	re := regexp.MustCompile("[0-9]+")
-	words := re.FindAllString(result, -1)
-	logs.GetLogger().Info("words:", words)
-	var currentEpoch int64 = -1
-	if len(words) > 0 {
-		currentEpoch = utils.GetInt64FromStr(words[0])
-	}
-
-	logs.GetLogger().Info("currentEpoch: ", currentEpoch)
-	return int(currentEpoch)
-}
-
-func LotusImportData(dealCid string, filepath string) string {
-	cmd := "lotus-miner storage-deals import-data " + dealCid + " " + filepath
-	logs.GetLogger().Info(cmd)
-
-	result, err := ExecOsCmd(cmd, true)
-
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return ""
-	}
-
-	return result
-}
 
 func LotusGetMinerConfig(minerFid string) (*decimal.Decimal, *decimal.Decimal, *string, *string) {
 	cmd := "lotus client query-ask " + minerFid
@@ -266,23 +183,24 @@ func LotusGenerateCar(srcFilePath, destCarFilePath string) error {
 	return nil
 }
 
-func LotusProposeOfflineDeal(price, cost decimal.Decimal, pieceSize int64, dataCid, pieceCid string, dealConfig model.DealConfig) (*string, *int) {
-	startEpoch := utils.GetCurrentEpoch() + (dealConfig.EpochIntervalHours+1)*EPOCH_PER_HOUR
+func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.DealConfig) (*string, error) {
 	fastRetrieval := strings.ToLower(strconv.FormatBool(dealConfig.FastRetrieval))
 	verifiedDeal := strings.ToLower(strconv.FormatBool(dealConfig.VerifiedDeal))
-	costStr := "5960" // cost.String()
+	costFloat, _ := cost.Float64()
+	costStr := fmt.Sprintf("%.18f", costFloat)
 	logs.GetLogger().Info("wallet:", dealConfig.SenderWallet)
 	logs.GetLogger().Info("miner:", dealConfig.MinerFid)
-	logs.GetLogger().Info("price:", price)
+	logs.GetLogger().Info("price:", dealConfig.MinerPrice)
 	logs.GetLogger().Info("total cost:", costStr)
-	logs.GetLogger().Info("start epoch:", startEpoch)
+	logs.GetLogger().Info("start epoch:", carFile.StartEpoch)
 	logs.GetLogger().Info("fast-retrieval:", fastRetrieval)
 	logs.GetLogger().Info("verified-deal:", verifiedDeal)
 
-	cmd := "lotus client deal --from " + dealConfig.SenderWallet + " --start-epoch " + strconv.Itoa(startEpoch)
+	cmd := "lotus client deal --from " + dealConfig.SenderWallet
+	cmd = cmd + " --start-epoch " + strconv.Itoa(carFile.StartEpoch)
 	cmd = cmd + " --fast-retrieval=" + fastRetrieval + " --verified-deal=" + verifiedDeal
-	cmd = cmd + " --manual-piece-cid " + pieceCid + " --manual-piece-size " + strconv.FormatInt(pieceSize, 10)
-	cmd = cmd + " " + dataCid + " " + dealConfig.MinerFid + " " + costStr + " " + DURATION
+	cmd = cmd + " --manual-piece-cid " + carFile.PieceCid + " --manual-piece-size " + strconv.FormatInt(pieceSize, 10)
+	cmd = cmd + " " + carFile.DataCid + " " + dealConfig.MinerFid + " " + costStr + " " + strconv.Itoa(constants.DURATION)
 	logs.GetLogger().Info(cmd)
 
 	if !dealConfig.SkipConfirmation {
@@ -291,7 +209,7 @@ func LotusProposeOfflineDeal(price, cost decimal.Decimal, pieceSize int64, dataC
 		response, err := reader.ReadString('\n')
 		if err != nil {
 			logs.GetLogger().Error(err)
-			return nil, nil
+			return nil, err
 		}
 
 		response = strings.TrimRight(response, "\n")
@@ -302,16 +220,17 @@ func LotusProposeOfflineDeal(price, cost decimal.Decimal, pieceSize int64, dataC
 		}
 	}
 
-	result, err := ExecOsCmd(cmd, false)
+	result, err := ExecOsCmd(cmd, true)
 
 	if err != nil {
+		logs.GetLogger().Error("Failed to submit the deal.")
 		logs.GetLogger().Error(err)
-		return nil, nil
+		return nil, err
 	}
 	result = strings.Trim(result, "\n")
 	logs.GetLogger().Info(result)
 
 	dealCid := result
 
-	return &dealCid, &startEpoch
+	return &dealCid, nil
 }

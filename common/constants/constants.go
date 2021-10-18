@@ -8,6 +8,25 @@ const (
 	TASK_TYPE_VERIFIED = "verified"
 	TASK_TYPE_REGULAR  = "regular"
 
-	DURATION       = "1051200"
+	TASK_STATUS_ASSIGNED = "Assigned"
+
+	DURATION       = 1051200
 	EPOCH_PER_HOUR = 120
+
+	PATH_TYPE_NOT_EXIST = 0 //this path not exists
+	PATH_TYPE_FILE      = 1 //file
+	PATH_TYPE_DIR       = 2 //directory
+	PATH_TYPE_UNKNOWN   = 3 //unknown path type
+
+	JSON_FILE_NAME_BY_CAR    = "car.json"
+	JSON_FILE_NAME_BY_UPLOAD = "car.json"
+	JSON_FILE_NAME_BY_TASK   = "car.json"
+	JSON_FILE_NAME_BY_DEAL   = "car.json"
+	JSON_FILE_NAME_BY_AUTO   = "car.json"
+
+	CSV_FILE_NAME_BY_CAR    = "car.csv"
+	CSV_FILE_NAME_BY_UPLOAD = "car.csv"
+	CSV_FILE_NAME_BY_TASK   = "car.csv"
+	CSV_FILE_NAME_BY_DEAL   = "car.csv"
+	CSV_FILE_NAME_BY_AUTO   = "car.csv"
 )

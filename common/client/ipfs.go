@@ -1,8 +1,9 @@
 package client
 
 import (
-	"go-swan-client/logs"
 	"strings"
+
+	"go-swan-client/logs"
 )
 
 func IpfsUploadCarFile(carFilePath string) *string {

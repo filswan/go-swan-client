@@ -1,15 +1,16 @@
 package subcommand
 
 import (
-	"fmt"
+	"errors"
+	"math"
+	"path/filepath"
+	"strings"
+
 	"go-swan-client/common/client"
+	"go-swan-client/common/constants"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
-	"math"
-	"path/filepath"
-	"strconv"
-	"strings"
 
 	"github.com/shopspring/decimal"
 )
@@ -20,16 +21,23 @@ func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) bool
 		outputDir = &outDir
 	}
 	metadataJsonFilename := filepath.Base(metadataJsonPath)
-	taskName := strings.TrimSuffix(metadataJsonFilename, JSON_FILE_NAME_BY_TASK_SUFFIX)
+	taskName := strings.TrimSuffix(metadataJsonFilename, constants.JSON_FILE_NAME_BY_TASK)
 	carFiles := ReadCarFilesFromJsonFileByFullPath(metadataJsonPath)
 	if carFiles == nil {
 		logs.GetLogger().Error("Failed to read car files from json.")
 		return false
 	}
 
-	result := SendDeals2Miner(nil, taskName, minerFid, *outputDir, carFiles)
+	csvFilepath, err := SendDeals2Miner(nil, taskName, minerFid, *outputDir, carFiles)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return false
+	}
 
-	return result
+	swanClient := client.SwanGetClient()
+	response := swanClient.SwanUpdateTaskByUuid(carFiles[0].Uuid, minerFid, *csvFilepath)
+	logs.GetLogger().Info(response)
+	return true
 }
 
 func GetDealConfig(minerFid string) *model.DealConfig {
@@ -43,15 +51,10 @@ func GetDealConfig(minerFid string) *model.DealConfig {
 		StartEpochHours:    config.GetConfig().Sender.StartEpochHours,
 	}
 
-	if dealConfig.SenderWallet == "" {
-		logs.GetLogger().Error("Sender.wallet should be set in config file.")
-		return nil
-	}
-
 	maxPriceStr := config.GetConfig().Sender.MaxPrice
 	maxPrice, err := decimal.NewFromString(maxPriceStr)
 	if err != nil {
-		logs.GetLogger().Error("Failed to convert maxPrice to float, MaxPrice:", maxPriceStr)
+		logs.GetLogger().Error("Failed to convert maxPrice(" + maxPriceStr + ") to decimal, MaxPrice:")
 		return nil
 	}
 	dealConfig.MaxPrice = maxPrice
@@ -59,21 +62,26 @@ func GetDealConfig(minerFid string) *model.DealConfig {
 	return &dealConfig
 }
 
-func CheckDealConfig(dealConfig model.DealConfig) bool {
+func CheckDealConfig(dealConfig *model.DealConfig) bool {
 	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(dealConfig.MinerFid)
+
+	if dealConfig.SenderWallet == "" {
+		logs.GetLogger().Error("Sender.wallet should be set in config file.")
+		return false
+	}
 
 	if dealConfig.VerifiedDeal {
 		if minerVerifiedPrice == nil {
 			return false
 		}
-		logs.GetLogger().Info("Miner price is:", *minerVerifiedPrice)
 		dealConfig.MinerPrice = *minerVerifiedPrice
+		logs.GetLogger().Info("Miner price is:", *minerVerifiedPrice)
 	} else {
 		if minerPrice == nil {
 			return false
 		}
-		logs.GetLogger().Info("Miner price is:", *minerPrice)
 		dealConfig.MinerPrice = *minerPrice
+		logs.GetLogger().Info("Miner price is:", *minerPrice)
 	}
 
 	logs.GetLogger().Info("Miner price is:", dealConfig.MinerPrice, " MaxPrice:", dealConfig.MaxPrice, " VerifiedDeal:", dealConfig.VerifiedDeal)
@@ -89,47 +97,58 @@ func CheckDealConfig(dealConfig model.DealConfig) bool {
 	return true
 }
 
-func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) bool {
+func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) (*string, error) {
 	if dealConfig == nil {
 		dealConfig = GetDealConfig(minerFid)
 		if dealConfig == nil {
-			logs.GetLogger().Error("Failed to get deal config.")
-			return false
+			err := errors.New("failed to get deal config")
+			logs.GetLogger().Error(err)
+			return nil, err
 		}
 	}
 
-	result := CheckDealConfig(*dealConfig)
+	result := CheckDealConfig(dealConfig)
 	if !result {
-		logs.GetLogger().Error("Failed to pass deal config check.")
-		return false
+		err := errors.New("failed to pass deal config check")
+		logs.GetLogger().Error(err)
+		return nil, err
 	}
 
 	for _, carFile := range carFiles {
 		if carFile.CarFileSize <= 0 {
-			msg := fmt.Sprintf("File %s is too small", carFile.CarFilePath)
-			logs.GetLogger().Error(msg)
+			logs.GetLogger().Error("File:" + carFile.CarFilePath + " %s is too small")
 			continue
 		}
 		pieceSize, sectorSize := CalculatePieceSize(carFile.CarFileSize)
+		logs.GetLogger().Info("dealConfig.MinerPrice:", dealConfig.MinerPrice)
 		cost := CalculateRealCost(sectorSize, dealConfig.MinerPrice)
-		dealCid, startEpoch := client.LotusProposeOfflineDeal(dealConfig.MinerPrice, cost, pieceSize, carFile.DataCid, carFile.PieceCid, *dealConfig)
-		if dealCid == nil || startEpoch == nil {
-			logs.GetLogger().Error("Failed to propose offline deal")
-			return false
+		dealCid, err := client.LotusProposeOfflineDeal(*carFile, cost, pieceSize, *dealConfig)
+		//dealCid, err := client.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			continue
 		}
-		carFile.MinerFid = &minerFid
+		if dealCid == nil {
+			continue
+		}
+		carFile.MinerFid = &dealConfig.MinerFid
 		carFile.DealCid = *dealCid
-		carFile.StartEpoch = strconv.Itoa(*startEpoch)
+
+		logs.GetLogger().Info("Cid:", carFile.DealCid)
 	}
 
-	jsonFileName := taskName + JSON_FILE_NAME_BY_DEAL_SUFFIX
-	csvFileName := taskName + CSV_FILE_NAME_BY_DEAL_SUFFIX
-	WriteCarFilesToFiles(carFiles, outputDir, jsonFileName, csvFileName)
+	jsonFileName := taskName + constants.JSON_FILE_NAME_BY_DEAL
+	csvFileName := taskName + constants.CSV_FILE_NAME_BY_DEAL
+	err := WriteCarFilesToFiles(carFiles, outputDir, jsonFileName, csvFileName)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
 
-	csvFilename := taskName + "_deal.csv"
-	CreateCsv4TaskDeal(carFiles, &minerFid, outputDir, csvFilename)
+	csvFilename := taskName + "-deals.csv"
+	csvFilepath, err := CreateCsv4TaskDeal(carFiles, &minerFid, outputDir, csvFilename)
 
-	return true
+	return &csvFilepath, err
 }
 
 // https://docs.filecoin.io/store/lotus/very-large-files/#maximizing-storage-per-sector
@@ -148,8 +167,10 @@ func CalculatePieceSize(fileSize int64) (int64, float64) {
 }
 
 func CalculateRealCost(sectorSizeBytes float64, pricePerGiB decimal.Decimal) decimal.Decimal {
+	logs.GetLogger().Info("sectorSizeBytes:", sectorSizeBytes, " pricePerGiB:", pricePerGiB)
 	bytesPerGiB := decimal.NewFromInt(1024 * 1024 * 1024)
 	sectorSizeGiB := decimal.NewFromFloat(sectorSizeBytes).Div(bytesPerGiB)
 	realCost := sectorSizeGiB.Mul(pricePerGiB)
+	logs.GetLogger().Info("realCost:", realCost)
 	return realCost
 }

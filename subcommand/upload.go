@@ -1,43 +1,70 @@
 package subcommand
 
 import (
+	"fmt"
+	"strings"
+
 	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
+	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
-	"strings"
 )
 
-func UploadCarFiles(inputDir string) {
+func UploadCarFiles(inputDir string) error {
+	if len(inputDir) == 0 {
+		err := fmt.Errorf("please provide input dir")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if utils.GetPathType(inputDir) != constants.PATH_TYPE_DIR {
+		err := fmt.Errorf("%s is not a directory", inputDir)
+		logs.GetLogger().Error(err)
+		return err
+	}
+
 	storageServerType := config.GetConfig().Main.StorageServerType
 	if storageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
 		logs.GetLogger().Info("Please upload car files to web server manually.")
-		return
+		return nil
 	}
 
 	gatewayAddress := config.GetConfig().IpfsServer.GatewayAddress
 	words := strings.Split(gatewayAddress, "/")
 	if len(words) < 5 {
-		logs.GetLogger().Fatal("Invalid gateway address:", gatewayAddress)
+		err := fmt.Errorf("invalid gateway address:%s", gatewayAddress)
+		logs.GetLogger().Error(err)
+		return err
 	}
 	gatewayIp := words[2]
 	gatewayPort := words[4]
 
-	carFiles := ReadCarFilesFromJsonFile(inputDir, JSON_FILE_NAME_BY_CAR)
+	carFiles := ReadCarFilesFromJsonFile(inputDir, constants.JSON_FILE_NAME_BY_CAR)
 	if carFiles == nil {
-		logs.GetLogger().Fatal("Failed to read: ", inputDir)
+		err := fmt.Errorf("failed to read:%s", inputDir)
+		logs.GetLogger().Error(err)
+		return err
 	}
 
 	for _, carFile := range carFiles {
 		logs.GetLogger().Info("Uploading car file:", carFile.CarFileName)
 		carFileHash := client.IpfsUploadCarFile(carFile.CarFilePath)
 		if carFileHash == nil {
-			logs.GetLogger().Fatal("Failed to upload file to ipfs.")
+			err := fmt.Errorf("failed to upload file to ipfs")
+			logs.GetLogger().Error(err)
+			return err
 		}
 
 		carFile.CarFileUrl = "http://" + gatewayIp + ":" + gatewayPort + "/ipfs/" + *carFileHash
 		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileUrl)
 	}
 
-	WriteCarFilesToFiles(carFiles, inputDir, JSON_FILE_NAME_BY_UPLOAD, CSV_FILE_NAME_BY_UPLOAD)
+	err := WriteCarFilesToFiles(carFiles, inputDir, constants.JSON_FILE_NAME_BY_UPLOAD, constants.CSV_FILE_NAME_BY_UPLOAD)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	return nil
 }

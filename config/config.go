@@ -7,10 +7,18 @@ import (
 )
 
 type Configuration struct {
+	Lotus      lotus      `toml:"lotus"`
 	Main       main       `toml:"main"`
 	WebServer  webServer  `toml:"web_server"`
 	IpfsServer ipfsServer `toml:"ipfs_server"`
 	Sender     sender     `toml:"sender"`
+}
+
+type lotus struct {
+	ApiUrl           string `toml:"api_url"`
+	AccessToken      string `toml:"access_token"`
+	MinerApiUrl      string `toml:"miner_api_url"`
+	MinerAccessToken string `toml:"miner_access_token"`
 }
 
 type main struct {
@@ -27,10 +35,12 @@ type webServer struct {
 }
 
 type ipfsServer struct {
-	GatewayAddress string `toml:"gateway_address"`
+	GatewayAddress    string `toml:"gateway_address"`
+	DownloadStreamUrl string `toml:"download_stream_url"`
 }
 
 type sender struct {
+	BidMode          int    `toml:"bid_mode"`
 	OfflineMode      bool   `toml:"offline_mode"`
 	OutputDir        string `toml:"output_dir"`
 	PublicDeal       bool   `toml:"public_deal"`
@@ -41,6 +51,7 @@ type sender struct {
 	Wallet           string `toml:"wallet"`
 	MaxPrice         string `toml:"max_price"`
 	StartEpochHours  int    `toml:"start_epoch_hours"`
+	ExpireDays       int    `toml:"expire_days"`
 }
 
 var config *Configuration
@@ -65,10 +76,15 @@ func GetConfig() Configuration {
 
 func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 	requiredFields := [][]string{
+		{"lotus"},
 		{"main"},
 		{"web_server"},
 		{"ipfs_server"},
 		{"sender"},
+
+		{"lotus", "api_url"},
+		{"lotus", "miner_api_url"},
+		{"lotus", "miner_access_token"},
 
 		{"main", "api_url"},
 		{"main", "api_key"},
@@ -80,7 +96,9 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"web_server", "path"},
 
 		{"ipfs_server", "gateway_address"},
+		{"ipfs_server", "download_stream_url"},
 
+		{"sender", "bid_mode"},
 		{"sender", "offline_mode"},
 		{"sender", "output_dir"},
 		{"sender", "public_deal"},
@@ -91,6 +109,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"sender", "wallet"},
 		{"sender", "max_price"},
 		{"sender", "start_epoch_hours"},
+		{"sender", "expire_days"},
 	}
 
 	for _, v := range requiredFields {

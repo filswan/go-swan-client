@@ -1,13 +1,14 @@
 package subcommand
 
 import (
+	"io/ioutil"
+	"os"
+	"path/filepath"
+
 	"go-swan-client/common/client"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 
 	"github.com/google/uuid"
 )

@@ -1,74 +1,75 @@
 package subcommand
 
 import (
+	"fmt"
+	"io/ioutil"
+	"path/filepath"
+
 	"go-swan-client/common/client"
+	"go-swan-client/common/constants"
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 
 	"github.com/codingsince1985/checksum"
-	"github.com/google/uuid"
 )
 
-func GenerateCarFiles(inputDir, outputDir *string) {
-	if inputDir == nil || len(*inputDir) == 0 {
-		logs.GetLogger().Fatal("Please provide input dir.")
+func GenerateCarFiles(inputDir string, outputDir *string) (*string, []*model.FileDesc, error) {
+	if len(inputDir) == 0 {
+		err := fmt.Errorf("please provide input dir")
+		logs.GetLogger().Error(err)
+		return nil, nil, err
 	}
 
-	if !utils.IsFileExistsFullPath(*inputDir) {
-		logs.GetLogger().Fatal("Input dir: ", inputDir, " not exists.")
+	if utils.GetPathType(inputDir) != constants.PATH_TYPE_DIR {
+		err := fmt.Errorf("%s is not a directory", inputDir)
+		logs.GetLogger().Error(err)
+		return nil, nil, err
 	}
 
-	if outputDir == nil || len(*outputDir) == 0 {
-		if outputDir == nil {
-			outDir := filepath.Join(config.GetConfig().Sender.OutputDir, uuid.NewString())
-			outputDir = &outDir
-		} else {
-			*outputDir = filepath.Join(config.GetConfig().Sender.OutputDir, uuid.NewString())
-		}
-
-		logs.GetLogger().Info("output-dir is not provided, use default:", outputDir)
-	}
-
-	err := os.MkdirAll(*outputDir, os.ModePerm)
+	outputDir, err := CreateOutputDir(outputDir)
 	if err != nil {
-		logs.GetLogger().Fatal("Failed to create output dir:", outputDir)
+		logs.GetLogger().Error(err)
+		return nil, nil, err
+	}
+
+	srcFiles, err := ioutil.ReadDir(inputDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, nil, err
 	}
 
 	carFiles := []*model.FileDesc{}
 
-	srcFiles, err := ioutil.ReadDir(*inputDir)
-	if err != nil {
-		logs.GetLogger().Fatal(err)
-	}
-
 	for _, srcFile := range srcFiles {
 		carFile := model.FileDesc{}
 		carFile.SourceFileName = srcFile.Name()
-		carFile.SourceFilePath = filepath.Join(*inputDir, carFile.SourceFileName)
+		carFile.SourceFilePath = filepath.Join(inputDir, carFile.SourceFileName)
 		carFile.SourceFileSize = srcFile.Size()
 		carFile.CarFileName = carFile.SourceFileName + ".car"
 		carFile.CarFilePath = filepath.Join(*outputDir, carFile.CarFileName)
 
-		err := client.LotusGenerateCar(carFile.SourceFilePath, carFile.CarFilePath)
+		err := client.LotusClientGenCar(carFile.SourceFilePath, carFile.CarFilePath, false)
 		if err != nil {
-			logs.GetLogger().Fatal("Failed to generate car file.")
+			logs.GetLogger().Error(err)
+			return nil, nil, err
 		}
 
-		pieceCid := client.LotusGeneratePieceCid(carFile.CarFilePath)
+		pieceCid := client.LotusClientCalcCommP(carFile.CarFilePath)
 		if pieceCid == nil {
-			logs.GetLogger().Fatal("Failed to generate piece cid.")
+			err := fmt.Errorf("failed to generate piece cid")
+			logs.GetLogger().Error(err)
+			return nil, nil, err
 		}
 
 		carFile.PieceCid = *pieceCid
 
-		dataCid := client.LotusImportCarFile(carFile.CarFilePath)
+		dataCid := client.LotusClientImport(carFile.CarFilePath, true)
 		if dataCid == nil {
-			logs.GetLogger().Fatal("Failed to import car file.")
+			err := fmt.Errorf("failed to import car file")
+			logs.GetLogger().Error(err)
+			return nil, nil, err
 		}
 
 		carFile.DataCid = *dataCid
@@ -76,20 +77,32 @@ func GenerateCarFiles(inputDir, outputDir *string) {
 		carFile.CarFileSize = utils.GetFileSize(carFile.CarFilePath)
 
 		if config.GetConfig().Sender.GenerateMd5 {
+			srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return nil, nil, err
+			}
+			carFile.SourceFileMd5 = srcFileMd5
+
 			carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
 			if err != nil {
 				logs.GetLogger().Error(err)
-				logs.GetLogger().Fatal("Failed to generate md5 for car file:", carFile.CarFilePath)
+				return nil, nil, err
 			}
-			logs.GetLogger().Info("carFileMd5:", carFileMd5)
 			carFile.CarFileMd5 = carFileMd5
 		}
 
 		carFiles = append(carFiles, &carFile)
 	}
 
-	WriteCarFilesToFiles(carFiles, *outputDir, JSON_FILE_NAME_BY_CAR, CSV_FILE_NAME_BY_CAR)
+	err = WriteCarFilesToFiles(carFiles, *outputDir, constants.JSON_FILE_NAME_BY_CAR, constants.CSV_FILE_NAME_BY_CAR)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, nil, err
+	}
 
-	logs.GetLogger().Info("Car files output dir: ", outputDir)
+	logs.GetLogger().Info("Car files output dir: ", *outputDir)
 	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
+
+	return outputDir, carFiles, nil
 }
