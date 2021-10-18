@@ -7,6 +7,7 @@ import (
 
 	"go-swan-client/logs"
 	"go-swan-client/subcommand"
+	"go-swan-client/test"
 )
 
 const SUBCOMMAND_CAR = "car"
@@ -17,9 +18,9 @@ const SUBCOMMAND_DEAL = "deal"
 const SUBCOMMAND_AUTO = "auto"
 
 func main() {
-	execSubCmd()
+	//execSubCmd()
 	//logs.GetLogger().Info("Hello")
-	//test.Test()
+	test.Test()
 }
 
 func execSubCmd() error {

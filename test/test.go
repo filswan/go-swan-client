@@ -12,7 +12,9 @@ import (
 )
 
 func Test() {
-	TestGenerateCarFiles()
+	swanClient := client.SwanGetClient()
+	result, err := swanClient.GetOfflineDealsByTaskUuid("1c2d416e-2f13-4c9a-b329-22e34f09bb7c")
+	logs.GetLogger().Info(result, err)
 }
 func TestGenerateCarFiles() {
 	inputDir := "/Users/dorachen/go-workspace/srcFiles"

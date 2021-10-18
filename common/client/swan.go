@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
@@ -179,7 +180,7 @@ func (swanClient *SwanClient) SwanCreateTask(task model.Task, csvFilePath string
 	}
 	params["fast_retrieval"] = strconv.FormatBool(task.FastRetrievalBool)
 	params["bid_mode"] = strconv.Itoa(*task.BidMode)
-	params["max_price"] = *task.MaxPrice
+	params["max_price"] = (*task.MaxPrice).String()
 	params["expire_days"] = strconv.Itoa(*task.ExpireDays)
 
 	response, err := HttpPostFile(apiUrl, swanClient.Token, params, "file", csvFilePath)
@@ -242,6 +243,7 @@ func (swanClient *SwanClient) GetAssignedTasks() ([]model.Task, error) {
 	if len(tasks) == 0 {
 		return nil, nil
 	}
+
 	result := []model.Task{}
 
 	for _, task := range tasks {
@@ -250,7 +252,7 @@ func (swanClient *SwanClient) GetAssignedTasks() ([]model.Task, error) {
 		}
 	}
 
-	return result, err
+	return result, nil
 }
 
 type GetOfflineDealsByTaskUuidResult struct {
@@ -267,6 +269,11 @@ type GetOfflineDealsByTaskUuidResultData struct {
 }
 
 func (swanClient *SwanClient) GetOfflineDealsByTaskUuid(taskUuid string) (*GetOfflineDealsByTaskUuidResult, error) {
+	if len(taskUuid) == 0 {
+		err := fmt.Errorf("please provide task uuid")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
 	apiUrl := swanClient.ApiUrl + "/tasks/" + taskUuid
 	logs.GetLogger().Info("Getting My swan tasks info")
 	response := HttpGet(apiUrl, swanClient.Token, "")
@@ -276,9 +283,17 @@ func (swanClient *SwanClient) GetOfflineDealsByTaskUuid(taskUuid string) (*GetOf
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
+	logs.GetLogger().Info(response)
+
 	getOfflineDealsByTaskUuidResult := &GetOfflineDealsByTaskUuidResult{}
 	err := json.Unmarshal([]byte(response), getOfflineDealsByTaskUuidResult)
 	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if getOfflineDealsByTaskUuidResult.Status != constants.SWAN_API_STATUS_SUCCESS {
+		err := fmt.Errorf("error:%s", getOfflineDealsByTaskUuidResult.Status)
 		logs.GetLogger().Error(err)
 		return nil, err
 	}

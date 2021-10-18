@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"go-swan-client/common/constants"
+	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
@@ -15,6 +17,22 @@ import (
 	"os"
 	"strconv"
 )
+
+func CheckInputDir(inputDir string) error {
+	if len(inputDir) == 0 {
+		err := fmt.Errorf("please provide -input-dir")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if utils.GetPathType(inputDir) != constants.PATH_TYPE_DIR {
+		err := fmt.Errorf("%s is not a directory", inputDir)
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	return nil
+}
 
 func CreateOutputDir(outputDir *string) (*string, error) {
 	if outputDir == nil || len(*outputDir) == 0 {

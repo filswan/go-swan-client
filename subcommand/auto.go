@@ -7,8 +7,6 @@ import (
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
-
-	"github.com/shopspring/decimal"
 )
 
 func SendAutoBidDeal(outputDir *string) {
@@ -18,11 +16,16 @@ func SendAutoBidDeal(outputDir *string) {
 		logs.GetLogger().Error(err)
 		return
 	}
+	logs.GetLogger().Info("autobid Swan task count:", len(assignedTasks))
+	if len(assignedTasks) == 0 {
+		logs.GetLogger().Info("no autobid task to be dealt with")
+		return
+	}
 
 	for _, assignedTask := range assignedTasks {
-		assignedTaskInfo, err1 := swanClient.GetOfflineDealsByTaskUuid(assignedTask.Uuid)
-		if err1 != nil {
-			logs.GetLogger().Error(err1)
+		assignedTaskInfo, err := swanClient.GetOfflineDealsByTaskUuid(assignedTask.Uuid)
+		if err != nil {
+			logs.GetLogger().Error(err)
 			continue
 		}
 
@@ -89,19 +92,14 @@ func GetDealConfig1(task model.Task, deal model.OfflineDeal) *model.DealConfig {
 	dealConfig := model.DealConfig{
 		MinerFid:           *task.MinerFid,
 		SenderWallet:       config.GetConfig().Sender.Wallet,
-		VerifiedDeal:       config.GetConfig().Sender.VerifiedDeal,
-		FastRetrieval:      config.GetConfig().Sender.FastRetrieval,
+		VerifiedDeal:       *task.Type == constants.TASK_TYPE_VERIFIED,
+		FastRetrieval:      *task.FastRetrieval == constants.TASK_FAST_RETRIEVAL,
 		EpochIntervalHours: config.GetConfig().Sender.StartEpochHours,
 		SkipConfirmation:   config.GetConfig().Sender.SkipConfirmation,
 		StartEpochHours:    *deal.StartEpoch,
 	}
 
-	maxPrice, err := decimal.NewFromString(*task.MaxPrice)
-	if err != nil {
-		logs.GetLogger().Error("Failed to convert maxPrice(" + *task.MaxPrice + ") to decimal, MaxPrice:")
-		return nil
-	}
-	dealConfig.MaxPrice = maxPrice
+	dealConfig.MaxPrice = *task.MaxPrice
 
 	return &dealConfig
 }
