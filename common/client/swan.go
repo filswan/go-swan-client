@@ -318,19 +318,7 @@ func (swanClient *SwanClient) UpdateAssignedTask(taskUuid, csvFilePath string) s
 		logs.GetLogger().Error(err)
 		return ""
 	}
+
+	logs.GetLogger().Info(response)
 	return response
 }
-
-//    limit=resp['total_task_count']
-//    logging.info('Swan task count %s'%str(limit))
-//    get_task_url = api_url + get_task_url_suffix+"?limit="+str(limit)
-//    payload_data = ""
-//    resp=send_http_request(get_task_url, get_task_method,jwt_token, payload_data)
-//    tasks = resp['task']
-//    assigned_task_list=[]
-//    for task in tasks:
-//        if task["status"] == 'Assigned' and task["miner_id"]:
-//            assigned_task_list.append(task)
-//    logging.info('Assigned autobid Swan task count %s'%str(len(assigned_task_list)))
-//    assigned_task_dict={'Assigned tasks': assigned_task_list}
-//    return assigned_task_dict

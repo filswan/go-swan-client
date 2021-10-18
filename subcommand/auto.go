@@ -16,6 +16,8 @@ func SendAutoBidDeal(outputDir *string) ([]string, error) {
 		return nil, err
 	}
 
+	logs.GetLogger().Info("output dir is:", *outputDir)
+
 	swanClient := client.SwanGetClient()
 	assignedTasks, err := swanClient.GetAssignedTasks()
 	if err != nil {

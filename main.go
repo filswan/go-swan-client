@@ -7,7 +7,6 @@ import (
 
 	"go-swan-client/logs"
 	"go-swan-client/subcommand"
-	"go-swan-client/test"
 )
 
 const SUBCOMMAND_CAR = "car"
@@ -18,9 +17,9 @@ const SUBCOMMAND_DEAL = "deal"
 const SUBCOMMAND_AUTO = "auto"
 
 func main() {
-	//execSubCmd()
+	execSubCmd()
 	//logs.GetLogger().Info("Hello")
-	test.Test()
+	//test.Test()
 }
 
 func execSubCmd() error {
@@ -202,7 +201,6 @@ func sendAutoBidDeal() bool {
 	cmd := flag.NewFlagSet(SUBCOMMAND_DEAL, flag.ExitOnError)
 
 	outputDir := cmd.String("out-dir", "", "Directory where target files will in.")
-	minerFid := cmd.String("miner", "", "Target miner fid")
 
 	err := cmd.Parse(os.Args[2:])
 	if err != nil {
@@ -215,13 +213,7 @@ func sendAutoBidDeal() bool {
 		return false
 	}
 
-	if minerFid == nil || len(*minerFid) == 0 {
-		logs.GetLogger().Error("miner is required.")
-		return false
-	}
-
-	logs.GetLogger().Info("output dir:", *outputDir)
-	logs.GetLogger().Info("miner:", *minerFid)
+	subcommand.SendAutoBidDeal(outputDir)
 
 	return true
 }
