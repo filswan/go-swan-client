@@ -9,19 +9,26 @@ import (
 	"go-swan-client/model"
 )
 
-func SendAutoBidDeal(outputDir *string) {
+func SendAutoBidDeal(outputDir *string) ([]string, error) {
+	outputDir, err := CreateOutputDir(outputDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	swanClient := client.SwanGetClient()
 	assignedTasks, err := swanClient.GetAssignedTasks()
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return
+		return nil, err
 	}
 	logs.GetLogger().Info("autobid Swan task count:", len(assignedTasks))
 	if len(assignedTasks) == 0 {
 		logs.GetLogger().Info("no autobid task to be dealt with")
-		return
+		return nil, nil
 	}
 
+	csvFilepaths := []string{}
 	for _, assignedTask := range assignedTasks {
 		assignedTaskInfo, err := swanClient.GetOfflineDealsByTaskUuid(assignedTask.Uuid)
 		if err != nil {
@@ -33,6 +40,9 @@ func SendAutoBidDeal(outputDir *string) {
 		miner := assignedTaskInfo.Data.Miner
 		task := assignedTaskInfo.Data.Task
 		csvFilePath, err := SendAutobidDeal(deals, miner, task, outputDir)
+		if err != nil {
+			csvFilepaths = append(csvFilepaths, csvFilePath)
+		}
 
 		if err != nil {
 			logs.GetLogger().Error(err)
@@ -42,19 +52,20 @@ func SendAutoBidDeal(outputDir *string) {
 		response := swanClient.UpdateAssignedTask(assignedTask.Uuid, csvFilePath)
 		logs.GetLogger().Info(response)
 	}
+
+	return csvFilepaths, nil
 }
 
 func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Task, outputDir *string) (string, error) {
 	carFiles := []*model.FileDesc{}
 
 	for _, deal := range deals {
-		dealConfig := GetDealConfig4Autobid(task, deal)
+		dealConfig := GetDealConfig4Autobid(task, deal, miner)
 		err := CheckDealConfig(dealConfig)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
 		}
-
 		fileSizeInt := utils.GetInt64FromStr(*deal.FileSize)
 		if fileSizeInt <= 0 {
 			logs.GetLogger().Error("file is too small")
@@ -64,9 +75,13 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Ta
 		logs.GetLogger().Info("dealConfig.MinerPrice:", dealConfig.MinerPrice)
 		cost := CalculateRealCost(sectorSize, dealConfig.MinerPrice)
 		carFile := model.FileDesc{
-			StartEpoch: *deal.StartEpoch,
-			PieceCid:   *deal.PieceCid,
-			DataCid:    *deal.PayloadCid,
+			Uuid:          task.Uuid,
+			MinerFid:      &miner.MinerFid,
+			SourceFileUrl: *deal.FileSourceUrl,
+			CarFileMd5:    deal.Md5Local,
+			StartEpoch:    *deal.StartEpoch,
+			PieceCid:      *deal.PieceCid,
+			DataCid:       *deal.PayloadCid,
 		}
 		carFiles = append(carFiles, &carFile)
 		dealCid, err := client.LotusProposeOfflineDeal(carFile, cost, pieceSize, *dealConfig)
@@ -77,7 +92,6 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Ta
 		if dealCid == nil {
 			continue
 		}
-		carFile.MinerFid = task.MinerFid
 		carFile.DealCid = *dealCid
 	}
 
@@ -86,19 +100,19 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Ta
 		outputDir = &outDir
 	}
 
-	jsonFileName := task.TaskName + constants.JSON_FILE_NAME_BY_AUTO
-	csvFileName := task.TaskName + constants.CSV_FILE_NAME_BY_AUTO
+	jsonFileName := task.TaskName + "-deal-" + constants.JSON_FILE_NAME_BY_AUTO
+	csvFileName := task.TaskName + "-deal-" + constants.CSV_FILE_NAME_BY_AUTO
 	WriteCarFilesToFiles(carFiles, *outputDir, jsonFileName, csvFileName)
 
 	csvFilename := task.TaskName + "_deal.csv"
-	csvFilepath, err := CreateCsv4TaskDeal(carFiles, task.MinerFid, *outputDir, csvFilename)
+	csvFilepath, err := CreateCsv4TaskDeal(carFiles, &miner.MinerFid, *outputDir, csvFilename)
 
 	return csvFilepath, err
 }
 
-func GetDealConfig4Autobid(task model.Task, deal model.OfflineDeal) *model.DealConfig {
+func GetDealConfig4Autobid(task model.Task, deal model.OfflineDeal, miner model.Miner) *model.DealConfig {
 	dealConfig := model.DealConfig{
-		MinerFid:           *task.MinerFid,
+		MinerFid:           miner.MinerFid,
 		SenderWallet:       config.GetConfig().Sender.Wallet,
 		VerifiedDeal:       *task.Type == constants.TASK_TYPE_VERIFIED,
 		FastRetrieval:      *task.FastRetrieval == constants.TASK_FAST_RETRIEVAL,
