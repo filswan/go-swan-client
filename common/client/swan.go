@@ -230,6 +230,12 @@ func (swanClient *SwanClient) GetTasks() ([]model.Task, error) {
 		return nil, err
 	}
 
+	if getTaskResult.Status != constants.SWAN_API_STATUS_SUCCESS {
+		err := fmt.Errorf("error:%s", getTaskResult.Status)
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	return getTaskResult.Data.Task, nil
 }
 
