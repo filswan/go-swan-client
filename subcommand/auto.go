@@ -51,8 +51,13 @@ func SendAutoBidDeal(outputDir *string) ([]string, error) {
 			continue
 		}
 
-		response := swanClient.UpdateAssignedTask(assignedTask.Uuid, csvFilePath)
-		logs.GetLogger().Info(response)
+		response, err := swanClient.UpdateAssignedTask(assignedTask.Uuid, csvFilePath)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			continue
+		}
+
+		logs.GetLogger().Info(response.Message)
 	}
 
 	return csvFilepaths, nil
@@ -62,7 +67,7 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Ta
 	carFiles := []*model.FileDesc{}
 
 	for _, deal := range deals {
-		dealConfig := GetDealConfig4Autobid(task, deal, miner)
+		dealConfig := GetDealConfig4Autobid(task, deal)
 		err := CheckDealConfig(dealConfig)
 		if err != nil {
 			logs.GetLogger().Error(err)
@@ -112,9 +117,9 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Ta
 	return csvFilepath, err
 }
 
-func GetDealConfig4Autobid(task model.Task, deal model.OfflineDeal, miner model.Miner) *model.DealConfig {
+func GetDealConfig4Autobid(task model.Task, deal model.OfflineDeal) *model.DealConfig {
 	dealConfig := model.DealConfig{
-		MinerFid:           miner.MinerFid,
+		MinerFid:           *task.MinerFid,
 		SenderWallet:       config.GetConfig().Sender.Wallet,
 		VerifiedDeal:       *task.Type == constants.TASK_TYPE_VERIFIED,
 		FastRetrieval:      *task.FastRetrieval == constants.TASK_FAST_RETRIEVAL,

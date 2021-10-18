@@ -196,6 +196,12 @@ func (swanClient *SwanClient) SwanCreateTask(task model.Task, csvFilePath string
 		return nil, err
 	}
 
+	if swanCreateTaskResponse.Status != constants.SWAN_API_STATUS_SUCCESS {
+		err := fmt.Errorf("error:%s,%s", swanCreateTaskResponse.Status, swanCreateTaskResponse.Message)
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	return swanCreateTaskResponse, nil
 }
 
@@ -289,7 +295,7 @@ func (swanClient *SwanClient) GetOfflineDealsByTaskUuid(taskUuid string) (*GetOf
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
-	logs.GetLogger().Info(response)
+	//logs.GetLogger().Info(response)
 
 	getOfflineDealsByTaskUuidResult := &GetOfflineDealsByTaskUuidResult{}
 	err := json.Unmarshal([]byte(response), getOfflineDealsByTaskUuidResult)
@@ -307,7 +313,7 @@ func (swanClient *SwanClient) GetOfflineDealsByTaskUuid(taskUuid string) (*GetOf
 	return getOfflineDealsByTaskUuidResult, nil
 }
 
-func (swanClient *SwanClient) UpdateAssignedTask(taskUuid, csvFilePath string) string {
+func (swanClient *SwanClient) UpdateAssignedTask(taskUuid, csvFilePath string) (*SwanCreateTaskResponse, error) {
 	apiUrl := swanClient.ApiUrl + "/tasks/" + taskUuid
 	logs.GetLogger().Info("Updating Swan task")
 	params := map[string]string{}
@@ -316,9 +322,21 @@ func (swanClient *SwanClient) UpdateAssignedTask(taskUuid, csvFilePath string) s
 	response, err := HttpPutFile(apiUrl, swanClient.Token, params, "file", csvFilePath)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return ""
+		return nil, err
 	}
 
-	logs.GetLogger().Info(response)
-	return response
+	swanCreateTaskResponse := &SwanCreateTaskResponse{}
+	err = json.Unmarshal([]byte(response), swanCreateTaskResponse)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if swanCreateTaskResponse.Status != constants.SWAN_API_STATUS_SUCCESS {
+		err := fmt.Errorf("error:%s,%s", swanCreateTaskResponse.Status, swanCreateTaskResponse.Message)
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return swanCreateTaskResponse, nil
 }
