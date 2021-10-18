@@ -41,17 +41,24 @@ func SendAutoBidDeal(outputDir *string) ([]string, error) {
 		deals := assignedTaskInfo.Data.Deal
 		miner := assignedTaskInfo.Data.Miner
 		task := assignedTaskInfo.Data.Task
-		csvFilePath, err := SendAutobidDeal(deals, miner, task, outputDir)
+		dealSentNum, csvFilePath, err := SendAutobidDeal(deals, miner, task, outputDir)
 		if err != nil {
 			csvFilepaths = append(csvFilepaths, csvFilePath)
-		}
-
-		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
 		}
 
-		response, err := swanClient.UpdateAssignedTask(assignedTask.Uuid, csvFilePath)
+		if dealSentNum == 0 {
+			logs.GetLogger().Info(dealSentNum, " deal(s) sent for task:", task.TaskName)
+			continue
+		}
+
+		status := constants.TASK_STATUS_DEAL_SENT
+		if dealSentNum != len(deals) {
+			status = constants.TASK_STATUS_PROGRESS_WITH_FAILURE
+		}
+
+		response, err := swanClient.UpdateAssignedTask(assignedTask.Uuid, status, csvFilePath)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
@@ -63,9 +70,10 @@ func SendAutoBidDeal(outputDir *string) ([]string, error) {
 	return csvFilepaths, nil
 }
 
-func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Task, outputDir *string) (string, error) {
+func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Task, outputDir *string) (int, string, error) {
 	carFiles := []*model.FileDesc{}
 
+	dealSentNum := 0
 	for _, deal := range deals {
 		dealConfig := GetDealConfig4Autobid(task, deal)
 		err := CheckDealConfig(dealConfig)
@@ -91,15 +99,20 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Ta
 			DataCid:       *deal.PayloadCid,
 		}
 		carFiles = append(carFiles, &carFile)
-		dealCid, err := client.LotusProposeOfflineDeal(carFile, cost, pieceSize, *dealConfig)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			continue
+		for i := 0; i < 10; i++ {
+			dealCid, err := client.LotusProposeOfflineDeal(carFile, cost, pieceSize, *dealConfig)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				continue
+			}
+			if dealCid == nil {
+				continue
+			}
+
+			carFile.DealCid = *dealCid
+			dealSentNum = dealSentNum + 1
+			break
 		}
-		if dealCid == nil {
-			continue
-		}
-		carFile.DealCid = *dealCid
 	}
 
 	if outputDir == nil {
@@ -114,7 +127,7 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Ta
 	csvFilename := task.TaskName + "_deal.csv"
 	csvFilepath, err := CreateCsv4TaskDeal(carFiles, &miner.MinerFid, *outputDir, csvFilename)
 
-	return csvFilepath, err
+	return dealSentNum, csvFilepath, err
 }
 
 func GetDealConfig4Autobid(task model.Task, deal model.OfflineDeal) *model.DealConfig {

@@ -10,7 +10,9 @@ const (
 	TASK_TYPE_VERIFIED = "verified"
 	TASK_TYPE_REGULAR  = "regular"
 
-	TASK_STATUS_ASSIGNED = "Assigned"
+	TASK_STATUS_ASSIGNED              = "Assigned"
+	TASK_STATUS_DEAL_SENT             = "DealSent"
+	TASK_STATUS_PROGRESS_WITH_FAILURE = "ProgressWithFailure"
 
 	TASK_FAST_RETRIEVAL = 1
 

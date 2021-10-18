@@ -139,20 +139,6 @@ func (swanClient *SwanClient) SwanUpdateOfflineDealStatus(dealId int, status str
 	return true
 }
 
-func (swanClient *SwanClient) SwanUpdateTaskByUuid(taskUuid string, minerFid string, csvFilePath string) string {
-	apiUrl := swanClient.ApiUrl + "/uuid_tasks/" + taskUuid
-	params := map[string]string{}
-	params["miner_fid"] = minerFid
-
-	response, err := HttpPutFile(apiUrl, swanClient.Token, params, "file", csvFilePath)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return ""
-	}
-
-	return response
-}
-
 type SwanCreateTaskResponse struct {
 	Data    SwanCreateTaskResponseData `json:"data"`
 	Status  string                     `json:"status"`
@@ -313,11 +299,25 @@ func (swanClient *SwanClient) GetOfflineDealsByTaskUuid(taskUuid string) (*GetOf
 	return getOfflineDealsByTaskUuidResult, nil
 }
 
-func (swanClient *SwanClient) UpdateAssignedTask(taskUuid, csvFilePath string) (*SwanCreateTaskResponse, error) {
+func (swanClient *SwanClient) SwanUpdateTaskByUuid(taskUuid string, minerFid string, csvFilePath string) string {
+	apiUrl := swanClient.ApiUrl + "/uuid_tasks/" + taskUuid
+	params := map[string]string{}
+	params["miner_fid"] = minerFid
+
+	response, err := HttpPutFile(apiUrl, swanClient.Token, params, "file", csvFilePath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return ""
+	}
+
+	return response
+}
+
+func (swanClient *SwanClient) UpdateAssignedTask(taskUuid, status, csvFilePath string) (*SwanCreateTaskResponse, error) {
 	apiUrl := swanClient.ApiUrl + "/tasks/" + taskUuid
 	logs.GetLogger().Info("Updating Swan task")
 	params := map[string]string{}
-	params["status"] = "DealSent"
+	params["status"] = status
 
 	response, err := HttpPutFile(apiUrl, swanClient.Token, params, "file", csvFilePath)
 	if err != nil {

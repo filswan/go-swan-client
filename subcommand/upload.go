@@ -6,20 +6,13 @@ import (
 
 	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
-	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 )
 
 func UploadCarFiles(inputDir string) error {
-	if len(inputDir) == 0 {
-		err := fmt.Errorf("please provide input dir")
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	if utils.GetPathType(inputDir) != constants.PATH_TYPE_DIR {
-		err := fmt.Errorf("%s is not a directory", inputDir)
+	err := CheckInputDir(inputDir)
+	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
 	}
@@ -60,7 +53,7 @@ func UploadCarFiles(inputDir string) error {
 		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileUrl)
 	}
 
-	err := WriteCarFilesToFiles(carFiles, inputDir, constants.JSON_FILE_NAME_BY_UPLOAD, constants.CSV_FILE_NAME_BY_UPLOAD)
+	err = WriteCarFilesToFiles(carFiles, inputDir, constants.JSON_FILE_NAME_BY_UPLOAD, constants.CSV_FILE_NAME_BY_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
