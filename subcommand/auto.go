@@ -1,8 +1,6 @@
 package subcommand
 
 import (
-	"errors"
-
 	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
 	"go-swan-client/common/utils"
@@ -60,11 +58,13 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Ta
 			DataCid:    *deal.PayloadCid,
 		}
 		carFiles = append(carFiles, &carFile)
-		dealCid := client.LotusProposeOfflineDeal(carFile, cost, pieceSize, *dealConfig)
-		if dealCid == nil {
-			err := errors.New("failed to propose offline deal")
+		dealCid, err := client.LotusProposeOfflineDeal(carFile, cost, pieceSize, *dealConfig)
+		if err != nil {
 			logs.GetLogger().Error(err)
-			return "", err
+			continue
+		}
+		if dealCid == nil {
+			continue
 		}
 		carFile.MinerFid = task.MinerFid
 		carFile.DealCid = *dealCid

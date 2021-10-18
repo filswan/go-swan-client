@@ -183,7 +183,7 @@ func LotusGenerateCar(srcFilePath, destCarFilePath string) error {
 	return nil
 }
 
-func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.DealConfig) *string {
+func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.DealConfig) (*string, error) {
 	fastRetrieval := strings.ToLower(strconv.FormatBool(dealConfig.FastRetrieval))
 	verifiedDeal := strings.ToLower(strconv.FormatBool(dealConfig.VerifiedDeal))
 	costFloat, _ := cost.Float64()
@@ -209,14 +209,14 @@ func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, piece
 		response, err := reader.ReadString('\n')
 		if err != nil {
 			logs.GetLogger().Error(err)
-			return nil
+			return nil, err
 		}
 
 		response = strings.TrimRight(response, "\n")
 
 		if strings.ToUpper(response) != "Y" {
 			logs.GetLogger().Info("Your input is ", response, ". Now give up submit the deal.")
-			return nil
+			return nil, nil
 		}
 	}
 
@@ -225,12 +225,12 @@ func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, piece
 	if err != nil {
 		logs.GetLogger().Error("Failed to submit the deal.")
 		logs.GetLogger().Error(err)
-		return nil
+		return nil, err
 	}
 	result = strings.Trim(result, "\n")
 	logs.GetLogger().Info(result)
 
 	dealCid := result
 
-	return &dealCid
+	return &dealCid, nil
 }

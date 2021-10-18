@@ -122,14 +122,19 @@ func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid str
 		pieceSize, sectorSize := CalculatePieceSize(carFile.CarFileSize)
 		logs.GetLogger().Info("dealConfig.MinerPrice:", dealConfig.MinerPrice)
 		cost := CalculateRealCost(sectorSize, dealConfig.MinerPrice)
-		//dealCid := client.LotusProposeOfflineDeal(*carFile, cost, pieceSize, *dealConfig)
-		dealCid, err := client.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig)
+		dealCid, err := client.LotusProposeOfflineDeal(*carFile, cost, pieceSize, *dealConfig)
+		//dealCid, err := client.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
 		}
+		if dealCid == nil {
+			continue
+		}
 		carFile.MinerFid = &dealConfig.MinerFid
 		carFile.DealCid = *dealCid
+
+		logs.GetLogger().Info("Cid:", carFile.DealCid)
 	}
 
 	jsonFileName := taskName + constants.JSON_FILE_NAME_BY_DEAL
@@ -140,7 +145,7 @@ func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid str
 		return nil, err
 	}
 
-	csvFilename := taskName + "_car.csv"
+	csvFilename := taskName + "-deals.csv"
 	csvFilepath, err := CreateCsv4TaskDeal(carFiles, &minerFid, outputDir, csvFilename)
 
 	return &csvFilepath, err

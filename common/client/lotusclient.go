@@ -388,5 +388,6 @@ func LotusClientStartDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSiz
 		return nil, err
 	}
 
+	logs.GetLogger().Info("Cid:", clientStartDeal.Result.Cid)
 	return &clientStartDeal.Result.Cid, nil
 }
