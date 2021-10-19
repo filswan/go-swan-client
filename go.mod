@@ -12,3 +12,8 @@ require (
 	github.com/shopspring/decimal v1.3.0
 	github.com/sirupsen/logrus v1.8.1
 )
+
+replace (
+	github.com/filecoin-project/filecoin-ffi => ./extern/filecoin-ffi
+	google.golang.org/grpc => google.golang.org/grpc v1.29.1
+)

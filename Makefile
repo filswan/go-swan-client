@@ -10,6 +10,12 @@ test: ## Run unittests
 	@go test -short ${PKG_LIST}
 	@echo "Done testing."
 
+## FFI
+
+ffi:
+	./extern/filecoin-ffi/install-filcrypto
+.PHONY: ffi
+
 build: ## Build the binary file
 	@go mod download
 	@go mod tidy
