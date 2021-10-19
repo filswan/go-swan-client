@@ -18,7 +18,7 @@ const SUBCOMMAND_AUTO = "auto"
 
 func main() {
 	//execSubCmd()
-	subcommand.GoCar()
+	//subcommand.GoCar()
 	//logs.GetLogger().Info("Hello")
 	//test.Test()
 }
