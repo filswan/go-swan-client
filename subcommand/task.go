@@ -15,25 +15,31 @@ import (
 	"go-swan-client/model"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, description *string) (*string, error) {
-	if len(inputDir) == 0 {
-		err := fmt.Errorf("please provide input dir")
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	if utils.GetPathType(inputDir) != constants.PATH_TYPE_DIR {
-		err := fmt.Errorf("%s is not a directory", inputDir)
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	outputDir, err := CreateOutputDir(outputDir)
+	err := CheckInputDir(inputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
+	}
+
+	outputDir, err = CreateOutputDir(outputDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	publicDeal := config.GetConfig().Sender.PublicDeal
+	if !publicDeal && (minerFid == nil || len(*minerFid) == 0) {
+		err := fmt.Errorf("please provide -miner for non public deal")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+	bidMode := config.GetConfig().Sender.BidMode
+	if bidMode == constants.TASK_BID_MODE_AUTO && minerFid != nil && len(*minerFid) != 0 {
+		logs.GetLogger().Warn("-miner is unnecessary for aubo-bid task, it will be ignored")
 	}
 
 	if taskName == nil || len(*taskName) == 0 {
@@ -41,13 +47,15 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 		taskName = &nowStr
 	}
 
-	publicDeal := config.GetConfig().Sender.PublicDeal
 	verifiedDeal := config.GetConfig().Sender.VerifiedDeal
 	offlineMode := config.GetConfig().Sender.OfflineMode
 	fastRetrieval := config.GetConfig().Sender.FastRetrieval
 
-	maxPrice := config.GetConfig().Sender.MaxPrice
-	bidMode := config.GetConfig().Sender.BidMode
+	maxPrice, err := decimal.NewFromString(config.GetConfig().Sender.MaxPrice)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
 	startEpochHours := config.GetConfig().Sender.StartEpochHours
 	expireDays := config.GetConfig().Sender.ExpireDays
 	//generateMd5 := config.GetConfig().Sender.GenerateMd5
@@ -67,12 +75,6 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 	logs.GetLogger().Info("connected to swan: ", !offlineMode)
 	logs.GetLogger().Info("csv/car file output dir: %s", outputDir)
 	logs.GetLogger().Info("fastRetrieval: ", fastRetrieval)
-
-	if !publicDeal && (minerFid == nil || len(*minerFid) == 0) {
-		err := fmt.Errorf("please provide -miner for non public deal")
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
 
 	carFiles := ReadCarFilesFromJsonFile(inputDir, constants.JSON_FILE_NAME_BY_UPLOAD)
 	if carFiles == nil {
@@ -108,6 +110,7 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 
 	for _, carFile := range carFiles {
 		carFile.Uuid = task.Uuid
+		carFile.MinerFid = task.MinerFid
 		carFile.StartEpoch = utils.GetCurrentEpoch() + (startEpochHours+1)*constants.EPOCH_PER_HOUR
 
 		if storageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
@@ -141,7 +144,7 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 
 func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) error {
 	csvFilename := task.TaskName + "_task.csv"
-	csvFilePath, err := CreateCsv4TaskDeal(carFiles, task.MinerFid, outDir, csvFilename)
+	csvFilePath, err := CreateCsv4TaskDeal(carFiles, outDir, csvFilename)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err

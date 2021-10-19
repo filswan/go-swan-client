@@ -5,10 +5,18 @@ const (
 
 	STORAGE_SERVER_TYPE_WEB_SERVER = "web server"
 
+	SWAN_API_STATUS_SUCCESS = "success"
+
 	TASK_TYPE_VERIFIED = "verified"
 	TASK_TYPE_REGULAR  = "regular"
 
-	TASK_STATUS_ASSIGNED = "Assigned"
+	TASK_STATUS_ASSIGNED              = "Assigned"
+	TASK_STATUS_DEAL_SENT             = "DealSent"
+	TASK_STATUS_PROGRESS_WITH_FAILURE = "ProgressWithFailure"
+
+	TASK_FAST_RETRIEVAL = 1
+
+	TASK_BID_MODE_AUTO = 1
 
 	DURATION       = 1051200
 	EPOCH_PER_HOUR = 120

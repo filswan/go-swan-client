@@ -7,43 +7,80 @@ import (
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
-
-	"github.com/shopspring/decimal"
 )
 
-func SendAutoBidDeal(outputDir *string) {
+func SendAutoBidDeal(outputDir *string) ([]string, error) {
+	outputDir, err := CreateOutputDir(outputDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	logs.GetLogger().Info("output dir is:", *outputDir)
+
 	swanClient := client.SwanGetClient()
 	assignedTasks, err := swanClient.GetAssignedTasks()
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return
+		return nil, err
+	}
+	logs.GetLogger().Info("autobid Swan task count:", len(assignedTasks))
+	if len(assignedTasks) == 0 {
+		logs.GetLogger().Info("no autobid task to be dealt with")
+		return nil, nil
 	}
 
+	csvFilepaths := []string{}
 	for _, assignedTask := range assignedTasks {
-		assignedTaskInfo, err1 := swanClient.GetOfflineDealsByTaskUuid(assignedTask.Uuid)
-		if err1 != nil {
-			logs.GetLogger().Error(err1)
-			continue
-		}
-
-		csvFilePath, err := SendAutobidDeal(assignedTaskInfo.Data.Deal, assignedTaskInfo.Data.Miner, assignedTaskInfo.Data.Task, outputDir)
-
+		assignedTaskInfo, err := swanClient.GetOfflineDealsByTaskUuid(assignedTask.Uuid)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
 		}
 
-		response := swanClient.UpdateAssignedTask(assignedTask.Uuid, csvFilePath)
-		logs.GetLogger().Info(response)
+		deals := assignedTaskInfo.Data.Deal
+		miner := assignedTaskInfo.Data.Miner
+		task := assignedTaskInfo.Data.Task
+		dealSentNum, csvFilePath, err := SendAutobidDeal(deals, miner, task, outputDir)
+		if err != nil {
+			csvFilepaths = append(csvFilepaths, csvFilePath)
+			logs.GetLogger().Error(err)
+			continue
+		}
+
+		if dealSentNum == 0 {
+			logs.GetLogger().Info(dealSentNum, " deal(s) sent for task:", task.TaskName)
+			continue
+		}
+
+		status := constants.TASK_STATUS_DEAL_SENT
+		if dealSentNum != len(deals) {
+			status = constants.TASK_STATUS_PROGRESS_WITH_FAILURE
+		}
+
+		response, err := swanClient.UpdateAssignedTask(assignedTask.Uuid, status, csvFilePath)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			continue
+		}
+
+		logs.GetLogger().Info(response.Message)
 	}
+
+	return csvFilepaths, nil
 }
 
-func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Task, outputDir *string) (string, error) {
+func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Task, outputDir *string) (int, string, error) {
 	carFiles := []*model.FileDesc{}
 
+	dealSentNum := 0
 	for _, deal := range deals {
-		dealConfig := GetDealConfig1(task, deal)
-		CheckDealConfig1(dealConfig)
+		dealConfig := GetDealConfig4Autobid(task, deal)
+		err := CheckDealConfig(dealConfig)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			continue
+		}
 		fileSizeInt := utils.GetInt64FromStr(*deal.FileSize)
 		if fileSizeInt <= 0 {
 			logs.GetLogger().Error("file is too small")
@@ -53,21 +90,31 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Ta
 		logs.GetLogger().Info("dealConfig.MinerPrice:", dealConfig.MinerPrice)
 		cost := CalculateRealCost(sectorSize, dealConfig.MinerPrice)
 		carFile := model.FileDesc{
+			Uuid:       task.Uuid,
+			MinerFid:   task.MinerFid,
+			CarFileUrl: *deal.FileSourceUrl,
+			CarFileMd5: deal.Md5Origin,
 			StartEpoch: *deal.StartEpoch,
 			PieceCid:   *deal.PieceCid,
 			DataCid:    *deal.PayloadCid,
 		}
+		logs.GetLogger().Info("FileSourceUrl:", carFile.CarFileUrl)
 		carFiles = append(carFiles, &carFile)
-		dealCid, err := client.LotusProposeOfflineDeal(carFile, cost, pieceSize, *dealConfig)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			continue
+		for i := 0; i < 60; i++ {
+			dealCid, startEpoch, err := client.LotusProposeOfflineDeal(carFile, cost, pieceSize, *dealConfig, i)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				continue
+			}
+			if dealCid == nil {
+				continue
+			}
+
+			carFile.DealCid = *dealCid
+			carFile.StartEpoch = *startEpoch
+			dealSentNum = dealSentNum + 1
+			break
 		}
-		if dealCid == nil {
-			continue
-		}
-		carFile.MinerFid = task.MinerFid
-		carFile.DealCid = *dealCid
 	}
 
 	if outputDir == nil {
@@ -75,68 +122,28 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Ta
 		outputDir = &outDir
 	}
 
-	jsonFileName := task.TaskName + constants.JSON_FILE_NAME_BY_AUTO
-	csvFileName := task.TaskName + constants.CSV_FILE_NAME_BY_AUTO
+	jsonFileName := task.TaskName + "-autodeal-" + constants.JSON_FILE_NAME_BY_AUTO
+	csvFileName := task.TaskName + "-autodeal-" + constants.CSV_FILE_NAME_BY_AUTO
 	WriteCarFilesToFiles(carFiles, *outputDir, jsonFileName, csvFileName)
 
-	csvFilename := task.TaskName + "_deal.csv"
-	csvFilepath, err := CreateCsv4TaskDeal(carFiles, task.MinerFid, *outputDir, csvFilename)
+	csvFilename := task.TaskName + "_autodeal.csv"
+	csvFilepath, err := CreateCsv4TaskDeal(carFiles, *outputDir, csvFilename)
 
-	return csvFilepath, err
+	return dealSentNum, csvFilepath, err
 }
 
-func GetDealConfig1(task model.Task, deal model.OfflineDeal) *model.DealConfig {
+func GetDealConfig4Autobid(task model.Task, deal model.OfflineDeal) *model.DealConfig {
 	dealConfig := model.DealConfig{
 		MinerFid:           *task.MinerFid,
 		SenderWallet:       config.GetConfig().Sender.Wallet,
-		VerifiedDeal:       config.GetConfig().Sender.VerifiedDeal,
-		FastRetrieval:      config.GetConfig().Sender.FastRetrieval,
+		VerifiedDeal:       *task.Type == constants.TASK_TYPE_VERIFIED,
+		FastRetrieval:      *task.FastRetrieval == constants.TASK_FAST_RETRIEVAL,
 		EpochIntervalHours: config.GetConfig().Sender.StartEpochHours,
 		SkipConfirmation:   config.GetConfig().Sender.SkipConfirmation,
 		StartEpochHours:    *deal.StartEpoch,
 	}
 
-	maxPrice, err := decimal.NewFromString(*task.MaxPrice)
-	if err != nil {
-		logs.GetLogger().Error("Failed to convert maxPrice(" + *task.MaxPrice + ") to decimal, MaxPrice:")
-		return nil
-	}
-	dealConfig.MaxPrice = maxPrice
+	dealConfig.MaxPrice = *task.MaxPrice
 
 	return &dealConfig
-}
-
-func CheckDealConfig1(dealConfig *model.DealConfig) bool {
-	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(dealConfig.MinerFid)
-
-	if dealConfig.SenderWallet == "" {
-		logs.GetLogger().Error("Sender.wallet should be set in config file.")
-		return false
-	}
-
-	if dealConfig.VerifiedDeal {
-		if minerVerifiedPrice == nil {
-			return false
-		}
-		dealConfig.MinerPrice = *minerVerifiedPrice
-		logs.GetLogger().Info("Miner price is:", *minerVerifiedPrice)
-	} else {
-		if minerPrice == nil {
-			return false
-		}
-		dealConfig.MinerPrice = *minerPrice
-		logs.GetLogger().Info("Miner price is:", *minerPrice)
-	}
-
-	logs.GetLogger().Info("Miner price is:", dealConfig.MinerPrice, " MaxPrice:", dealConfig.MaxPrice, " VerifiedDeal:", dealConfig.VerifiedDeal)
-	priceCmp := dealConfig.MaxPrice.Cmp(dealConfig.MinerPrice)
-	logs.GetLogger().Info("priceCmp:", priceCmp)
-	if priceCmp < 0 {
-		logs.GetLogger().Error("miner price is higher than deal max price")
-		return false
-	}
-
-	logs.GetLogger().Info("Deal check passed.")
-
-	return true
 }

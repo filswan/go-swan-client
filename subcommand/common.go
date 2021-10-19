@@ -7,6 +7,9 @@ import (
 	"path/filepath"
 	"time"
 
+	"go-swan-client/common/client"
+	"go-swan-client/common/constants"
+	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
@@ -15,6 +18,22 @@ import (
 	"os"
 	"strconv"
 )
+
+func CheckInputDir(inputDir string) error {
+	if len(inputDir) == 0 {
+		err := fmt.Errorf("please provide -input-dir")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if utils.GetPathType(inputDir) != constants.PATH_TYPE_DIR {
+		err := fmt.Errorf("%s is not a directory", inputDir)
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	return nil
+}
 
 func CreateOutputDir(outputDir *string) (*string, error) {
 	if outputDir == nil || len(*outputDir) == 0 {
@@ -36,6 +55,47 @@ func CreateOutputDir(outputDir *string) (*string, error) {
 	}
 
 	return outputDir, nil
+}
+
+func CheckDealConfig(dealConfig *model.DealConfig) error {
+	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(dealConfig.MinerFid)
+
+	if dealConfig.SenderWallet == "" {
+		err := fmt.Errorf("sender.wallet should be set in config file")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if dealConfig.VerifiedDeal {
+		if minerVerifiedPrice == nil {
+			err := fmt.Errorf("cannot get miner verified price for verified deal")
+			logs.GetLogger().Error(err)
+			return err
+		}
+		dealConfig.MinerPrice = *minerVerifiedPrice
+		logs.GetLogger().Info("Miner price is:", *minerVerifiedPrice)
+	} else {
+		if minerPrice == nil {
+			err := fmt.Errorf("cannot get miner price for non-verified deal")
+			logs.GetLogger().Error(err)
+			return err
+		}
+		dealConfig.MinerPrice = *minerPrice
+		logs.GetLogger().Info("Miner price is:", *minerPrice)
+	}
+
+	logs.GetLogger().Info("Miner price is:", dealConfig.MinerPrice, " MaxPrice:", dealConfig.MaxPrice, " VerifiedDeal:", dealConfig.VerifiedDeal)
+	priceCmp := dealConfig.MaxPrice.Cmp(dealConfig.MinerPrice)
+	logs.GetLogger().Info("priceCmp:", priceCmp)
+	if priceCmp < 0 {
+		err := fmt.Errorf("miner price is higher than deal max price")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	logs.GetLogger().Info("Deal check passed.")
+
+	return nil
 }
 
 func WriteCarFilesToFiles(carFiles []*model.FileDesc, outputDir, jsonFilename, csvFileName string) error {
@@ -173,7 +233,7 @@ func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName stri
 	return nil
 }
 
-func CreateCsv4TaskDeal(carFiles []*model.FileDesc, minerId *string, outDir, csvFileName string) (string, error) {
+func CreateCsv4TaskDeal(carFiles []*model.FileDesc, outDir, csvFileName string) (string, error) {
 	csvFilePath := filepath.Join(outDir, csvFileName)
 
 	logs.GetLogger().Info("Swan task CSV Generated: ", csvFilePath)
@@ -209,8 +269,8 @@ func CreateCsv4TaskDeal(carFiles []*model.FileDesc, minerId *string, outDir, csv
 	for _, carFile := range carFiles {
 		var columns []string
 		columns = append(columns, carFile.Uuid)
-		if minerId != nil {
-			columns = append(columns, *minerId)
+		if carFile.MinerFid != nil {
+			columns = append(columns, *carFile.MinerFid)
 		} else {
 			columns = append(columns, "")
 		}

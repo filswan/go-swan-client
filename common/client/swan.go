@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
@@ -138,20 +139,6 @@ func (swanClient *SwanClient) SwanUpdateOfflineDealStatus(dealId int, status str
 	return true
 }
 
-func (swanClient *SwanClient) SwanUpdateTaskByUuid(taskUuid string, minerFid string, csvFilePath string) string {
-	apiUrl := swanClient.ApiUrl + "/uuid_tasks/" + taskUuid
-	params := map[string]string{}
-	params["miner_fid"] = minerFid
-
-	response, err := HttpPutFile(apiUrl, swanClient.Token, params, "file", csvFilePath)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return ""
-	}
-
-	return response
-}
-
 type SwanCreateTaskResponse struct {
 	Data    SwanCreateTaskResponseData `json:"data"`
 	Status  string                     `json:"status"`
@@ -179,7 +166,7 @@ func (swanClient *SwanClient) SwanCreateTask(task model.Task, csvFilePath string
 	}
 	params["fast_retrieval"] = strconv.FormatBool(task.FastRetrievalBool)
 	params["bid_mode"] = strconv.Itoa(*task.BidMode)
-	params["max_price"] = *task.MaxPrice
+	params["max_price"] = (*task.MaxPrice).String()
 	params["expire_days"] = strconv.Itoa(*task.ExpireDays)
 
 	response, err := HttpPostFile(apiUrl, swanClient.Token, params, "file", csvFilePath)
@@ -191,6 +178,12 @@ func (swanClient *SwanClient) SwanCreateTask(task model.Task, csvFilePath string
 	swanCreateTaskResponse := &SwanCreateTaskResponse{}
 	err = json.Unmarshal([]byte(response), swanCreateTaskResponse)
 	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if swanCreateTaskResponse.Status != constants.SWAN_API_STATUS_SUCCESS {
+		err := fmt.Errorf("error:%s,%s", swanCreateTaskResponse.Status, swanCreateTaskResponse.Message)
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
@@ -209,9 +202,12 @@ type GetTaskResultData struct {
 	TotalTaskCount int          `json:"total_task_count"`
 }
 
-func (swanClient *SwanClient) GetTasks() ([]model.Task, error) {
+func (swanClient *SwanClient) GetTasks(limit *int) (*GetTaskResult, error) {
 	apiUrl := swanClient.ApiUrl + "/tasks"
-	logs.GetLogger().Info("Getting My swan tasks info")
+	if limit != nil {
+		apiUrl = apiUrl + "?limit=" + strconv.Itoa(*limit)
+	}
+	//logs.GetLogger().Info("Getting My swan tasks info")
 	response := HttpGet(apiUrl, swanClient.Token, "")
 
 	if response == "" {
@@ -229,28 +225,49 @@ func (swanClient *SwanClient) GetTasks() ([]model.Task, error) {
 		return nil, err
 	}
 
-	return getTaskResult.Data.Task, nil
+	if getTaskResult.Status != constants.SWAN_API_STATUS_SUCCESS {
+		err := fmt.Errorf("error:%s", getTaskResult.Status)
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return getTaskResult, nil
 }
 
 func (swanClient *SwanClient) GetAssignedTasks() ([]model.Task, error) {
-	tasks, err := swanClient.GetTasks()
+	getTaskResult, err := swanClient.GetTasks(nil)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	if len(tasks) == 0 {
+	if len(getTaskResult.Data.Task) == 0 {
 		return nil, nil
 	}
+	//logs.GetLogger().Info(len(getTaskResult.Data.Task), " ", getTaskResult.Data.TotalTaskCount)
+
+	getTaskResult, err = swanClient.GetTasks(&getTaskResult.Data.TotalTaskCount)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if len(getTaskResult.Data.Task) == 0 {
+		return nil, nil
+	}
+
+	//logs.GetLogger().Info(len(getTaskResult.Data.Task), " ", getTaskResult.Data.TotalTaskCount)
+
 	result := []model.Task{}
 
-	for _, task := range tasks {
+	for _, task := range getTaskResult.Data.Task {
 		if task.Status == constants.TASK_STATUS_ASSIGNED && task.MinerFid != nil {
+			//logs.GetLogger().Info("id: ", task.Id, " task:", task.Status, " miner:", *task.MinerFid)
 			result = append(result, task)
 		}
 	}
 
-	return result, err
+	return result, nil
 }
 
 type GetOfflineDealsByTaskUuidResult struct {
@@ -267,6 +284,11 @@ type GetOfflineDealsByTaskUuidResultData struct {
 }
 
 func (swanClient *SwanClient) GetOfflineDealsByTaskUuid(taskUuid string) (*GetOfflineDealsByTaskUuidResult, error) {
+	if len(taskUuid) == 0 {
+		err := fmt.Errorf("please provide task uuid")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
 	apiUrl := swanClient.ApiUrl + "/tasks/" + taskUuid
 	logs.GetLogger().Info("Getting My swan tasks info")
 	response := HttpGet(apiUrl, swanClient.Token, "")
@@ -276,6 +298,8 @@ func (swanClient *SwanClient) GetOfflineDealsByTaskUuid(taskUuid string) (*GetOf
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
+	//logs.GetLogger().Info(response)
+
 	getOfflineDealsByTaskUuidResult := &GetOfflineDealsByTaskUuidResult{}
 	err := json.Unmarshal([]byte(response), getOfflineDealsByTaskUuidResult)
 	if err != nil {
@@ -283,33 +307,53 @@ func (swanClient *SwanClient) GetOfflineDealsByTaskUuid(taskUuid string) (*GetOf
 		return nil, err
 	}
 
+	if getOfflineDealsByTaskUuidResult.Status != constants.SWAN_API_STATUS_SUCCESS {
+		err := fmt.Errorf("error:%s", getOfflineDealsByTaskUuidResult.Status)
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	return getOfflineDealsByTaskUuidResult, nil
 }
 
-func (swanClient *SwanClient) UpdateAssignedTask(taskUuid, csvFilePath string) string {
-	apiUrl := swanClient.ApiUrl + "/tasks/" + taskUuid
-	logs.GetLogger().Info("Updating Swan task")
+func (swanClient *SwanClient) SwanUpdateTaskByUuid(taskUuid string, minerFid string, csvFilePath string) string {
+	apiUrl := swanClient.ApiUrl + "/uuid_tasks/" + taskUuid
 	params := map[string]string{}
-	params["status"] = "DealSent"
+	params["miner_fid"] = minerFid
 
 	response, err := HttpPutFile(apiUrl, swanClient.Token, params, "file", csvFilePath)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return ""
 	}
+
 	return response
 }
 
-//    limit=resp['total_task_count']
-//    logging.info('Swan task count %s'%str(limit))
-//    get_task_url = api_url + get_task_url_suffix+"?limit="+str(limit)
-//    payload_data = ""
-//    resp=send_http_request(get_task_url, get_task_method,jwt_token, payload_data)
-//    tasks = resp['task']
-//    assigned_task_list=[]
-//    for task in tasks:
-//        if task["status"] == 'Assigned' and task["miner_id"]:
-//            assigned_task_list.append(task)
-//    logging.info('Assigned autobid Swan task count %s'%str(len(assigned_task_list)))
-//    assigned_task_dict={'Assigned tasks': assigned_task_list}
-//    return assigned_task_dict
+func (swanClient *SwanClient) UpdateAssignedTask(taskUuid, status, csvFilePath string) (*SwanCreateTaskResponse, error) {
+	apiUrl := swanClient.ApiUrl + "/tasks/" + taskUuid
+	logs.GetLogger().Info("Updating Swan task")
+	params := map[string]string{}
+	params["status"] = status
+
+	response, err := HttpPutFile(apiUrl, swanClient.Token, params, "file", csvFilePath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	swanCreateTaskResponse := &SwanCreateTaskResponse{}
+	err = json.Unmarshal([]byte(response), swanCreateTaskResponse)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if swanCreateTaskResponse.Status != constants.SWAN_API_STATUS_SUCCESS {
+		err := fmt.Errorf("error:%s,%s", swanCreateTaskResponse.Status, swanCreateTaskResponse.Message)
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return swanCreateTaskResponse, nil
+}

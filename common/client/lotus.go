@@ -183,40 +183,42 @@ func LotusGenerateCar(srcFilePath, destCarFilePath string) error {
 	return nil
 }
 
-func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.DealConfig) (*string, error) {
+func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.DealConfig, relativeEpoch int) (*string, *int, error) {
 	fastRetrieval := strings.ToLower(strconv.FormatBool(dealConfig.FastRetrieval))
 	verifiedDeal := strings.ToLower(strconv.FormatBool(dealConfig.VerifiedDeal))
 	costFloat, _ := cost.Float64()
 	costStr := fmt.Sprintf("%.18f", costFloat)
+	startEpoch := carFile.StartEpoch - relativeEpoch
 	logs.GetLogger().Info("wallet:", dealConfig.SenderWallet)
 	logs.GetLogger().Info("miner:", dealConfig.MinerFid)
 	logs.GetLogger().Info("price:", dealConfig.MinerPrice)
 	logs.GetLogger().Info("total cost:", costStr)
-	logs.GetLogger().Info("start epoch:", carFile.StartEpoch)
+	logs.GetLogger().Info("start epoch:", startEpoch)
 	logs.GetLogger().Info("fast-retrieval:", fastRetrieval)
 	logs.GetLogger().Info("verified-deal:", verifiedDeal)
 
 	cmd := "lotus client deal --from " + dealConfig.SenderWallet
-	cmd = cmd + " --start-epoch " + strconv.Itoa(carFile.StartEpoch)
+	cmd = cmd + " --start-epoch " + strconv.Itoa(startEpoch)
 	cmd = cmd + " --fast-retrieval=" + fastRetrieval + " --verified-deal=" + verifiedDeal
 	cmd = cmd + " --manual-piece-cid " + carFile.PieceCid + " --manual-piece-size " + strconv.FormatInt(pieceSize, 10)
 	cmd = cmd + " " + carFile.DataCid + " " + dealConfig.MinerFid + " " + costStr + " " + strconv.Itoa(constants.DURATION)
 	logs.GetLogger().Info(cmd)
 
 	if !dealConfig.SkipConfirmation {
-		logs.GetLogger().Info("Do you confirm to submit the deal? Press Y/y to continue, other key to quit")
+		logs.GetLogger().Info("Do you confirm to submit the deal?")
+		logs.GetLogger().Info("Press Y/y to continue, other key to quit")
 		reader := bufio.NewReader(os.Stdin)
 		response, err := reader.ReadString('\n')
 		if err != nil {
 			logs.GetLogger().Error(err)
-			return nil, err
+			return nil, nil, err
 		}
 
 		response = strings.TrimRight(response, "\n")
 
 		if strings.ToUpper(response) != "Y" {
 			logs.GetLogger().Info("Your input is ", response, ". Now give up submit the deal.")
-			return nil, nil
+			return nil, nil, nil
 		}
 	}
 
@@ -225,12 +227,12 @@ func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, piece
 	if err != nil {
 		logs.GetLogger().Error("Failed to submit the deal.")
 		logs.GetLogger().Error(err)
-		return nil, err
+		return nil, nil, err
 	}
 	result = strings.Trim(result, "\n")
 	logs.GetLogger().Info(result)
 
 	dealCid := result
 
-	return &dealCid, nil
+	return &dealCid, &startEpoch, nil
 }

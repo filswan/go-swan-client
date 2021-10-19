@@ -16,19 +16,13 @@ import (
 )
 
 func GenerateCarFiles(inputDir string, outputDir *string) (*string, []*model.FileDesc, error) {
-	if len(inputDir) == 0 {
-		err := fmt.Errorf("please provide input dir")
+	err := CheckInputDir(inputDir)
+	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, err
 	}
 
-	if utils.GetPathType(inputDir) != constants.PATH_TYPE_DIR {
-		err := fmt.Errorf("%s is not a directory", inputDir)
-		logs.GetLogger().Error(err)
-		return nil, nil, err
-	}
-
-	outputDir, err := CreateOutputDir(outputDir)
+	outputDir, err = CreateOutputDir(outputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, err
