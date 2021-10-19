@@ -233,7 +233,7 @@ func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName stri
 	return nil
 }
 
-func CreateCsv4TaskDeal(carFiles []*model.FileDesc, minerId *string, outDir, csvFileName string) (string, error) {
+func CreateCsv4TaskDeal(carFiles []*model.FileDesc, outDir, csvFileName string) (string, error) {
 	csvFilePath := filepath.Join(outDir, csvFileName)
 
 	logs.GetLogger().Info("Swan task CSV Generated: ", csvFilePath)
@@ -269,8 +269,8 @@ func CreateCsv4TaskDeal(carFiles []*model.FileDesc, minerId *string, outDir, csv
 	for _, carFile := range carFiles {
 		var columns []string
 		columns = append(columns, carFile.Uuid)
-		if minerId != nil {
-			columns = append(columns, *minerId)
+		if carFile.MinerFid != nil {
+			columns = append(columns, *carFile.MinerFid)
 		} else {
 			columns = append(columns, "")
 		}

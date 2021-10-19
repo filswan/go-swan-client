@@ -90,17 +90,18 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Ta
 		logs.GetLogger().Info("dealConfig.MinerPrice:", dealConfig.MinerPrice)
 		cost := CalculateRealCost(sectorSize, dealConfig.MinerPrice)
 		carFile := model.FileDesc{
-			Uuid:          task.Uuid,
-			MinerFid:      &miner.MinerFid,
-			SourceFileUrl: *deal.FileSourceUrl,
-			CarFileMd5:    deal.Md5Local,
-			StartEpoch:    *deal.StartEpoch,
-			PieceCid:      *deal.PieceCid,
-			DataCid:       *deal.PayloadCid,
+			Uuid:       task.Uuid,
+			MinerFid:   task.MinerFid,
+			CarFileUrl: *deal.FileSourceUrl,
+			CarFileMd5: deal.Md5Origin,
+			StartEpoch: *deal.StartEpoch,
+			PieceCid:   *deal.PieceCid,
+			DataCid:    *deal.PayloadCid,
 		}
+		logs.GetLogger().Info("FileSourceUrl:", carFile.CarFileUrl)
 		carFiles = append(carFiles, &carFile)
-		for i := 0; i < 10; i++ {
-			dealCid, err := client.LotusProposeOfflineDeal(carFile, cost, pieceSize, *dealConfig)
+		for i := 0; i < 60; i++ {
+			dealCid, startEpoch, err := client.LotusProposeOfflineDeal(carFile, cost, pieceSize, *dealConfig, i)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				continue
@@ -110,6 +111,7 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Ta
 			}
 
 			carFile.DealCid = *dealCid
+			carFile.StartEpoch = *startEpoch
 			dealSentNum = dealSentNum + 1
 			break
 		}
@@ -120,12 +122,12 @@ func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Ta
 		outputDir = &outDir
 	}
 
-	jsonFileName := task.TaskName + "-deal-" + constants.JSON_FILE_NAME_BY_AUTO
-	csvFileName := task.TaskName + "-deal-" + constants.CSV_FILE_NAME_BY_AUTO
+	jsonFileName := task.TaskName + "-autodeal-" + constants.JSON_FILE_NAME_BY_AUTO
+	csvFileName := task.TaskName + "-autodeal-" + constants.CSV_FILE_NAME_BY_AUTO
 	WriteCarFilesToFiles(carFiles, *outputDir, jsonFileName, csvFileName)
 
-	csvFilename := task.TaskName + "_deal.csv"
-	csvFilepath, err := CreateCsv4TaskDeal(carFiles, &miner.MinerFid, *outputDir, csvFilename)
+	csvFilename := task.TaskName + "_autodeal.csv"
+	csvFilepath, err := CreateCsv4TaskDeal(carFiles, *outputDir, csvFilename)
 
 	return dealSentNum, csvFilepath, err
 }

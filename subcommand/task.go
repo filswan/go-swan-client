@@ -110,6 +110,7 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 
 	for _, carFile := range carFiles {
 		carFile.Uuid = task.Uuid
+		carFile.MinerFid = task.MinerFid
 		carFile.StartEpoch = utils.GetCurrentEpoch() + (startEpochHours+1)*constants.EPOCH_PER_HOUR
 
 		if storageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
@@ -143,7 +144,7 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 
 func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) error {
 	csvFilename := task.TaskName + "_task.csv"
-	csvFilePath, err := CreateCsv4TaskDeal(carFiles, task.MinerFid, outDir, csvFilename)
+	csvFilePath, err := CreateCsv4TaskDeal(carFiles, outDir, csvFilename)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err

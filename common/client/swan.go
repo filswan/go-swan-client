@@ -202,9 +202,12 @@ type GetTaskResultData struct {
 	TotalTaskCount int          `json:"total_task_count"`
 }
 
-func (swanClient *SwanClient) GetTasks() ([]model.Task, error) {
+func (swanClient *SwanClient) GetTasks(limit *int) (*GetTaskResult, error) {
 	apiUrl := swanClient.ApiUrl + "/tasks"
-	logs.GetLogger().Info("Getting My swan tasks info")
+	if limit != nil {
+		apiUrl = apiUrl + "?limit=" + strconv.Itoa(*limit)
+	}
+	//logs.GetLogger().Info("Getting My swan tasks info")
 	response := HttpGet(apiUrl, swanClient.Token, "")
 
 	if response == "" {
@@ -228,24 +231,38 @@ func (swanClient *SwanClient) GetTasks() ([]model.Task, error) {
 		return nil, err
 	}
 
-	return getTaskResult.Data.Task, nil
+	return getTaskResult, nil
 }
 
 func (swanClient *SwanClient) GetAssignedTasks() ([]model.Task, error) {
-	tasks, err := swanClient.GetTasks()
+	getTaskResult, err := swanClient.GetTasks(nil)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	if len(tasks) == 0 {
+	if len(getTaskResult.Data.Task) == 0 {
+		return nil, nil
+	}
+	//logs.GetLogger().Info(len(getTaskResult.Data.Task), " ", getTaskResult.Data.TotalTaskCount)
+
+	getTaskResult, err = swanClient.GetTasks(&getTaskResult.Data.TotalTaskCount)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if len(getTaskResult.Data.Task) == 0 {
 		return nil, nil
 	}
 
+	//logs.GetLogger().Info(len(getTaskResult.Data.Task), " ", getTaskResult.Data.TotalTaskCount)
+
 	result := []model.Task{}
 
-	for _, task := range tasks {
+	for _, task := range getTaskResult.Data.Task {
 		if task.Status == constants.TASK_STATUS_ASSIGNED && task.MinerFid != nil {
+			//logs.GetLogger().Info("id: ", task.Id, " task:", task.Status, " miner:", *task.MinerFid)
 			result = append(result, task)
 		}
 	}
