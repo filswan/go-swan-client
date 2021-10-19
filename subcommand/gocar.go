@@ -1,6 +1,7 @@
 package subcommand
 
 import (
+	"context"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -10,8 +11,28 @@ import (
 	"go-swan-client/logs"
 	"go-swan-client/model"
 
+	"github.com/filedrive-team/go-graphsplit"
 	"github.com/google/uuid"
 )
+
+func GoCar() {
+	Emptyctx := context.Background()
+	var cb graphsplit.GraphBuildCallback
+
+	sliceSize := int64(10)
+	carDir := "/home/peware/go-swan-client/carFiles"
+	parentPath := "/home/peware/go-swan-client/srcFiles"
+	targetPath := "/home/peware/go-swan-client/srcFiles"
+	graphName := "test"
+	parallel := 4
+
+	cb = graphsplit.CommPCallback("")
+	err := graphsplit.Chunk(Emptyctx, sliceSize, parentPath, targetPath, carDir, graphName, parallel, cb)
+	if err != nil {
+		logs.GetLogger().Error(err)
+	}
+	logs.GetLogger().Info("car files generated")
+}
 
 func GenerateGoCarFiles(inputDir, outputDir *string) bool {
 	if outputDir == nil {

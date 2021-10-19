@@ -17,7 +17,8 @@ const SUBCOMMAND_DEAL = "deal"
 const SUBCOMMAND_AUTO = "auto"
 
 func main() {
-	execSubCmd()
+	//execSubCmd()
+	subcommand.GoCar()
 	//logs.GetLogger().Info("Hello")
 	//test.Test()
 }
