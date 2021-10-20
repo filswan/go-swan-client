@@ -2,6 +2,7 @@ package subcommand
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -61,7 +62,7 @@ func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 		}
 	}
 	logs.GetLogger().Info("car files generated")
-	carFiles, err := CreateCarFilesDesc2Files(carDir)
+	carFiles, err := CreateCarFilesDesc2Files(inputDir, carDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, err
@@ -70,7 +71,20 @@ func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 	return outputDir, carFiles, nil
 }
 
-func CreateCarFilesDesc2Files(carFileDir string) ([]*model.FileDesc, error) {
+type ManifestDetail struct {
+	Name string
+	Hash string
+	Size int
+	Link []ManifestDetailLinkItem
+}
+
+type ManifestDetailLinkItem struct {
+	Name string
+	Hash string
+	Size int
+}
+
+func CreateCarFilesDesc2Files(srcFileDir, carFileDir string) ([]*model.FileDesc, error) {
 	manifestFilename := "manifest.csv"
 	lines, err := utils.ReadAllLines(carFileDir, manifestFilename)
 	if err != nil {
@@ -91,6 +105,7 @@ func CreateCarFilesDesc2Files(carFileDir string) ([]*model.FileDesc, error) {
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
+
 		carFile := model.FileDesc{}
 		carFile.DataCid = fields[0]
 		carFile.CarFileName = carFile.DataCid + ".car"
@@ -98,13 +113,32 @@ func CreateCarFilesDesc2Files(carFileDir string) ([]*model.FileDesc, error) {
 		carFile.PieceCid = fields[2]
 		carFile.CarFileSize = utils.GetInt64FromStr(fields[3])
 
-		carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
+		manifestDetail := ManifestDetail{}
+		carFileDetail := fields[4]
+		err = json.Unmarshal([]byte(carFileDetail), &manifestDetail)
 		if err != nil {
-			logs.GetLogger().Error(err)
+			logs.GetLogger().Error("Failed to parse: ", carFileDetail)
 			return nil, err
 		}
-		carFile.CarFileMd5 = carFileMd5
 
+		carFile.SourceFileName = manifestDetail.Link[0].Name
+		carFile.SourceFilePath = filepath.Join(srcFileDir, carFile.SourceFileName)
+		carFile.SourceFileSize = utils.GetFileSize(carFile.SourceFilePath)
+		if config.GetConfig().Sender.GenerateMd5 {
+			srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return nil, err
+			}
+			carFile.SourceFileMd5 = srcFileMd5
+
+			carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return nil, err
+			}
+			carFile.CarFileMd5 = carFileMd5
+		}
 		carFiles = append(carFiles, &carFile)
 	}
 
