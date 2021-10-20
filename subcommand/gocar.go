@@ -26,7 +26,7 @@ func GoCar() {
 	graphName := "test"
 	parallel := 4
 
-	cb = graphsplit.CommPCallback("")
+	cb = graphsplit.CommPCallback(carDir)
 	err := graphsplit.Chunk(Emptyctx, sliceSize, parentPath, targetPath, carDir, graphName, parallel, cb)
 	if err != nil {
 		logs.GetLogger().Error(err)
