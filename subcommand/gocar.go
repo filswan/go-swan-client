@@ -115,7 +115,7 @@ func CreateCarFilesDesc2Files(srcFileDir, carFileDir string) ([]*model.FileDesc,
 
 		carFileDetail := fields[4]
 		for i := 5; i < len(fields); i++ {
-			carFileDetail = carFileDetail + ","
+			carFileDetail = carFileDetail + "," + fields[i]
 		}
 		logs.GetLogger().Info("carFileDetail:", carFileDetail)
 		manifestDetail := ManifestDetail{}
