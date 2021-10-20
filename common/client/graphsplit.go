@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/filswan/go-swan-client/logs"
+	"github.com/DoraNebula/go-swan-client/logs"
 )
 
 func GraphSlit(outputDir, sourceFileName, sourceFilePath string) (*string, *string, bool) {

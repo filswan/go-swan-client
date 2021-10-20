@@ -7,15 +7,15 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/filswan/go-swan-client/model"
+	"github.com/DoraNebula/go-swan-client/model"
 
-	"github.com/filswan/go-swan-client/logs"
+	"github.com/DoraNebula/go-swan-client/logs"
 
-	"github.com/filswan/go-swan-client/common/utils"
-	"github.com/filswan/go-swan-client/config"
+	"github.com/DoraNebula/go-swan-client/common/utils"
+	"github.com/DoraNebula/go-swan-client/config"
 
-	"github.com/filswan/go-swan-client/common/client"
-	"github.com/filswan/go-swan-client/common/constants"
+	"github.com/DoraNebula/go-swan-client/common/client"
+	"github.com/DoraNebula/go-swan-client/common/constants"
 
 	"io/ioutil"
 	"os"
