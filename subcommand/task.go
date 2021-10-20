@@ -74,7 +74,7 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 	logs.GetLogger().Info("public task: ", publicDeal)
 	logs.GetLogger().Info("verified deals: ", verifiedDeal)
 	logs.GetLogger().Info("connected to swan: ", !offlineMode)
-	logs.GetLogger().Info("csv/car file output dir: %s", outputDir)
+	logs.GetLogger().Info("csv/car file output dir: ", outputDir)
 	logs.GetLogger().Info("fastRetrieval: ", fastRetrieval)
 
 	carFiles := ReadCarFilesFromJsonFile(inputDir, constants.JSON_FILE_NAME_BY_UPLOAD)
