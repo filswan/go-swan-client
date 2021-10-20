@@ -6,12 +6,15 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"go-swan-client/common/client"
+	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
 
+	"github.com/codingsince1985/checksum"
 	"github.com/filedrive-team/go-graphsplit"
 	"github.com/google/uuid"
 )
@@ -36,8 +39,6 @@ func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 		return nil, nil, err
 	}
 
-	carFiles := []*model.FileDesc{}
-
 	srcFiles, err := ioutil.ReadDir(inputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -45,20 +46,10 @@ func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 	}
 
 	for _, srcFile := range srcFiles {
-		carFile := model.FileDesc{}
-		carFile.SourceFileName = srcFile.Name()
-		carFile.SourceFilePath = filepath.Join(inputDir, carFile.SourceFileName)
-		carFile.SourceFileSize = srcFile.Size()
-
-		carFile.CarFileName = carFile.SourceFileName + ".car"
-		carFile.CarFilePath = filepath.Join(inputDir, carFile.CarFileName)
-
-		carFiles = append(carFiles, &carFile)
-
 		carDir := *outputDir
-		parentPath := carFile.SourceFilePath
-		targetPath := carFile.SourceFilePath
-		graphName := "test"
+		parentPath := filepath.Join(inputDir, srcFile.Name())
+		targetPath := parentPath
+		graphName := srcFile.Name()
 		parallel := 4
 
 		Emptyctx := context.Background()
@@ -71,6 +62,47 @@ func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 	logs.GetLogger().Info("car files generated")
 
 	return outputDir, nil, nil
+}
+
+func CreateCarFilesDesc2Files(carFileDir string) error {
+	manifestFilename := "manifest.csv"
+	lines, err := utils.ReadAllLines(carFileDir, manifestFilename)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	carFiles := []*model.FileDesc{}
+
+	for i, line := range lines {
+		if i == 0 {
+			continue
+		}
+
+		fields := strings.Split(line, ",")
+		if len(fields) < 5 {
+			err := fmt.Errorf("not enough fields in %s", manifestFilename)
+			logs.GetLogger().Error(err)
+			return err
+		}
+		carFile := model.FileDesc{}
+		carFile.CarFileName = fields[1]
+		carFile.CarFilePath = filepath.Join(carFileDir, carFile.CarFileName)
+		carFile.DataCid = fields[0]
+		carFile.PieceCid = fields[2]
+		carFile.CarFileSize = utils.GetInt64FromStr(fields[3])
+
+		carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
+		carFile.CarFileMd5 = carFileMd5
+
+		carFiles = append(carFiles, &carFile)
+	}
+
+	return nil
 }
 
 func GenerateGoCarFiles(inputDir, outputDir *string) bool {
