@@ -19,7 +19,7 @@ func GoCar() {
 	Emptyctx := context.Background()
 	var cb graphsplit.GraphBuildCallback
 
-	sliceSize := int64(10)
+	sliceSize := int64(63857475)
 	carDir := "/home/peware/go-swan-client/carFiles"
 	parentPath := "/home/peware/go-swan-client/srcFiles"
 	targetPath := "/home/peware/go-swan-client/srcFiles"
