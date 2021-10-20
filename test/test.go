@@ -88,6 +88,6 @@ func TestDealConfig() {
 	subcommand.CheckDealConfig(dealConfig)
 	pieceSize, sectorSize := subcommand.CalculatePieceSize(2049)
 	cost := subcommand.CalculateRealCost(sectorSize, dealConfig.MinerPrice)
-	msg := fmt.Sprintf("Piece size:%d, sector size:%f,cost:%f", pieceSize, sectorSize, cost)
+	msg := fmt.Sprintf("Piece size:%d, sector size:%f,cost:%s", pieceSize, sectorSize, cost.String())
 	logs.GetLogger().Info(msg)
 }
