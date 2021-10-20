@@ -92,9 +92,9 @@ func CreateCarFilesDesc2Files(carFileDir string) ([]*model.FileDesc, error) {
 			return nil, err
 		}
 		carFile := model.FileDesc{}
-		carFile.CarFileName = fields[1]
-		carFile.CarFilePath = filepath.Join(carFileDir, carFile.CarFileName)
 		carFile.DataCid = fields[0]
+		carFile.CarFileName = carFile.DataCid + ".car"
+		carFile.CarFilePath = filepath.Join(carFileDir, carFile.CarFileName)
 		carFile.PieceCid = fields[2]
 		carFile.CarFileSize = utils.GetInt64FromStr(fields[3])
 
