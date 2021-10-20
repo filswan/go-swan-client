@@ -115,6 +115,7 @@ func CreateCarFilesDesc2Files(srcFileDir, carFileDir string) ([]*model.FileDesc,
 
 		manifestDetail := ManifestDetail{}
 		carFileDetail := fields[4]
+		logs.GetLogger().Info("carFileDetail:", carFileDetail)
 		err = json.Unmarshal([]byte(carFileDetail), &manifestDetail)
 		if err != nil {
 			logs.GetLogger().Error("Failed to parse: ", carFileDetail)
