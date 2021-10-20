@@ -2,9 +2,8 @@ package client
 
 import (
 	"fmt"
+	"go-swan-client/logs"
 	"strings"
-
-	"github.com/DoraNebula/go-swan-client/logs"
 )
 
 func GraphSlit(outputDir, sourceFileName, sourceFilePath string) (*string, *string, bool) {

@@ -9,14 +9,14 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/DoraNebula/go-swan-client/common/constants"
-	"github.com/DoraNebula/go-swan-client/config"
-	"github.com/DoraNebula/go-swan-client/logs"
-	"github.com/DoraNebula/go-swan-client/model"
+	"go-swan-client/common/constants"
+	"go-swan-client/config"
+	"go-swan-client/logs"
+	"go-swan-client/model"
 
-	"github.com/DoraNebula/go-swan-client/common/utils"
+	"go-swan-client/common/utils"
 
-	"github.com/DoraNebula/go-swan-client/common/client"
+	"go-swan-client/common/client"
 
 	"github.com/codingsince1985/checksum"
 	"github.com/filedrive-team/go-graphsplit"

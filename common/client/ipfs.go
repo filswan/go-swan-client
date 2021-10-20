@@ -3,7 +3,7 @@ package client
 import (
 	"strings"
 
-	"github.com/DoraNebula/go-swan-client/logs"
+	"go-swan-client/logs"
 )
 
 func IpfsUploadCarFile(carFilePath string) *string {

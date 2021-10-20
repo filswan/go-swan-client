@@ -1,4 +1,4 @@
-module github.com/DoraNebula/go-swan-client
+module go-swan-client
 
 go 1.16
 
@@ -12,5 +12,3 @@ require (
 	github.com/shopspring/decimal v1.3.1
 	github.com/sirupsen/logrus v1.8.1
 )
-
-replace github.com/filecoin-project/filecoin-ffi => ./extern/filecoin-ffi
