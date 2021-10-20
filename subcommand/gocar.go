@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"go-swan-client/common/client"
+	"go-swan-client/common/constants"
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
@@ -64,12 +65,12 @@ func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 	return outputDir, nil, nil
 }
 
-func CreateCarFilesDesc2Files(carFileDir string) error {
+func CreateCarFilesDesc2Files(carFileDir string) ([]*model.FileDesc, error) {
 	manifestFilename := "manifest.csv"
 	lines, err := utils.ReadAllLines(carFileDir, manifestFilename)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return err
+		return nil, err
 	}
 
 	carFiles := []*model.FileDesc{}
@@ -83,7 +84,7 @@ func CreateCarFilesDesc2Files(carFileDir string) error {
 		if len(fields) < 5 {
 			err := fmt.Errorf("not enough fields in %s", manifestFilename)
 			logs.GetLogger().Error(err)
-			return err
+			return nil, err
 		}
 		carFile := model.FileDesc{}
 		carFile.CarFileName = fields[1]
@@ -95,14 +96,23 @@ func CreateCarFilesDesc2Files(carFileDir string) error {
 		carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
 		if err != nil {
 			logs.GetLogger().Error(err)
-			return err
+			return nil, err
 		}
 		carFile.CarFileMd5 = carFileMd5
 
 		carFiles = append(carFiles, &carFile)
 	}
 
-	return nil
+	err = WriteCarFilesToFiles(carFiles, carFileDir, constants.JSON_FILE_NAME_BY_GOCAR, constants.CSV_FILE_NAME_BY_GOCAR)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	logs.GetLogger().Info("Car files output dir: ", carFileDir)
+	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
+
+	return carFiles, nil
 }
 
 func GenerateGoCarFiles(inputDir, outputDir *string) bool {
