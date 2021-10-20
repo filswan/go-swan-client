@@ -8,10 +8,11 @@ import (
 	"strconv"
 	"strings"
 
-	"go-swan-client/common/constants"
-	"go-swan-client/common/utils"
-	"go-swan-client/logs"
-	"go-swan-client/model"
+	"github.com/filswan/go-swan-client/model"
+
+	"github.com/filswan/go-swan-client/common/constants"
+	"github.com/filswan/go-swan-client/logs"
+	"github.com/filswan/go-swan-client/utils"
 
 	"github.com/shopspring/decimal"
 )

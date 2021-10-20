@@ -40,18 +40,19 @@ type ipfsServer struct {
 }
 
 type sender struct {
-	BidMode          int    `toml:"bid_mode"`
-	OfflineMode      bool   `toml:"offline_mode"`
-	OutputDir        string `toml:"output_dir"`
-	PublicDeal       bool   `toml:"public_deal"`
-	VerifiedDeal     bool   `toml:"verified_deal"`
-	FastRetrieval    bool   `toml:"fast_retrieval"`
-	SkipConfirmation bool   `toml:"skip_confirmation"`
-	GenerateMd5      bool   `toml:"generate_md5"`
-	Wallet           string `toml:"wallet"`
-	MaxPrice         string `toml:"max_price"`
-	StartEpochHours  int    `toml:"start_epoch_hours"`
-	ExpireDays       int    `toml:"expire_days"`
+	BidMode            int    `toml:"bid_mode"`
+	OfflineMode        bool   `toml:"offline_mode"`
+	OutputDir          string `toml:"output_dir"`
+	PublicDeal         bool   `toml:"public_deal"`
+	VerifiedDeal       bool   `toml:"verified_deal"`
+	FastRetrieval      bool   `toml:"fast_retrieval"`
+	SkipConfirmation   bool   `toml:"skip_confirmation"`
+	GenerateMd5        bool   `toml:"generate_md5"`
+	Wallet             string `toml:"wallet"`
+	MaxPrice           string `toml:"max_price"`
+	StartEpochHours    int    `toml:"start_epoch_hours"`
+	ExpireDays         int    `toml:"expire_days"`
+	GocarFileSizeLimit int64  `toml:"gocar_file_size_limit"`
 }
 
 var config *Configuration
@@ -110,6 +111,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"sender", "max_price"},
 		{"sender", "start_epoch_hours"},
 		{"sender", "expire_days"},
+		{"sender", "gocar_file_size_limit"},
 	}
 
 	for _, v := range requiredFields {

@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"go-swan-client/logs"
+	"github.com/filswan/go-swan-client/logs"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"

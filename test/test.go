@@ -5,10 +5,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"go-swan-client/common/client"
-	"go-swan-client/logs"
-	"go-swan-client/model"
-	"go-swan-client/subcommand"
+	"github.com/filswan/go-swan-client/common/client"
+	"github.com/filswan/go-swan-client/logs"
+	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-client/subcommand"
 )
 
 func Test() {
