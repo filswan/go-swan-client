@@ -57,7 +57,7 @@ func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 
 		carDir := *outputDir
 		parentPath := carFile.SourceFilePath
-		targetPath := carFile.CarFilePath
+		targetPath := carFile.SourceFilePath
 		graphName := "test"
 		parallel := 4
 
