@@ -33,3 +33,4 @@ wallet = ""
 max_price = "0"
 start_epoch_hours = 96
 expire_days = 4
+gocar_file_size_limit=8589934592

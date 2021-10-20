@@ -17,8 +17,8 @@ const SUBCOMMAND_DEAL = "deal"
 const SUBCOMMAND_AUTO = "auto"
 
 func main() {
-	//execSubCmd()
-	subcommand.GoCar()
+	execSubCmd()
+	//subcommand.GoCar("",)
 	//logs.GetLogger().Info("Hello")
 	//test.Test()
 }
@@ -84,7 +84,12 @@ func createCarFile(subCmd string) error {
 		}
 		logs.GetLogger().Info(len(carFiles), " car files generated to directory:", *outputDir)
 	case SUBCOMMAND_GOCAR:
-		subcommand.GenerateGoCarFiles(inputDir, outputDir)
+		outputDir, carFiles, err := subcommand.CreateGoCarFiles(*inputDir, outputDir)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
+		logs.GetLogger().Info(len(carFiles), "go car files generated to directory:", *outputDir)
 	default:
 		err := fmt.Errorf("unknown sub command:%s", subCmd)
 		logs.GetLogger().Error(err)

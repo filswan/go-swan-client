@@ -2,6 +2,7 @@ package subcommand
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -15,23 +16,61 @@ import (
 	"github.com/google/uuid"
 )
 
-func GoCar() {
-	Emptyctx := context.Background()
-	var cb graphsplit.GraphBuildCallback
-
-	sliceSize := int64(63857475)
-	carDir := "/home/peware/go-swan-client/carFiles"
-	parentPath := "/home/peware/go-swan-client/srcFiles"
-	targetPath := "/home/peware/go-swan-client/srcFiles"
-	graphName := "test"
-	parallel := 4
-
-	cb = graphsplit.CommPCallback(carDir)
-	err := graphsplit.Chunk(Emptyctx, sliceSize, parentPath, targetPath, carDir, graphName, parallel, cb)
+func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.FileDesc, error) {
+	err := CheckInputDir(inputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
+		return nil, nil, err
+	}
+
+	outputDir, err = CreateOutputDir(outputDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, nil, err
+	}
+
+	sliceSize := config.GetConfig().Sender.GocarFileSizeLimit
+	if sliceSize <= 0 {
+		err := fmt.Errorf("gocar file size limit is too smal")
+		logs.GetLogger().Error(err)
+		return nil, nil, err
+	}
+
+	carFiles := []*model.FileDesc{}
+
+	srcFiles, err := ioutil.ReadDir(inputDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, nil, err
+	}
+
+	for _, srcFile := range srcFiles {
+		carFile := model.FileDesc{}
+		carFile.SourceFileName = srcFile.Name()
+		carFile.SourceFilePath = filepath.Join(inputDir, carFile.SourceFileName)
+		carFile.SourceFileSize = srcFile.Size()
+
+		carFile.CarFileName = carFile.SourceFileName + ".car"
+		carFile.CarFilePath = filepath.Join(inputDir, carFile.CarFileName)
+
+		carFiles = append(carFiles, &carFile)
+
+		carDir := *outputDir
+		parentPath := carFile.SourceFilePath
+		targetPath := carFile.CarFilePath
+		graphName := "test"
+		parallel := 4
+
+		Emptyctx := context.Background()
+		cb := graphsplit.CommPCallback(carDir)
+		err = graphsplit.Chunk(Emptyctx, sliceSize, parentPath, targetPath, carDir, graphName, parallel, cb)
+		if err != nil {
+			logs.GetLogger().Error(err)
+		}
 	}
 	logs.GetLogger().Info("car files generated")
+
+	return outputDir, nil, nil
 }
 
 func GenerateGoCarFiles(inputDir, outputDir *string) bool {
