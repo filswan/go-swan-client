@@ -46,8 +46,8 @@ func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 		return nil, nil, err
 	}
 
+	carDir := *outputDir
 	for _, srcFile := range srcFiles {
-		carDir := *outputDir
 		parentPath := filepath.Join(inputDir, srcFile.Name())
 		targetPath := parentPath
 		graphName := srcFile.Name()
@@ -61,8 +61,13 @@ func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 		}
 	}
 	logs.GetLogger().Info("car files generated")
+	carFiles, err := CreateCarFilesDesc2Files(carDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, nil, err
+	}
 
-	return outputDir, nil, nil
+	return outputDir, carFiles, nil
 }
 
 func CreateCarFilesDesc2Files(carFileDir string) ([]*model.FileDesc, error) {
