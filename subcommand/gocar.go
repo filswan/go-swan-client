@@ -128,21 +128,21 @@ func CreateCarFilesDesc2Files(srcFileDir, carFileDir string) ([]*model.FileDesc,
 		carFile.SourceFileName = manifestDetail.Link[0].Name
 		carFile.SourceFilePath = filepath.Join(srcFileDir, carFile.SourceFileName)
 		carFile.SourceFileSize = utils.GetFileSize(carFile.SourceFilePath)
-		if config.GetConfig().Sender.GenerateMd5 {
-			srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
-			if err != nil {
-				logs.GetLogger().Error(err)
-				return nil, err
-			}
-			carFile.SourceFileMd5 = srcFileMd5
 
-			carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
-			if err != nil {
-				logs.GetLogger().Error(err)
-				return nil, err
-			}
-			carFile.CarFileMd5 = carFileMd5
+		srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, err
 		}
+		carFile.SourceFileMd5 = srcFileMd5
+
+		carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
+		carFile.CarFileMd5 = carFileMd5
+
 		carFiles = append(carFiles, &carFile)
 	}
 
