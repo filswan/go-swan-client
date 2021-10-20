@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"go-swan-client/logs"
-	"go-swan-client/subcommand"
+	"github.com/filswan/go-swan-client/logs"
+	"github.com/filswan/go-swan-client/subcommand"
 )
 
 const SUBCOMMAND_CAR = "car"

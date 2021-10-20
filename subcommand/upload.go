@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"go-swan-client/common/client"
-	"go-swan-client/common/constants"
-	"go-swan-client/config"
-	"go-swan-client/logs"
+	"github.com/filswan/go-swan-client/common/client"
+	"github.com/filswan/go-swan-client/common/constants"
+	"github.com/filswan/go-swan-client/config"
+	"github.com/filswan/go-swan-client/logs"
 )
 
 func UploadCarFiles(inputDir string) error {

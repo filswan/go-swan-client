@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 
-	"go-swan-client/common/constants"
-	"go-swan-client/config"
-	"go-swan-client/logs"
-	"go-swan-client/model"
+	"github.com/filswan/go-swan-client/common/constants"
+	"github.com/filswan/go-swan-client/config"
+	"github.com/filswan/go-swan-client/logs"
+	"github.com/filswan/go-swan-client/model"
 
 	"github.com/shopspring/decimal"
 )
