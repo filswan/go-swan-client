@@ -8,7 +8,6 @@ import (
 	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
 	"go-swan-client/common/utils"
-	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
 
@@ -70,21 +69,19 @@ func GenerateCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 
 		carFile.CarFileSize = utils.GetFileSize(carFile.CarFilePath)
 
-		if config.GetConfig().Sender.GenerateMd5 {
-			srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
-			if err != nil {
-				logs.GetLogger().Error(err)
-				return nil, nil, err
-			}
-			carFile.SourceFileMd5 = srcFileMd5
-
-			carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
-			if err != nil {
-				logs.GetLogger().Error(err)
-				return nil, nil, err
-			}
-			carFile.CarFileMd5 = carFileMd5
+		srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, nil, err
 		}
+		carFile.SourceFileMd5 = srcFileMd5
+
+		carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, nil, err
+		}
+		carFile.CarFileMd5 = carFileMd5
 
 		carFiles = append(carFiles, &carFile)
 	}
