@@ -100,7 +100,7 @@ web-server is used to upload generated Car files. Storage provider will download
 
 - **download_url_prefix** web server url prefix, such as: https://nbai.io:443/download
 
-The downloadable URL in the CSV file is built with the following format: download_url_prefix/filename
+The downloadable URL in the CSV file is built with the following format: [download_url_prefix]/[filename]
 
 #### ipfs-server
 
@@ -108,7 +108,7 @@ ipfs-server is used to upload and download generated Car files. Storage provider
 
 - **download_url_prefix** ipfs server url prefix, such as: "http://192.168.88.41:5050/ipfs"
 
-The downloadable URL in the CSV file is built with the following format: download_url_prefix/filename
+The downloadable URL in the CSV file is built with the following format: [download_url_prefix]/[filename]
 
 #### sender
 
