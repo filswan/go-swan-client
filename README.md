@@ -53,28 +53,27 @@ uuid is generated for future index purpose.
 ## Prerequisite
 
 - Lotus node
-- go 1.16+
 
 ## Installation
 ### Ubuntu/Debian
-
-Install and create virtualenv
-
+## Installation
+### Option 1.  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-client/releases)
 ```shell
-sudo apt-get update
-sudo apt-get upgrade -y
+wget https://github.com/filswan/go-swan-client/releases/download/release-0.1.0/install.sh
+chmod +x ./install.sh
+./install.sh
+```
 
-# Install Git
-sudo apt install git -y
-
-# Checkout the source and install
+### Option 2.  Source Code
+:bell:**go 1.16+** is required
+:bell:**git client+** is required
+```shell
 git clone https://github.com/filswan/go-swan-client.git
-cd go-swan-client/
+cd go-swan-provider
 git checkout <release_branch>
 chmod +x ./buld_from_source.sh
 ./buld_from_source.sh
 ```
-
 Now your binary file go-swan-client is created under ./build directory, you can copy ./build/go-swan-client to wherever you want and execute it from there.
 
 ## Configuration
