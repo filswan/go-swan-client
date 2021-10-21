@@ -98,21 +98,17 @@ true in [sender] section
 
 web-server is used to upload generated Car files. Storage provider will download Car files from this web-server.
 
-- **host** web server host, such as: "https://nbai.io"
-- **port** web server port, such as: 443
-- **path** download directory on web server, such as: "/download"
+- **download_url_prefix** web server url prefix, such as: https://nbai.io:443/download
 
-The downloadable URL in the CSV file is built with the following format: host+port+path+filename,
-e.g. http://nbai.io:8080/download/<filename>
+The downloadable URL in the CSV file is built with the following format: download_url_prefix/filename
 
 #### ipfs-server
 
-ipfs-server is used to upload and download generated Car files. You can upload generated Car files via `upstream_url` and storage provider will download Car files from this ipfs-server using `download_stream_url`.
-The downloadable URL in the CSV file is built with the following format: host+port+ipfs+hash,
-e.g. http://host:port/ipfs/QmPrQPfGCAHwYXDZDdmLXieoxZP5JtwQuZMUEGuspKFZKQ
+ipfs-server is used to upload and download generated Car files. Storage provider will download Car files from this ipfs-server.
 
-gateway_address = "/ip4/127.0.0.1/tcp/8080"
-download_stream_url = "https://ipfs.io"s
+- **download_url_prefix** ipfs server url prefix, such as: "http://192.168.88.41:5050/ipfs"
+
+The downloadable URL in the CSV file is built with the following format: download_url_prefix/filename
 
 #### sender
 
