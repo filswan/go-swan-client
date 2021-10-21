@@ -1,7 +1,10 @@
 package config
 
 import (
+	"go-swan-client/logs"
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/BurntSushi/toml"
 )
@@ -58,7 +61,12 @@ type sender struct {
 var config *Configuration
 
 func initConfig() {
-	configFile := "~/.swan/client/config.toml"
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		logs.GetLogger().Fatal("Cannot get home directory.")
+	}
+
+	configFile := filepath.Join(homedir, ".swan/client/config.toml")
 	if metaData, err := toml.DecodeFile(configFile, &config); err != nil {
 		log.Fatal("error:", err)
 	} else {
