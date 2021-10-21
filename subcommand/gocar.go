@@ -109,7 +109,7 @@ func CreateCarFilesDesc2Files(srcFileDir, carFileDir string) ([]*model.FileDesc,
 		}
 
 		carFile := model.FileDesc{}
-		//carFile.DataCid = fields[0]
+		carFile.DataCid = fields[0]
 		carFile.CarFileName = carFile.DataCid + ".car"
 		carFile.CarFilePath = filepath.Join(carFileDir, carFile.CarFileName)
 		carFile.PieceCid = fields[2]
