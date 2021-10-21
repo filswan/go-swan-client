@@ -66,7 +66,6 @@ chmod +x ./install.sh
 
 ### Option 2.  Source Code
 :bell:**go 1.16+** is required
-:bell:**git client+** is required
 ```shell
 git clone https://github.com/filswan/go-swan-client.git
 cd go-swan-provider
