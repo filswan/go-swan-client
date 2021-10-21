@@ -58,40 +58,6 @@ uuid is generated for future index purpose.
 
 ## Configuration and installation
 
-### Configuration
-In config.toml
-
-```
-[main]
-api_key = ""
-access_token = ""
-api_url = "https://api.filswan.com"
-storage_server_type = "ipfs server"
-
-[web-server]
-host = "https://nbai.io"
-port = 443
-path = "/download"
-
-[ipfs-server]
-upstream_url = "http://127.0.0.1:5001"
-download_stream_url = "http://127.0.0.1:8080"
-
-[sender]
-bid_mode = 1
-offline_mode = false
-output_dir = "/tmp/tasks"
-public_deal = true
-verified_deal = true
-fast_retrieval = true
-skip_confirmation = false
-generate_md5 = false
-wallet = ""
-max_price = "0"
-start_epoch_hours = 96
-expire_days = 4
-```
-
 #### main
 
 Main section defines the token used for connecting with Swan platform. This part can be ignored if offline_mode is set to
@@ -166,17 +132,7 @@ For both public task and private task, you need to generate Car files
 ```
 
 Note: The input dir and out dir shall only be in format of Absolute Path.   
-   
-The output will be like:
 
-```shell
-INFO:root:Generating car file from: [input_file_dir]/ubuntu-15.04-server-i386.iso.tar
-INFO:root:car file Generated: [car_files_output_dir]/ubuntu-15.04-server-i386.iso.tar.car, piece cid: baga6ea4seaqbpggkuxz7gpkm2wf3734gkyna3vb4p7bm3qcbl4gb4jgh22vj2pi, piece size: 15.88 GiB
-INFO:root:Generating data CID....
-INFO:root:Data CID: bafykbzacebbq4g73e4he32ahyynnamrft2tva2jyjt5fsxfqv76anptmyoajw
-INFO:root:Car files output dir: [car_files_output_dir]
-INFO:root:Please upload car files to web server or ipfs server.
-```
 If `-out-dir` is not provided, then the output directory for the car files will be: `output_dir` (specified in the configuration file) + a random uuid
 
 For example: /tmp/tasks/7f33a9d6-47d0-4635-b152-5e380733bf09
@@ -203,11 +159,6 @@ If you decide to upload the files to an open ipfs server:
 ```shell
 ./go-swan-client upload --input-dir [input_file_dir]
 ```
-The output will be like:
-```shell
-INFO:root:Uploading car file [car_file]
-INFO:root:Car file [car_file] uploaded: https://OpenIpfsHost:Port/ipfs/QmPrQPfGCAHwYXDZDdmLXieoxZP5JtwQuZMUEGuspKFZKQ
-```
 
 ### Step 3. Create a task
 
@@ -227,26 +178,6 @@ in `config.toml`: set `public_deal = false`
 **--dataset (optional)** The curated dataset from which the Car files are generated
 
 **--description (optional)** Details to better describe the data and confine the task or anything the storage provider needs to be informed.
-
-The output will be like:
-```shell
-INFO:root:Swan Client Settings: Public Task: False  Verified Deals: True  Connected to Swan: True CSV/car File output dir: /tmp/tasks/[output_files_dir]
-INFO:root:['lotus', 'client', 'deal', '--from', 't3u4othyfcqjiiveolvdczcww3rypxgonz7mnqfvbtf2paklpru5f6csoajdfz5nznqy2kpr4eielsmksyurnq', '--start-epoch', '547212', '--manual-piece-cid', 'baga6ea4seaqcqjelghbfwy2r6fxsffzfv6gs2gyvc75crxxltiscpajfzk6csii', '--manual-piece-size', '66584576', 'bafykbzaceb6dtpjjisy5pzwksrxwfothlmfjtmcjj7itsvw2flpp5co5ikxam', 't01101', '0.000000000000000000', '1051200']
-INFO:root:wallet: t3u4othyfcqjiiveolvdczcww3rypxgonz7mnqfvbtf2paklpru5f6csoajdfz5nznqy2kpr4eielsmksyurnq
-INFO:root:miner: t01101
-INFO:root:price: 0
-INFO:root:total cost: 0.000000000000000000
-INFO:root:start epoch: 547212
-Press Enter to continue...
-INFO:root:Deal sent, deal cid: bafyreibnmon4sby7ibwiezcjgjge7mshl3h24vftzkab5fqm4ll2voarna, start epoch: 547212
-INFO:root:Swan deal final CSV Generated: /tmp/tasks/[output_files_dir]/swan-client-demo-deals.csv
-INFO:root:Refreshing token
-INFO:root:Working in Online Mode. A swan task will be created on the filwan.com after process done. 
-INFO:root:Metadata CSV Generated: /tmp/tasks/[output_files_dir]/swan-client-demo-metadata.csv
-INFO:root:Swan task CSV Generated: /tmp/tasks/[output_files_dir]/swan-client-demo.csv
-INFO:root:Creating new Swan task: swan-client-demo
-INFO:root:New Swan task Generated.
-```
 
 #### Options 2: Public Task
 
@@ -301,23 +232,6 @@ A csv with name [task-name]-metadata-deals.csv is generated under the output dir
 storage provider id for the provider to process on Swan platform. You could re-upload this file to Swan platform while assign bid to storage provider or do a
 private deal.
 
-The output will be like:
-
-```shell
-INFO:root:['lotus', 'client', 'deal', '--from', 'f3ufzpudvsjqyiholpxiqoomsd2svy26jvy4z4pzodikgovkhkp6ioxf5p4jbpnf7tgyg67dny4j75e7og7zeq', '--start-epoch', '544243', '--manual-piece-cid', 'baga6ea4seaqcqjelghbfwy2r6fxsffzfv6gs2gyvc75crxxltiscpajfzk6csii', '--manual-piece-size', '66584576', 'bafykbzaceb6dtpjjisy5pzwksrxwfothlmfjtmcjj7itsvw2flpp5co5ikxam', 't01101', '0.000000000000000000', '1051200']
-INFO:root:wallet: f3ufzpudvsjqyiholpxiqoomsd2svy26jvy4z4pzodikgovkhkp6ioxf5p4jbpnf7tgyg67dny4j75e7og7zeq
-INFO:root:miner: t01101
-INFO:root:price: 0
-INFO:root:total cost: 0.000000000000000000
-INFO:root:start epoch: 544243
-Press Enter to continue...
-INFO:root:Deal sent, deal cid: bafyreicqgsxql7oqkzr7mtwyrhnoedgmzpd5br3er7pa6ooc54ja6jmnkq, start epoch: 544243
-INFO:root:Swan deal final CSV /tmp/tasks/[output_files_dir]/task-name-metadata-deals.csv
-INFO:root:Refreshing token
-eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MTQzNzA5ODcsImlhdCI6MTYxNDI4NDU4Nywic3ViIjoiV2pIVkJDYWIxM2FyUURlUldwbkw0QSJ9.Hn8f0z2Ew6DuL2E2ELgpi9_Gj8xrg28S3v31dTUW32s
-INFO:root:Updating Swan task.
-INFO:root:Swan task updated.
-```
 
 ### Step 4. Auto send auto-bid mode tasks with deals to auto-bid mode storage provider
 The autobid system between swan-client and swan-provider allows you to automatically send deals to a miner selected by Swan platform. All miners with auto-bid mode on have the chance to be selected but only one will be chosen based on Swan reputation system and Market Matcher. You can choose to start this service before or after creating tasks in Step 3. Noted here, only tasks with `bid_mode` set to `1` and `public_deal` set to `true` will be considered. A log file will be generated afterwards. 
@@ -331,28 +245,6 @@ or (Recommanded)
 nohup python3 swan_cli_auto.py auto --out-dir [output_file_dir] >> auto_deal.log &
 ```
 **--out-dir (optional):** A deal info csv containing information of deals sent and a corresponding deal final CSV with deals details will be generated to the given directory. Default: `output_dir` specified in config.toml
-
-The output will be like:
-```shell
-INFO:root:Getting My swan tasks info
-INFO:root:Swan task count 203
-INFO:root:Getting Swan task status, uuid: 9c330c9-ba7-4989-b0a-7b9f26602
-INFO:root:Swan task status is: {"task_uuid": "9c330c9-ba7-4989-b0a-7b9f26602", "task_status": "Assigned", "deals": [{"contract_id": "0x5210ED929B5BEdBFFBA", "created_at": "1632762298", "deal_cid": null, "file_name": null, "file_path": null, "file_size": "103125", "file_source_url": "http://192.168.88.41:5050/ipfs/QmZAiNYWX8giAYnUrZXVowtBwVktKL8meBjf", "id": 6861, "md5_origin": "", "miner_id": null, "note": null, "payload_cid": "bafk2bzacebjglrfqg3eexbntnhke2zysfmdwkfnlankhq72fca3w2c", "piece_cid": "baga6ea4seaqa2nfklf5xgom5jelt75czi3i5ynhiwm2b5w3xfs", "start_epoch": 1160167, "status": "Created", "task_id": 1596, "updated_at": "1632762298", "user_id": 184}], "task": {"bid_mode": 1, "created_on": "1632762298", "curated_dataset": null, "description": null, "expire_days": 4, "fast_retrieval": 1, "is_public": 1, "max_price": "0.050000000000000000", "min_price": null, "miner_id": "t03354", "status": "Assigned", "tags": null, "task_file_name": "test.csv", "task_id": 1596, "task_name": "2021092702", "type": "regular", "updated_on": "\ufffd", "uuid": "9c3b30c9-ba17-4989-b03a-7b9f26602036"}}
-INFO:root:['lotus', 'client', 'deal', '--from', 't3u7pumush376xbytsgs5wabkhtadjzfydxxda2vzyasg7cimkcphswrq66j4dubbhwpnojqd3jie6ermpwvvq', '--start-epoch', '320167', '--fast-retrieval=true', '--verified-deal=false', '--manual-piece-cid', 'baga6ea4seaqa2nfklf5xgom5jelt75czi3i5ynhiwm2b5w3xfsp7thnkfzgnmdq', '--manual-piece-size', '130048', 'bafk2bzacebjglrfqg3eexbntnhke2zysfmdwkfnlankhq72fca3w2c2dqq5j2', 't01101, '0.000000000000000000', '1051200']
-INFO:root:wallet: umush376xbyabkhtadjzfydxxda2vzyasg7cimkcphswrq66j4dubbh
-INFO:root:miner: t01101
-INFO:root:price: 0
-INFO:root:total cost: 0.000000000000000000
-INFO:root:start epoch: 320167
-INFO:root:fast-retrieval: true
-INFO:root:verified-deal: false
-INFO:root:Deal sent, deal cid: bafyrei2yuidanaxzsp3yvypxub5worfei5tojb55fd, start epoch: 320167
-INFO:root:Swan deal info CSV Generated: /tmp/tasks/[output_files_dir]/task-uuid-info.csv
-INFO:root:Swan deal final CSV /tmp/tasks/[output_files_dir]/task-uuid-deals.csv
-INFO:root:Refreshing token
-INFO:root:Updating Swan task.
-INFO:root:Swan task updated.
-```
 
 #### Note:
 A successful autobid task will go through three major status - `Created`,`Assigned` and `DealSent`.
