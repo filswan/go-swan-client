@@ -12,30 +12,33 @@ import (
 	ipfsApi "github.com/ipfs/go-ipfs-api"
 )
 
-func IpfsUploadCarFile(carFilePath string) *string {
+func IpfsUploadCarFile(carFilePath string) (*string, error) {
 	cmd := "ipfs add " + carFilePath
 	logs.GetLogger().Info(cmd)
 
 	result, err := ExecOsCmd(cmd, false)
 
-	errMsg := "Failed to upload file to ipfs server."
 	if err != nil {
 		logs.GetLogger().Error(err)
-		logs.GetLogger().Fatal(errMsg)
+		return nil, err
 	}
 
 	if result == "" {
-		logs.GetLogger().Fatal(errMsg)
+		err := fmt.Errorf("cmd(%s) result is empty", cmd)
+		logs.GetLogger().Error(err)
+		return nil, err
 	}
 
 	words := strings.Fields(result)
 	if len(words) < 2 {
-		logs.GetLogger().Fatal(errMsg)
+		err := fmt.Errorf("cmd(%s) result(%s) does not have enough fields", cmd, result)
+		logs.GetLogger().Error(err)
+		return nil, err
 	}
 
 	carFileHash := words[1]
 
-	return &carFileHash
+	return &carFileHash, nil
 }
 
 func IpfsUploadCarFileByApi(uploadStreamUrl, carFilePath string) (*string, error) {
