@@ -98,7 +98,7 @@ true in [sender] section
 
 web-server is used to upload generated Car files. Storage provider will download Car files from this web-server.
 
-- **download_url_prefix** web server url prefix, such as: https://nbai.io:443/download
+- **download_url_prefix** web server url prefix, such as: https://[ip]:[port]/download
 
 The downloadable URL in the CSV file is built with the following format: [download_url_prefix]/[filename]
 
@@ -106,7 +106,7 @@ The downloadable URL in the CSV file is built with the following format: [downlo
 
 ipfs-server is used to upload and download generated Car files. Storage provider will download Car files from this ipfs-server.
 
-- **download_url_prefix** ipfs server url prefix, such as: "http://192.168.88.41:5050/ipfs"
+- **download_url_prefix** ipfs server url prefix, such as: "http://[ip]:[port]/ipfs"
 
 The downloadable URL in the CSV file is built with the following format: [download_url_prefix]/[filename]
 
@@ -128,7 +128,6 @@ The downloadable URL in the CSV file is built with the following format: [downlo
 
 #### Note:
 The **duration** time for offline deals is set to `1512000` epoches in default, which stands for 525 days. It can be further modified in constant `DURATION` of `swan-client/task_sender/service/deal.py` for customized requirement.
-
 
 
 ## How to use
