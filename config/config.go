@@ -58,7 +58,7 @@ type sender struct {
 var config *Configuration
 
 func initConfig() {
-	configFile := "./config/config.toml"
+	configFile := "~/.swan/client/config.toml"
 	if metaData, err := toml.DecodeFile(configFile, &config); err != nil {
 		log.Fatal("error:", err)
 	} else {

@@ -68,6 +68,12 @@ func GenerateCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 			return nil, nil, err
 		}
 
+		if dataCid == nil {
+			err := fmt.Errorf("failed to generate data cid for: %s", carFile.CarFilePath)
+			logs.GetLogger().Error(err)
+			return nil, nil, err
+		}
+
 		carFile.DataCid = *dataCid
 
 		carFile.CarFileSize = utils.GetFileSize(carFile.CarFilePath)
