@@ -6,9 +6,15 @@
 - Join us on our [public Slack channel](https://www.filswan.com/) for news, discussions, and status updates.
 - [Check out our medium](https://filswan.medium.com) for the latest posts and announcements.
 
-## If you are a client who wants to send deals
+## Table of Contents
+- [Functions](#Functions)
+- [Concepts](#Concepts)
+- [Prerequisite](#Prerequisite)
+- [Installation](#Installation)
+- [Configuration](#Configuration)
+- [How to use](#How-to-use)
 
-Client Tool provides the following functions:
+## Functions
 * Generate Car files from downloaded source files with or without Lotus.
 * Generate metadata e.g. Car file URI, start epoch, etc. and save them to a metadata CSV file.
 * Propose deals based on the metadata CSV file.
@@ -16,14 +22,7 @@ Client Tool provides the following functions:
 * Create tasks on Swan Platform.
 * Send deal automatically to auto-bid storage providers.
 
-## Table of Contents
-
-- [Basic Concept](#Basic-Concept)
-- [Prerequisite](#Prerequisite)
-- [Configuration and installation](#Configuration-and-installation)
-- [How to use](#How-to-use)
-
-## Basic Concept
+## Concepts
 
 ### Task
 
@@ -56,7 +55,7 @@ uuid is generated for future index purpose.
 - Lotus node
 - go 1.16+
 
-## installation
+## Installation
 ### Ubuntu/Debian
 
 Install and create virtualenv
@@ -260,22 +259,3 @@ To avoid being set to `ActionRequired`, a task must be created or modified to ha
 
 - **For task**:
 
-  **task price:** Max price willing to pay per GiB/epoch for offline deal,which can be changed in `max_price` of `config.toml`
-
-  **task fast retrieval:** [true/false] Indicates that data should be available for fast retrieval,which can be changed in `fast_retreval` of `config.toml`
-
-  **task type:** [true/false] Whether deals in the tasks are public deals, which can be changed in `fast_retreval` of `config.toml`
-
-- **For deals**:
-  
-  **valid deals:** There must be at least one valid corresponding deal record. Check the [task-name.csv] to make sure of it.
-
-  **start epoch:** Start epoch for deals in hours from current time is also needed, which can be changed in `start_epoch_hours` of `config.toml`
-
-  **car file urls:** The valid downloading url of car files must be filled in before creating Swan tasks. Check column `car_file_url` of car.csv before sending and modify it if needed.
-
-  **car file size:** A correct car file size should be filled in [car.csv] after car files generation
-
-  **Payload Cid:** Also known as data cid, which should be given in [car.csv] after car files generation.
-
-  **Piece Cid:** Piece cid is required for offline deals,which should be given in [car.csv] after car files generation as well.
