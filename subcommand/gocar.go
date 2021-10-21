@@ -115,6 +115,15 @@ func CreateCarFilesDesc2Files(srcFileDir, carFileDir string) ([]*model.FileDesc,
 		carFile.PieceCid = fields[2]
 		carFile.CarFileSize = utils.GetInt64FromStr(fields[3])
 
+		dataCid, err := client.LotusClientImport(carFile.CarFilePath, true)
+		if err != nil {
+			err := fmt.Errorf("failed to import car file")
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
+
+		carFile.DataCid = *dataCid
+
 		carFileDetail := fields[4]
 		for i := 5; i < len(fields); i++ {
 			carFileDetail = carFileDetail + "," + fields[i]
