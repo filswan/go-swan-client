@@ -255,6 +255,12 @@ func LotusClientImport(filepath string, isCar bool) (*string, error) {
 		return nil, err
 	}
 
+	if clientImport.Error != nil {
+		err := fmt.Errorf("lotus import file %s failed, error code:%d, message:%s", filepath, clientImport.Error.Code, clientImport.Error.Message)
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	if clientImport.Result == nil {
 		err := fmt.Errorf("lotus import file %s failed, result is null from %s", filepath, lotusClient.ApiUrl)
 		logs.GetLogger().Error(err)
