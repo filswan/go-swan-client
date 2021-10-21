@@ -110,10 +110,9 @@ The downloadable URL in the CSV file is built with the following format: [downlo
 
 #### sender
 
-- **bid_mode:** [0/1] Default 1. If it is set to 1, autobid mode is on which means public tasks posted will receive automatically bids from storage providers and tasks will be sent automatically after auto bids. In contrast, 0 represents the manual mode as public tasks need to be bid manually by storage providers and sent manually.
+- **bid_mode:** [0/1] Default 1, which is auto-bid mod and it means swan will automatically allocate storage provider for it, while 0 is manual-bid mode and it needs to be bidded manually by storage providers.
 - **offline_mode:** [true/false] Default false. If it is set to true, you will not be able to create Swan task on filswan.com, but you can still create CSVs and Car Files for sending deals
-- **output_dir:** Output directory for saving generated Car files and CSVs
-
+- **output_dir:** When you do not set -out-dir option in your command, it is used as the default output directory for saving generated car files and CSVs 
 - **public_deal:** [true/false] Whether deals in the tasks are public deals
 - **verified_deal:** [true/false] Whether deals in this task are going to be sent as verified
 - **fast_retrieval:** [true/false] Indicates that data should be available for fast retrieval
