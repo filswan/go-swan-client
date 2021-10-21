@@ -42,7 +42,7 @@ func execSubCmd() error {
 	case SUBCOMMAND_AUTO:
 		sendAutoBidDeal()
 	default:
-		err = fmt.Errorf("sub command should be: car|gocar|upload|task|deal")
+		err = fmt.Errorf("sub command should be: car|gocar|upload|task|deal|auto")
 		logs.GetLogger().Error(err)
 	}
 

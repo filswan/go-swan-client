@@ -35,10 +35,9 @@ type LotusJsonRpcParams struct {
 }
 
 type LotusClient struct {
-	ApiUrl           string
-	AccessToken      string
-	MinerApiUrl      string
-	MinerAccessToken string
+	ApiUrl      string
+	AccessToken string
+	MinerApiUrl string
 }
 
 type LotusJsonRpcResult struct {
@@ -95,10 +94,9 @@ type ClientImportResult struct {
 
 func LotusGetClient() *LotusClient {
 	lotusClient := &LotusClient{
-		ApiUrl:           config.GetConfig().Lotus.ApiUrl,
-		AccessToken:      config.GetConfig().Lotus.AccessToken,
-		MinerApiUrl:      config.GetConfig().Lotus.MinerApiUrl,
-		MinerAccessToken: config.GetConfig().Lotus.MinerAccessToken,
+		ApiUrl:      config.GetConfig().Lotus.ApiUrl,
+		AccessToken: config.GetConfig().Lotus.AccessToken,
+		MinerApiUrl: config.GetConfig().Lotus.MinerApiUrl,
 	}
 
 	return lotusClient

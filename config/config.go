@@ -18,10 +18,9 @@ type Configuration struct {
 }
 
 type lotus struct {
-	ApiUrl           string `toml:"api_url"`
-	AccessToken      string `toml:"access_token"`
-	MinerApiUrl      string `toml:"miner_api_url"`
-	MinerAccessToken string `toml:"miner_access_token"`
+	ApiUrl      string `toml:"api_url"`
+	AccessToken string `toml:"access_token"`
+	MinerApiUrl string `toml:"miner_api_url"`
 }
 
 type main struct {
@@ -94,7 +93,6 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"lotus", "api_url"},
 		{"lotus", "access_token"},
 		{"lotus", "miner_api_url"},
-		{"lotus", "miner_access_token"},
 
 		{"main", "api_url"},
 		{"main", "api_key"},
