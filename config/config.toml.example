@@ -10,15 +10,10 @@ access_token = ""
 storage_server_type = "ipfs server"
 
 [web_server]
-host = "https://nbai.io"
-port = 443
-path = "/download"
+download_url_prefix = "https://nbai.io:443/download"
 
 [ipfs_server]
-gateway_address = "/ip4/127.0.0.1/tcp/8080"
-upload_url = "http://127.0.0.1:5001"
-download_stream_url = "https://ipfs.io"
-
+download_url_prefix = "http://192.168.88.41:5050/ipfs"
 
 [sender]
 bid_mode = 1

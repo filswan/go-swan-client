@@ -31,15 +31,11 @@ type main struct {
 }
 
 type webServer struct {
-	Host string `toml:"host"`
-	Port int    `toml:"port"`
-	Path string `toml:"path"`
+	DownloadUrlPrefix string `toml:"download_url_prefix"`
 }
 
 type ipfsServer struct {
-	GatewayAddress    string `toml:"gateway_address"`
-	UploadUrl         string `toml:"upload_url"`
-	DownloadStreamUrl string `toml:"download_stream_url"`
+	DownloadUrlPrefix string `toml:"download_url_prefix"`
 }
 
 type sender struct {
@@ -100,13 +96,9 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"main", "access_token"},
 		{"main", "storage_server_type"},
 
-		{"web_server", "host"},
-		{"web_server", "port"},
-		{"web_server", "path"},
+		{"web_server", "download_url_prefix"},
 
-		{"ipfs_server", "gateway_address"},
-		{"ipfs_server", "upload_url"},
-		{"ipfs_server", "download_stream_url"},
+		{"ipfs_server", "download_url_prefix"},
 
 		{"sender", "bid_mode"},
 		{"sender", "offline_mode"},
