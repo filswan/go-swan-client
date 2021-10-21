@@ -9,7 +9,7 @@
 ## Table of Contents
 - [Functions](#Functions)
 - [Concepts](#Concepts)
-- [Prerequisite](#Prerequisite)
+- [Prerequisites](#Prerequisites)
 - [Installation](#Installation)
 - [Configuration](#Configuration)
 - [How to use](#How-to-use)
@@ -50,7 +50,7 @@ This CSV file is helpful to enhance the data consistency and rebuild the graph i
 uuid is generated for future index purpose.
 
 
-## Prerequisite
+## Prerequisites
 
 - Lotus node
 
