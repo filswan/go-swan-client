@@ -126,21 +126,21 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 
 ## How to use
 
+:bell: The input dir and out dir used for client tool should only be absolute path.
+
 ### Step 1. Generate Car files for offline deal
 
 This step is necessary for both public and private tasks.
 
-#### Option :one: Generate Car files using lotus web json rpc api
+#### Option:one: using lotus web json rpc api
 ```shell
 ./go-swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
 
-#### Option :two: Generate Car files using graphsplit api
+#### Option:two: using graphsplit api
 ```shell
 ./go-swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
-
-- Note: The input dir and out dir should only be in format of Absolute Path.   
 
 The -out-dir can be ignored, in such cases, the output directory will be: [sender].output_dir config item join a time string
 
