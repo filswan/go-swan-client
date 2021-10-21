@@ -84,6 +84,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"sender"},
 
 		{"lotus", "api_url"},
+		{"lotus", "access_token"},
 		{"lotus", "miner_api_url"},
 		{"lotus", "miner_access_token"},
 
