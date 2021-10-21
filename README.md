@@ -87,14 +87,14 @@ Now your binary file go-swan-client is created under ./build directory, you can 
 
 #### main
 
-- **api_url:** Swan API address. For Swan production, it is "https://api.filswan.com", can be ignored if offline_mode is set to true in [sender] section
-- :bangbang:**api_key:** Your api key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". You can also check the Guide, can be ignored if offline_mode is set to true in [sender] section.
-- :bangbang:**access_token:** Your access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". You can also check the Guide, can be ignored if offline_mode is set to true in [sender] section.
+- **api_url:** Swan API address. For Swan production, it is "https://api.filswan.com". It can be ignored if offline_mode is set to true in [sender] section
+- :bangbang:**api_key:** Your api key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in [sender] section.
+- :bangbang:**access_token:** Your access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in [sender] section.
 - :bangbang:**storage_server_type:** = "ipfs server"
 
 #### web-server
 
-web-server is used to upload generated Car files. Storage provider will download Car files from this web-server.
+Web server is used to upload and download generated car files. Storage provider will download car files from this web server.
 
 - **download_url_prefix** web server url prefix, such as: https://[ip]:[port]/download
 
@@ -102,7 +102,7 @@ The downloadable URL in the CSV file is built with the following format: [downlo
 
 #### ipfs-server
 
-ipfs-server is used to upload and download generated Car files. Storage provider will download Car files from this ipfs-server.
+Ipfs server is used to upload and download generated Car files. Storage provider will download car files from this ipfs server.
 
 - **download_url_prefix** ipfs server url prefix, such as: "http://[ip]:[port]/ipfs"
 
