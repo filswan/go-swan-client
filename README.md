@@ -87,12 +87,10 @@ Now your binary file go-swan-client is created under ./build directory, you can 
 
 #### main
 
-Main section defines the token used for connecting with Swan platform. This part can be ignored if offline_mode is set to
-true in [sender] section
-
-- **api_url:** Swan API address. For Swan production, it is "https://api.filswan.com"
-- :bangbang:**api_key:** Your api key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". You can also check the Guide.
-- :bangbang:**access_token:** Your access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". You can also check the Guide.
+- **api_url:** Swan API address. For Swan production, it is "https://api.filswan.com", can be ignored if offline_mode is set to true in [sender] section
+- :bangbang:**api_key:** Your api key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". You can also check the Guide, can be ignored if offline_mode is set to true in [sender] section.
+- :bangbang:**access_token:** Your access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". You can also check the Guide, can be ignored if offline_mode is set to true in [sender] section.
+- :bangbang:**storage_server_type:** = "ipfs server"
 
 #### web-server
 
