@@ -73,7 +73,7 @@ git checkout <release_branch>
 chmod +x ./buld_from_source.sh
 ./buld_from_source.sh
 ```
-Now your binary file go-swan-client is created under ./build directory, you can copy ./build/go-swan-client to wherever you want and execute it from there.
+Now your binary file go-swan-client is created under ./build directory, you can copy it to wherever you want and execute it from there.
 
 ## Configuration
 
@@ -128,29 +128,23 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 
 ### Step 1. Generate Car files for offline deal
 
-For both public task and private task, you need to generate Car files
+This step is necessary for both public and private tasks.
 
-#### Step 1.1 Generate Car files using Lotus (option 1)
+#### Option :one: Generate Car files using lotus web json rpc api
 ```shell
 ./go-swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
 
-Note: The input dir and out dir shall only be in format of Absolute Path.   
-
-If `-out-dir` is not provided, then the output directory for the car files will be: `output_dir` (specified in the configuration file) + a random uuid
-
-For example: /tmp/tasks/7f33a9d6-47d0-4635-b152-5e380733bf09
-
-#### Step 1.2 Generate Car files without using Lotus (option 2)
-
-To use the generation locally, make sure go is available before starting.
-
-Generate car files using golang
-
+#### Option :two: Generate Car files using graphsplit api
 ```shell
 ./go-swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
 
+- Note: The input dir and out dir should only be in format of Absolute Path.   
+
+The -out-dir can be ignored, in such cases, the output directory will be: [sender].output_dir config item join a time string
+
+For example: /tmp/tasks/7f33a9d6-47d0-4635-b152-5e380733bf09
 Meanwhile, a car.csv and a manifest.csv with the detail information of the corresponding car files will be generated in the same output directory.    
    
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
