@@ -224,7 +224,7 @@ type ClientFileParam struct {
 }
 
 //"lotus client import --car " + carFilePath
-func LotusClientImport(filepath string, isCar bool) *string {
+func LotusClientImport(filepath string, isCar bool) (*string, error) {
 	lotusClient := LotusGetClient()
 
 	var params []interface{}
@@ -243,23 +243,27 @@ func LotusClientImport(filepath string, isCar bool) *string {
 
 	response := HttpGet(lotusClient.ApiUrl, lotusClient.AccessToken, jsonRpcParams)
 	if response == "" {
-		return nil
+		err := fmt.Errorf("lotus import file %s failed, no response from %s", filepath, lotusClient.ApiUrl)
+		logs.GetLogger().Error(err)
+		return nil, err
 	}
 
 	clientImport := &ClientImport{}
 	err := json.Unmarshal([]byte(response), clientImport)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil
+		return nil, err
 	}
 
 	if clientImport.Result == nil {
-		return nil
+		err := fmt.Errorf("lotus import file %s failed, result is null from %s", filepath, lotusClient.ApiUrl)
+		logs.GetLogger().Error(err)
+		return nil, err
 	}
 
 	dataCid := clientImport.Result.Root.Cid
 
-	return &dataCid
+	return &dataCid, nil
 }
 
 //"lotus client generate-car " + srcFilePath + " " + destCarFilePath

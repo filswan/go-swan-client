@@ -37,7 +37,7 @@ func TestLotusClient() {
 	logs.GetLogger().Info(*result)
 	result1 := client.LotusClientCalcCommP("/home/peware/go-swan-client/carFiles/hello2.txt.car")
 	logs.GetLogger().Info(*result1)
-	result2 := client.LotusClientImport("/home/peware/go-swan-client/carFiles/hello2.txt.car", true)
+	result2, err := client.LotusClientImport("/home/peware/go-swan-client/carFiles/hello2.txt.car", true)
 	logs.GetLogger().Info(*result2)
 	client.LotusClientGenCar("/home/peware/go-swan-client/srcFiles/hello2.txtd", "/home/peware/go-swan-client/srcFiles/hello2.txt.car", false)
 	version, err := client.LotusVersion()

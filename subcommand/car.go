@@ -61,8 +61,8 @@ func GenerateCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 
 		carFile.PieceCid = *pieceCid
 
-		dataCid := client.LotusClientImport(carFile.CarFilePath, true)
-		if dataCid == nil {
+		dataCid, err := client.LotusClientImport(carFile.CarFilePath, true)
+		if err != nil {
 			err := fmt.Errorf("failed to import car file")
 			logs.GetLogger().Error(err)
 			return nil, nil, err
