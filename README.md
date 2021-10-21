@@ -56,20 +56,52 @@ uuid is generated for future index purpose.
 - Lotus node
 - go 1.16+
 
-## Configuration and installation
+## installation
+### Ubuntu/Debian
+
+Install and create virtualenv
+
+```shell
+sudo apt-get update
+sudo apt-get upgrade -y
+
+# Install Git
+sudo apt install git -y
+
+# Checkout the source and install
+git clone https://github.com/filswan/go-swan-client.git
+cd go-swan-client/
+git checkout <release_branch>
+chmod +x ./buld_from_source.sh
+./buld_from_source.sh
+```
+
+Now your binary file go-swan-client is created under ./build directory, you can copy ./build/go-swan-client to wherever you want and execute it from there.
+
+## Configuration
+
+#### lotus
+- **api_url:**   # Url of lotus node web api
+- **access_token:**   # Access token of lotus node web api
+- **miner_api_url:**   # Url of lotus miner web api
 
 #### main
 
 Main section defines the token used for connecting with Swan platform. This part can be ignored if offline_mode is set to
 true in [sender] section
 
-- **api_key & access_token:** Acquire from [Filswan](https://www.filswan.com) -> "My Profile"->"Developer Settings". You
-  can also check the [Guide](https://nebulaai.medium.com/how-to-use-api-key-in-swan-a2ebdb005aa4)
-- **api_url:** Default: "https://api.filswan.com"
+- **api_url:** Swan API address. For Swan production, it is "https://api.filswan.com"
+- :bangbang:**api_key:** Your api key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". You can also check the Guide.
+- :bangbang:**access_token:** Your access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". You can also check the Guide.
 
 #### web-server
 
 web-server is used to upload generated Car files. Storage provider will download Car files from this web-server.
+
+- **host** web server host, such as: "https://nbai.io"
+- **port** web server port, such as: 443
+- **path** download directory on web server, such as: "/download"
+
 The downloadable URL in the CSV file is built with the following format: host+port+path+filename,
 e.g. http://nbai.io:8080/download/<filename>
 
@@ -78,6 +110,9 @@ e.g. http://nbai.io:8080/download/<filename>
 ipfs-server is used to upload and download generated Car files. You can upload generated Car files via `upstream_url` and storage provider will download Car files from this ipfs-server using `download_stream_url`.
 The downloadable URL in the CSV file is built with the following format: host+port+ipfs+hash,
 e.g. http://host:port/ipfs/QmPrQPfGCAHwYXDZDdmLXieoxZP5JtwQuZMUEGuspKFZKQ
+
+gateway_address = "/ip4/127.0.0.1/tcp/8080"
+download_stream_url = "https://ipfs.io"s
 
 #### sender
 
@@ -98,27 +133,7 @@ e.g. http://host:port/ipfs/QmPrQPfGCAHwYXDZDdmLXieoxZP5JtwQuZMUEGuspKFZKQ
 #### Note:
 The **duration** time for offline deals is set to `1512000` epoches in default, which stands for 525 days. It can be further modified in constant `DURATION` of `swan-client/task_sender/service/deal.py` for customized requirement.
 
-### Installation:
-#### Ubuntu/Debian
 
-Install and create virtualenv
-
-```shell
-sudo apt-get update
-sudo apt-get upgrade -y
-
-# Install Git
-sudo apt install git -y
-
-# Checkout the source and install
-git clone https://github.com/filswan/go-swan-client.git
-cd go-swan-client/
-git checkout <release_branch>
-chmod +x ./buld_from_source.sh
-./buld_from_source.sh
-```
-
-Now your binary file go-swan-client is created under ./build directory, you can copy ./build/go-swan-client to wherever you want and execute it from there.
 
 ## How to use
 
