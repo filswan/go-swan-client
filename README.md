@@ -126,6 +126,23 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 
 ## How to use
 
+
+st=>start: Start:>http://www.google.com[blank]
+e=>end:>http://www.google.com
+op1=>operation: My Operation
+sub1=>subroutine: My Subroutine
+cond=>condition: Yes
+or No?:>http://www.google.com
+io=>inputoutput: catch something...
+para=>parallel: parallel tasks
+
+st->op1->cond
+cond(yes)->io->e
+cond(no)->para
+para(path1, bottom)->sub1(right)->op1
+para(path2, top)->op1
+
+
 :bell: The input dir and out dir used for client tool should only be absolute one.
 
 ### Step 1. Generate Car files for offline deal
@@ -199,7 +216,7 @@ uuid,miner_id,deal_cid,payload_cid,file_source_url,md5,start_epoch,piece_cid,fil
 ```
 uuid,source_file_name,source_file_path,source_file_md5,source_file_url,source_file_size,car_file_name,car_file_path,car_file_md5,car_file_url,car_file_size,deal_cid,data_cid,piece_cid,miner_id,start_epoch
 ```
-
+### Step 3. Send deals
 2. Propose offline deal after one storage provider win the bid. Client needs to use the metadata CSV generated in the previous step
    for sending the offline deals to the storage provider.
 
