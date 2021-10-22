@@ -11,6 +11,7 @@
 - [Concepts](#Concepts)
 - [Prerequisites](#Prerequisites)
 - [Installation](#Installation)
+- [After Installation](#After-Installation)
 - [Configuration](#Configuration)
 - [Flowcharts](#Flowcharts)
 - [Create Car Files](#Create-Car-Files)
@@ -83,8 +84,9 @@ git checkout <release_branch>
 chmod +x ./build_from_source.sh
 ./build_from_source.sh
 ```
-**After this step:**
-- The binary file go-swan-client is under ./build directory, you need to switch to it
+
+## After Installation
+- The binary file `go-swan-client` is created under `./build` directory, you need to switch to it.
 ```shell
 cd build
 ```
@@ -92,8 +94,6 @@ cd build
 ```shell
 vi ~/.swan/client/config.toml
 ```
-
-- The config file will be created in ~/.swan/client drectory, and its name is config.toml.
 
 ## Configuration
 
