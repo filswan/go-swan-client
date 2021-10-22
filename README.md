@@ -259,17 +259,34 @@ no go-swan-client subcommand should be executed
 
 ### Option:three: Public and Manual-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
-
-
-
 ```shell
 ./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
 ```
-- **-input-dir (Required)** Input directory where the generated car files and car.csv are located
-- **-out-dir (optional)** Metadata CSV and Swan task CSV will be generated to the given directory. Default: `output_dir`, see [Configuration](#Configuration)
-- **-miner (Required)** Storage provider Id you want to send deal to
-- **-dataset (optional)** The curated dataset from which the car files are generated
-- **-description (optional)** Details to better describe the data and confine the task or anything the storage provider needs to be informed.
+**command parameters used in this step:**
+- -input-dir(Required): Input directory where the generated car files and metadata files reside in.
+- -out-dir(optional): Metadata files and swan task file will be generated to this directory. When ommitted, use default `[send].output_dir`, see [Configuration](#Configuration)
+- -miner(Required): Storage provider Id you want to send deal to
+- -dataset(optional): The curated dataset from which the car files are generated
+- -description(optional): Details to better describe the data and confine the task or anything the storage provider needs to be informed.
+
+**configurations used in this step:**
+- [sender].public_deal, see [Configuration](#Configuration)
+- [sender].bid_mode, see [Configuration](#Configuration)
+- [sender].verified_deal, see [Configuration](#Configuration)
+- [sender].offline_mode, see [Configuration](#Configuration)
+- [sender].fast_retrieval, see [Configuration](#Configuration)
+- [sender].max_price, see [Configuration](#Configuration)
+- [sender].start_epoch_hours, see [Configuration](#Configuration)
+- [sender].expire_days, see [Configuration](#Configuration)
+- [sender].wallet, see [Configuration](#Configuration)
+- [sender].skip_confirmation, see [Configuration](#Configuration)
+- [main].storage_server_type, see [Configuration](#Configuration)
+- [main].api_url, see [Configuration](#Configuration)
+- [main].api_key, see [Configuration](#Configuration)
+- [main].access_token, see [Configuration](#Configuration)
+- [lotus].api_url, see [Configuration](#Configuration)
+- [lotus].access_token, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 Two CSV files are generated after successfully running the command: task-name.csv, task-name-metadata.csv.
 
