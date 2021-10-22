@@ -13,6 +13,10 @@
 - [Installation](#Installation)
 - [Configuration](#Configuration)
 - [Flowcharts](#Flowcharts)
+- [Create Car Files](#Create-Car-Files)
+- [Upload Car Files](#Upload-Car-Files)
+- [Create A Task](#Create-A-Task)
+- [Send deals](#Send-deals)
 
 ## Functions
 * Generate Car files from downloaded source files with or without Lotus.
@@ -128,16 +132,17 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 
 ### Option:one:
 - **Conditions:** [sender].public_deal=true and [sender].bid_mode=0
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files Using Lotus)->|A|,(start)->(Genrate Car Files Using Graphsplit)->|A|->(Upload Car Files)->(Create Public Manual-Bid Task)->(Send Deal)->(end)" >
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files by Lotus)->|A|,(start)->(Create Car Files by Graphsplit)->|A|->(Upload Car Files)->(Create Public Manual-Bid Task)->(Send Deal)->(end)" >
 
 ### Option:two:
 - **Conditions:** [sender].public_deal=true and [sender].bid_mode=1
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files Using Lotus)->|A|,(start)->(Genrate Car Files Using Graphsplit)->|A|->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto Deal)->(end)" >
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files by Lotus)->|A|,(start)->(Create Car Files by Graphsplit)->|A|->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto Deal)->(end)" >
 
 ### Option:three:
 - **Conditions:** [sender].public_deal=false and [sender].bid_mode=0
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files Using Lotus)->|A|,(start)->(Genrate Car Files Using Graphsplit)->|A|->(Upload Car Files)->(Create Private Manual-Bid Task)->(end)" >
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files by Lotus)->|A|,(start)->(Create Car Files by Graphsplit)->|A|->(Upload Car Files)->(Create Private Manual-Bid Task)->(end)" >
 
+## Create Car Files
 :bell: The input dir and out dir used for client tool should only be absolute one.
 
 ### Step 1. Generate Car files for offline deal
@@ -160,7 +165,9 @@ When finish, the car files and a car.csv, a car.json and a manifest.csv which de
    
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
 
-### Step 2: Upload Car files to web server or ipfs server
+## Upload Car Files
+
+You can upload Car files to web server or ipfs server
 
 After the car files are generated, you need to copy the files to a web-server manually, or you can upload the files to local ipfs server.
 
@@ -169,7 +176,7 @@ If you decide to upload the files to an open ipfs server:
 ./go-swan-client upload -input-dir [input_file_dir]
 ```
 
-### Step 3. Create a task
+## Create A Task
 
 #### Option:one: Private Task
 in `config.toml`: set `public_deal = false`
@@ -211,7 +218,7 @@ uuid,miner_id,deal_cid,payload_cid,file_source_url,md5,start_epoch,piece_cid,fil
 ```
 uuid,source_file_name,source_file_path,source_file_md5,source_file_url,source_file_size,car_file_name,car_file_path,car_file_md5,car_file_url,car_file_size,deal_cid,data_cid,piece_cid,miner_id,start_epoch
 ```
-### Step 3. Send deals
+## Send deals
 2. Propose offline deal after one storage provider win the bid. Client needs to use the metadata CSV generated in the previous step
    for sending the offline deals to the storage provider.
 
