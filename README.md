@@ -165,11 +165,11 @@ in `config.toml`: set `public_deal = false`
 ```shell
 ./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
 ```
-**-input-dir (Required)** Input directory where the generated car files and car.csv are located
-**-out-dir (optional)** Metadata CSV and Swan task CSV will be generated to the given directory. Default: `output_dir` specified in config.toml
-**-miner (Required)** Storage provider Id you want to send private deal to
-**-dataset (optional)** The curated dataset from which the Car files are generated
-**-description (optional)** Details to better describe the data and confine the task or anything the storage provider needs to be informed.
+- **-input-dir (Required)** Input directory where the generated car files and car.csv are located
+- **-out-dir (optional)** Metadata CSV and Swan task CSV will be generated to the given directory. Default: `output_dir` specified in config.toml
+- **-miner (Required)** Storage provider Id you want to send private deal to
+- **-dataset (optional)** The curated dataset from which the Car files are generated
+- **-description (optional)** Details to better describe the data and confine the task or anything the storage provider needs to be informed.
 
 #### Option:two: Public Task
 
@@ -179,12 +179,12 @@ in `config.toml`: set `public_deal = true`
 ./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -name [task_name] -dataset [curated_dataset] -description [description]
 ```
 
-**--input-dir (Required)** Input directory where the generated car files and car.csv are located
-**--out-dir (optional)** Metadata CSV and Swan task CSV will be generated to the given directory. Default: `output_dir` specified in config.toml 
-**--name (optional)** Given task name while creating task on Swan platform. Default:
+- **--input-dir (Required)** Input directory where the generated car files and car.csv are located
+- **--out-dir (optional)** Metadata CSV and Swan task CSV will be generated to the given directory. Default: `output_dir` specified in config.toml 
+- **--name (optional)** Given task name while creating task on Swan platform. Default:
 swan-task-uuid
-**--dataset (optional)** The curated dataset from which the Car files are generated
-**--description (optional)** Details to better describe the data and confine the task or anything the storage provider needs to be informed
+- **--dataset (optional)** The curated dataset from which the Car files are generated
+- **--description (optional)** Details to better describe the data and confine the task or anything the storage provider needs to be informed
 
 Two CSV files are generated after successfully running the command: task-name.csv, task-name-metadata.csv.
 
