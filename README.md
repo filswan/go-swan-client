@@ -33,9 +33,9 @@
 In swan project, a task can contain multiple offline deals. There are two basic type of tasks:
 - Task type
   * Public Task:
-    * A public task is a deal set for open bid.
-    * Auto-bid public task: If the bid mode is set to auto-bid, the task will be automatically assigned to a selected storage provider based on reputation system and Market Matcher.
-    * Non auto-bid public task: If the bid mode is set to manuall,after bidder win the bid, the task holder needs to propose the task to the winner. 
+    * A public task is a deal set for open bid. It has 2 types: auto-bid and non-auto-bid
+    * Auto-bid public task: this kind of task will be automatically assigned to a selected storage provider based on reputation system and Market Matcher.
+    * Non-auto-bid public task: for this kind of task, after bidder win the bid, the task holder needs to propose the task to the winner. 
   * Private Task. 
     * A private task is used to propose deals to a specified storage provider.
 - Task status:
@@ -44,6 +44,8 @@ In swan project, a task can contain multiple offline deals. There are two basic 
   * ActionRequired: Task with autobid mode on,in other words,`bid_mode` set to `1` and `public_deal` set to `true`, have some information missing or invalid in the [task-name.csv],which cause the failure of automatically assigning storage providers. Action are required to fill in or modify the file and then update the task information on Swan platform with the new csv file.
   * DealSent: Tasks have been sent to storage providers after tasks being assigned.
   
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)-><a>[Task meet requirements]->(Assigned),<a>[Task not meet requirements]->(Assigned)->(Create Public Manual-Bid Task)->(Send Deals)->(end)" >
+
 ### Offline Deal
 
 The size of an offline deal can be up to 64 GB. It is suggested to create a CSV file contains the following information: 
