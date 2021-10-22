@@ -145,18 +145,16 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 ## Create Car Files
 :bell: The input dir and out dir used for client tool should only be absolute one.
 
-### Step 1. Generate Car files
-
 This step is necessary for both public and private tasks. You can choose one of the following 2 options.
 
-#### Option:one: using lotus web json rpc api
+### Option:one: using lotus web json rpc api
 ```shell
 ./go-swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
 - **-input-dir (Required)** The directory where the source files reside in.
 - **-out-dir (optional)** Car files and metadata csv&json files will be generated into this directory. If not set, use default, see `output_dir` in [Configuration](#Configuration)
 
-#### Option:two: using graphsplit api
+### Option:two: using graphsplit api
 ```shell
 ./go-swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
@@ -168,18 +166,20 @@ Credits should be given to filedrive-team. More information can be found in http
 
 ## Upload Car Files
 
-You can upload Car files to web server or ipfs server
+It is required to upload car files to file server after they are generated, either to web server or to ipfs server.
 
-After the car files are generated, you need to copy the files to a web-server manually, or you can upload the files to local ipfs server.
+### Option:one: Upload car files to a web-server manually
 
-If you decide to upload the files to an open ipfs server:
+### Option:two: Upload car files to a local ipfs server
+using:
 ```shell
 ./go-swan-client upload -input-dir [input_file_dir]
 ```
+- **-input-dir (Required)** The directory where the car files and metadata json file reside in.
 
 ## Create A Task
 
-#### Option:one: Private Task
+### Option:one: Private Task
 in `config.toml`: set `public_deal = false`
 
 ```shell
