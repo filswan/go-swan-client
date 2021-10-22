@@ -128,14 +128,13 @@ func CreateCarFilesDesc2Files(srcFileDir, carFileDir string) ([]*model.FileDesc,
 			return nil, err
 		}
 
-		logs.GetLogger().Info("dataCid:", *dataCid)
 		carFile.DataCid = *dataCid
 
 		carFileDetail := fields[4]
 		for i := 5; i < len(fields); i++ {
 			carFileDetail = carFileDetail + "," + fields[i]
 		}
-		logs.GetLogger().Info("carFileDetail:", carFileDetail)
+
 		manifestDetail := ManifestDetail{}
 		err = json.Unmarshal([]byte(carFileDetail), &manifestDetail)
 		if err != nil {
