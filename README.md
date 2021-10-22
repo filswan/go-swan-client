@@ -147,14 +147,14 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 
 This step is necessary for both public and private tasks. You can choose one of the following 2 options.
 
-### Option:one: using lotus web json rpc api
+### Option:one: By lotus web json rpc api
 ```shell
 ./go-swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
 - **-input-dir (Required)** The directory where the source files reside in.
 - **-out-dir (optional)** Car files and metadata csv&json files will be generated into this directory. If not set, use default, see `output_dir` in [Configuration](#Configuration)
 
-### Option:two: using graphsplit api
+### Option:two: By graphsplit api
 ```shell
 ./go-swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
@@ -168,9 +168,9 @@ Credits should be given to filedrive-team. More information can be found in http
 
 It is required to upload car files to file server after they are generated, either to web server or to ipfs server.
 
-### Option:one: Upload car files to a web-server manually
+### Option:one: To a web-server manually
 
-### Option:two: Upload car files to a local ipfs server
+### Option:two: To a local ipfs server
 using:
 ```shell
 ./go-swan-client upload -input-dir [input_file_dir]
@@ -180,7 +180,7 @@ using:
 ## Create A Task
 
 ### Option:one: Private Task
-in `config.toml`: set `public_deal = false`
+set `public_deal = false`, see [Configuration](#Configuration)
 
 ```shell
 ./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
@@ -191,9 +191,8 @@ in `config.toml`: set `public_deal = false`
 - **-dataset (optional)** The curated dataset from which the Car files are generated
 - **-description (optional)** Details to better describe the data and confine the task or anything the storage provider needs to be informed.
 
-#### Option:two: Public Task
-
-in `config.toml`: set `public_deal = true`
+### Option:two: Public and Auto-Bid Task
+set `public_deal = true, bid_mode=1`, see [Configuration](#Configuration)
 
 ```shell
 ./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -name [task_name] -dataset [curated_dataset] -description [description]
