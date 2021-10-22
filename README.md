@@ -127,8 +127,9 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 ## How to use
 
 
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files)->(Upload Car Files)->(Create Public Manual-bid Task)->(Send Deal)->(end)" >
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files)->(Upload Car Files)->(Create Private Manual-bid Task)->(end)" >
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files)->(Upload Car Files)->(Create Public Manual-Bid Task)->(Send Deal)->(end)" >
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files)->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto Deal)->(end)" >
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files)->(Upload Car Files)->(Create Private Manual-Bid Task)->(end)" >
 
 :bell: The input dir and out dir used for client tool should only be absolute one.
 
