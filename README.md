@@ -32,8 +32,10 @@
 
 In swan project, a task can contain multiple offline deals. There are two basic type of tasks:
 - Task type
-  * Public Task
-    * A public task is a deal set for open bid. If the bid mode is set to manuall,after bidder win the bid, the task holder needs to propose the task to the winner. If the bid mode is set to auto-bid, the task will be automatically assigned to a selected storage provider based on reputation system and Market Matcher.
+  * Public Task:
+    * A public task is a deal set for open bid.
+    * Auto-bid public task: If the bid mode is set to auto-bid, the task will be automatically assigned to a selected storage provider based on reputation system and Market Matcher.
+    * Non auto-bid public task: If the bid mode is set to manuall,after bidder win the bid, the task holder needs to propose the task to the winner. 
   * Private Task. 
     * A private task is used to propose deals to a specified storage provider.
 - Task status:
@@ -85,7 +87,7 @@ chmod +x ./build_from_source.sh
 
 ### lotus
 - **api_url:**  Url of lotus web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
-- **access_token:**  Access token of lotus node web api. It should have write access right.
+- **access_token:**  Access token of lotus node web api. It should have write access right. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
 - **miner_api_url:**  Url of lotus miner web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **2345**
 
 ### main
