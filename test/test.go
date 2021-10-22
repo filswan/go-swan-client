@@ -62,7 +62,7 @@ func TestCreateTask() {
 		TaskName:       "task_dora_test",
 		CuratedDataset: "dataset",
 		Description:    "description",
-		IsPublic:       1,
+		//IsPublic:       1,
 		//IsVerified:     true,
 		MinerFid: &minerId,
 	}
