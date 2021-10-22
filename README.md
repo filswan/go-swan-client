@@ -44,7 +44,10 @@ In swan project, a task can contain multiple offline deals. There are two basic 
   * ActionRequired: Task with autobid mode on,in other words,`bid_mode` set to `1` and `public_deal` set to `true`, have some information missing or invalid in the [task-name.csv],which cause the failure of automatically assigning storage providers. Action are required to fill in or modify the file and then update the task information on Swan platform with the new csv file.
   * DealSent: Tasks have been sent to storage providers after tasks being assigned.
   
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)-><a>[Task meet requirements]->(Assigned),<a>[Task not meet requirements]->(Assigned)->(Create Public Manual-Bid Task)->(Send Deals)->(end)" >
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)-><a>[meet F1]->(Assigned)-><B>,<a>[not meet F1]->(ActionRequired), <a>[F2]->(Created) (B)->(DealSent)->(end)" >
+
+- F1: auto-bid requirements for task
+- F2: 
 
 ### Offline Deal
 
