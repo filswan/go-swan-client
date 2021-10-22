@@ -232,9 +232,9 @@ no go-swan-client subcommand should be executed
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files generated after this step:**
-- [task-name.csv] is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
-- [task-name-metadata.csv] contains more contents used for review
-- [task-name-metadata.json] contains more content for creating proposal in the next step
+- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv contains more contents used for review
+- [task-name]-metadata.json contains more content for creating proposal in the next step
 
 ### Option:two: Public and Auto-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
@@ -263,9 +263,9 @@ no go-swan-client subcommand should be executed
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files generated after this step:**
-- [task-name.csv] is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
-- [task-name-metadata.csv] contains more contents used for review
-- [task-name-metadata.json] contains more content for creating proposal in the next step
+- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv contains more contents used for review
+- [task-name]-metadata.json contains more content for creating proposal in the next step
 
 ### Option:three: Public and Manual-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
@@ -295,9 +295,9 @@ no go-swan-client subcommand should be executed
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files generated after this step:**
-- [task-name.csv] is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
-- [task-name-metadata.csv] contains more contents used for review
-- [task-name-metadata.json] contains more content for creating proposal in the next step
+- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv contains more contents used for review
+- [task-name]-metadata.json contains more content for creating proposal in the next step
 
 ## Send deals
 :bell: The input dir and out dir should only be absolute one.
