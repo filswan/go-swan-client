@@ -154,7 +154,7 @@ This step is necessary for both public and private tasks. You can choose one of 
 ./go-swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
 - **-input-dir (Required)** The directory where the source files reside in.
-- **-out-dir (optional)** Car files and metadata csv&json files will be generated into this directory. If not set, use default, see `output_dir` in (#Configuration)
+- **-out-dir (optional)** Car files and metadata csv&json files will be generated into this directory. If not set, use default, see `output_dir` in [Configuration](#Configuration)
 
 #### Option:two: using graphsplit api
 ```shell
@@ -162,7 +162,7 @@ This step is necessary for both public and private tasks. You can choose one of 
 ```
 
 - **-input-dir (Required)** The directory where the source files reside in.
-- **-out-dir (optional)** Car files and metadata csv&json files will be generated into this directory. If not set, use default, see `output_dir` in (#Configuration)
+- **-out-dir (optional)** Car files and metadata csv&json files will be generated into this directory. If not set, use default, see `output_dir` in [Configuration](#Configuration)
    
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
 
