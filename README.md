@@ -137,7 +137,7 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Private Manual-Bid Task)->(end)" >
 
 ## Create Car Files
-:bell: The input dir and out dir used for client tool should only be absolute one.
+:bell: The input dir and out dir should only be absolute one.
 
 This step is necessary for both public and private tasks. You can choose one of the following 2 options.
 
@@ -157,6 +157,7 @@ Credits should be given to filedrive-team. More information can be found in http
 
 
 ## Upload Car Files
+:bell: The input dir should only be absolute one.
 
 It is required to upload car files to file server after they are generated, either to web server or to ipfs server.
 
@@ -169,6 +170,9 @@ It is required to upload car files to file server after they are generated, eith
 - **-input-dir (Required)** The directory where the car files and metadata json file reside in.
 
 ## Create A Task
+:bell: The input dir and out dir should only be absolute one.
+
+This step is necessary for both public and private tasks. You can choose one of the following 3 options.
 
 ### Option:one: Private Task
 - **Conditions:** [sender].public_deal=false, see [Configuration](#Configuration)
@@ -198,6 +202,9 @@ Two CSV files are generated after successfully running the command: task-name.cs
 [task-name-metadata.csv] and [task-name-metadata.json] contains more content for creating proposal in the next step
 
 ## Send deals
+:bell: The input dir and out dir should only be absolute one.
+
+This step is only necessary for public tasks. You can choose one of the following 2 options according to your task bid_mode.
 
 ### Option:one: Manual deal
 
