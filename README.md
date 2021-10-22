@@ -74,8 +74,8 @@ chmod +x ./install.sh
 git clone https://github.com/filswan/go-swan-client.git
 cd go-swan-provider
 git checkout <release_branch>
-chmod +x ./buld_from_source.sh
-./buld_from_source.sh
+chmod +x ./build_from_source.sh
+./build_from_source.sh
 ```
 Now your binary file go-swan-client is created under ./build directory, you can copy it to wherever you want and execute it from there.
 
