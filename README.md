@@ -152,9 +152,10 @@ This step is necessary for both public and private tasks. You can choose one of 
 ```
 
 **parameters used in this step:**
-- [sender].gocar_file_size_limit
-- [lotus].api_url
-- [lotus].access_token
+- [lotus].api_url, see [Configuration](#Configuration)
+- [lotus].access_token, see [Configuration](#Configuration)
+- [sender].gocar_file_size_limit, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
 
