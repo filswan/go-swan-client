@@ -132,15 +132,15 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 
 ### Option:one:
 - **Conditions:** [sender].public_deal=true and [sender].bid_mode=0
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files by Lotus)->|A|,(start)->(Create Car Files by Graphsplit)->|A|->(Upload Car Files)->(Create Public Manual-Bid Task)->(Send Deal)->(end)" >
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Manual-Bid Task)->(Send Deal)->(end)" >
 
 ### Option:two:
 - **Conditions:** [sender].public_deal=true and [sender].bid_mode=1
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files by Lotus)->|A|,(start)->(Create Car Files by Graphsplit)->|A|->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto Deal)->(end)" >
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto Deal)->(end)" >
 
 ### Option:three:
 - **Conditions:** [sender].public_deal=false and [sender].bid_mode=0
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files by Lotus)->|A|,(start)->(Create Car Files by Graphsplit)->|A|->(Upload Car Files)->(Create Private Manual-Bid Task)->(end)" >
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Private Manual-Bid Task)->(end)" >
 
 ## Create Car Files
 :bell: The input dir and out dir used for client tool should only be absolute one.
