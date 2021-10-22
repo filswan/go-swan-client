@@ -321,15 +321,12 @@ no go-swan-client subcommand should be executed
 - -miner(Required): Target storage provider id, e.g f01276
 
 **Configurations used in this step:**
-- [sender].public_deal, see [Configuration](#Configuration)
-- [sender].bid_mode, see [Configuration](#Configuration)
+- [sender].wallet, see [Configuration](#Configuration)
 - [sender].verified_deal, see [Configuration](#Configuration)
-- [sender].offline_mode, see [Configuration](#Configuration)
 - [sender].fast_retrieval, see [Configuration](#Configuration)
-- [sender].max_price, see [Configuration](#Configuration)
 - [sender].start_epoch_hours, see [Configuration](#Configuration)
-- [sender].expire_days, see [Configuration](#Configuration)
-- [main].storage_server_type, see [Configuration](#Configuration)
+- [sender].skip_confirmation, see [Configuration](#Configuration)
+- [sender].max_price, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
 - [main].access_token, see [Configuration](#Configuration)
@@ -351,15 +348,10 @@ no go-swan-client subcommand should be executed
 - -miner(Required): Target storage provider id, e.g f01276
 
 **Configurations used in this step:**
-- [sender].public_deal, see [Configuration](#Configuration)
-- [sender].bid_mode, see [Configuration](#Configuration)
-- [sender].verified_deal, see [Configuration](#Configuration)
-- [sender].offline_mode, see [Configuration](#Configuration)
-- [sender].fast_retrieval, see [Configuration](#Configuration)
-- [sender].max_price, see [Configuration](#Configuration)
+- [sender].wallet, see [Configuration](#Configuration)
 - [sender].start_epoch_hours, see [Configuration](#Configuration)
-- [sender].expire_days, see [Configuration](#Configuration)
-- [main].storage_server_type, see [Configuration](#Configuration)
+- [sender].skip_confirmation, see [Configuration](#Configuration)
+- [sender].max_price, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
 - [main].access_token, see [Configuration](#Configuration)
