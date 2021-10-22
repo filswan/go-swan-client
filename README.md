@@ -85,7 +85,7 @@ chmod +x ./build_from_source.sh
 
 ## Configuration
 
-### lotus
+### [lotus]
 - **api_url:**  Url of lotus web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
 - **access_token:**  Access token of lotus node web api. It should have write access right. You can get it from your lotus node machine using command `lotus auth create-token --perm write`. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
 - **miner_api_url:**  Url of lotus miner web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **2345**
