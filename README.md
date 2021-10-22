@@ -147,8 +147,8 @@ This step is necessary for both public and private tasks. You can choose one of 
 ./go-swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
 **command parameters used in this step:**
-- **-input-dir (Required)** The directory where the source files reside in.
-- **-out-dir (optional)** Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
+- -input-dir (Required) The directory where the source files reside in.
+- -out-dir (optional) Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
 
 **configurations used in this step:**
 - [lotus].api_url, see [Configuration](#Configuration)
@@ -160,8 +160,8 @@ This step is necessary for both public and private tasks. You can choose one of 
 ./go-swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
 **command parameters used in this step:**
-- **-input-dir (Required)** The directory where the source files reside in.
-- **-out-dir (optional)** Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
+- -input-dir (Required) The directory where the source files reside in.
+- -out-dir (optional) Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
 
 **configurations used in this step:**
 - [lotus].api_url, see [Configuration](#Configuration)
