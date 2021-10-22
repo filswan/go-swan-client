@@ -145,9 +145,9 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 ## Create Car Files
 :bell: The input dir and out dir used for client tool should only be absolute one.
 
-### Step 1. Generate Car files for offline deal
+### Step 1. Generate Car files
 
-This step is necessary for both public and private tasks.
+This step is necessary for both public and private tasks. You can choose one of the following 2 options.
 
 #### Option:one: using lotus web json rpc api
 ```shell
