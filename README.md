@@ -128,15 +128,15 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 
 ### Option:one:
 - **Conditions:** [sender].public_deal=true and [sender].bid_mode=0
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files Using Lotus)->|A|,(start)->(Genrate Car Files Using Graphsplit)->|A|->(Upload Car Files)->(Create Public Manual-Bid Task)->(Send Deal)->(end)" >
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Step1.1 Genrate Car Files Using Lotus)->|A|,(start)->(Step1.2 Genrate Car Files Using Graphsplit)->|A|->(Step2 Upload Car Files)->(Step3.1 Create Public Manual-Bid Task)->(Step4 Send Deal)->(end)" >
 
 ### Option:two:
 - **Conditions:** [sender].public_deal=true and [sender].bid_mode=1
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files Using Lotus)->|A|,(start)->(Genrate Car Files Using Graphsplit)->|A|->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto Deal)->(end)" >
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Step1.1 Genrate Car Files Using Lotus)->|A|,(start)->(Step1.2 Genrate Car Files Using Graphsplit)->|A|->(Step2 Upload Car Files)->(Step3.2 Create Public Auto-Bid Task)->(Step4 Send Auto Deal)->(end)" >
 
 ### Option:three:
 - **Conditions:** [sender].public_deal=false and [sender].bid_mode=0
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files Using Lotus)->|A|,(start)->(Genrate Car Files Using Graphsplit)->|A|->(Upload Car Files)->(Create Private Manual-Bid Task)->(end)" >
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Step1.1 Genrate Car Files Using Lotus)->|A|,(start)->(Step1.2 Genrate Car Files Using Graphsplit)->|A|->(Step2 Upload Car Files)->(Step3.3 Create Private Manual-Bid Task)->(end)" >
 
 :bell: The input dir and out dir used for client tool should only be absolute one.
 
