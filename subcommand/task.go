@@ -135,7 +135,7 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 }
 
 func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) error {
-	csvFilename := task.TaskName + "_task.csv"
+	csvFilename := task.TaskName + ".csv"
 	csvFilePath, err := CreateCsv4TaskDeal(carFiles, outDir, csvFilename)
 	if err != nil {
 		logs.GetLogger().Error(err)

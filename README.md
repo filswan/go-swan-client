@@ -175,63 +175,51 @@ It is required to upload car files to file server after they are generated, eith
 
 ### Option:two: Public and Auto-Bid Task
 - **Conditions:** [sender].public_deal=true and [sender].bid_mode=1, see [Configuration](#Configuration)
+- **Note:** For auto-bid deal, the miner is ignored in step `Create A Task`, it will be allocated automatically by swan platform.
 
 ### Option:three: Public and Manual-Bid Task
 - **Conditions:** [sender].public_deal=true and [sender].bid_mode=0, see [Configuration](#Configuration)
+
 
 
 ```shell
 ./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
 ```
 - **-input-dir (Required)** Input directory where the generated car files and car.csv are located
-- **-out-dir (optional)** Metadata CSV and Swan task CSV will be generated to the given directory. Default: `output_dir` specified in config.toml
-- **-miner (Required)** Storage provider Id you want to send private deal to
-- **-dataset (optional)** The curated dataset from which the Car files are generated
+- **-out-dir (optional)** Metadata CSV and Swan task CSV will be generated to the given directory. Default: `output_dir`, see [Configuration](#Configuration)
+- **-miner (Required)** Storage provider Id you want to send deal to
+- **-dataset (optional)** The curated dataset from which the car files are generated
 - **-description (optional)** Details to better describe the data and confine the task or anything the storage provider needs to be informed.
 
 Two CSV files are generated after successfully running the command: task-name.csv, task-name-metadata.csv.
 
 [task-name.csv] is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
 
-```
-uuid,miner_id,deal_cid,payload_cid,file_source_url,md5,start_epoch,piece_cid,file_size
-```
-
-[task-name-metadata.csv] contains more content for creating proposal in the next step
-
-```
-uuid,source_file_name,source_file_path,source_file_md5,source_file_url,source_file_size,car_file_name,car_file_path,car_file_md5,car_file_url,car_file_size,deal_cid,data_cid,piece_cid,miner_id,start_epoch
-```
+[task-name-metadata.csv] and [task-name-metadata.json] contains more content for creating proposal in the next step
 
 ## Send deals
-Propose offline deal after one storage provider win the bid. Client needs to use the metadata CSV generated in the previous step for sending the offline deals to the storage provider.
 
-### Option:one: Manual-bid deal
+### Option:one: Manual deal
+
+- **Conditions:** [sender].public_deal=true and [sender].bid_mode=0, see [Configuration](#Configuration)
+- **Note** This step is used only for public deals, since for private deals, the step `Create A Task` includes sending deals.
+
 ```shell
-./go-swan-client deal -json [metadata_csv_dir/task-name-metadata.json] -out-dir [output_files_dir] -miner [storage_provider_id]
+./go-swan-client deal -json [task-name-metadata.json] -out-dir [output_files_dir] -miner [storage_provider_id]
 ```
 
-**-json (Required):** File path to the metadata CSV file. Mandatory metadata CSV fields: source_file_size, car_file_url, data_cid, piece_cid
-
-**-out-dir (optional):** Swan deal final CSV will be generated to the given directory. Default: output_dir specified in config.toml
-
-**-miner (Required):** Target storage provider id, e.g f01276
-
+- **-json (Required):** File path to the metadata CSV file. Mandatory metadata CSV fields: source_file_size, car_file_url, data_cid, piece_cid
+- **-out-dir (optional):** Swan deal final CSV will be generated to the given directory. Default: `output_dir`, see [Configuration](#Configuration)
+- **-miner (Required):** Target storage provider id, e.g f01276
 
 ### Option:two: Auto-bid deal
+
+- **Conditions:** [sender].public_deal=true and [sender].bid_mode=1, see [Configuration](#Configuration)
+- **Note** After swan allocated a miner to a task, the client needs to sending auto-bid deal using the information submitted to swan in step `Create A Task`
+
 ```shell
 ./go-swan-client auto -out-dir [output_files_dir]
 ```
 
-The autobid system between swan-client and swan-provider allows you to automatically send deals to a miner selected by Swan platform. All miners with auto-bid mode on have the chance to be selected but only one will be chosen based on Swan reputation system and Market Matcher. You can choose to start this service before or after creating tasks in Step 3. Noted here, only tasks with `bid_mode` set to `1` and `public_deal` set to `true` will be considered. A log file will be generated afterwards. 
+**--out-dir (optional):** A deal info csv containing information of deals sent and a corresponding deal final CSV with deals details will be generated to the given directory. Default: `output_dir`, see [Configuration](#Configuration)
 
-**--out-dir (optional):** A deal info csv containing information of deals sent and a corresponding deal final CSV with deals details will be generated to the given directory. Default: `output_dir` specified in config.toml
-
-#### Note:
-A successful autobid task will go through three major status - `Created`,`Assigned` and `DealSent`.
-The task status `ActionRequired` exists only when public task with autobid mode on failed in meeting the requirements of autobid.
-To avoid being set to `ActionRequired`, a task must be created or modified to have valid tasks and corresponding deals information as following.  
-
-A csv with name [task-name]-metadata-deals.csv is generated under the output directory, it contains the deal cid and
-storage provider id for the provider to process on Swan platform. You could re-upload this file to Swan platform while assign bid to storage provider or do a
-private deal.

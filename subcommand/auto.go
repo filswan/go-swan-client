@@ -40,9 +40,8 @@ func SendAutoBidDeal(outputDir *string) ([]string, error) {
 		}
 
 		deals := assignedTaskInfo.Data.Deal
-		miner := assignedTaskInfo.Data.Miner
 		task := assignedTaskInfo.Data.Task
-		dealSentNum, csvFilePath, err := SendAutobidDeal(deals, miner, task, outputDir)
+		dealSentNum, csvFilePath, err := SendAutobidDeal(deals, task, outputDir)
 		if err != nil {
 			csvFilepaths = append(csvFilepaths, csvFilePath)
 			logs.GetLogger().Error(err)
@@ -71,7 +70,7 @@ func SendAutoBidDeal(outputDir *string) ([]string, error) {
 	return csvFilepaths, nil
 }
 
-func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Task, outputDir *string) (int, string, error) {
+func SendAutobidDeal(deals []model.OfflineDeal, task model.Task, outputDir *string) (int, string, error) {
 	carFiles := []*model.FileDesc{}
 
 	dealSentNum := 0
