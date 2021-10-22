@@ -151,18 +151,16 @@ This step is necessary for both public and private tasks. You can choose one of 
 ```shell
 ./go-swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
-- **-input-dir (Required)** The directory where the source files reside in.
-- **-out-dir (optional)** Car files and metadata csv&json files will be generated into this directory. If not set, use default, see `output_dir` in [Configuration](#Configuration)
-
 ### Option:two: By graphsplit api
 ```shell
 ./go-swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
+Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
+
 
 - **-input-dir (Required)** The directory where the source files reside in.
 - **-out-dir (optional)** Car files and metadata csv&json files will be generated into this directory. If not set, use default, see `output_dir` in [Configuration](#Configuration)
-   
-Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
+
 
 ## Upload Car Files
 
@@ -182,6 +180,13 @@ using:
 ### Option:one: Private Task
 set `public_deal = false`, see [Configuration](#Configuration)
 
+### Option:two: Public and Auto-Bid Task
+set `public_deal = true, bid_mode=1`, see [Configuration](#Configuration)
+
+### Option:three: Public and Manual-Bid Task
+set `public_deal = true, bid_mode=0`, see [Configuration](#Configuration)
+
+
 ```shell
 ./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
 ```
@@ -190,20 +195,6 @@ set `public_deal = false`, see [Configuration](#Configuration)
 - **-miner (Required)** Storage provider Id you want to send private deal to
 - **-dataset (optional)** The curated dataset from which the Car files are generated
 - **-description (optional)** Details to better describe the data and confine the task or anything the storage provider needs to be informed.
-
-### Option:two: Public and Auto-Bid Task
-set `public_deal = true, bid_mode=1`, see [Configuration](#Configuration)
-
-```shell
-./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -name [task_name] -dataset [curated_dataset] -description [description]
-```
-
-- **--input-dir (Required)** Input directory where the generated car files and car.csv are located
-- **--out-dir (optional)** Metadata CSV and Swan task CSV will be generated to the given directory. Default: `output_dir` specified in config.toml 
-- **--name (optional)** Given task name while creating task on Swan platform. Default:
-swan-task-uuid
-- **--dataset (optional)** The curated dataset from which the Car files are generated
-- **--description (optional)** Details to better describe the data and confine the task or anything the storage provider needs to be informed
 
 Two CSV files are generated after successfully running the command: task-name.csv, task-name-metadata.csv.
 
