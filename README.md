@@ -306,25 +306,62 @@ no go-swan-client subcommand should be executed
 
 ### Option:one: Manual deal
 
-- **Conditions:** [sender].public_deal=true and [sender].bid_mode=0, see [Configuration](#Configuration)
+- **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
 - **Note** This step is used only for public deals, since for private deals, the step `Create A Task` includes sending deals.
-
 ```shell
 ./go-swan-client deal -json [task-name-metadata.json] -out-dir [output_files_dir] -miner [storage_provider_id]
 ```
+**Command parameters used in this step:**
+- -json(Required): File path to the metadata json file. Mandatory metadata fields: source_file_size, car_file_url, data_cid, piece_cid
+- -out-dir(optional): Swan deal final metadata files will be generated to the given directory. When ommitted, use default: `[sender].output_dir`, see [Configuration](#Configuration)
+- -miner(Required): Target storage provider id, e.g f01276
 
-- **-json (Required):** File path to the metadata CSV file. Mandatory metadata CSV fields: source_file_size, car_file_url, data_cid, piece_cid
-- **-out-dir (optional):** Swan deal final CSV will be generated to the given directory. Default: `output_dir`, see [Configuration](#Configuration)
-- **-miner (Required):** Target storage provider id, e.g f01276
+**Configurations used in this step:**
+- [sender].public_deal, see [Configuration](#Configuration)
+- [sender].bid_mode, see [Configuration](#Configuration)
+- [sender].verified_deal, see [Configuration](#Configuration)
+- [sender].offline_mode, see [Configuration](#Configuration)
+- [sender].fast_retrieval, see [Configuration](#Configuration)
+- [sender].max_price, see [Configuration](#Configuration)
+- [sender].start_epoch_hours, see [Configuration](#Configuration)
+- [sender].expire_days, see [Configuration](#Configuration)
+- [main].storage_server_type, see [Configuration](#Configuration)
+- [main].api_url, see [Configuration](#Configuration)
+- [main].api_key, see [Configuration](#Configuration)
+- [main].access_token, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+
+**Files generated after this step:**
+- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv contains more contents used for review
+- [task-name]-metadata.json contains more content for creating proposal in the next step
 
 ### Option:two: Auto-bid deal
 
-- **Conditions:** [sender].public_deal=true and [sender].bid_mode=1, see [Configuration](#Configuration)
+- **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
 - **Note** After swan allocated a miner to a task, the client needs to sending auto-bid deal using the information submitted to swan in step `Create A Task`
-
 ```shell
 ./go-swan-client auto -out-dir [output_files_dir]
 ```
+**Command parameters used in this step:**
+- -miner(Required): Target storage provider id, e.g f01276
 
-**--out-dir (optional):** A deal info csv containing information of deals sent and a corresponding deal final CSV with deals details will be generated to the given directory. Default: `output_dir`, see [Configuration](#Configuration)
+**Configurations used in this step:**
+- [sender].public_deal, see [Configuration](#Configuration)
+- [sender].bid_mode, see [Configuration](#Configuration)
+- [sender].verified_deal, see [Configuration](#Configuration)
+- [sender].offline_mode, see [Configuration](#Configuration)
+- [sender].fast_retrieval, see [Configuration](#Configuration)
+- [sender].max_price, see [Configuration](#Configuration)
+- [sender].start_epoch_hours, see [Configuration](#Configuration)
+- [sender].expire_days, see [Configuration](#Configuration)
+- [main].storage_server_type, see [Configuration](#Configuration)
+- [main].api_url, see [Configuration](#Configuration)
+- [main].api_key, see [Configuration](#Configuration)
+- [main].access_token, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
+**Files generated after this step:**
+- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv contains more contents used for review
+- [task-name]-metadata.json contains more content for creating proposal in the next step
