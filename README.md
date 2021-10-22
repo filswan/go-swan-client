@@ -127,6 +127,9 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 ## Flowcharts
 
 ### Option:one:
+- **Conditions:**
+-- public_deal=true
+-- bid_mode=0
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files Using Lotus)->|A|,(start)->(Genrate Car Files Using Graphsplit)->|A|->(Upload Car Files)->(Create Public Manual-Bid Task)->(Send Deal)->(end)" >
 
 ### Option:two:
