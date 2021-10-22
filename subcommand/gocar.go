@@ -48,6 +48,7 @@ func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 	}
 
 	carDir := *outputDir
+	carFilesCnt := 0
 	for _, srcFile := range srcFiles {
 		parentPath := filepath.Join(inputDir, srcFile.Name())
 		targetPath := parentPath
@@ -60,9 +61,10 @@ func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 		if err != nil {
 			logs.GetLogger().Error(err)
 		}
+		carFilesCnt = carFilesCnt + 1
 	}
-	logs.GetLogger().Info("car files generated")
-	carFiles, err := CreateCarFilesDesc2Files(inputDir, carDir)
+	logs.GetLogger().Info(carFilesCnt, " car files have been created to directory:", carDir)
+	carFiles, err := CreateCarFilesDesc(inputDir, carDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, err
@@ -84,7 +86,7 @@ type ManifestDetailLinkItem struct {
 	Size int
 }
 
-func CreateCarFilesDesc2Files(srcFileDir, carFileDir string) ([]*model.FileDesc, error) {
+func CreateCarFilesDesc(srcFileDir, carFileDir string) ([]*model.FileDesc, error) {
 	manifestFilename := "manifest.csv"
 	lines, err := utils.ReadAllLines(carFileDir, manifestFilename)
 	if err != nil {
