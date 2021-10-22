@@ -306,8 +306,11 @@ no go-swan-client subcommand should be executed
 
 ### Option:one: Manual deal
 
-- **Conditions:** `task can be found by uuid from swan platform` and `task.public_deal=true` and `task.bid_mode=0`
-- **Note** This step is used only for public deals, since for private deals, the step `Create A Task` includes sending deals.
+**Conditions:**
+- `task can be found by uuid from swan platform`
+- `task.public_deal=true`
+- `task.bid_mode=0`
+**Note** This step is used only for public deals, since for private deals, the step `Create A Task` includes sending deals.
 ```shell
 ./go-swan-client deal -json [task-name-metadata.json] -out-dir [output_files_dir] -miner [storage_provider_id]
 ```
