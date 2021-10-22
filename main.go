@@ -38,7 +38,7 @@ func execSubCmd() error {
 	case SUBCOMMAND_TASK:
 		createTask()
 	case SUBCOMMAND_DEAL:
-		sendDeal()
+		err = sendDeal()
 	case SUBCOMMAND_AUTO:
 		sendAutoBidDeal()
 	default:
@@ -167,7 +167,7 @@ func createTask() error {
 	return nil
 }
 
-func sendDeal() bool {
+func sendDeal() error {
 	cmd := flag.NewFlagSet(SUBCOMMAND_DEAL, flag.ExitOnError)
 
 	metadataJsonPath := cmd.String("json", "", "The JSON file path of deal metadata.")
@@ -177,30 +177,38 @@ func sendDeal() bool {
 	err := cmd.Parse(os.Args[2:])
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return false
+		return err
 	}
 
 	if !cmd.Parsed() {
-		logs.GetLogger().Error("Sub command parse failed.")
-		return false
+		err := fmt.Errorf("sub command parse failed")
+		logs.GetLogger().Error(err)
+		return err
 	}
 
 	if metadataJsonPath == nil || len(*metadataJsonPath) == 0 {
-		logs.GetLogger().Error("input-dir is required.")
-		return false
+		err := fmt.Errorf("input-dir is required")
+		logs.GetLogger().Error(err)
+		return err
 	}
 
 	if minerFid == nil || len(*minerFid) == 0 {
-		logs.GetLogger().Error("miner is required.")
-		return false
+		err := fmt.Errorf("miner is required")
+		logs.GetLogger().Error(err)
+		return err
 	}
 
 	logs.GetLogger().Info("metadata json file:", *metadataJsonPath)
 	logs.GetLogger().Info("output dir:", *outputDir)
 	logs.GetLogger().Info("miner:", *minerFid)
 
-	result := subcommand.SendDeals(*minerFid, outputDir, *metadataJsonPath)
-	return result
+	err = subcommand.SendDeals(*minerFid, outputDir, *metadataJsonPath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	return nil
 }
 
 func sendAutoBidDeal() bool {

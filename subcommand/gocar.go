@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -20,7 +19,6 @@ import (
 
 	"github.com/codingsince1985/checksum"
 	"github.com/filedrive-team/go-graphsplit"
-	"github.com/google/uuid"
 )
 
 func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.FileDesc, error) {
@@ -176,55 +174,4 @@ func CreateCarFilesDesc2Files(srcFileDir, carFileDir string) ([]*model.FileDesc,
 	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
 
 	return carFiles, nil
-}
-
-func GenerateGoCarFiles(inputDir, outputDir *string) bool {
-	if outputDir == nil {
-		outDir := filepath.Join(config.GetConfig().Sender.OutputDir, uuid.NewString())
-		outputDir = &outDir
-	}
-
-	err := os.MkdirAll(*outputDir, os.ModePerm)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return false
-	}
-
-	carFiles := []*model.FileDesc{}
-
-	srcFiles, err := ioutil.ReadDir(*inputDir)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return false
-	}
-
-	for _, srcFile := range srcFiles {
-		carFile := model.FileDesc{}
-		carFile.SourceFileName = srcFile.Name()
-		carFile.SourceFilePath = filepath.Join(*inputDir, carFile.SourceFileName)
-		carFile.SourceFileSize = srcFile.Size()
-
-		carFiles = append(carFiles, &carFile)
-	}
-
-	result := GenerateGoCar(carFiles, *outputDir)
-
-	return result
-}
-
-func GenerateGoCar(carFiles []*model.FileDesc, outputDir string) bool {
-	for _, carFile := range carFiles {
-		carFile.CarFileName = carFile.SourceFileName + ".car"
-		carFile.CarFilePath = filepath.Join(outputDir, carFile.CarFileName)
-
-		dataCid, carFileName, isSucceed := client.GraphSlit(outputDir, carFile.SourceFileName, carFile.CarFilePath)
-		if !isSucceed {
-			logs.GetLogger().Error("Failed to generate car file.")
-			return false
-		}
-		carFile.DataCid = *dataCid
-		carFile.CarFileName = *carFileName
-	}
-
-	return true
 }
