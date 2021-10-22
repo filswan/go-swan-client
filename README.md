@@ -90,24 +90,24 @@ chmod +x ./build_from_source.sh
 - **access_token:**  Access token of lotus node web api. It should have write access right. You can get it from your lotus node machine using command `lotus auth create-token --perm write`. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
 - **miner_api_url:**  Url of lotus miner web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **2345**
 
-### main
+### [main]
 
 - **api_url:** Swan API address. For Swan production, it is "https://api.filswan.com". It can be ignored if offline_mode is set to true in [sender] section
 - :bangbang:**api_key:** Your api key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in [sender] section.
 - :bangbang:**access_token:** Your access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in [sender] section.
 - :bangbang:**storage_server_type:** = "ipfs server"
 
-### web-server
+### [web-server]
 
 Store car files for downloading by storage provider, car file url will be [download_url_prefix]/[filename]
 - **download_url_prefix** web server url prefix, such as: https://[ip]:[port]/download
 
-### ipfs-server
+### [ipfs-server]
 
 Store car files for downloading by storage provider, car file url will be [download_url_prefix]/[filename]
 - **download_url_prefix** ipfs server url prefix, such as: "http://[ip]:[port]/ipfs"
 
-### sender
+### [sender]
 
 - **bid_mode:** [0/1] Default 1, which is auto-bid mod and it means swan will automatically allocate storage provider for it, while 0 is manual-bid mode and it needs to be bidded manually by storage providers.
 - **offline_mode:** [true/false] Default false. If it is set to true, you will not be able to create Swan task on filswan.com, but you can still create CSVs and Car Files for sending deals
