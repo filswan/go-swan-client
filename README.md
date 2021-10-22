@@ -131,15 +131,15 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 ## Flowcharts
 
 ### Option:one:
-- **Conditions:** [sender].public_deal=true and [sender].bid_mode=0
+- **Conditions:** [sender].public_deal=true and [sender].bid_mode=0, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Manual-Bid Task)->(Send Deals)->(end)" >
 
 ### Option:two:
-- **Conditions:** [sender].public_deal=true and [sender].bid_mode=1
+- **Conditions:** [sender].public_deal=true and [sender].bid_mode=1, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto-Bid Deals)->(end)" >
 
 ### Option:three:
-- **Conditions:** [sender].public_deal=false and [sender].bid_mode=0
+- **Conditions:** [sender].public_deal=false and [sender].bid_mode=0, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Private Manual-Bid Task)->(end)" >
 
 ## Create Car Files
@@ -169,7 +169,6 @@ It is required to upload car files to file server after they are generated, eith
 ### Option:one: To a web-server manually
 
 ### Option:two: To a local ipfs server
-using:
 ```shell
 ./go-swan-client upload -input-dir [input_file_dir]
 ```
