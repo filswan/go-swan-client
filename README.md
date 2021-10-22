@@ -72,12 +72,14 @@ chmod +x ./install.sh
 :bell:**go 1.16+** is required
 ```shell
 git clone https://github.com/filswan/go-swan-client.git
-cd go-swan-provider
+cd go-swan-client
 git checkout <release_branch>
 chmod +x ./build_from_source.sh
 ./build_from_source.sh
 ```
-Now your binary file go-swan-client is created under ./build directory, you can copy it to wherever you want and execute it from there.
+**After this step:**
+- The binary file go-swan-client is created under ./build directory, you can copy it to wherever you want and execute it from there.
+- The config file will be created in ~/.swan/client drectory, and its name is config.toml
 
 ## Configuration
 
