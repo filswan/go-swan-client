@@ -43,11 +43,10 @@ In swan project, a task can contain multiple offline deals. There are two basic 
   * Assigned: Tasks have been assigned to storage providers manually by users or automatically by autobid module.
   * ActionRequired: Task with autobid mode on,in other words,`bid_mode` set to `1` and `public_deal` set to `true`, have some information missing or invalid in the [task-name.csv],which cause the failure of automatically assigning storage providers. Action are required to fill in or modify the file and then update the task information on Swan platform with the new csv file.
   * DealSent: Tasks have been sent to storage providers after tasks being assigned.
-  
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)-><a>[meet F1]->(Assigned)-><B>,<a>[not meet F1]->(ActionRequired), <a>[F2]->(Created) (B)->(DealSent)->(end)" >
 
-- F1: auto-bid requirements for task
-- F2: 
+- Task status change process:
+**Option:one:**
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(DealSent)->(end)" >
 
 ### Offline Deal
 
@@ -85,7 +84,15 @@ chmod +x ./build_from_source.sh
 ./build_from_source.sh
 ```
 **After this step:**
-- The binary file go-swan-client is created under ./build directory, you can copy it to wherever you want and execute it from there.
+- The binary file go-swan-client is under ./build directory, you need to switch to it
+```shell
+cd build
+```
+- Before executing, you should check your configuration in `~/.swan/client/config.toml` to ensure it is right.
+```shell
+vi ~/.swan/client/config.toml
+```
+
 - The config file will be created in ~/.swan/client drectory, and its name is config.toml.
 
 ## Configuration
