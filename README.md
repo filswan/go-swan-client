@@ -117,6 +117,7 @@ Store car files for downloading by storage provider, car file url will be [downl
 - **max_price:** Max price willing to pay per GiB/epoch for offline deal
 - **start_epoch_hours:** start_epoch for deals in hours from current time
 - **expired_days:** expected completion days for storage provider sealing data 
+- **gocar_file_size_limit:** go car file size limit in bytes
 
 #### Note:
 The **duration** time for offline deals is set to `1512000` epoches in default, which stands for 525 days. It can be further modified in constant `DURATION` of `swan-client/task_sender/service/deal.py` for customized requirement.
@@ -149,6 +150,12 @@ This step is necessary for both public and private tasks. You can choose one of 
 ```shell
 ./go-swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
+
+**parameters used in this step:**
+- [sender].gocar_file_size_limit
+- [lotus].api_url
+- [lotus].access_token
+
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
 
 

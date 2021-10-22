@@ -70,6 +70,8 @@ func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 		return nil, nil, err
 	}
 
+	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
+
 	return outputDir, carFiles, nil
 }
 
@@ -170,9 +172,6 @@ func CreateCarFilesDesc(srcFileDir, carFileDir string) ([]*model.FileDesc, error
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
-
-	logs.GetLogger().Info("Car files output dir: ", carFileDir)
-	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
 
 	return carFiles, nil
 }
