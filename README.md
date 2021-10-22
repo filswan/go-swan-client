@@ -140,7 +140,7 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 ## Create Car Files
 :bell: The input dir and out dir should only be absolute one.
 
-This step is necessary for both public and private tasks. You can choose one of the following 2 options.
+:bell: This step is necessary for both public and private tasks. You can choose one of the following 2 options.
 
 ### Option:one: By lotus web json rpc api
 ```shell
@@ -174,7 +174,7 @@ Credits should be given to filedrive-team. More information can be found in http
 ## Upload Car Files
 :bell: The input dir should only be absolute one.
 
-It is required to upload car files to file server after they are generated, either to web server or to ipfs server.
+:bell: It is required to upload car files to file server, either to web server or to ipfs server.
 
 ### Option:one: To a web-server manually
 ```shell
@@ -198,7 +198,7 @@ no go-swan-client subcommand should be executed
 ## Create A Task
 :bell: The input dir and out dir should only be absolute one.
 
-This step is necessary for both public and private tasks. You can choose one of the following 3 options.
+:bell: This step is necessary for both public and private tasks. You can choose one of the following 3 options.
 
 ### Option:one: Private Task
 - **Conditions:** [sender].public_deal=false, see [Configuration](#Configuration)
@@ -230,7 +230,7 @@ Two CSV files are generated after successfully running the command: task-name.cs
 ## Send deals
 :bell: The input dir and out dir should only be absolute one.
 
-This step is only necessary for public tasks. You can choose one of the following 2 options according to your task bid_mode.
+:bell: This step is only necessary for public tasks. You can choose one of the following 2 options according to your task bid_mode.
 
 ### Option:one: Manual deal
 
