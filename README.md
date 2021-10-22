@@ -177,12 +177,23 @@ Credits should be given to filedrive-team. More information can be found in http
 It is required to upload car files to file server after they are generated, either to web server or to ipfs server.
 
 ### Option:one: To a web-server manually
+```shell
+no go-swan-client subcommand should be executed
+```
+**configurations used in this step:**
+- [main].storage_server_type, it should be set to `web server`, see [Configuration](#Configuration)
 
 ### Option:two: To a local ipfs server
 ```shell
 ./go-swan-client upload -input-dir [input_file_dir]
 ```
-- **-input-dir (Required)** The directory where the car files and metadata json file reside in.
+**command parameters used in this step:**
+- -input-dir (Required) The directory where the car files and metadata files reside in. Metadata files will be used and updated after car files uploaded.
+
+**configurations used in this step:**
+- [main].storage_server_type, it should be set to `ipfs server` see [Configuration](#Configuration)
+- [ipfs_server].download_url_prefix, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 ## Create A Task
 :bell: The input dir and out dir should only be absolute one.
