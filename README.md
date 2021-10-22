@@ -127,7 +127,7 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 ## How to use
 
 
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files Using Lotus)->|A|,(start)->(Genrate Car Files Using Graphsplit)->|A|->(Upload Car Files)-><f1>[Filter1]->(Create Public Manual-Bid Task)->|B|,<f1>[Filter2]->(Create Public Manual-Bid Task)->|B|,<f1>[Filter1]->(Create Public Manual-Bid Task)->|B|,|B|->(Send Deal)->(end)" >
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files Using Lotus)->|A|,(start)->(Genrate Car Files Using Graphsplit)->|A|->(Upload Car Files)-><f1>[Filter1]->(Create Public Manual-Bid Task)->|B|,<f1>[Filter2]->(Create Public Auto-Bid Task)->|B|,<f1>[Filter1]->(Create Private Manual-Bid Task)->|B|,|B|->(Send Deal)->(end)" >
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files)->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto Deal)->(end)" >
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files)->(Upload Car Files)->(Create Private Manual-Bid Task)->(end)" >
 
