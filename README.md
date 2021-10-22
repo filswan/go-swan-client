@@ -127,21 +127,7 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 ## How to use
 
 
-st=>start: Start:>http://www.google.com[blank]
-e=>end:>http://www.google.com
-op1=>operation: My Operation
-sub1=>subroutine: My Subroutine
-cond=>condition: Yes
-or No?:>http://www.google.com
-io=>inputoutput: catch something...
-para=>parallel: parallel tasks
-
-st->op1->cond
-cond(yes)->io->e
-cond(no)->para
-para(path1, bottom)->sub1(right)->op1
-para(path2, top)->op1
-
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files)->(Upload Car Files)->(Create Public Manual-bid Task)->(Send Deal)->(end)" >
 
 :bell: The input dir and out dir used for client tool should only be absolute one.
 
