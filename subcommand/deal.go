@@ -7,15 +7,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"go-swan-client/config"
-
-	"go-swan-client/model"
-
-	"go-swan-client/logs"
-
-	"go-swan-client/common/constants"
-
 	"go-swan-client/common/client"
+	"go-swan-client/common/constants"
+	"go-swan-client/config"
+	"go-swan-client/logs"
+	"go-swan-client/model"
 
 	"github.com/shopspring/decimal"
 )
