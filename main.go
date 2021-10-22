@@ -28,7 +28,7 @@ func execSubCmd() error {
 		logs.GetLogger().Fatal("Sub command is required.")
 	}
 
-	var err error
+	var err error = nil
 	subCmd := os.Args[1]
 	switch subCmd {
 	case SUBCOMMAND_CAR, SUBCOMMAND_GOCAR:
@@ -36,17 +36,22 @@ func execSubCmd() error {
 	case SUBCOMMAND_UPLOAD:
 		err = uploadFile()
 	case SUBCOMMAND_TASK:
-		createTask()
+		err = createTask()
 	case SUBCOMMAND_DEAL:
 		err = sendDeal()
 	case SUBCOMMAND_AUTO:
-		sendAutoBidDeal()
+		err = sendAutoBidDeal()
 	default:
 		err = fmt.Errorf("sub command should be: car|gocar|upload|task|deal|auto")
 		logs.GetLogger().Error(err)
 	}
 
-	return err
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	return nil
 }
 
 //python3 swan_cli.py car --input-dir /home/peware/testGoSwanProvider/input --out-dir /home/peware/testGoSwanProvider/output
@@ -163,7 +168,13 @@ func createTask() error {
 
 	logs.GetLogger().Info(inputDir, outputDir, minerFid, dataset, description)
 
-	subcommand.CreateTask(*inputDir, taskName, outputDir, minerFid, dataset, description)
+	jsonFileName, err := subcommand.CreateTask(*inputDir, taskName, outputDir, minerFid, dataset, description)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+	logs.GetLogger().Info("Task information is in:", *jsonFileName)
+
 	return nil
 }
 
@@ -211,7 +222,7 @@ func sendDeal() error {
 	return nil
 }
 
-func sendAutoBidDeal() bool {
+func sendAutoBidDeal() error {
 	cmd := flag.NewFlagSet(SUBCOMMAND_DEAL, flag.ExitOnError)
 
 	outputDir := cmd.String("out-dir", "", "Directory where target files will in.")
@@ -219,15 +230,24 @@ func sendAutoBidDeal() bool {
 	err := cmd.Parse(os.Args[2:])
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return false
+		return err
 	}
 
 	if !cmd.Parsed() {
-		logs.GetLogger().Error("Sub command parse failed.")
-		return false
+		err := fmt.Errorf("sub command parse failed")
+		logs.GetLogger().Error(err)
+		return err
 	}
 
-	subcommand.SendAutoBidDeal(outputDir)
+	csvFilepaths, err := subcommand.SendAutoBidDeal(outputDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
 
-	return true
+	for _, csvFilepath := range csvFilepaths {
+		logs.GetLogger().Info(csvFilepath, " is generated")
+	}
+
+	return nil
 }
