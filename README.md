@@ -146,23 +146,30 @@ This step is necessary for both public and private tasks. You can choose one of 
 ```shell
 ./go-swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
+**command parameters used in this step:**
+- **-input-dir (Required)** The directory where the source files reside in.
+- **-out-dir (optional)** Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
+
+**configurations used in this step:**
+- [lotus].api_url, see [Configuration](#Configuration)
+- [lotus].access_token, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+
 ### Option:two: By graphsplit api
 ```shell
 ./go-swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
+**command parameters used in this step:**
+- **-input-dir (Required)** The directory where the source files reside in.
+- **-out-dir (optional)** Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
 
-**parameters used in this step:**
+**configurations used in this step:**
 - [lotus].api_url, see [Configuration](#Configuration)
 - [lotus].access_token, see [Configuration](#Configuration)
 - [sender].gocar_file_size_limit, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
-
-
-- **-input-dir (Required)** The directory where the source files reside in.
-- **-out-dir (optional)** Car files and metadata csv&json files will be generated into this directory. If not set, use default, see `output_dir` in [Configuration](#Configuration)
-
 
 ## Upload Car Files
 :bell: The input dir should only be absolute one.

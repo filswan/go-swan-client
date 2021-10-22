@@ -48,7 +48,6 @@ func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 	}
 
 	carDir := *outputDir
-	carFilesCnt := 0
 	for _, srcFile := range srcFiles {
 		parentPath := filepath.Join(inputDir, srcFile.Name())
 		targetPath := parentPath
@@ -61,15 +60,14 @@ func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 		if err != nil {
 			logs.GetLogger().Error(err)
 		}
-		carFilesCnt = carFilesCnt + 1
 	}
-	logs.GetLogger().Info(carFilesCnt, " car files have been created to directory:", carDir)
 	carFiles, err := CreateCarFilesDesc(inputDir, carDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, err
 	}
 
+	logs.GetLogger().Info(len(carFiles), " car files have been created to directory:", carDir)
 	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
 
 	return outputDir, carFiles, nil
