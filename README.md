@@ -79,7 +79,7 @@ chmod +x ./build_from_source.sh
 ```
 **After this step:**
 - The binary file go-swan-client is created under ./build directory, you can copy it to wherever you want and execute it from there.
-- The config file will be created in ~/.swan/client drectory, and its name is config.toml
+- The config file will be created in ~/.swan/client drectory, and its name is config.toml.
 
 ## Configuration
 
