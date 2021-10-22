@@ -28,7 +28,7 @@ type Task struct {
 	Tags              string           `json:"tags"`
 	MinerFid          *string          `json:"miner_id"`
 	Type              *string          `json:"type"`
-	IsPublic          int              `json:"is_public"`
+	IsPublic          *int             `json:"is_public"`
 	MinPrice          *decimal.Decimal `json:"min_price"`
 	MaxPrice          *decimal.Decimal `json:"max_price"`
 	ExpireDays        *int             `json:"expire_days"`

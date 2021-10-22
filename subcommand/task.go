@@ -73,29 +73,28 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 		return nil, err
 	}
 
+	isPublic := 0
+	if publicDeal {
+		isPublic = 1
+	}
+
+	taskType := constants.TASK_TYPE_REGULAR
+	if verifiedDeal {
+		taskType = constants.TASK_TYPE_VERIFIED
+	}
+
 	task := model.Task{
 		TaskName:          *taskName,
 		CuratedDataset:    *dataset,
 		Description:       *description,
 		FastRetrievalBool: fastRetrieval,
+		Type:              &taskType,
+		IsPublic:          &isPublic,
 		MaxPrice:          &maxPrice,
 		BidMode:           &bidMode,
 		ExpireDays:        &expireDays,
 		MinerFid:          minerFid,
 		Uuid:              uuid.NewString(),
-	}
-	if publicDeal {
-		task.IsPublic = 1
-	} else {
-		task.IsPublic = 0
-	}
-
-	if verifiedDeal {
-		taskType := constants.TASK_TYPE_VERIFIED
-		task.Type = &taskType
-	} else {
-		taskType := constants.TASK_TYPE_REGULAR
-		task.Type = &taskType
 	}
 
 	storageServerType := config.GetConfig().Main.StorageServerType

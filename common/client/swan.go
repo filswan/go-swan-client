@@ -159,7 +159,7 @@ func (swanClient *SwanClient) SwanCreateTask(task model.Task, csvFilePath string
 	params["task_name"] = task.TaskName
 	params["curated_dataset"] = task.CuratedDataset
 	params["description"] = task.Description
-	params["is_public"] = strconv.Itoa(task.IsPublic)
+	params["is_public"] = strconv.Itoa(*task.IsPublic)
 
 	params["type"] = *task.Type
 
