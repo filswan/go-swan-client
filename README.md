@@ -146,11 +146,11 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 ```shell
 ./go-swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
-**command parameters used in this step:**
+**Command parameters used in this step:**
 - -input-dir(Required): The directory where the source files reside in.
 - -out-dir(optional): Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
 
-**configurations used in this step:**
+**Configurations used in this step:**
 - [lotus].api_url, see [Configuration](#Configuration)
 - [lotus].access_token, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
@@ -159,11 +159,11 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 ```shell
 ./go-swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
-**command parameters used in this step:**
+**Command parameters used in this step:**
 - -input-dir(Required): The directory where the source files reside in.
 - -out-dir(optional): Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
 
-**configurations used in this step:**
+**Configurations used in this step:**
 - [lotus].api_url, see [Configuration](#Configuration)
 - [lotus].access_token, see [Configuration](#Configuration)
 - [sender].gocar_file_size_limit, see [Configuration](#Configuration)
@@ -180,17 +180,17 @@ Credits should be given to filedrive-team. More information can be found in http
 ```shell
 no go-swan-client subcommand should be executed
 ```
-**configurations used in this step:**
+**Configurations used in this step:**
 - [main].storage_server_type, it should be set to `web server`, see [Configuration](#Configuration)
 
 ### Option:two: To a local ipfs server
 ```shell
 ./go-swan-client upload -input-dir [input_file_dir]
 ```
-**command parameters used in this step:**
+**Command parameters used in this step:**
 - -input-dir(Required): The directory where the car files and metadata files reside in. Metadata files will be used and updated after car files uploaded.
 
-**configurations used in this step:**
+**Configurations used in this step:**
 - [main].storage_server_type, it should be set to `ipfs server` see [Configuration](#Configuration)
 - [ipfs_server].download_url_prefix, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
@@ -205,14 +205,14 @@ no go-swan-client subcommand should be executed
 ```shell
 ./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
 ```
-**command parameters used in this step:**
+**Command parameters used in this step:**
 - -input-dir(Required): Input directory where the generated car files and metadata files reside in.
 - -out-dir(optional): Metadata files and swan task file will be generated to this directory. When ommitted, use default `[send].output_dir`, see [Configuration](#Configuration)
 - -miner(Required): Storage provider Id you want to send deal to
 - -dataset(optional): The curated dataset from which the car files are generated
 - -description(optional): Details to better describe the data and confine the task or anything the storage provider needs to be informed.
 
-**configurations used in this step:**
+**Configurations used in this step:**
 - [sender].public_deal, see [Configuration](#Configuration)
 - [sender].bid_mode, see [Configuration](#Configuration)
 - [sender].verified_deal, see [Configuration](#Configuration)
@@ -230,19 +230,24 @@ no go-swan-client subcommand should be executed
 - [lotus].api_url, see [Configuration](#Configuration)
 - [lotus].access_token, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+
+**Files generated after this step:**
+- [task-name.csv] is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
+- [task-name-metadata.csv] contains more contents used for review
+- [task-name-metadata.json] contains more content for creating proposal in the next step
 
 ### Option:two: Public and Auto-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
 ```shell
 ./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -dataset [curated_dataset] -description [description]
 ```
-**command parameters used in this step:**
+**Command parameters used in this step:**
 - -input-dir(Required): Input directory where the generated car files and metadata files reside in.
 - -out-dir(optional): Metadata files and swan task file will be generated to this directory. When ommitted, use default `[send].output_dir`, see [Configuration](#Configuration)
 - -dataset(optional): The curated dataset from which the car files are generated
 - -description(optional): Details to better describe the data and confine the task or anything the storage provider needs to be informed.
 
-**configurations used in this step:**
+**Configurations used in this step:**
 - [sender].public_deal, see [Configuration](#Configuration)
 - [sender].bid_mode, see [Configuration](#Configuration)
 - [sender].verified_deal, see [Configuration](#Configuration)
@@ -256,20 +261,25 @@ no go-swan-client subcommand should be executed
 - [main].api_key, see [Configuration](#Configuration)
 - [main].access_token, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+
+**Files generated after this step:**
+- [task-name.csv] is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
+- [task-name-metadata.csv] contains more contents used for review
+- [task-name-metadata.json] contains more content for creating proposal in the next step
 
 ### Option:three: Public and Manual-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
 ```shell
 ./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
 ```
-**command parameters used in this step:**
+**Command parameters used in this step:**
 - -input-dir(Required): Input directory where the generated car files and metadata files reside in.
 - -out-dir(optional): Metadata files and swan task file will be generated to this directory. When ommitted, use default `[send].output_dir`, see [Configuration](#Configuration)
 - -miner(Required): Storage provider Id you want to send deal to
 - -dataset(optional): The curated dataset from which the car files are generated
 - -description(optional): Details to better describe the data and confine the task or anything the storage provider needs to be informed.
 
-**configurations used in this step:**
+**Configurations used in this step:**
 - [sender].public_deal, see [Configuration](#Configuration)
 - [sender].bid_mode, see [Configuration](#Configuration)
 - [sender].verified_deal, see [Configuration](#Configuration)
@@ -278,21 +288,16 @@ no go-swan-client subcommand should be executed
 - [sender].max_price, see [Configuration](#Configuration)
 - [sender].start_epoch_hours, see [Configuration](#Configuration)
 - [sender].expire_days, see [Configuration](#Configuration)
-- [sender].wallet, see [Configuration](#Configuration)
-- [sender].skip_confirmation, see [Configuration](#Configuration)
 - [main].storage_server_type, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
 - [main].access_token, see [Configuration](#Configuration)
-- [lotus].api_url, see [Configuration](#Configuration)
-- [lotus].access_token, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
-Two CSV files are generated after successfully running the command: task-name.csv, task-name-metadata.csv.
-
-[task-name.csv] is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
-
-[task-name-metadata.csv] and [task-name-metadata.json] contains more content for creating proposal in the next step
+**Files generated after this step:**
+- [task-name.csv] is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
+- [task-name-metadata.csv] contains more contents used for review
+- [task-name-metadata.json] contains more content for creating proposal in the next step
 
 ## Send deals
 :bell: The input dir and out dir should only be absolute one.
