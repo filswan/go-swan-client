@@ -126,7 +126,7 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 
 ## How to use
 
-:bell: The input dir and out dir used for client tool should only be absolute path.
+:bell: The input dir and out dir used for client tool should only be absolute one.
 
 ### Step 1. Generate Car files for offline deal
 
@@ -144,58 +144,46 @@ This step is necessary for both public and private tasks.
 
 The -out-dir can be ignored, in such cases, the output directory will be: [sender].output_dir config item join a time string
 
-For example: /tmp/tasks/7f33a9d6-47d0-4635-b152-5e380733bf09
-Meanwhile, a car.csv and a manifest.csv with the detail information of the corresponding car files will be generated in the same output directory.    
+When finish, the car files and a car.csv, a car.json and a manifest.csv which describe the car files will be generated in the output directory.    
    
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
 
-### Step 2: Upload Car files to webserver or ipfs server
+### Step 2: Upload Car files to web server or ipfs server
 
 After the car files are generated, you need to copy the files to a web-server manually, or you can upload the files to local ipfs server.
 
 If you decide to upload the files to an open ipfs server:
 ```shell
-./go-swan-client upload --input-dir [input_file_dir]
+./go-swan-client upload -input-dir [input_file_dir]
 ```
 
 ### Step 3. Create a task
 
-#### Options 1: Private Task
-
+#### Option:one: Private Task
 in `config.toml`: set `public_deal = false`
 
 ```shell
 ./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
 ```
-**--input-dir (Required)** Input directory where the generated car files and car.csv are located
+**-input-dir (Required)** Input directory where the generated car files and car.csv are located
+**-out-dir (optional)** Metadata CSV and Swan task CSV will be generated to the given directory. Default: `output_dir` specified in config.toml
+**-miner (Required)** Storage provider Id you want to send private deal to
+**-dataset (optional)** The curated dataset from which the Car files are generated
+**-description (optional)** Details to better describe the data and confine the task or anything the storage provider needs to be informed.
 
-**--out-dir (optional)** Metadata CSV and Swan task CSV will be generated to the given directory. Default: `output_dir` specified in config.toml
-
-**--miner (Required)** Storage provider Id you want to send private deal to
-
-**--dataset (optional)** The curated dataset from which the Car files are generated
-
-**--description (optional)** Details to better describe the data and confine the task or anything the storage provider needs to be informed.
-
-#### Options 2: Public Task
+#### Option:two: Public Task
 
 in `config.toml`: set `public_deal = true`
-
-1. Generate the public task
 
 ```shell
 ./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -name [task_name] -dataset [curated_dataset] -description [description]
 ```
 
 **--input-dir (Required)** Input directory where the generated car files and car.csv are located
-
 **--out-dir (optional)** Metadata CSV and Swan task CSV will be generated to the given directory. Default: `output_dir` specified in config.toml 
-
 **--name (optional)** Given task name while creating task on Swan platform. Default:
 swan-task-uuid
-
 **--dataset (optional)** The curated dataset from which the Car files are generated
-
 **--description (optional)** Details to better describe the data and confine the task or anything the storage provider needs to be informed
 
 Two CSV files are generated after successfully running the command: task-name.csv, task-name-metadata.csv.
