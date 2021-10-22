@@ -61,12 +61,14 @@ func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 			logs.GetLogger().Error(err)
 		}
 	}
-	logs.GetLogger().Info("car files generated")
-	carFiles, err := CreateCarFilesDesc2Files(inputDir, carDir)
+	carFiles, err := CreateCarFilesDesc(inputDir, carDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, err
 	}
+
+	logs.GetLogger().Info(len(carFiles), " car files have been created to directory:", carDir)
+	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
 
 	return outputDir, carFiles, nil
 }
@@ -84,7 +86,7 @@ type ManifestDetailLinkItem struct {
 	Size int
 }
 
-func CreateCarFilesDesc2Files(srcFileDir, carFileDir string) ([]*model.FileDesc, error) {
+func CreateCarFilesDesc(srcFileDir, carFileDir string) ([]*model.FileDesc, error) {
 	manifestFilename := "manifest.csv"
 	lines, err := utils.ReadAllLines(carFileDir, manifestFilename)
 	if err != nil {
@@ -128,14 +130,13 @@ func CreateCarFilesDesc2Files(srcFileDir, carFileDir string) ([]*model.FileDesc,
 			return nil, err
 		}
 
-		logs.GetLogger().Info("dataCid:", *dataCid)
 		carFile.DataCid = *dataCid
 
 		carFileDetail := fields[4]
 		for i := 5; i < len(fields); i++ {
 			carFileDetail = carFileDetail + "," + fields[i]
 		}
-		logs.GetLogger().Info("carFileDetail:", carFileDetail)
+
 		manifestDetail := ManifestDetail{}
 		err = json.Unmarshal([]byte(carFileDetail), &manifestDetail)
 		if err != nil {
@@ -169,9 +170,6 @@ func CreateCarFilesDesc2Files(srcFileDir, carFileDir string) ([]*model.FileDesc,
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
-
-	logs.GetLogger().Info("Car files output dir: ", carFileDir)
-	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
 
 	return carFiles, nil
 }

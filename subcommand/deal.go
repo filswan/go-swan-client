@@ -7,15 +7,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"go-swan-client/config"
-
-	"go-swan-client/model"
-
-	"go-swan-client/logs"
-
-	"go-swan-client/common/constants"
-
 	"go-swan-client/common/client"
+	"go-swan-client/common/constants"
+	"go-swan-client/config"
+	"go-swan-client/logs"
+	"go-swan-client/model"
 
 	"github.com/shopspring/decimal"
 )
@@ -41,8 +37,14 @@ func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) erro
 		return err
 	}
 
-	if task.Data.Task.BidMode != nil && *task.Data.Task.BidMode == constants.TASK_BID_MODE_AUTO {
-		err := fmt.Errorf("Task:%s is in auto_bid mode, you should use auto sub command to send deals for it.", task.Data.Task.TaskName)
+	if task.Data.Task.BidMode == nil && *task.Data.Task.BidMode != constants.TASK_BID_MODE_MANUAL {
+		err := fmt.Errorf("auto_bid mode for task:%s is not manual, please check", task.Data.Task.TaskName)
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if task.Data.Task.IsPublic == nil && *task.Data.Task.IsPublic != constants.TASK_IS_PUBLIC {
+		err := fmt.Errorf("task:%s is not in public mode,please check", task.Data.Task.TaskName)
 		logs.GetLogger().Error(err)
 		return err
 	}

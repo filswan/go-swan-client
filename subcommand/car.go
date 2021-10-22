@@ -101,7 +101,7 @@ func GenerateCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 		return nil, nil, err
 	}
 
-	logs.GetLogger().Info("Car files output dir: ", *outputDir)
+	logs.GetLogger().Info(len(carFiles), " car files have been created to directory:", *outputDir)
 	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
 
 	return outputDir, carFiles, nil

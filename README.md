@@ -117,6 +117,7 @@ Store car files for downloading by storage provider, car file url will be [downl
 - **max_price:** Max price willing to pay per GiB/epoch for offline deal
 - **start_epoch_hours:** start_epoch for deals in hours from current time
 - **expired_days:** expected completion days for storage provider sealing data 
+- **gocar_file_size_limit:** go car file size limit in bytes
 
 #### Note:
 The **duration** time for offline deals is set to `1512000` epoches in default, which stands for 525 days. It can be further modified in constant `DURATION` of `swan-client/task_sender/service/deal.py` for customized requirement.
@@ -125,108 +126,246 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 ## Flowcharts
 
 ### Option:one:
-- **Conditions:** [sender].public_deal=true and [sender].bid_mode=0, see [Configuration](#Configuration)
+- **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Manual-Bid Task)->(Send Deals)->(end)" >
 
 ### Option:two:
-- **Conditions:** [sender].public_deal=true and [sender].bid_mode=1, see [Configuration](#Configuration)
+- **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto-Bid Deals)->(end)" >
 
 ### Option:three:
-- **Conditions:** [sender].public_deal=false and [sender].bid_mode=0, see [Configuration](#Configuration)
+- **Conditions:** `[sender].public_deal=false` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Private Manual-Bid Task)->(end)" >
 
 ## Create Car Files
 :bell: The input dir and out dir should only be absolute one.
 
-This step is necessary for both public and private tasks. You can choose one of the following 2 options.
+:bell: This step is necessary for both public and private tasks. You can choose one of the following 2 options.
 
 ### Option:one: By lotus web json rpc api
 ```shell
 ./go-swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
+**Command parameters used in this step:**
+- -input-dir(Required): The directory where the source files reside in.
+- -out-dir(optional): Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
+
+**Configurations used in this step:**
+- [lotus].api_url, see [Configuration](#Configuration)
+- [lotus].access_token, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+
 ### Option:two: By graphsplit api
 ```shell
 ./go-swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
+**Command parameters used in this step:**
+- -input-dir(Required): The directory where the source files reside in.
+- -out-dir(optional): Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
+
+**Configurations used in this step:**
+- [lotus].api_url, see [Configuration](#Configuration)
+- [lotus].access_token, see [Configuration](#Configuration)
+- [sender].gocar_file_size_limit, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
-
-
-- **-input-dir (Required)** The directory where the source files reside in.
-- **-out-dir (optional)** Car files and metadata csv&json files will be generated into this directory. If not set, use default, see `output_dir` in [Configuration](#Configuration)
-
 
 ## Upload Car Files
 :bell: The input dir should only be absolute one.
 
-It is required to upload car files to file server after they are generated, either to web server or to ipfs server.
+:bell: It is required to upload car files to file server, either to web server or to ipfs server.
 
 ### Option:one: To a web-server manually
+```shell
+no go-swan-client subcommand should be executed
+```
+**Configurations used in this step:**
+- [main].storage_server_type, it should be set to `web server`, see [Configuration](#Configuration)
 
 ### Option:two: To a local ipfs server
 ```shell
 ./go-swan-client upload -input-dir [input_file_dir]
 ```
-- **-input-dir (Required)** The directory where the car files and metadata json file reside in.
+**Command parameters used in this step:**
+- -input-dir(Required): The directory where the car files and metadata files reside in. Metadata files will be used and updated after car files uploaded.
+
+**Configurations used in this step:**
+- [main].storage_server_type, it should be set to `ipfs server` see [Configuration](#Configuration)
+- [ipfs_server].download_url_prefix, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 ## Create A Task
 :bell: The input dir and out dir should only be absolute one.
 
-This step is necessary for both public and private tasks. You can choose one of the following 3 options.
+:bell: This step is necessary for both public and private tasks. You can choose one of the following 3 options.
 
 ### Option:one: Private Task
-- **Conditions:** [sender].public_deal=false, see [Configuration](#Configuration)
-
-### Option:two: Public and Auto-Bid Task
-- **Conditions:** [sender].public_deal=true and [sender].bid_mode=1, see [Configuration](#Configuration)
-- **Note:** For auto-bid deal, the miner is ignored in step `Create A Task`, it will be allocated automatically by swan platform.
-
-### Option:three: Public and Manual-Bid Task
-- **Conditions:** [sender].public_deal=true and [sender].bid_mode=0, see [Configuration](#Configuration)
-
-
-
+- **Conditions:** `[sender].public_deal=false`, see [Configuration](#Configuration)
 ```shell
 ./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
 ```
-- **-input-dir (Required)** Input directory where the generated car files and car.csv are located
-- **-out-dir (optional)** Metadata CSV and Swan task CSV will be generated to the given directory. Default: `output_dir`, see [Configuration](#Configuration)
-- **-miner (Required)** Storage provider Id you want to send deal to
-- **-dataset (optional)** The curated dataset from which the car files are generated
-- **-description (optional)** Details to better describe the data and confine the task or anything the storage provider needs to be informed.
+**Command parameters used in this step:**
+- -input-dir(Required): Input directory where the generated car files and metadata files reside in.
+- -out-dir(optional): Metadata files and swan task file will be generated to this directory. When ommitted, use default `[send].output_dir`, see [Configuration](#Configuration)
+- -miner(Required): Storage provider Id you want to send deal to
+- -dataset(optional): The curated dataset from which the car files are generated
+- -description(optional): Details to better describe the data and confine the task or anything the storage provider needs to be informed.
 
-Two CSV files are generated after successfully running the command: task-name.csv, task-name-metadata.csv.
+**Configurations used in this step:**
+- [sender].public_deal, see [Configuration](#Configuration)
+- [sender].bid_mode, see [Configuration](#Configuration)
+- [sender].verified_deal, see [Configuration](#Configuration)
+- [sender].offline_mode, see [Configuration](#Configuration)
+- [sender].fast_retrieval, see [Configuration](#Configuration)
+- [sender].max_price, see [Configuration](#Configuration)
+- [sender].start_epoch_hours, see [Configuration](#Configuration)
+- [sender].expire_days, see [Configuration](#Configuration)
+- [sender].wallet, see [Configuration](#Configuration)
+- [sender].skip_confirmation, see [Configuration](#Configuration)
+- [main].storage_server_type, see [Configuration](#Configuration)
+- [main].api_url, see [Configuration](#Configuration)
+- [main].api_key, see [Configuration](#Configuration)
+- [main].access_token, see [Configuration](#Configuration)
+- [lotus].api_url, see [Configuration](#Configuration)
+- [lotus].access_token, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
-[task-name.csv] is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
+**Files generated after this step:**
+- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv contains more contents used for review
+- [task-name]-metadata.json contains more content for creating proposal in the next step
 
-[task-name-metadata.csv] and [task-name-metadata.json] contains more content for creating proposal in the next step
+### Option:two: Public and Auto-Bid Task
+- **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
+```shell
+./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -dataset [curated_dataset] -description [description]
+```
+**Command parameters used in this step:**
+- -input-dir(Required): Input directory where the generated car files and metadata files reside in.
+- -out-dir(optional): Metadata files and swan task file will be generated to this directory. When ommitted, use default `[send].output_dir`, see [Configuration](#Configuration)
+- -dataset(optional): The curated dataset from which the car files are generated
+- -description(optional): Details to better describe the data and confine the task or anything the storage provider needs to be informed.
+
+**Configurations used in this step:**
+- [sender].public_deal, see [Configuration](#Configuration)
+- [sender].bid_mode, see [Configuration](#Configuration)
+- [sender].verified_deal, see [Configuration](#Configuration)
+- [sender].offline_mode, see [Configuration](#Configuration)
+- [sender].fast_retrieval, see [Configuration](#Configuration)
+- [sender].max_price, see [Configuration](#Configuration)
+- [sender].start_epoch_hours, see [Configuration](#Configuration)
+- [sender].expire_days, see [Configuration](#Configuration)
+- [main].storage_server_type, see [Configuration](#Configuration)
+- [main].api_url, see [Configuration](#Configuration)
+- [main].api_key, see [Configuration](#Configuration)
+- [main].access_token, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+
+**Files generated after this step:**
+- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv contains more contents used for review
+- [task-name]-metadata.json contains more content for creating proposal in the next step
+
+### Option:three: Public and Manual-Bid Task
+- **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
+```shell
+./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
+```
+**Command parameters used in this step:**
+- -input-dir(Required): Input directory where the generated car files and metadata files reside in.
+- -out-dir(optional): Metadata files and swan task file will be generated to this directory. When ommitted, use default `[send].output_dir`, see [Configuration](#Configuration)
+- -miner(Required): Storage provider Id you want to send deal to
+- -dataset(optional): The curated dataset from which the car files are generated
+- -description(optional): Details to better describe the data and confine the task or anything the storage provider needs to be informed.
+
+**Configurations used in this step:**
+- [sender].public_deal, see [Configuration](#Configuration)
+- [sender].bid_mode, see [Configuration](#Configuration)
+- [sender].verified_deal, see [Configuration](#Configuration)
+- [sender].offline_mode, see [Configuration](#Configuration)
+- [sender].fast_retrieval, see [Configuration](#Configuration)
+- [sender].max_price, see [Configuration](#Configuration)
+- [sender].start_epoch_hours, see [Configuration](#Configuration)
+- [sender].expire_days, see [Configuration](#Configuration)
+- [main].storage_server_type, see [Configuration](#Configuration)
+- [main].api_url, see [Configuration](#Configuration)
+- [main].api_key, see [Configuration](#Configuration)
+- [main].access_token, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+
+**Files generated after this step:**
+- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv contains more contents used for review
+- [task-name]-metadata.json contains more content for creating proposal in the next step
 
 ## Send deals
 :bell: The input dir and out dir should only be absolute one.
 
-This step is only necessary for public tasks. You can choose one of the following 2 options according to your task bid_mode.
+:bell: This step is only necessary for public tasks. You can choose one of the following 2 options according to your task bid_mode.
 
 ### Option:one: Manual deal
 
-- **Conditions:** [sender].public_deal=true and [sender].bid_mode=0, see [Configuration](#Configuration)
-- **Note** This step is used only for public deals, since for private deals, the step `Create A Task` includes sending deals.
+**Conditions:**
+- `task can be found by uuid from swan platform`
+- `task.public_deal=true`
+- `task.bid_mode=0`
 
+**Note** This step is used only for public deals, since for private deals, the step `Create A Task` includes sending deals.
 ```shell
 ./go-swan-client deal -json [task-name-metadata.json] -out-dir [output_files_dir] -miner [storage_provider_id]
 ```
+**Command parameters used in this step:**
+- -json(Required): File path to the metadata json file. Mandatory metadata fields: source_file_size, car_file_url, data_cid, piece_cid
+- -out-dir(optional): Swan deal final metadata files will be generated to the given directory. When ommitted, use default: `[sender].output_dir`, see [Configuration](#Configuration)
+- -miner(Required): Target storage provider id, e.g f01276
 
-- **-json (Required):** File path to the metadata CSV file. Mandatory metadata CSV fields: source_file_size, car_file_url, data_cid, piece_cid
-- **-out-dir (optional):** Swan deal final CSV will be generated to the given directory. Default: `output_dir`, see [Configuration](#Configuration)
-- **-miner (Required):** Target storage provider id, e.g f01276
+**Configurations used in this step:**
+- [sender].public_deal, see [Configuration](#Configuration)
+- [sender].bid_mode, see [Configuration](#Configuration)
+- [sender].verified_deal, see [Configuration](#Configuration)
+- [sender].offline_mode, see [Configuration](#Configuration)
+- [sender].fast_retrieval, see [Configuration](#Configuration)
+- [sender].max_price, see [Configuration](#Configuration)
+- [sender].start_epoch_hours, see [Configuration](#Configuration)
+- [sender].expire_days, see [Configuration](#Configuration)
+- [main].storage_server_type, see [Configuration](#Configuration)
+- [main].api_url, see [Configuration](#Configuration)
+- [main].api_key, see [Configuration](#Configuration)
+- [main].access_token, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+
+**Files generated after this step:**
+- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv contains more contents used for review
+- [task-name]-metadata.json contains more content for creating proposal in the next step
 
 ### Option:two: Auto-bid deal
 
-- **Conditions:** [sender].public_deal=true and [sender].bid_mode=1, see [Configuration](#Configuration)
+- **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
 - **Note** After swan allocated a miner to a task, the client needs to sending auto-bid deal using the information submitted to swan in step `Create A Task`
-
 ```shell
 ./go-swan-client auto -out-dir [output_files_dir]
 ```
+**Command parameters used in this step:**
+- -miner(Required): Target storage provider id, e.g f01276
 
-**--out-dir (optional):** A deal info csv containing information of deals sent and a corresponding deal final CSV with deals details will be generated to the given directory. Default: `output_dir`, see [Configuration](#Configuration)
+**Configurations used in this step:**
+- [sender].public_deal, see [Configuration](#Configuration)
+- [sender].bid_mode, see [Configuration](#Configuration)
+- [sender].verified_deal, see [Configuration](#Configuration)
+- [sender].offline_mode, see [Configuration](#Configuration)
+- [sender].fast_retrieval, see [Configuration](#Configuration)
+- [sender].max_price, see [Configuration](#Configuration)
+- [sender].start_epoch_hours, see [Configuration](#Configuration)
+- [sender].expire_days, see [Configuration](#Configuration)
+- [main].storage_server_type, see [Configuration](#Configuration)
+- [main].api_url, see [Configuration](#Configuration)
+- [main].api_key, see [Configuration](#Configuration)
+- [main].access_token, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
+**Files generated after this step:**
+- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv contains more contents used for review
+- [task-name]-metadata.json contains more content for creating proposal in the next step
