@@ -1,13 +1,13 @@
 package subcommand
 
 import (
-	"github.com/filswan/go-swan-client/logs"
-	"github.com/filswan/go-swan-client/model"
+	"go-swan-client/logs"
+	"go-swan-client/model"
 
-	"github.com/filswan/go-swan-client/common/client"
-	"github.com/filswan/go-swan-client/common/constants"
-	"github.com/filswan/go-swan-client/common/utils"
-	"github.com/filswan/go-swan-client/config"
+	"go-swan-client/common/client"
+	"go-swan-client/common/constants"
+	"go-swan-client/common/utils"
+	"go-swan-client/config"
 )
 
 func SendAutoBidDeal(outputDir *string) ([]string, error) {
@@ -40,9 +40,8 @@ func SendAutoBidDeal(outputDir *string) ([]string, error) {
 		}
 
 		deals := assignedTaskInfo.Data.Deal
-		miner := assignedTaskInfo.Data.Miner
 		task := assignedTaskInfo.Data.Task
-		dealSentNum, csvFilePath, err := SendAutobidDeal(deals, miner, task, outputDir)
+		dealSentNum, csvFilePath, err := SendAutobidDeal(deals, task, outputDir)
 		if err != nil {
 			csvFilepaths = append(csvFilepaths, csvFilePath)
 			logs.GetLogger().Error(err)
@@ -71,7 +70,7 @@ func SendAutoBidDeal(outputDir *string) ([]string, error) {
 	return csvFilepaths, nil
 }
 
-func SendAutobidDeal(deals []model.OfflineDeal, miner model.Miner, task model.Task, outputDir *string) (int, string, error) {
+func SendAutobidDeal(deals []model.OfflineDeal, task model.Task, outputDir *string) (int, string, error) {
 	carFiles := []*model.FileDesc{}
 
 	dealSentNum := 0

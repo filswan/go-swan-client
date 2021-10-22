@@ -20,7 +20,6 @@ build: ## Build the binary file
 	@go mod download
 	@go mod tidy
 	@mkdir -p ./build/config
-	@cp ./config/config.toml.example ./build/config/config.toml
 	@go build -o ./build
 	@echo "Done building."
 

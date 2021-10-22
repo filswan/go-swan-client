@@ -2,13 +2,12 @@ package test
 
 import (
 	"fmt"
+	"go-swan-client/common/client"
+	"go-swan-client/logs"
+	"go-swan-client/model"
+	"go-swan-client/subcommand"
 	"path/filepath"
 	"strings"
-
-	"github.com/filswan/go-swan-client/common/client"
-	"github.com/filswan/go-swan-client/logs"
-	"github.com/filswan/go-swan-client/model"
-	"github.com/filswan/go-swan-client/subcommand"
 )
 
 func Test() {
@@ -38,7 +37,7 @@ func TestLotusClient() {
 	logs.GetLogger().Info(*result)
 	result1 := client.LotusClientCalcCommP("/home/peware/go-swan-client/carFiles/hello2.txt.car")
 	logs.GetLogger().Info(*result1)
-	result2 := client.LotusClientImport("/home/peware/go-swan-client/carFiles/hello2.txt.car", true)
+	result2, err := client.LotusClientImport("/home/peware/go-swan-client/carFiles/hello2.txt.car", true)
 	logs.GetLogger().Info(*result2)
 	client.LotusClientGenCar("/home/peware/go-swan-client/srcFiles/hello2.txtd", "/home/peware/go-swan-client/srcFiles/hello2.txt.car", false)
 	version, err := client.LotusVersion()
@@ -88,6 +87,6 @@ func TestDealConfig() {
 	subcommand.CheckDealConfig(dealConfig)
 	pieceSize, sectorSize := subcommand.CalculatePieceSize(2049)
 	cost := subcommand.CalculateRealCost(sectorSize, dealConfig.MinerPrice)
-	msg := fmt.Sprintf("Piece size:%d, sector size:%f,cost:%f", pieceSize, sectorSize, cost)
+	msg := fmt.Sprintf("Piece size:%d, sector size:%f,cost:%s", pieceSize, sectorSize, cost.String())
 	logs.GetLogger().Info(msg)
 }

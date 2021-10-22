@@ -5,14 +5,14 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/filswan/go-swan-client/logs"
+	"go-swan-client/logs"
 
-	"github.com/filswan/go-swan-client/model"
+	"go-swan-client/model"
 
-	"github.com/filswan/go-swan-client/common/utils"
+	"go-swan-client/common/utils"
 
-	"github.com/filswan/go-swan-client/common/client"
-	"github.com/filswan/go-swan-client/common/constants"
+	"go-swan-client/common/client"
+	"go-swan-client/common/constants"
 
 	"github.com/codingsince1985/checksum"
 )
@@ -61,9 +61,15 @@ func GenerateCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 
 		carFile.PieceCid = *pieceCid
 
-		dataCid := client.LotusClientImport(carFile.CarFilePath, true)
-		if dataCid == nil {
+		dataCid, err := client.LotusClientImport(carFile.CarFilePath, true)
+		if err != nil {
 			err := fmt.Errorf("failed to import car file")
+			logs.GetLogger().Error(err)
+			return nil, nil, err
+		}
+
+		if dataCid == nil {
+			err := fmt.Errorf("failed to generate data cid for: %s", carFile.CarFilePath)
 			logs.GetLogger().Error(err)
 			return nil, nil, err
 		}

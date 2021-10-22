@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/filswan/go-swan-client/logs"
-	"github.com/filswan/go-swan-client/subcommand"
+	"go-swan-client/logs"
+	"go-swan-client/subcommand"
 )
 
 const SUBCOMMAND_CAR = "car"
@@ -28,7 +28,7 @@ func execSubCmd() error {
 		logs.GetLogger().Fatal("Sub command is required.")
 	}
 
-	var err error
+	var err error = nil
 	subCmd := os.Args[1]
 	switch subCmd {
 	case SUBCOMMAND_CAR, SUBCOMMAND_GOCAR:
@@ -36,17 +36,22 @@ func execSubCmd() error {
 	case SUBCOMMAND_UPLOAD:
 		err = uploadFile()
 	case SUBCOMMAND_TASK:
-		createTask()
+		err = createTask()
 	case SUBCOMMAND_DEAL:
-		sendDeal()
+		err = sendDeal()
 	case SUBCOMMAND_AUTO:
-		sendAutoBidDeal()
+		err = sendAutoBidDeal()
 	default:
-		err = fmt.Errorf("sub command should be: car|gocar|upload|task|deal")
+		err = fmt.Errorf("sub command should be: car|gocar|upload|task|deal|auto")
 		logs.GetLogger().Error(err)
 	}
 
-	return err
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	return nil
 }
 
 //python3 swan_cli.py car --input-dir /home/peware/testGoSwanProvider/input --out-dir /home/peware/testGoSwanProvider/output
@@ -163,11 +168,17 @@ func createTask() error {
 
 	logs.GetLogger().Info(inputDir, outputDir, minerFid, dataset, description)
 
-	subcommand.CreateTask(*inputDir, taskName, outputDir, minerFid, dataset, description)
+	jsonFileName, err := subcommand.CreateTask(*inputDir, taskName, outputDir, minerFid, dataset, description)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+	logs.GetLogger().Info("Task information is in:", *jsonFileName)
+
 	return nil
 }
 
-func sendDeal() bool {
+func sendDeal() error {
 	cmd := flag.NewFlagSet(SUBCOMMAND_DEAL, flag.ExitOnError)
 
 	metadataJsonPath := cmd.String("json", "", "The JSON file path of deal metadata.")
@@ -177,33 +188,41 @@ func sendDeal() bool {
 	err := cmd.Parse(os.Args[2:])
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return false
+		return err
 	}
 
 	if !cmd.Parsed() {
-		logs.GetLogger().Error("Sub command parse failed.")
-		return false
+		err := fmt.Errorf("sub command parse failed")
+		logs.GetLogger().Error(err)
+		return err
 	}
 
 	if metadataJsonPath == nil || len(*metadataJsonPath) == 0 {
-		logs.GetLogger().Error("input-dir is required.")
-		return false
+		err := fmt.Errorf("input-dir is required")
+		logs.GetLogger().Error(err)
+		return err
 	}
 
 	if minerFid == nil || len(*minerFid) == 0 {
-		logs.GetLogger().Error("miner is required.")
-		return false
+		err := fmt.Errorf("miner is required")
+		logs.GetLogger().Error(err)
+		return err
 	}
 
 	logs.GetLogger().Info("metadata json file:", *metadataJsonPath)
 	logs.GetLogger().Info("output dir:", *outputDir)
 	logs.GetLogger().Info("miner:", *minerFid)
 
-	result := subcommand.SendDeals(*minerFid, outputDir, *metadataJsonPath)
-	return result
+	err = subcommand.SendDeals(*minerFid, outputDir, *metadataJsonPath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	return nil
 }
 
-func sendAutoBidDeal() bool {
+func sendAutoBidDeal() error {
 	cmd := flag.NewFlagSet(SUBCOMMAND_DEAL, flag.ExitOnError)
 
 	outputDir := cmd.String("out-dir", "", "Directory where target files will in.")
@@ -211,15 +230,24 @@ func sendAutoBidDeal() bool {
 	err := cmd.Parse(os.Args[2:])
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return false
+		return err
 	}
 
 	if !cmd.Parsed() {
-		logs.GetLogger().Error("Sub command parse failed.")
-		return false
+		err := fmt.Errorf("sub command parse failed")
+		logs.GetLogger().Error(err)
+		return err
 	}
 
-	subcommand.SendAutoBidDeal(outputDir)
+	csvFilepaths, err := subcommand.SendAutoBidDeal(outputDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
 
-	return true
+	for _, csvFilepath := range csvFilepaths {
+		logs.GetLogger().Info(csvFilepath, " is generated")
+	}
+
+	return nil
 }

@@ -3,17 +3,15 @@ package subcommand
 import (
 	"fmt"
 	"path/filepath"
-	"strconv"
-	"strings"
 	"time"
 
-	"github.com/filswan/go-swan-client/common/utils"
-	"github.com/filswan/go-swan-client/config"
-	"github.com/filswan/go-swan-client/logs"
-	"github.com/filswan/go-swan-client/model"
+	"go-swan-client/common/utils"
+	"go-swan-client/config"
+	"go-swan-client/logs"
+	"go-swan-client/model"
 
-	"github.com/filswan/go-swan-client/common/client"
-	"github.com/filswan/go-swan-client/common/constants"
+	"go-swan-client/common/client"
+	"go-swan-client/common/constants"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -61,20 +59,11 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 	expireDays := config.GetConfig().Sender.ExpireDays
 	//generateMd5 := config.GetConfig().Sender.GenerateMd5
 
-	storageServerType := config.GetConfig().Main.StorageServerType
-
-	host := config.GetConfig().WebServer.Host
-	port := config.GetConfig().WebServer.Port
-	path := config.GetConfig().WebServer.Path
-
-	downloadUrlPrefix := strings.TrimRight(host, "/") + ":" + strconv.Itoa(port)
-	downloadUrlPrefix = filepath.Join(downloadUrlPrefix, path)
-
 	logs.GetLogger().Info("swan client settings:")
 	logs.GetLogger().Info("public task: ", publicDeal)
 	logs.GetLogger().Info("verified deals: ", verifiedDeal)
 	logs.GetLogger().Info("connected to swan: ", !offlineMode)
-	logs.GetLogger().Info("csv/car file output dir: %s", outputDir)
+	logs.GetLogger().Info("csv/car file output dir: ", outputDir)
 	logs.GetLogger().Info("fastRetrieval: ", fastRetrieval)
 
 	carFiles := ReadCarFilesFromJsonFile(inputDir, constants.JSON_FILE_NAME_BY_UPLOAD)
@@ -109,13 +98,15 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 		task.Type = &taskType
 	}
 
+	storageServerType := config.GetConfig().Main.StorageServerType
+	webServerDownloadUrlPrefix := config.GetConfig().WebServer.DownloadUrlPrefix
 	for _, carFile := range carFiles {
 		carFile.Uuid = task.Uuid
 		carFile.MinerFid = task.MinerFid
 		carFile.StartEpoch = utils.GetCurrentEpoch() + (startEpochHours+1)*constants.EPOCH_PER_HOUR
 
 		if storageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
-			carFile.CarFileUrl = filepath.Join(downloadUrlPrefix, carFile.CarFileName)
+			carFile.CarFileUrl = filepath.Join(webServerDownloadUrlPrefix, carFile.CarFileName)
 		}
 	}
 
@@ -144,7 +135,7 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 }
 
 func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) error {
-	csvFilename := task.TaskName + "_task.csv"
+	csvFilename := task.TaskName + ".csv"
 	csvFilePath, err := CreateCsv4TaskDeal(carFiles, outDir, csvFilename)
 	if err != nil {
 		logs.GetLogger().Error(err)

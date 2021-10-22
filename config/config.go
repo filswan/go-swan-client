@@ -1,7 +1,10 @@
 package config
 
 import (
+	"go-swan-client/logs"
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/BurntSushi/toml"
 )
@@ -15,10 +18,9 @@ type Configuration struct {
 }
 
 type lotus struct {
-	ApiUrl           string `toml:"api_url"`
-	AccessToken      string `toml:"access_token"`
-	MinerApiUrl      string `toml:"miner_api_url"`
-	MinerAccessToken string `toml:"miner_access_token"`
+	ApiUrl      string `toml:"api_url"`
+	AccessToken string `toml:"access_token"`
+	MinerApiUrl string `toml:"miner_api_url"`
 }
 
 type main struct {
@@ -29,14 +31,11 @@ type main struct {
 }
 
 type webServer struct {
-	Host string `toml:"host"`
-	Port int    `toml:"port"`
-	Path string `toml:"path"`
+	DownloadUrlPrefix string `toml:"download_url_prefix"`
 }
 
 type ipfsServer struct {
-	GatewayAddress    string `toml:"gateway_address"`
-	DownloadStreamUrl string `toml:"download_stream_url"`
+	DownloadUrlPrefix string `toml:"download_url_prefix"`
 }
 
 type sender struct {
@@ -58,7 +57,12 @@ type sender struct {
 var config *Configuration
 
 func initConfig() {
-	configFile := "./config/config.toml"
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		logs.GetLogger().Fatal("Cannot get home directory.")
+	}
+
+	configFile := filepath.Join(homedir, ".swan/client/config.toml")
 	if metaData, err := toml.DecodeFile(configFile, &config); err != nil {
 		log.Fatal("error:", err)
 	} else {
@@ -84,20 +88,17 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"sender"},
 
 		{"lotus", "api_url"},
+		{"lotus", "access_token"},
 		{"lotus", "miner_api_url"},
-		{"lotus", "miner_access_token"},
 
 		{"main", "api_url"},
 		{"main", "api_key"},
 		{"main", "access_token"},
 		{"main", "storage_server_type"},
 
-		{"web_server", "host"},
-		{"web_server", "port"},
-		{"web_server", "path"},
+		{"web_server", "download_url_prefix"},
 
-		{"ipfs_server", "gateway_address"},
-		{"ipfs_server", "download_stream_url"},
+		{"ipfs_server", "download_url_prefix"},
 
 		{"sender", "bid_mode"},
 		{"sender", "offline_mode"},

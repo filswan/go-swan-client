@@ -2,12 +2,12 @@ package subcommand
 
 import (
 	"fmt"
-	"strings"
+	"path/filepath"
 
-	"github.com/filswan/go-swan-client/common/client"
-	"github.com/filswan/go-swan-client/common/constants"
-	"github.com/filswan/go-swan-client/config"
-	"github.com/filswan/go-swan-client/logs"
+	"go-swan-client/common/client"
+	"go-swan-client/common/constants"
+	"go-swan-client/config"
+	"go-swan-client/logs"
 )
 
 func UploadCarFiles(inputDir string) error {
@@ -23,16 +23,6 @@ func UploadCarFiles(inputDir string) error {
 		return nil
 	}
 
-	gatewayAddress := config.GetConfig().IpfsServer.GatewayAddress
-	words := strings.Split(gatewayAddress, "/")
-	if len(words) < 5 {
-		err := fmt.Errorf("invalid gateway address:%s", gatewayAddress)
-		logs.GetLogger().Error(err)
-		return err
-	}
-	gatewayIp := words[2]
-	gatewayPort := words[4]
-
 	carFiles := ReadCarFilesFromJsonFile(inputDir, constants.JSON_FILE_NAME_BY_CAR)
 	if carFiles == nil {
 		err := fmt.Errorf("failed to read:%s", inputDir)
@@ -40,16 +30,16 @@ func UploadCarFiles(inputDir string) error {
 		return err
 	}
 
+	downloadUrlPrefix := config.GetConfig().IpfsServer.DownloadUrlPrefix
 	for _, carFile := range carFiles {
-		logs.GetLogger().Info("Uploading car file:", carFile.CarFileName)
-		carFileHash := client.IpfsUploadCarFile(carFile.CarFilePath)
-		if carFileHash == nil {
-			err := fmt.Errorf("failed to upload file to ipfs")
+		logs.GetLogger().Info("Uploading car file:", carFile.CarFilePath)
+		carFileHash, err := client.IpfsUploadCarFile(carFile.CarFilePath)
+		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
 
-		carFile.CarFileUrl = "http://" + gatewayIp + ":" + gatewayPort + "/ipfs/" + *carFileHash
+		carFile.CarFileUrl = filepath.Join(downloadUrlPrefix, *carFileHash)
 		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileUrl)
 	}
 

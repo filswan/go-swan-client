@@ -2,24 +2,25 @@ package subcommand
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"path/filepath"
 	"strings"
 
-	"github.com/filswan/go-swan-client/config"
+	"go-swan-client/config"
 
-	"github.com/filswan/go-swan-client/model"
+	"go-swan-client/model"
 
-	"github.com/filswan/go-swan-client/logs"
+	"go-swan-client/logs"
 
-	"github.com/filswan/go-swan-client/common/constants"
+	"go-swan-client/common/constants"
 
-	"github.com/filswan/go-swan-client/common/client"
+	"go-swan-client/common/client"
 
 	"github.com/shopspring/decimal"
 )
 
-func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) bool {
+func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) error {
 	if outputDir == nil {
 		outDir := config.GetConfig().Sender.OutputDir
 		outputDir = &outDir
@@ -27,21 +28,34 @@ func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) bool
 	metadataJsonFilename := filepath.Base(metadataJsonPath)
 	taskName := strings.TrimSuffix(metadataJsonFilename, constants.JSON_FILE_NAME_BY_TASK)
 	carFiles := ReadCarFilesFromJsonFileByFullPath(metadataJsonPath)
-	if carFiles == nil {
-		logs.GetLogger().Error("Failed to read car files from json.")
-		return false
+	if len(carFiles) == 0 {
+		err := fmt.Errorf("no car files read from:%s", metadataJsonPath)
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	swanClient := client.SwanGetClient()
+	task, err := swanClient.GetOfflineDealsByTaskUuid(carFiles[0].Uuid)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if task.Data.Task.BidMode != nil && *task.Data.Task.BidMode == constants.TASK_BID_MODE_AUTO {
+		err := fmt.Errorf("Task:%s is in auto_bid mode, you should use auto sub command to send deals for it.", task.Data.Task.TaskName)
+		logs.GetLogger().Error(err)
+		return err
 	}
 
 	csvFilepath, err := SendDeals2Miner(nil, taskName, minerFid, *outputDir, carFiles)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return false
+		return err
 	}
 
-	swanClient := client.SwanGetClient()
 	response := swanClient.SwanUpdateTaskByUuid(carFiles[0].Uuid, minerFid, *csvFilepath)
 	logs.GetLogger().Info(response)
-	return true
+	return nil
 }
 
 func GetDealConfig(minerFid string) *model.DealConfig {
