@@ -209,37 +209,29 @@ uuid,miner_id,deal_cid,payload_cid,file_source_url,md5,start_epoch,piece_cid,fil
 ```
 uuid,source_file_name,source_file_path,source_file_md5,source_file_url,source_file_size,car_file_name,car_file_path,car_file_md5,car_file_url,car_file_size,deal_cid,data_cid,piece_cid,miner_id,start_epoch
 ```
-## Send deals
-2. Propose offline deal after one storage provider win the bid. Client needs to use the metadata CSV generated in the previous step
-   for sending the offline deals to the storage provider.
 
+## Send deals
+Propose offline deal after one storage provider win the bid. Client needs to use the metadata CSV generated in the previous step for sending the offline deals to the storage provider.
+
+### Option:one: Manual-bid deal
 ```shell
 ./go-swan-client deal -json [metadata_csv_dir/task-name-metadata.json] -out-dir [output_files_dir] -miner [storage_provider_id]
 ```
 
-**--csv (Required):** File path to the metadata CSV file. Mandatory metadata CSV fields: source_file_size, car_file_url, data_cid,
-piece_cid
+**-json (Required):** File path to the metadata CSV file. Mandatory metadata CSV fields: source_file_size, car_file_url, data_cid, piece_cid
 
-**--out-dir (optional):** Swan deal final CSV will be generated to the given directory. Default: output_dir specified in config.toml
+**-out-dir (optional):** Swan deal final CSV will be generated to the given directory. Default: output_dir specified in config.toml
 
-**--miner (Required):** Target storage provider id, e.g f01276
-
-A csv with name [task-name]-metadata-deals.csv is generated under the output directory, it contains the deal cid and
-storage provider id for the provider to process on Swan platform. You could re-upload this file to Swan platform while assign bid to storage provider or do a
-private deal.
+**-miner (Required):** Target storage provider id, e.g f01276
 
 
-### Step 4. Auto send auto-bid mode tasks with deals to auto-bid mode storage provider
+### Option:two: Auto-bid deal
+```shell
+./go-swan-client auto -out-dir [output_files_dir]
+```
+
 The autobid system between swan-client and swan-provider allows you to automatically send deals to a miner selected by Swan platform. All miners with auto-bid mode on have the chance to be selected but only one will be chosen based on Swan reputation system and Market Matcher. You can choose to start this service before or after creating tasks in Step 3. Noted here, only tasks with `bid_mode` set to `1` and `public_deal` set to `true` will be considered. A log file will be generated afterwards. 
 
-Start the autobid module:
-```shell
-python3 swan_cli_auto.py auto --out-dir [output_file_dir]
-```
-or (Recommanded)
-```
-nohup python3 swan_cli_auto.py auto --out-dir [output_file_dir] >> auto_deal.log &
-```
 **--out-dir (optional):** A deal info csv containing information of deals sent and a corresponding deal final CSV with deals details will be generated to the given directory. Default: `output_dir` specified in config.toml
 
 #### Note:
@@ -247,5 +239,6 @@ A successful autobid task will go through three major status - `Created`,`Assign
 The task status `ActionRequired` exists only when public task with autobid mode on failed in meeting the requirements of autobid.
 To avoid being set to `ActionRequired`, a task must be created or modified to have valid tasks and corresponding deals information as following.  
 
-- **For task**:
-
+A csv with name [task-name]-metadata-deals.csv is generated under the output directory, it contains the deal cid and
+storage provider id for the provider to process on Swan platform. You could re-upload this file to Swan platform while assign bid to storage provider or do a
+private deal.
