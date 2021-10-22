@@ -12,7 +12,7 @@
 - [Prerequisites](#Prerequisites)
 - [Installation](#Installation)
 - [Configuration](#Configuration)
-- [How to use](#How-to-use)
+- [Flowcharts](#Flowcharts)
 
 ## Functions
 * Generate Car files from downloaded source files with or without Lotus.
@@ -57,14 +57,14 @@ uuid is generated for future index purpose.
 ## Installation
 ### Ubuntu/Debian
 ## Installation
-### Option 1.  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-client/releases)
+### Option:one:  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-client/releases)
 ```shell
 wget https://github.com/filswan/go-swan-client/releases/download/release-0.1.0/install.sh
 chmod +x ./install.sh
 ./install.sh
 ```
 
-### Option 2.  Source Code
+### Option:two:  Source Code
 :bell:**go 1.16+** is required
 ```shell
 git clone https://github.com/filswan/go-swan-client.git
@@ -124,11 +124,15 @@ The downloadable URL in the CSV file is built with the following format: [downlo
 The **duration** time for offline deals is set to `1512000` epoches in default, which stands for 525 days. It can be further modified in constant `DURATION` of `swan-client/task_sender/service/deal.py` for customized requirement.
 
 
-## How to use
+## Flowcharts
 
-
+### Option:one:
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files Using Lotus)->|A|,(start)->(Genrate Car Files Using Graphsplit)->|A|->(Upload Car Files)->(Create Public Manual-Bid Task)->(Send Deal)->(end)" >
+
+### Option:two:
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files Using Lotus)->|A|,(start)->(Genrate Car Files Using Graphsplit)->|A|->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto Deal)->(end)" >
+
+### Option:three:
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Genrate Car Files Using Lotus)->|A|,(start)->(Genrate Car Files Using Graphsplit)->|A|->(Upload Car Files)->(Create Private Manual-Bid Task)->(end)" >
 
 :bell: The input dir and out dir used for client tool should only be absolute one.
