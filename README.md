@@ -82,9 +82,9 @@ Now your binary file go-swan-client is created under ./build directory, you can 
 ## Configuration
 
 ### lotus
-- **api_url:**   # Url of lotus node web api
-- **access_token:**   # Access token of lotus node web api
-- **miner_api_url:**   # Url of lotus miner web api
+- **api_url:**  Url of lotus web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
+- **access_token:**  Access token of lotus node web api. It should have write access right.
+- **miner_api_url:**  Url of lotus miner web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **2345**
 
 ### main
 

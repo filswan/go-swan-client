@@ -115,6 +115,14 @@ func CreateCarFilesDesc2Files(srcFileDir, carFileDir string) ([]*model.FileDesc,
 		carFile.PieceCid = fields[2]
 		carFile.CarFileSize = utils.GetInt64FromStr(fields[3])
 
+		pieceCid := client.LotusClientCalcCommP(carFile.CarFilePath)
+		if pieceCid == nil {
+			err := fmt.Errorf("failed to generate piece cid")
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
+
+		carFile.PieceCid = *pieceCid
 		dataCid, err := client.LotusClientImport(carFile.CarFilePath, true)
 		if err != nil {
 			err := fmt.Errorf("failed to import car file")
