@@ -147,8 +147,8 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 ./go-swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
 **command parameters used in this step:**
-- -input-dir (Required) The directory where the source files reside in.
-- -out-dir (optional) Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
+- -input-dir(Required): The directory where the source files reside in.
+- -out-dir(optional): Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
 
 **configurations used in this step:**
 - [lotus].api_url, see [Configuration](#Configuration)
@@ -160,8 +160,8 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 ./go-swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
 **command parameters used in this step:**
-- -input-dir (Required) The directory where the source files reside in.
-- -out-dir (optional) Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
+- -input-dir(Required): The directory where the source files reside in.
+- -out-dir(optional): Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
 
 **configurations used in this step:**
 - [lotus].api_url, see [Configuration](#Configuration)
@@ -188,7 +188,7 @@ no go-swan-client subcommand should be executed
 ./go-swan-client upload -input-dir [input_file_dir]
 ```
 **command parameters used in this step:**
-- -input-dir (Required) The directory where the car files and metadata files reside in. Metadata files will be used and updated after car files uploaded.
+- -input-dir(Required): The directory where the car files and metadata files reside in. Metadata files will be used and updated after car files uploaded.
 
 **configurations used in this step:**
 - [main].storage_server_type, it should be set to `ipfs server` see [Configuration](#Configuration)
@@ -206,11 +206,11 @@ no go-swan-client subcommand should be executed
 ./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
 ```
 **command parameters used in this step:**
-- -input-dir(Required) Input directory where the generated car files and metadata files reside in.
-- -out-dir(optional) Metadata files and swan task file will be generated to this directory. When ommitted, Use default `[send].output_dir`, see [Configuration](#Configuration)
-- -miner(Required) Storage provider Id you want to send deal to
-- -dataset(optional) The curated dataset from which the car files are generated
-- -description(optional) Details to better describe the data and confine the task or anything the storage provider needs to be informed.
+- -input-dir(Required): Input directory where the generated car files and metadata files reside in.
+- -out-dir(optional): Metadata files and swan task file will be generated to this directory. When ommitted, use default `[send].output_dir`, see [Configuration](#Configuration)
+- -miner(Required): Storage provider Id you want to send deal to
+- -dataset(optional): The curated dataset from which the car files are generated
+- -description(optional): Details to better describe the data and confine the task or anything the storage provider needs to be informed.
 
 **configurations used in this step:**
 - [sender].public_deal, see [Configuration](#Configuration)
