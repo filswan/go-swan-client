@@ -153,15 +153,16 @@ This step is necessary for both public and private tasks. You can choose one of 
 ```shell
 ./go-swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
+- **-input-dir (Required)** The directory where the source files reside in.
+- **-out-dir (optional)** Car files and metadata csv&json files will be generated into this directory. If not set, use default, see `output_dir`
 
 #### Option:two: using graphsplit api
 ```shell
 ./go-swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
 
-The -out-dir can be ignored, in such cases, the output directory will be: [sender].output_dir config item join a time string
-
-When finish, the car files and a car.csv, a car.json and a manifest.csv which describe the car files will be generated in the output directory.    
+- **-input-dir (Required)** The directory where the source files reside in.
+- **-out-dir (optional)** Car files and metadata csv&json files will be generated into this directory. If not set, use default, see `output_dir`
    
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
 
