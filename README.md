@@ -171,13 +171,13 @@ It is required to upload car files to file server after they are generated, eith
 ## Create A Task
 
 ### Option:one: Private Task
-set `public_deal = false`, see [Configuration](#Configuration)
+- **Conditions:** [sender].public_deal=false, see [Configuration](#Configuration)
 
 ### Option:two: Public and Auto-Bid Task
-set `public_deal = true, bid_mode=1`, see [Configuration](#Configuration)
+- **Conditions:** [sender].public_deal=true and [sender].bid_mode=1, see [Configuration](#Configuration)
 
 ### Option:three: Public and Manual-Bid Task
-set `public_deal = true, bid_mode=0`, see [Configuration](#Configuration)
+- **Conditions:** [sender].public_deal=true and [sender].bid_mode=0, see [Configuration](#Configuration)
 
 
 ```shell
