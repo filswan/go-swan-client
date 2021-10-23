@@ -82,19 +82,19 @@ func createCarFile(subCmd string) error {
 
 	switch subCmd {
 	case SUBCOMMAND_CAR:
-		outputDir, carFiles, err := subcommand.GenerateCarFiles(*inputDir, outputDir)
+		_, _, err := subcommand.GenerateCarFiles(*inputDir, outputDir)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
-		logs.GetLogger().Info(len(carFiles), " car files generated to directory:", *outputDir)
+		//logs.GetLogger().Info(len(carFiles), " car files generated to directory:", *outputDir)
 	case SUBCOMMAND_GOCAR:
-		outputDir, carFiles, err := subcommand.CreateGoCarFiles(*inputDir, outputDir)
+		_, _, err := subcommand.CreateGoCarFiles(*inputDir, outputDir)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
-		logs.GetLogger().Info(len(carFiles), " gocar files generated to directory:", *outputDir)
+		//logs.GetLogger().Info(len(carFiles), " gocar files generated to directory:", *outputDir)
 	default:
 		err := fmt.Errorf("unknown sub command:%s", subCmd)
 		logs.GetLogger().Error(err)
