@@ -47,12 +47,12 @@ func CreateOutputDir(outputDir *string) (*string, error) {
 			*outputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05"))
 		}
 
-		logs.GetLogger().Info("output-dir is not provided, use default:", outputDir)
+		logs.GetLogger().Info("output-dir is not provided, use default:", *outputDir)
 	}
 
 	err := os.MkdirAll(*outputDir, os.ModePerm)
 	if err != nil {
-		err := fmt.Errorf("failed to create output dir:%s", *outputDir)
+		err := fmt.Errorf("%s, failed to create output dir:%s", err.Error(), *outputDir)
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
