@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
@@ -55,7 +54,6 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
-	startEpochHours := config.GetConfig().Sender.StartEpochHours
 	expireDays := config.GetConfig().Sender.ExpireDays
 	//generateMd5 := config.GetConfig().Sender.GenerateMd5
 
@@ -102,7 +100,6 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 	for _, carFile := range carFiles {
 		carFile.Uuid = task.Uuid
 		carFile.MinerFid = task.MinerFid
-		carFile.StartEpoch = utils.GetCurrentEpoch() + (startEpochHours+1)*constants.EPOCH_PER_HOUR
 
 		if storageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
 			carFile.CarFileUrl = strings.TrimRight(webServerDownloadUrlPrefix, "/") + "/" + carFile.CarFileName

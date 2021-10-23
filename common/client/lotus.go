@@ -486,7 +486,8 @@ func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, piece
 	verifiedDeal := strings.ToLower(strconv.FormatBool(dealConfig.VerifiedDeal))
 	costFloat, _ := cost.Float64()
 	costStr := fmt.Sprintf("%.18f", costFloat)
-	startEpoch := carFile.StartEpoch - relativeEpoch
+	startEpoch := dealConfig.StartEpoch - relativeEpoch
+
 	logs.GetLogger().Info("wallet:", dealConfig.SenderWallet)
 	logs.GetLogger().Info("miner:", dealConfig.MinerFid)
 	logs.GetLogger().Info("price:", dealConfig.MinerPrice)

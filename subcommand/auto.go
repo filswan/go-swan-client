@@ -133,14 +133,16 @@ func SendAutobidDeal(deals []model.OfflineDeal, task model.Task, outputDir *stri
 }
 
 func GetDealConfig4Autobid(task model.Task, deal model.OfflineDeal) *model.DealConfig {
+	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours + 1
+	startEpoch := utils.GetCurrentEpoch() + startEpochIntervalHours*constants.EPOCH_PER_HOUR
+
 	dealConfig := model.DealConfig{
-		MinerFid:           *task.MinerFid,
-		SenderWallet:       config.GetConfig().Sender.Wallet,
-		VerifiedDeal:       *task.Type == constants.TASK_TYPE_VERIFIED,
-		FastRetrieval:      *task.FastRetrieval == constants.TASK_FAST_RETRIEVAL,
-		EpochIntervalHours: config.GetConfig().Sender.StartEpochHours,
-		SkipConfirmation:   config.GetConfig().Sender.SkipConfirmation,
-		StartEpochHours:    *deal.StartEpoch,
+		MinerFid:         *task.MinerFid,
+		SenderWallet:     config.GetConfig().Sender.Wallet,
+		VerifiedDeal:     *task.Type == constants.TASK_TYPE_VERIFIED,
+		FastRetrieval:    *task.FastRetrieval == constants.TASK_FAST_RETRIEVAL,
+		SkipConfirmation: config.GetConfig().Sender.SkipConfirmation,
+		StartEpoch:       startEpoch,
 	}
 
 	dealConfig.MaxPrice = *task.MaxPrice

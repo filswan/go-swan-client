@@ -9,6 +9,7 @@ import (
 
 	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
+	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
@@ -61,14 +62,16 @@ func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) erro
 }
 
 func GetDealConfig(minerFid string) *model.DealConfig {
+	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours + 1
+	startEpoch := utils.GetCurrentEpoch() + startEpochIntervalHours*constants.EPOCH_PER_HOUR
+
 	dealConfig := model.DealConfig{
-		MinerFid:           minerFid,
-		SenderWallet:       config.GetConfig().Sender.Wallet,
-		VerifiedDeal:       config.GetConfig().Sender.VerifiedDeal,
-		FastRetrieval:      config.GetConfig().Sender.FastRetrieval,
-		EpochIntervalHours: config.GetConfig().Sender.StartEpochHours,
-		SkipConfirmation:   config.GetConfig().Sender.SkipConfirmation,
-		StartEpochHours:    config.GetConfig().Sender.StartEpochHours,
+		MinerFid:         minerFid,
+		SenderWallet:     config.GetConfig().Sender.Wallet,
+		VerifiedDeal:     config.GetConfig().Sender.VerifiedDeal,
+		FastRetrieval:    config.GetConfig().Sender.FastRetrieval,
+		SkipConfirmation: config.GetConfig().Sender.SkipConfirmation,
+		StartEpoch:       startEpoch,
 	}
 
 	maxPriceStr := config.GetConfig().Sender.MaxPrice
