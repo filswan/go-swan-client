@@ -188,8 +188,6 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
 
 ## Upload Car Files
-:bell: The input dir should only be absolute one.
-
 :bell: It is required to upload car files to file server, either to web server or to ipfs server.
 
 ### Option:one: To a web-server manually
