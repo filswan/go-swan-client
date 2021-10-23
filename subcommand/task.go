@@ -2,7 +2,7 @@ package subcommand
 
 import (
 	"fmt"
-	"path/filepath"
+	"strings"
 	"time"
 
 	"go-swan-client/common/utils"
@@ -105,7 +105,7 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 		carFile.StartEpoch = utils.GetCurrentEpoch() + (startEpochHours+1)*constants.EPOCH_PER_HOUR
 
 		if storageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
-			carFile.CarFileUrl = filepath.Join(webServerDownloadUrlPrefix, carFile.CarFileName)
+			carFile.CarFileUrl = strings.TrimRight(webServerDownloadUrlPrefix, "/") + "/" + carFile.CarFileName
 		}
 	}
 

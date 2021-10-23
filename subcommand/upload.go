@@ -2,7 +2,7 @@ package subcommand
 
 import (
 	"fmt"
-	"path/filepath"
+	"strings"
 
 	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
@@ -39,7 +39,7 @@ func UploadCarFiles(inputDir string) error {
 			return err
 		}
 
-		carFile.CarFileUrl = filepath.Join(downloadUrlPrefix, *carFileHash)
+		carFile.CarFileUrl = strings.TrimRight(downloadUrlPrefix, "/") + "/" + *carFileHash
 		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileUrl)
 	}
 
