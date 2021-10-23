@@ -284,12 +284,11 @@ no go-swan-client subcommand should be executed
 ### Option:three: Public and Manual-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
 ```shell
-./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
+./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -dataset [curated_dataset] -description [description]
 ```
 **Command parameters used in this step:**
 - -input-dir(Required): Input directory where the generated car files and metadata files reside in.
 - -out-dir(optional): Metadata files and swan task file will be generated to this directory. When ommitted, use default `[send].output_dir`, see [Configuration](#Configuration)
-- -miner(Required): Storage provider Id you want to send deal to
 - -dataset(optional): The curated dataset from which the car files are generated
 - -description(optional): Details to better describe the data and confine the task or anything the storage provider needs to be informed.
 
