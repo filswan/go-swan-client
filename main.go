@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"go-swan-client/common/client"
 	"go-swan-client/logs"
 	"go-swan-client/subcommand"
 )
@@ -80,16 +81,21 @@ func createCarFile(subCmd string) error {
 		return err
 	}
 
+	lotusclient, err := client.LotusGetClient()
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
 	switch subCmd {
 	case SUBCOMMAND_CAR:
-		_, _, err := subcommand.GenerateCarFiles(*inputDir, outputDir)
+		_, _, err := subcommand.GenerateCarFiles(lotusclient, *inputDir, outputDir)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
 		//logs.GetLogger().Info(len(carFiles), " car files generated to directory:", *outputDir)
 	case SUBCOMMAND_GOCAR:
-		_, _, err := subcommand.CreateGoCarFiles(*inputDir, outputDir)
+		_, _, err := subcommand.CreateGoCarFiles(lotusclient, *inputDir, outputDir)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err

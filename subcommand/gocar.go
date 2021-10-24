@@ -21,7 +21,7 @@ import (
 	"github.com/filedrive-team/go-graphsplit"
 )
 
-func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.FileDesc, error) {
+func CreateGoCarFiles(lotusClient *client.LotusClient, inputDir string, outputDir *string) (*string, []*model.FileDesc, error) {
 	err := CheckInputDir(inputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -61,7 +61,7 @@ func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 			logs.GetLogger().Error(err)
 		}
 	}
-	carFiles, err := CreateCarFilesDesc(inputDir, carDir)
+	carFiles, err := CreateCarFilesDesc(lotusClient, inputDir, carDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, err
@@ -86,7 +86,7 @@ type ManifestDetailLinkItem struct {
 	Size int
 }
 
-func CreateCarFilesDesc(srcFileDir, carFileDir string) ([]*model.FileDesc, error) {
+func CreateCarFilesDesc(lotusClient *client.LotusClient, srcFileDir, carFileDir string) ([]*model.FileDesc, error) {
 	manifestFilename := "manifest.csv"
 	lines, err := utils.ReadAllLines(carFileDir, manifestFilename)
 	if err != nil {
@@ -115,7 +115,7 @@ func CreateCarFilesDesc(srcFileDir, carFileDir string) ([]*model.FileDesc, error
 		carFile.PieceCid = fields[2]
 		carFile.CarFileSize = utils.GetInt64FromStr(fields[3])
 
-		pieceCid := client.LotusClientCalcCommP(carFile.CarFilePath)
+		pieceCid := lotusClient.LotusClientCalcCommP(carFile.CarFilePath)
 		if pieceCid == nil {
 			err := fmt.Errorf("failed to generate piece cid")
 			logs.GetLogger().Error(err)
@@ -123,7 +123,7 @@ func CreateCarFilesDesc(srcFileDir, carFileDir string) ([]*model.FileDesc, error
 		}
 
 		carFile.PieceCid = *pieceCid
-		dataCid, err := client.LotusClientImport(carFile.CarFilePath, true)
+		dataCid, err := lotusClient.LotusClientImport(carFile.CarFilePath, true)
 		if err != nil {
 			err := fmt.Errorf("failed to import car file")
 			logs.GetLogger().Error(err)

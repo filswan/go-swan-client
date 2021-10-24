@@ -22,26 +22,26 @@ func TestGetTask() {
 	logs.GetLogger().Info(result, err)
 }
 func TestGenerateCarFiles() {
-	inputDir := "/Users/dorachen/go-workspace/srcFiles"
-	outputDir := "/Users/dorachen/go-workspace/carFiles"
-	outDir, carFiles, err := subcommand.GenerateCarFiles(inputDir, &outputDir)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return
-	}
-
-	logs.GetLogger().Info("generate ", len(carFiles), " car files generated to ", *outDir)
+	//inputDir := "/Users/dorachen/go-workspace/srcFiles"
+	//outputDir := "/Users/dorachen/go-workspace/carFiles"
+	//outDir, carFiles, err := subcommand.GenerateCarFiles(inputDir, &outputDir)
+	//if err != nil {
+	//	logs.GetLogger().Error(err)
+	//	return
+	//}
+	//
+	//logs.GetLogger().Info("generate ", len(carFiles), " car files generated to ", *outDir)
 }
 func TestLotusClient() {
-	result := client.LotusMarketGetAsk()
-	logs.GetLogger().Info(*result)
-	result1 := client.LotusClientCalcCommP("/home/peware/go-swan-client/carFiles/hello2.txt.car")
-	logs.GetLogger().Info(*result1)
-	result2, err := client.LotusClientImport("/home/peware/go-swan-client/carFiles/hello2.txt.car", true)
-	logs.GetLogger().Info(*result2)
-	client.LotusClientGenCar("/home/peware/go-swan-client/srcFiles/hello2.txtd", "/home/peware/go-swan-client/srcFiles/hello2.txt.car", false)
-	version, err := client.LotusVersion()
-	logs.GetLogger().Info(*version, err)
+	//result := client.LotusMarketGetAsk()
+	//logs.GetLogger().Info(*result)
+	//result1 := client.LotusClientCalcCommP("/home/peware/go-swan-client/carFiles/hello2.txt.car")
+	//logs.GetLogger().Info(*result1)
+	//result2, err := client.LotusClientImport("/home/peware/go-swan-client/carFiles/hello2.txt.car", true)
+	//logs.GetLogger().Info(*result2)
+	//client.LotusClientGenCar("/home/peware/go-swan-client/srcFiles/hello2.txtd", "/home/peware/go-swan-client/srcFiles/hello2.txt.car", false)
+	//version, err := client.LotusVersion()
+	//logs.GetLogger().Info(*version, err)
 	//cid, err := client.LotusClientStartDeal("t03354", "bafykbzaceciszub37cz6vtj2vq2x3cofgiiksqsmym3k23cf2jyhnq5dwvvas", "baga6ea4seaqh2pi3qfhhghuxuz2iwpclr6xfosdzo5nd2sdjqynh3ddvkrorgla", "t3u7pumush376xbytsgs5wabkhtadjzfydxxda2vzyasg7cimkcphswrq66j4dubbhwpnojqd3jie6ermpwvvq", "0", 1024, 10101, true, true)
 	//if cid != nil {
 	//	logs.GetLogger().Info(*cid)

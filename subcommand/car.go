@@ -17,7 +17,7 @@ import (
 	"github.com/codingsince1985/checksum"
 )
 
-func GenerateCarFiles(inputDir string, outputDir *string) (*string, []*model.FileDesc, error) {
+func GenerateCarFiles(lotusClient *client.LotusClient, inputDir string, outputDir *string) (*string, []*model.FileDesc, error) {
 	err := CheckInputDir(inputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -46,13 +46,13 @@ func GenerateCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 		carFile.CarFileName = carFile.SourceFileName + ".car"
 		carFile.CarFilePath = filepath.Join(*outputDir, carFile.CarFileName)
 
-		err := client.LotusClientGenCar(carFile.SourceFilePath, carFile.CarFilePath, false)
+		err := lotusClient.LotusClientGenCar(carFile.SourceFilePath, carFile.CarFilePath, false)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, nil, err
 		}
 
-		pieceCid := client.LotusClientCalcCommP(carFile.CarFilePath)
+		pieceCid := lotusClient.LotusClientCalcCommP(carFile.CarFilePath)
 		if pieceCid == nil {
 			err := fmt.Errorf("failed to generate piece cid")
 			logs.GetLogger().Error(err)
@@ -61,7 +61,7 @@ func GenerateCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 
 		carFile.PieceCid = *pieceCid
 
-		dataCid, err := client.LotusClientImport(carFile.CarFilePath, true)
+		dataCid, err := lotusClient.LotusClientImport(carFile.CarFilePath, true)
 		if err != nil {
 			err := fmt.Errorf("failed to import car file")
 			logs.GetLogger().Error(err)

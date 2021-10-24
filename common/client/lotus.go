@@ -97,14 +97,26 @@ type ClientImportResult struct {
 	ImportID int64
 }
 
-func LotusGetClient() *LotusClient {
+func LotusGetClient() (*LotusClient, error) {
 	lotusClient := &LotusClient{
 		ApiUrl:      config.GetConfig().Lotus.ApiUrl,
 		AccessToken: config.GetConfig().Lotus.AccessToken,
 		MinerApiUrl: config.GetConfig().Lotus.MinerApiUrl,
 	}
 
-	return lotusClient
+	if len(lotusClient.ApiUrl) == 0 {
+		err := fmt.Errorf("config [lotus].api_url is required")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if len(lotusClient.AccessToken) == 0 {
+		err := fmt.Errorf("config [lotus].access_token is required and it should have admin access right")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return lotusClient, nil
 }
 
 type LotusVersionResult struct {
@@ -119,9 +131,7 @@ type LotusVersionResponse struct {
 }
 
 //"lotus client query-ask " + minerFid
-func LotusVersion() (*string, error) {
-	lotusClient := LotusGetClient()
-
+func (lotusClient *LotusClient) LotusVersion() (*string, error) {
 	var params []interface{}
 
 	jsonRpcParams := LotusJsonRpcParams{
@@ -156,9 +166,7 @@ func LotusVersion() (*string, error) {
 }
 
 //"lotus client query-ask " + minerFid
-func LotusMarketGetAsk() *MarketGetAskResultAsk {
-	lotusClient := LotusGetClient()
-
+func (lotusClient *LotusClient) LotusMarketGetAsk() *MarketGetAskResultAsk {
 	var params []interface{}
 
 	jsonRpcParams := LotusJsonRpcParams{
@@ -188,9 +196,7 @@ func LotusMarketGetAsk() *MarketGetAskResultAsk {
 }
 
 //"lotus client commP " + carFilePath
-func LotusClientCalcCommP(filepath string) *string {
-	lotusClient := LotusGetClient()
-
+func (lotusClient *LotusClient) LotusClientCalcCommP(filepath string) *string {
 	var params []interface{}
 	params = append(params, filepath)
 
@@ -227,9 +233,7 @@ type ClientFileParam struct {
 }
 
 //"lotus client import --car " + carFilePath
-func LotusClientImport(filepath string, isCar bool) (*string, error) {
-	lotusClient := LotusGetClient()
-
+func (lotusClient *LotusClient) LotusClientImport(filepath string, isCar bool) (*string, error) {
 	var params []interface{}
 	clientFileParam := ClientFileParam{
 		Path:  filepath,
@@ -276,9 +280,7 @@ func LotusClientImport(filepath string, isCar bool) (*string, error) {
 }
 
 //"lotus client generate-car " + srcFilePath + " " + destCarFilePath
-func LotusClientGenCar(srcFilePath, destCarFilePath string, srcFilePathIsCar bool) error {
-	lotusClient := LotusGetClient()
-
+func (lotusClient *LotusClient) LotusClientGenCar(srcFilePath, destCarFilePath string, srcFilePathIsCar bool) error {
 	var params []interface{}
 	clientFileParam := ClientFileParam{
 		Path:  srcFilePath,
@@ -343,9 +345,7 @@ type ClientStartDeal struct {
 }
 
 //"lotus client generate-car " + srcFilePath + " " + destCarFilePath
-func LotusClientStartDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.DealConfig) (*string, error) {
-	lotusClient := LotusGetClient()
-
+func (lotusClient *LotusClient) LotusClientStartDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.DealConfig) (*string, error) {
 	//costFloat, _ := cost.Float64()
 	//costStr := fmt.Sprintf("%.18f", costFloat)
 
