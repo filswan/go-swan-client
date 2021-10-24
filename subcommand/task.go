@@ -74,6 +74,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, er
 		taskType = constants.TASK_TYPE_VERIFIED
 	}
 
+	uuid := uuid.NewString()
 	task := model.Task{
 		TaskName:          *confTask.TaskName,
 		FastRetrievalBool: confTask.FastRetrieval,
@@ -83,7 +84,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, er
 		BidMode:           &confTask.BidMode,
 		ExpireDays:        &confTask.ExpireDays,
 		MinerFid:          confTask.MinerFid,
-		Uuid:              uuid.NewString(),
+		Uuid:              &uuid,
 	}
 
 	if confTask.Dataset != nil {
@@ -99,7 +100,8 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, er
 		carFile.MinerFid = task.MinerFid
 
 		if confTask.StorageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
-			carFile.CarFileUrl = utils.UrlJoin(confTask.WebServerDownloadUrlPrefix, carFile.CarFileName)
+			carFileUrl := utils.UrlJoin(confTask.WebServerDownloadUrlPrefix, carFile.CarFileName)
+			carFile.CarFileUrl = &carFileUrl
 		}
 	}
 

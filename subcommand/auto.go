@@ -37,7 +37,7 @@ func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error) {
 
 	csvFilepaths := []string{}
 	for _, assignedTask := range assignedTasks {
-		assignedTaskInfo, err := swanClient.GetOfflineDealsByTaskUuid(assignedTask.Uuid)
+		assignedTaskInfo, err := swanClient.GetOfflineDealsByTaskUuid(*assignedTask.Uuid)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
@@ -62,7 +62,7 @@ func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error) {
 			status = constants.TASK_STATUS_PROGRESS_WITH_FAILURE
 		}
 
-		response, err := swanClient.UpdateAssignedTask(assignedTask.Uuid, status, csvFilePath)
+		response, err := swanClient.UpdateAssignedTask(*assignedTask.Uuid, status, csvFilePath)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
@@ -102,7 +102,7 @@ func SendAutobidDeal(confDeal *model.ConfDeal, deals []model.OfflineDeal, task m
 		carFile := model.FileDesc{
 			Uuid:       task.Uuid,
 			MinerFid:   task.MinerFid,
-			CarFileUrl: *deal.FileSourceUrl,
+			CarFileUrl: deal.FileSourceUrl,
 			CarFileMd5: deal.Md5Origin,
 			StartEpoch: *deal.StartEpoch,
 			PieceCid:   *deal.PieceCid,
@@ -120,7 +120,7 @@ func SendAutobidDeal(confDeal *model.ConfDeal, deals []model.OfflineDeal, task m
 				continue
 			}
 
-			carFile.DealCid = *dealCid
+			carFile.DealCid = dealCid
 			carFile.StartEpoch = *startEpoch
 			dealSentNum = dealSentNum + 1
 			break

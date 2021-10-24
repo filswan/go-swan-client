@@ -37,7 +37,8 @@ func UploadCarFiles(confUpload *model.ConfUpload) error {
 			return err
 		}
 
-		carFile.CarFileUrl = utils.UrlJoin(confUpload.IpfsServerDownloadUrlPrefix, *carFileHash)
+		carFileUrl := utils.UrlJoin(confUpload.IpfsServerDownloadUrlPrefix, *carFileHash)
+		carFile.CarFileUrl = &carFileUrl
 		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileUrl)
 	}
 

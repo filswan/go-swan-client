@@ -165,7 +165,6 @@ func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName stri
 	headers = append(headers, "source_file_name")
 	headers = append(headers, "source_file_path")
 	headers = append(headers, "source_file_md5")
-	headers = append(headers, "source_file_url")
 	headers = append(headers, "source_file_size")
 	headers = append(headers, "car_file_name")
 	headers = append(headers, "car_file_path")
@@ -196,18 +195,33 @@ func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName stri
 
 	for _, carFile := range carFiles {
 		var columns []string
-		columns = append(columns, carFile.Uuid)
+		if carFile.Uuid != nil {
+			columns = append(columns, *carFile.Uuid)
+		} else {
+			columns = append(columns, "")
+		}
+
 		columns = append(columns, carFile.SourceFileName)
 		columns = append(columns, carFile.SourceFilePath)
 		columns = append(columns, carFile.SourceFileMd5)
-		columns = append(columns, carFile.SourceFileUrl)
 		columns = append(columns, strconv.FormatInt(carFile.SourceFileSize, 10))
 		columns = append(columns, carFile.CarFileName)
 		columns = append(columns, carFile.CarFilePath)
 		columns = append(columns, carFile.CarFileMd5)
-		columns = append(columns, carFile.CarFileUrl)
+
+		if carFile.CarFileUrl != nil {
+			columns = append(columns, *carFile.CarFileUrl)
+		} else {
+			columns = append(columns, "")
+		}
+
 		columns = append(columns, strconv.FormatInt(carFile.CarFileSize, 10))
-		columns = append(columns, carFile.DealCid)
+		if carFile.DealCid != nil {
+			columns = append(columns, *carFile.DealCid)
+		} else {
+			columns = append(columns, "")
+		}
+
 		columns = append(columns, carFile.DataCid)
 		columns = append(columns, carFile.PieceCid)
 		if carFile.MinerFid != nil {
@@ -264,15 +278,31 @@ func CreateCsv4TaskDeal(carFiles []*model.FileDesc, outDir, csvFileName string) 
 
 	for _, carFile := range carFiles {
 		var columns []string
-		columns = append(columns, carFile.Uuid)
+		if carFile.Uuid != nil {
+			columns = append(columns, *carFile.Uuid)
+		} else {
+			columns = append(columns, "")
+		}
+
 		if carFile.MinerFid != nil {
 			columns = append(columns, *carFile.MinerFid)
 		} else {
 			columns = append(columns, "")
 		}
-		columns = append(columns, carFile.DealCid)
+		if carFile.DealCid != nil {
+			columns = append(columns, *carFile.DealCid)
+		} else {
+			columns = append(columns, "")
+		}
+
 		columns = append(columns, carFile.DataCid)
-		columns = append(columns, carFile.CarFileUrl)
+
+		if carFile.CarFileUrl != nil {
+			columns = append(columns, *carFile.CarFileUrl)
+		} else {
+			columns = append(columns, "")
+		}
+
 		columns = append(columns, carFile.CarFileMd5)
 		columns = append(columns, strconv.Itoa(carFile.StartEpoch))
 		columns = append(columns, carFile.PieceCid)

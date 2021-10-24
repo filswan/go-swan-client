@@ -36,7 +36,7 @@ func SendDeals(confDeal model.ConfDeal) error {
 		logs.GetLogger().Error(err)
 		return err
 	}
-	task, err := swanClient.GetOfflineDealsByTaskUuid(carFiles[0].Uuid)
+	task, err := swanClient.GetOfflineDealsByTaskUuid(*carFiles[0].Uuid)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -60,7 +60,7 @@ func SendDeals(confDeal model.ConfDeal) error {
 		return err
 	}
 
-	response := swanClient.SwanUpdateTaskByUuid(carFiles[0].Uuid, *confDeal.MinerFid, *csvFilepath)
+	response := swanClient.SwanUpdateTaskByUuid(*carFiles[0].Uuid, *confDeal.MinerFid, *csvFilepath)
 	logs.GetLogger().Info(response)
 	return nil
 }
@@ -91,7 +91,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, minerFid string,
 			continue
 		}
 		carFile.MinerFid = confDeal.MinerFid
-		carFile.DealCid = *dealCid
+		carFile.DealCid = dealCid
 		carFile.StartEpoch = *startEpoch
 
 		logs.GetLogger().Info("Cid:", carFile.DealCid)
