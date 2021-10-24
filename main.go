@@ -172,7 +172,7 @@ func createTask() error {
 		return err
 	}
 
-	logs.GetLogger().Info(inputDir, outputDir, minerFid, dataset, description)
+	logs.GetLogger().Info("your input dir: ", *inputDir)
 
 	swanClient, err := client.SwanGetClient()
 	if err != nil {

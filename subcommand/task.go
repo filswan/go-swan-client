@@ -57,7 +57,7 @@ func CreateTask(swanClient *client.SwanClient, inputDir string, taskName, output
 	expireDays := config.GetConfig().Sender.ExpireDays
 	//generateMd5 := config.GetConfig().Sender.GenerateMd5
 
-	logs.GetLogger().Info("swan client settings:")
+	logs.GetLogger().Info("task settings:")
 	logs.GetLogger().Info("public task: ", publicDeal)
 	logs.GetLogger().Info("verified deals: ", verifiedDeal)
 	logs.GetLogger().Info("connected to swan: ", !offlineMode)

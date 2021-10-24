@@ -121,7 +121,7 @@ func SwanGetClient() (*SwanClient, error) {
 
 	var err error
 	for i := 0; i < 3; i++ {
-		err := swanClient.GetJwtToken()
+		err = swanClient.GetJwtToken()
 		if err != nil {
 			logs.GetLogger().Error(err)
 		} else {
