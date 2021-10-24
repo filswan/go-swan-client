@@ -130,6 +130,8 @@ func SwanGetClient() (*SwanClient, error) {
 	}
 
 	if err != nil {
+		err = fmt.Errorf("failed to connect to swan platform after trying 3 times")
+		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
