@@ -11,7 +11,6 @@ import (
 
 	"go-swan-client/common/constants"
 	"go-swan-client/common/utils"
-	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
 
@@ -42,7 +41,6 @@ type LotusJsonRpcParams struct {
 type LotusClient struct {
 	ApiUrl      string
 	AccessToken string
-	MinerApiUrl string
 }
 
 type LotusJsonRpcResult struct {
@@ -97,23 +95,22 @@ type ClientImportResult struct {
 	ImportID int64
 }
 
-func LotusGetClient() (*LotusClient, error) {
+func LotusGetClient(apiUrl, accessToken string) (*LotusClient, error) {
+	if len(apiUrl) == 0 {
+		err := fmt.Errorf("config lotus api_url is required")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if len(accessToken) == 0 {
+		err := fmt.Errorf("config lotus access_token is required and it should have admin access right")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	lotusClient := &LotusClient{
-		ApiUrl:      config.GetConfig().Lotus.ApiUrl,
-		AccessToken: config.GetConfig().Lotus.AccessToken,
-		MinerApiUrl: config.GetConfig().Lotus.MinerApiUrl,
-	}
-
-	if len(lotusClient.ApiUrl) == 0 {
-		err := fmt.Errorf("config [lotus].api_url is required")
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	if len(lotusClient.AccessToken) == 0 {
-		err := fmt.Errorf("config [lotus].access_token is required and it should have admin access right")
-		logs.GetLogger().Error(err)
-		return nil, err
+		ApiUrl:      apiUrl,
+		AccessToken: accessToken,
 	}
 
 	return lotusClient, nil
@@ -141,7 +138,8 @@ func (lotusClient *LotusClient) LotusVersion() (*string, error) {
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := HttpGetNoToken(lotusClient.MinerApiUrl, jsonRpcParams)
+	//here the api url should be miner's api url, need to change later on
+	response := HttpGetNoToken(lotusClient.ApiUrl, jsonRpcParams)
 	if response == "" {
 		err := errors.New("no response from api")
 		logs.GetLogger().Error(err)
@@ -176,7 +174,8 @@ func (lotusClient *LotusClient) LotusMarketGetAsk() *MarketGetAskResultAsk {
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := HttpGetNoToken(lotusClient.MinerApiUrl, jsonRpcParams)
+	//here the api url should be miner's api url, need to change later on
+	response := HttpGetNoToken(lotusClient.ApiUrl, jsonRpcParams)
 	if response == "" {
 		return nil
 	}

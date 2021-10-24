@@ -14,6 +14,7 @@ type ConfTask struct {
 	MaxPrice                   string
 	StorageServerType          string
 	WebServerDownloadUrlPrefix string
+	ExpireDays                 int
 }
 
 func GetConfTask() *ConfTask {
@@ -29,6 +30,7 @@ func GetConfTask() *ConfTask {
 		MaxPrice:                   config.GetConfig().Sender.MaxPrice,
 		StorageServerType:          config.GetConfig().Main.StorageServerType,
 		WebServerDownloadUrlPrefix: config.GetConfig().WebServer.DownloadUrlPrefix,
+		ExpireDays:                 config.GetConfig().Sender.ExpireDays,
 	}
 
 	return confTask

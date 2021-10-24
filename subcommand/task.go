@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
 
@@ -45,12 +44,11 @@ func CreateTask(confTask *model.ConfTask, inputDir string, taskName, outputDir, 
 		taskName = &nowStr
 	}
 
-	maxPrice, err := decimal.NewFromString(config.GetConfig().Sender.MaxPrice)
+	maxPrice, err := decimal.NewFromString(confTask.MaxPrice)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
-	expireDays := config.GetConfig().Sender.ExpireDays
 	//generateMd5 := config.GetConfig().Sender.GenerateMd5
 
 	logs.GetLogger().Info("task settings:")
@@ -85,19 +83,17 @@ func CreateTask(confTask *model.ConfTask, inputDir string, taskName, outputDir, 
 		IsPublic:          &isPublic,
 		MaxPrice:          &maxPrice,
 		BidMode:           &confTask.BidMode,
-		ExpireDays:        &expireDays,
+		ExpireDays:        &confTask.ExpireDays,
 		MinerFid:          minerFid,
 		Uuid:              uuid.NewString(),
 	}
 
-	storageServerType := config.GetConfig().Main.StorageServerType
-	webServerDownloadUrlPrefix := config.GetConfig().WebServer.DownloadUrlPrefix
 	for _, carFile := range carFiles {
 		carFile.Uuid = task.Uuid
 		carFile.MinerFid = task.MinerFid
 
-		if storageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
-			carFile.CarFileUrl = strings.TrimRight(webServerDownloadUrlPrefix, "/") + "/" + carFile.CarFileName
+		if confTask.StorageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
+			carFile.CarFileUrl = strings.TrimRight(confTask.WebServerDownloadUrlPrefix, "/") + "/" + carFile.CarFileName
 		}
 	}
 

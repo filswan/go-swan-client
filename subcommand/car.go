@@ -9,15 +9,15 @@ import (
 
 	"go-swan-client/model"
 
+	"go-swan-client/common/client"
 	"go-swan-client/common/utils"
 
-	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
 
 	"github.com/codingsince1985/checksum"
 )
 
-func GenerateCarFiles(lotusClient *client.LotusClient, inputDir string, outputDir *string) (*string, []*model.FileDesc, error) {
+func GenerateCarFiles(confCar *model.ConfCar, inputDir string, outputDir *string) (*string, []*model.FileDesc, error) {
 	err := CheckInputDir(inputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -37,6 +37,12 @@ func GenerateCarFiles(lotusClient *client.LotusClient, inputDir string, outputDi
 	}
 
 	carFiles := []*model.FileDesc{}
+
+	lotusClient, err := client.LotusGetClient(confCar.LotusApiUrl, confCar.LotusAccessToken)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, nil, err
+	}
 
 	for _, srcFile := range srcFiles {
 		carFile := model.FileDesc{}
