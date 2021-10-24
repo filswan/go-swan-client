@@ -17,8 +17,8 @@ import (
 	"github.com/codingsince1985/checksum"
 )
 
-func GenerateCarFiles(confCar *model.ConfCar, inputDir string) ([]*model.FileDesc, error) {
-	err := CheckInputDir(inputDir)
+func GenerateCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error) {
+	err := CheckInputDir(confCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -30,7 +30,7 @@ func GenerateCarFiles(confCar *model.ConfCar, inputDir string) ([]*model.FileDes
 		return nil, err
 	}
 
-	srcFiles, err := ioutil.ReadDir(inputDir)
+	srcFiles, err := ioutil.ReadDir(confCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -47,7 +47,7 @@ func GenerateCarFiles(confCar *model.ConfCar, inputDir string) ([]*model.FileDes
 	for _, srcFile := range srcFiles {
 		carFile := model.FileDesc{}
 		carFile.SourceFileName = srcFile.Name()
-		carFile.SourceFilePath = filepath.Join(inputDir, carFile.SourceFileName)
+		carFile.SourceFilePath = filepath.Join(confCar.InputDir, carFile.SourceFileName)
 		carFile.SourceFileSize = srcFile.Size()
 		carFile.CarFileName = carFile.SourceFileName + ".car"
 		carFile.CarFilePath = filepath.Join(confCar.OutputDir, carFile.CarFileName)

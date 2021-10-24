@@ -20,8 +20,8 @@ import (
 	"github.com/filedrive-team/go-graphsplit"
 )
 
-func CreateGoCarFiles(confCar *model.ConfCar, inputDir string) ([]*model.FileDesc, error) {
-	err := CheckInputDir(inputDir)
+func CreateGoCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error) {
+	err := CheckInputDir(confCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -40,7 +40,7 @@ func CreateGoCarFiles(confCar *model.ConfCar, inputDir string) ([]*model.FileDes
 		return nil, err
 	}
 
-	srcFiles, err := ioutil.ReadDir(inputDir)
+	srcFiles, err := ioutil.ReadDir(confCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -48,7 +48,7 @@ func CreateGoCarFiles(confCar *model.ConfCar, inputDir string) ([]*model.FileDes
 
 	carDir := confCar.OutputDir
 	for _, srcFile := range srcFiles {
-		parentPath := filepath.Join(inputDir, srcFile.Name())
+		parentPath := filepath.Join(confCar.InputDir, srcFile.Name())
 		targetPath := parentPath
 		graphName := srcFile.Name()
 		parallel := 4
@@ -60,7 +60,7 @@ func CreateGoCarFiles(confCar *model.ConfCar, inputDir string) ([]*model.FileDes
 			logs.GetLogger().Error(err)
 		}
 	}
-	carFiles, err := CreateCarFilesDesc(confCar, inputDir, carDir)
+	carFiles, err := CreateCarFilesDesc(confCar, confCar.InputDir, carDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

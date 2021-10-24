@@ -15,8 +15,8 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func CreateTask(confTask *model.ConfTask, inputDir string, taskName, minerFid, dataset, description *string) (*string, error) {
-	err := CheckInputDir(inputDir)
+func CreateTask(confTask *model.ConfTask) (*string, error) {
+	err := CheckInputDir(confTask.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -30,18 +30,18 @@ func CreateTask(confTask *model.ConfTask, inputDir string, taskName, minerFid, d
 
 	logs.GetLogger().Info("you output dir: ", confTask.OutputDir)
 
-	if !confTask.PublicDeal && (minerFid == nil || len(*minerFid) == 0) {
+	if !confTask.PublicDeal && (confTask.MinerFid == nil || len(*confTask.MinerFid) == 0) {
 		err := fmt.Errorf("please provide -miner for non public deal")
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
-	if confTask.BidMode == constants.TASK_BID_MODE_AUTO && minerFid != nil && len(*minerFid) != 0 {
-		logs.GetLogger().Warn("-miner is unnecessary for aubo-bid task, it will be ignored")
+	if confTask.BidMode == constants.TASK_BID_MODE_AUTO && confTask.MinerFid != nil && len(*confTask.MinerFid) != 0 {
+		logs.GetLogger().Warn("miner is unnecessary for aubo-bid task, it will be ignored")
 	}
 
-	if taskName == nil || len(*taskName) == 0 {
+	if confTask.TaskName == nil || len(*confTask.TaskName) == 0 {
 		nowStr := "task_" + time.Now().Format("2006-01-02_15:04:05")
-		taskName = &nowStr
+		confTask.TaskName = &nowStr
 	}
 
 	maxPrice, err := decimal.NewFromString(confTask.MaxPrice)
@@ -57,9 +57,9 @@ func CreateTask(confTask *model.ConfTask, inputDir string, taskName, minerFid, d
 	logs.GetLogger().Info("connected to swan: ", !confTask.OfflineMode)
 	logs.GetLogger().Info("fastRetrieval: ", confTask.FastRetrieval)
 
-	carFiles := ReadCarFilesFromJsonFile(inputDir, constants.JSON_FILE_NAME_BY_UPLOAD)
+	carFiles := ReadCarFilesFromJsonFile(confTask.InputDir, constants.JSON_FILE_NAME_BY_UPLOAD)
 	if carFiles == nil {
-		err := fmt.Errorf("failed to read car files from :%s", inputDir)
+		err := fmt.Errorf("failed to read car files from :%s", confTask.InputDir)
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
@@ -75,17 +75,23 @@ func CreateTask(confTask *model.ConfTask, inputDir string, taskName, minerFid, d
 	}
 
 	task := model.Task{
-		TaskName:          *taskName,
-		CuratedDataset:    *dataset,
-		Description:       *description,
+		TaskName:          *confTask.TaskName,
 		FastRetrievalBool: confTask.FastRetrieval,
 		Type:              &taskType,
 		IsPublic:          &isPublic,
 		MaxPrice:          &maxPrice,
 		BidMode:           &confTask.BidMode,
 		ExpireDays:        &confTask.ExpireDays,
-		MinerFid:          minerFid,
+		MinerFid:          confTask.MinerFid,
 		Uuid:              uuid.NewString(),
+	}
+
+	if confTask.Dataset != nil {
+		task.CuratedDataset = *confTask.Dataset
+	}
+
+	if confTask.Description != nil {
+		task.Description = *confTask.Description
 	}
 
 	for _, carFile := range carFiles {
@@ -98,14 +104,14 @@ func CreateTask(confTask *model.ConfTask, inputDir string, taskName, minerFid, d
 	}
 
 	if !confTask.PublicDeal {
-		_, err := SendDeals2Miner(nil, *taskName, *minerFid, confTask.OutputDir, carFiles)
+		_, err := SendDeals2Miner(nil, *confTask.TaskName, *confTask.MinerFid, confTask.OutputDir, carFiles)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	jsonFileName := *taskName + constants.JSON_FILE_NAME_BY_TASK
-	csvFileName := *taskName + constants.CSV_FILE_NAME_BY_TASK
+	jsonFileName := *confTask.TaskName + constants.JSON_FILE_NAME_BY_TASK
+	csvFileName := *confTask.TaskName + constants.CSV_FILE_NAME_BY_TASK
 	err = WriteCarFilesToFiles(carFiles, confTask.OutputDir, jsonFileName, csvFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)

@@ -10,8 +10,8 @@ import (
 	"go-swan-client/model"
 )
 
-func UploadCarFiles(confUpload *model.ConfUpload, inputDir string) error {
-	err := CheckInputDir(inputDir)
+func UploadCarFiles(confUpload *model.ConfUpload) error {
+	err := CheckInputDir(confUpload.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -22,9 +22,9 @@ func UploadCarFiles(confUpload *model.ConfUpload, inputDir string) error {
 		return nil
 	}
 
-	carFiles := ReadCarFilesFromJsonFile(inputDir, constants.JSON_FILE_NAME_BY_CAR)
+	carFiles := ReadCarFilesFromJsonFile(confUpload.InputDir, constants.JSON_FILE_NAME_BY_CAR)
 	if carFiles == nil {
-		err := fmt.Errorf("failed to read:%s", inputDir)
+		err := fmt.Errorf("failed to read:%s", confUpload.InputDir)
 		logs.GetLogger().Error(err)
 		return err
 	}
@@ -41,7 +41,7 @@ func UploadCarFiles(confUpload *model.ConfUpload, inputDir string) error {
 		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileUrl)
 	}
 
-	err = WriteCarFilesToFiles(carFiles, inputDir, constants.JSON_FILE_NAME_BY_UPLOAD, constants.CSV_FILE_NAME_BY_UPLOAD)
+	err = WriteCarFilesToFiles(carFiles, confUpload.InputDir, constants.JSON_FILE_NAME_BY_UPLOAD, constants.CSV_FILE_NAME_BY_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err

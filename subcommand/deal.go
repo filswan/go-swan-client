@@ -9,18 +9,19 @@ import (
 
 	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
-	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
 
 	"github.com/shopspring/decimal"
 )
 
-func SendDeals(confDeal model.ConfDeal, minerFid string, outputDir *string, metadataJsonPath string) error {
-	if outputDir == nil {
-		outDir := config.GetConfig().Sender.OutputDir
-		outputDir = &outDir
+func SendDeals(confDeal model.ConfDeal, minerFid string, metadataJsonPath string) error {
+	err := CreateOutputDir(confDeal.OutputDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
 	}
+
 	metadataJsonFilename := filepath.Base(metadataJsonPath)
 	taskName := strings.TrimSuffix(metadataJsonFilename, constants.JSON_FILE_NAME_BY_TASK)
 	carFiles := ReadCarFilesFromJsonFileByFullPath(metadataJsonPath)
@@ -53,7 +54,7 @@ func SendDeals(confDeal model.ConfDeal, minerFid string, outputDir *string, meta
 		return err
 	}
 
-	csvFilepath, err := SendDeals2Miner(nil, taskName, minerFid, *outputDir, carFiles)
+	csvFilepath, err := SendDeals2Miner(nil, taskName, minerFid, confDeal.OutputDir, carFiles)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err

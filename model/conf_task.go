@@ -19,9 +19,14 @@ type ConfTask struct {
 	WebServerDownloadUrlPrefix string
 	ExpireDays                 int
 	OutputDir                  string
+	InputDir                   string
+	TaskName                   *string
+	MinerFid                   *string
+	Dataset                    *string
+	Description                *string
 }
 
-func GetConfTask(outDir *string) *ConfTask {
+func GetConfTask(inputDir string, outDir *string, taskName, minerFid, dataset, description *string) *ConfTask {
 	confTask := &ConfTask{
 		SwanApiUrl:                 config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:                 config.GetConfig().Main.SwanApiKey,
@@ -36,6 +41,11 @@ func GetConfTask(outDir *string) *ConfTask {
 		WebServerDownloadUrlPrefix: config.GetConfig().WebServer.DownloadUrlPrefix,
 		ExpireDays:                 config.GetConfig().Sender.ExpireDays,
 		OutputDir:                  config.GetConfig().Sender.OutputDir + time.Now().Format("2006-01-02_15:04:05"),
+		InputDir:                   inputDir,
+		TaskName:                   taskName,
+		MinerFid:                   minerFid,
+		Dataset:                    dataset,
+		Description:                description,
 	}
 
 	if outDir != nil {

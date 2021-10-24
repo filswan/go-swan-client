@@ -81,18 +81,18 @@ func createCarFile(subCmd string) error {
 		return err
 	}
 
-	confCar := model.GetConfCar(outputDir)
+	confCar := model.GetConfCar(*inputDir, outputDir)
 
 	switch subCmd {
 	case SUBCOMMAND_CAR:
-		_, err := subcommand.GenerateCarFiles(confCar, *inputDir)
+		_, err := subcommand.GenerateCarFiles(confCar)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
 		//logs.GetLogger().Info(len(carFiles), " car files generated to directory:", *outputDir)
 	case SUBCOMMAND_GOCAR:
-		_, err := subcommand.CreateGoCarFiles(confCar, *inputDir)
+		_, err := subcommand.CreateGoCarFiles(confCar)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
@@ -131,9 +131,9 @@ func uploadFile() error {
 		return err
 	}
 
-	confUpload := model.GetConfUpload()
+	confUpload := model.GetConfUpload(*inputDir)
 
-	err = subcommand.UploadCarFiles(confUpload, *inputDir)
+	err = subcommand.UploadCarFiles(confUpload)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -173,8 +173,8 @@ func createTask() error {
 
 	logs.GetLogger().Info("your input dir: ", *inputDir)
 
-	confTask := model.GetConfTask(outputDir)
-	jsonFileName, err := subcommand.CreateTask(confTask, *inputDir, taskName, minerFid, dataset, description)
+	confTask := model.GetConfTask(*inputDir, outputDir, taskName, minerFid, dataset, description)
+	jsonFileName, err := subcommand.CreateTask(confTask)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -220,7 +220,7 @@ func sendDeal() error {
 	logs.GetLogger().Info("miner:", *minerFid)
 
 	confDeal := model.GetConfDeal(outputDir, minerFid)
-	err = subcommand.SendDeals(*confDeal, *minerFid, outputDir, *metadataJsonPath)
+	err = subcommand.SendDeals(*confDeal, *minerFid, *metadataJsonPath)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
