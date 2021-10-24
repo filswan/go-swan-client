@@ -60,8 +60,12 @@ func SendDeals(confDeal model.ConfDeal) error {
 		return err
 	}
 
-	response := swanClient.SwanUpdateTaskByUuid(*carFiles[0].Uuid, *confDeal.MinerFid, *csvFilepath)
-	logs.GetLogger().Info(response)
+	err = swanClient.SwanUpdateTaskByUuid(*carFiles[0].Uuid, *confDeal.MinerFid, *csvFilepath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
 	return nil
 }
 
