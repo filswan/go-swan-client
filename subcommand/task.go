@@ -29,6 +29,8 @@ func CreateTask(swanClient *client.SwanClient, inputDir string, taskName, output
 		return nil, err
 	}
 
+	logs.GetLogger().Info("you output dir: ", *outputDir)
+
 	publicDeal := config.GetConfig().Sender.PublicDeal
 	if !publicDeal && (minerFid == nil || len(*minerFid) == 0) {
 		err := fmt.Errorf("please provide -miner for non public deal")
