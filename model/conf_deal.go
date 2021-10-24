@@ -15,7 +15,6 @@ type ConfDeal struct {
 	SwanApiUrl              string
 	SwanApiKey              string
 	SwanAccessToken         string
-	MinerFid                string
 	SenderWallet            string
 	MaxPrice                decimal.Decimal
 	VerifiedDeal            bool
@@ -25,9 +24,11 @@ type ConfDeal struct {
 	StartEpoch              int
 	StartEpochIntervalHours int
 	OutputDir               string
+	MinerFid                *string
+	MetadataJsonPath        *string
 }
 
-func GetConfDeal(outDir *string, minerFid *string) *ConfDeal {
+func GetConfDeal(outDir *string, minerFid *string, metadataJsonPath *string) *ConfDeal {
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
 	startEpoch := utils.GetCurrentEpoch() + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
 
@@ -39,17 +40,15 @@ func GetConfDeal(outDir *string, minerFid *string) *ConfDeal {
 		VerifiedDeal:            config.GetConfig().Sender.VerifiedDeal,
 		FastRetrieval:           config.GetConfig().Sender.FastRetrieval,
 		SkipConfirmation:        config.GetConfig().Sender.SkipConfirmation,
-		OutputDir:               config.GetConfig().Sender.OutputDir + time.Now().Format("2006-01-02_15:04:05"),
 		StartEpochIntervalHours: startEpochIntervalHours,
 		StartEpoch:              startEpoch,
+		OutputDir:               config.GetConfig().Sender.OutputDir + time.Now().Format("2006-01-02_15:04:05"),
+		MinerFid:                minerFid,
+		MetadataJsonPath:        metadataJsonPath,
 	}
 
 	if outDir != nil {
 		confDeal.OutputDir = *outDir
-	}
-
-	if minerFid != nil {
-		confDeal.MinerFid = *minerFid
 	}
 
 	maxPriceStr := config.GetConfig().Sender.MaxPrice
@@ -71,7 +70,7 @@ func SetDealConfig4Autobid(confDeal *ConfDeal, task Task, deal OfflineDeal) erro
 		logs.GetLogger().Error(err)
 		return err
 	}
-	confDeal.MinerFid = *task.MinerFid
+	confDeal.MinerFid = task.MinerFid
 
 	if task.Type == nil {
 		err := fmt.Errorf("task type missing")

@@ -15,7 +15,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func CreateTask(confTask *model.ConfTask) (*string, error) {
+func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, error) {
 	err := CheckInputDir(confTask.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -104,7 +104,7 @@ func CreateTask(confTask *model.ConfTask) (*string, error) {
 	}
 
 	if !confTask.PublicDeal {
-		_, err := SendDeals2Miner(nil, *confTask.TaskName, *confTask.MinerFid, confTask.OutputDir, carFiles)
+		_, err := SendDeals2Miner(confDeal, *confTask.TaskName, *confTask.MinerFid, confTask.OutputDir, carFiles)
 		if err != nil {
 			return nil, err
 		}
@@ -118,7 +118,7 @@ func CreateTask(confTask *model.ConfTask) (*string, error) {
 		return nil, err
 	}
 
-	err = SendTask2Swan(confTask, task, carFiles, confTask.OutputDir)
+	err = SendTask2Swan(confTask, task, carFiles)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -127,9 +127,9 @@ func CreateTask(confTask *model.ConfTask) (*string, error) {
 	return &jsonFileName, nil
 }
 
-func SendTask2Swan(confTask *model.ConfTask, task model.Task, carFiles []*model.FileDesc, outDir string) error {
+func SendTask2Swan(confTask *model.ConfTask, task model.Task, carFiles []*model.FileDesc) error {
 	csvFilename := task.TaskName + ".csv"
-	csvFilePath, err := CreateCsv4TaskDeal(carFiles, outDir, csvFilename)
+	csvFilePath, err := CreateCsv4TaskDeal(carFiles, confTask.OutputDir, csvFilename)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err

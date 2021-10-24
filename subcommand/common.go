@@ -21,7 +21,7 @@ import (
 )
 
 func CheckDealConfig(confDeal *model.ConfDeal) error {
-	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(confDeal.MinerFid)
+	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(*confDeal.MinerFid)
 
 	if confDeal.SenderWallet == "" {
 		err := fmt.Errorf("sender.wallet should be set in config file")

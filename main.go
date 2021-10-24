@@ -174,7 +174,8 @@ func createTask() error {
 	logs.GetLogger().Info("your input dir: ", *inputDir)
 
 	confTask := model.GetConfTask(*inputDir, outputDir, taskName, minerFid, dataset, description)
-	jsonFileName, err := subcommand.CreateTask(confTask)
+	confDeal := model.GetConfDeal(outputDir, minerFid, nil)
+	jsonFileName, err := subcommand.CreateTask(confTask, confDeal)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -219,8 +220,8 @@ func sendDeal() error {
 	logs.GetLogger().Info("output dir:", *outputDir)
 	logs.GetLogger().Info("miner:", *minerFid)
 
-	confDeal := model.GetConfDeal(outputDir, minerFid)
-	err = subcommand.SendDeals(*confDeal, *minerFid, *metadataJsonPath)
+	confDeal := model.GetConfDeal(outputDir, minerFid, metadataJsonPath)
+	err = subcommand.SendDeals(*confDeal)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -246,7 +247,7 @@ func sendAutoBidDeal() error {
 		return err
 	}
 
-	confDeal := model.GetConfDeal(outputDir, nil)
+	confDeal := model.GetConfDeal(outputDir, nil, nil)
 	csvFilepaths, err := subcommand.SendAutoBidDeal(confDeal)
 	if err != nil {
 		logs.GetLogger().Error(err)

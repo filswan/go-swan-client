@@ -15,18 +15,18 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func SendDeals(confDeal model.ConfDeal, minerFid string, metadataJsonPath string) error {
+func SendDeals(confDeal model.ConfDeal) error {
 	err := CreateOutputDir(confDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
 	}
 
-	metadataJsonFilename := filepath.Base(metadataJsonPath)
+	metadataJsonFilename := filepath.Base(*confDeal.MetadataJsonPath)
 	taskName := strings.TrimSuffix(metadataJsonFilename, constants.JSON_FILE_NAME_BY_TASK)
-	carFiles := ReadCarFilesFromJsonFileByFullPath(metadataJsonPath)
+	carFiles := ReadCarFilesFromJsonFileByFullPath(*confDeal.MetadataJsonPath)
 	if len(carFiles) == 0 {
-		err := fmt.Errorf("no car files read from:%s", metadataJsonPath)
+		err := fmt.Errorf("no car files read from:%s", *confDeal.MetadataJsonPath)
 		logs.GetLogger().Error(err)
 		return err
 	}
@@ -54,28 +54,19 @@ func SendDeals(confDeal model.ConfDeal, minerFid string, metadataJsonPath string
 		return err
 	}
 
-	csvFilepath, err := SendDeals2Miner(nil, taskName, minerFid, confDeal.OutputDir, carFiles)
+	csvFilepath, err := SendDeals2Miner(nil, taskName, *confDeal.MinerFid, confDeal.OutputDir, carFiles)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
 	}
 
-	response := swanClient.SwanUpdateTaskByUuid(carFiles[0].Uuid, minerFid, *csvFilepath)
+	response := swanClient.SwanUpdateTaskByUuid(carFiles[0].Uuid, *confDeal.MinerFid, *csvFilepath)
 	logs.GetLogger().Info(response)
 	return nil
 }
 
-func SendDeals2Miner(dealConfig *model.ConfDeal, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) (*string, error) {
-	if dealConfig == nil {
-		dealConfig = model.GetConfDeal(nil, &minerFid)
-		if dealConfig == nil {
-			err := errors.New("failed to get deal config")
-			logs.GetLogger().Error(err)
-			return nil, err
-		}
-	}
-
-	err := CheckDealConfig(dealConfig)
+func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) (*string, error) {
+	err := CheckDealConfig(confDeal)
 	if err != nil {
 		err := errors.New("failed to pass deal config check")
 		logs.GetLogger().Error(err)
@@ -88,9 +79,9 @@ func SendDeals2Miner(dealConfig *model.ConfDeal, taskName string, minerFid strin
 			continue
 		}
 		pieceSize, sectorSize := CalculatePieceSize(carFile.CarFileSize)
-		logs.GetLogger().Info("dealConfig.MinerPrice:", dealConfig.MinerPrice)
-		cost := CalculateRealCost(sectorSize, dealConfig.MinerPrice)
-		dealCid, startEpoch, err := client.LotusProposeOfflineDeal(*carFile, cost, pieceSize, *dealConfig, 0)
+		logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
+		cost := CalculateRealCost(sectorSize, confDeal.MinerPrice)
+		dealCid, startEpoch, err := client.LotusProposeOfflineDeal(*carFile, cost, pieceSize, *confDeal, 0)
 		//dealCid, err := client.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig)
 		if err != nil {
 			logs.GetLogger().Error(err)
@@ -99,7 +90,7 @@ func SendDeals2Miner(dealConfig *model.ConfDeal, taskName string, minerFid strin
 		if dealCid == nil {
 			continue
 		}
-		carFile.MinerFid = &dealConfig.MinerFid
+		carFile.MinerFid = confDeal.MinerFid
 		carFile.DealCid = *dealCid
 		carFile.StartEpoch = *startEpoch
 
