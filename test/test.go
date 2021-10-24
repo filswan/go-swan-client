@@ -1,9 +1,7 @@
 package test
 
 import (
-	"fmt"
 	"go-swan-client/logs"
-	"go-swan-client/subcommand"
 	"path/filepath"
 	"strings"
 )
@@ -81,10 +79,10 @@ func TestFilePath() {
 }
 
 func TestDealConfig() {
-	dealConfig := subcommand.GetDealConfig("t03354")
-	subcommand.CheckDealConfig(dealConfig)
-	pieceSize, sectorSize := subcommand.CalculatePieceSize(2049)
-	cost := subcommand.CalculateRealCost(sectorSize, dealConfig.MinerPrice)
-	msg := fmt.Sprintf("Piece size:%d, sector size:%f,cost:%s", pieceSize, sectorSize, cost.String())
-	logs.GetLogger().Info(msg)
+	//dealConfig := subcommand.GetDealConfig("t03354")
+	//subcommand.CheckDealConfig(dealConfig)
+	//pieceSize, sectorSize := subcommand.CalculatePieceSize(2049)
+	//cost := subcommand.CalculateRealCost(sectorSize, dealConfig.MinerPrice)
+	//msg := fmt.Sprintf("Piece size:%d, sector size:%f,cost:%s", pieceSize, sectorSize, cost.String())
+	//logs.GetLogger().Info(msg)
 }

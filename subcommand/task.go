@@ -16,7 +16,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func CreateTask(swanClient *client.SwanClient, inputDir string, taskName, outputDir, minerFid, dataset, description *string) (*string, error) {
+func CreateTask(confTask *model.ConfTask, inputDir string, taskName, outputDir, minerFid, dataset, description *string) (*string, error) {
 	err := CheckInputDir(inputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -31,14 +31,12 @@ func CreateTask(swanClient *client.SwanClient, inputDir string, taskName, output
 
 	logs.GetLogger().Info("you output dir: ", *outputDir)
 
-	publicDeal := config.GetConfig().Sender.PublicDeal
-	if !publicDeal && (minerFid == nil || len(*minerFid) == 0) {
+	if !confTask.PublicDeal && (minerFid == nil || len(*minerFid) == 0) {
 		err := fmt.Errorf("please provide -miner for non public deal")
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
-	bidMode := config.GetConfig().Sender.BidMode
-	if bidMode == constants.TASK_BID_MODE_AUTO && minerFid != nil && len(*minerFid) != 0 {
+	if confTask.BidMode == constants.TASK_BID_MODE_AUTO && minerFid != nil && len(*minerFid) != 0 {
 		logs.GetLogger().Warn("-miner is unnecessary for aubo-bid task, it will be ignored")
 	}
 
@@ -46,10 +44,6 @@ func CreateTask(swanClient *client.SwanClient, inputDir string, taskName, output
 		nowStr := "task_" + time.Now().Format("2006-01-02_15:04:05")
 		taskName = &nowStr
 	}
-
-	verifiedDeal := config.GetConfig().Sender.VerifiedDeal
-	offlineMode := config.GetConfig().Sender.OfflineMode
-	fastRetrieval := config.GetConfig().Sender.FastRetrieval
 
 	maxPrice, err := decimal.NewFromString(config.GetConfig().Sender.MaxPrice)
 	if err != nil {
@@ -60,10 +54,10 @@ func CreateTask(swanClient *client.SwanClient, inputDir string, taskName, output
 	//generateMd5 := config.GetConfig().Sender.GenerateMd5
 
 	logs.GetLogger().Info("task settings:")
-	logs.GetLogger().Info("public task: ", publicDeal)
-	logs.GetLogger().Info("verified deals: ", verifiedDeal)
-	logs.GetLogger().Info("connected to swan: ", !offlineMode)
-	logs.GetLogger().Info("fastRetrieval: ", fastRetrieval)
+	logs.GetLogger().Info("public task: ", confTask.PublicDeal)
+	logs.GetLogger().Info("verified deals: ", confTask.VerifiedDeal)
+	logs.GetLogger().Info("connected to swan: ", !confTask.OfflineMode)
+	logs.GetLogger().Info("fastRetrieval: ", confTask.FastRetrieval)
 
 	carFiles := ReadCarFilesFromJsonFile(inputDir, constants.JSON_FILE_NAME_BY_UPLOAD)
 	if carFiles == nil {
@@ -73,12 +67,12 @@ func CreateTask(swanClient *client.SwanClient, inputDir string, taskName, output
 	}
 
 	isPublic := 0
-	if publicDeal {
+	if confTask.PublicDeal {
 		isPublic = 1
 	}
 
 	taskType := constants.TASK_TYPE_REGULAR
-	if verifiedDeal {
+	if confTask.VerifiedDeal {
 		taskType = constants.TASK_TYPE_VERIFIED
 	}
 
@@ -86,11 +80,11 @@ func CreateTask(swanClient *client.SwanClient, inputDir string, taskName, output
 		TaskName:          *taskName,
 		CuratedDataset:    *dataset,
 		Description:       *description,
-		FastRetrievalBool: fastRetrieval,
+		FastRetrievalBool: confTask.FastRetrieval,
 		Type:              &taskType,
 		IsPublic:          &isPublic,
 		MaxPrice:          &maxPrice,
-		BidMode:           &bidMode,
+		BidMode:           &confTask.BidMode,
 		ExpireDays:        &expireDays,
 		MinerFid:          minerFid,
 		Uuid:              uuid.NewString(),
@@ -107,7 +101,7 @@ func CreateTask(swanClient *client.SwanClient, inputDir string, taskName, output
 		}
 	}
 
-	if !publicDeal {
+	if !confTask.PublicDeal {
 		_, err := SendDeals2Miner(nil, *taskName, *minerFid, *outputDir, carFiles)
 		if err != nil {
 			return nil, err
@@ -122,7 +116,7 @@ func CreateTask(swanClient *client.SwanClient, inputDir string, taskName, output
 		return nil, err
 	}
 
-	err = SendTask2Swan(swanClient, task, carFiles, *outputDir)
+	err = SendTask2Swan(confTask, task, carFiles, *outputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -131,7 +125,7 @@ func CreateTask(swanClient *client.SwanClient, inputDir string, taskName, output
 	return &jsonFileName, nil
 }
 
-func SendTask2Swan(swanClient *client.SwanClient, task model.Task, carFiles []*model.FileDesc, outDir string) error {
+func SendTask2Swan(confTask *model.ConfTask, task model.Task, carFiles []*model.FileDesc, outDir string) error {
 	csvFilename := task.TaskName + ".csv"
 	csvFilePath, err := CreateCsv4TaskDeal(carFiles, outDir, csvFilename)
 	if err != nil {
@@ -139,17 +133,17 @@ func SendTask2Swan(swanClient *client.SwanClient, task model.Task, carFiles []*m
 		return err
 	}
 
-	if config.GetConfig().Sender.OfflineMode {
+	if confTask.OfflineMode {
 		logs.GetLogger().Info("Working in Offline Mode. You need to manually send out task on filwan.com.")
 		return nil
 	}
 
-	if swanClient == nil {
-		err := fmt.Errorf("swanClient is not provide while working in online mode")
+	logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
+	swanClient, err := client.SwanGetClient(confTask.SwanApiUrl, confTask.SwanApiKey, confTask.SwanAccessToken)
+	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
 	}
-	logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
 
 	swanCreateTaskResponse, err := swanClient.SwanCreateTask(task, csvFilePath)
 	if err != nil {

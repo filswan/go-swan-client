@@ -10,7 +10,7 @@ import (
 	"go-swan-client/config"
 )
 
-func SendAutoBidDeal(swanClient *client.SwanClient, outputDir *string) ([]string, error) {
+func SendAutoBidDeal(confDeal model.ConfDeal, outputDir *string) ([]string, error) {
 	outputDir, err := CreateOutputDir(outputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -18,6 +18,12 @@ func SendAutoBidDeal(swanClient *client.SwanClient, outputDir *string) ([]string
 	}
 
 	logs.GetLogger().Info("output dir is:", *outputDir)
+
+	swanClient, err := client.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
 
 	assignedTasks, err := swanClient.GetAssignedTasks()
 	if err != nil {
@@ -74,7 +80,7 @@ func SendAutobidDeal(deals []model.OfflineDeal, task model.Task, outputDir *stri
 
 	dealSentNum := 0
 	for _, deal := range deals {
-		dealConfig := GetDealConfig4Autobid(task, deal)
+		dealConfig := model.GetDealConfig4Autobid(task, deal)
 		err := CheckDealConfig(dealConfig)
 		if err != nil {
 			logs.GetLogger().Error(err)
@@ -129,22 +135,4 @@ func SendAutobidDeal(deals []model.OfflineDeal, task model.Task, outputDir *stri
 	csvFilepath, err := CreateCsv4TaskDeal(carFiles, *outputDir, csvFilename)
 
 	return dealSentNum, csvFilepath, err
-}
-
-func GetDealConfig4Autobid(task model.Task, deal model.OfflineDeal) *model.ConfDeal {
-	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours + 1
-	startEpoch := utils.GetCurrentEpoch() + startEpochIntervalHours*constants.EPOCH_PER_HOUR
-
-	dealConfig := model.ConfDeal{
-		MinerFid:         *task.MinerFid,
-		SenderWallet:     config.GetConfig().Sender.Wallet,
-		VerifiedDeal:     *task.Type == constants.TASK_TYPE_VERIFIED,
-		FastRetrieval:    *task.FastRetrieval == constants.TASK_FAST_RETRIEVAL,
-		SkipConfirmation: config.GetConfig().Sender.SkipConfirmation,
-		StartEpoch:       startEpoch,
-	}
-
-	dealConfig.MaxPrice = *task.MaxPrice
-
-	return &dealConfig
 }

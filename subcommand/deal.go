@@ -9,7 +9,6 @@ import (
 
 	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
-	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/model"
@@ -17,7 +16,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func SendDeals(swanClient *client.SwanClient, minerFid string, outputDir *string, metadataJsonPath string) error {
+func SendDeals(confDeal model.ConfDeal, minerFid string, outputDir *string, metadataJsonPath string) error {
 	if outputDir == nil {
 		outDir := config.GetConfig().Sender.OutputDir
 		outputDir = &outDir
@@ -31,6 +30,11 @@ func SendDeals(swanClient *client.SwanClient, minerFid string, outputDir *string
 		return err
 	}
 
+	swanClient, err := client.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
 	task, err := swanClient.GetOfflineDealsByTaskUuid(carFiles[0].Uuid)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -60,33 +64,9 @@ func SendDeals(swanClient *client.SwanClient, minerFid string, outputDir *string
 	return nil
 }
 
-func GetDealConfig(minerFid string) *model.ConfDeal {
-	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours + 1
-	startEpoch := utils.GetCurrentEpoch() + startEpochIntervalHours*constants.EPOCH_PER_HOUR
-
-	dealConfig := model.ConfDeal{
-		MinerFid:         minerFid,
-		SenderWallet:     config.GetConfig().Sender.Wallet,
-		VerifiedDeal:     config.GetConfig().Sender.VerifiedDeal,
-		FastRetrieval:    config.GetConfig().Sender.FastRetrieval,
-		SkipConfirmation: config.GetConfig().Sender.SkipConfirmation,
-		StartEpoch:       startEpoch,
-	}
-
-	maxPriceStr := config.GetConfig().Sender.MaxPrice
-	maxPrice, err := decimal.NewFromString(maxPriceStr)
-	if err != nil {
-		logs.GetLogger().Error("Failed to convert maxPrice(" + maxPriceStr + ") to decimal, MaxPrice:")
-		return nil
-	}
-	dealConfig.MaxPrice = maxPrice
-
-	return &dealConfig
-}
-
 func SendDeals2Miner(dealConfig *model.ConfDeal, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) (*string, error) {
 	if dealConfig == nil {
-		dealConfig = GetDealConfig(minerFid)
+		dealConfig = model.GetConfDeal(&minerFid)
 		if dealConfig == nil {
 			err := errors.New("failed to get deal config")
 			logs.GetLogger().Error(err)

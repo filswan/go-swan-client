@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"go-swan-client/common/client"
-	"go-swan-client/config"
 	"go-swan-client/logs"
+	"go-swan-client/model"
 	"go-swan-client/subcommand"
 )
 
@@ -175,16 +175,8 @@ func createTask() error {
 
 	logs.GetLogger().Info("your input dir: ", *inputDir)
 
-	var swanClient *client.SwanClient = nil
-	if !config.GetConfig().Sender.OfflineMode {
-		swanClient, err = client.SwanGetClient()
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return err
-		}
-	}
-
-	jsonFileName, err := subcommand.CreateTask(swanClient, *inputDir, taskName, outputDir, minerFid, dataset, description)
+	confTask := model.GetConfTask()
+	jsonFileName, err := subcommand.CreateTask(confTask, *inputDir, taskName, outputDir, minerFid, dataset, description)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -229,13 +221,8 @@ func sendDeal() error {
 	logs.GetLogger().Info("output dir:", *outputDir)
 	logs.GetLogger().Info("miner:", *minerFid)
 
-	swanClient, err := client.SwanGetClient()
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	err = subcommand.SendDeals(swanClient, *minerFid, outputDir, *metadataJsonPath)
+	confDeal := model.GetConfDeal(minerFid)
+	err = subcommand.SendDeals(*confDeal, *minerFid, outputDir, *metadataJsonPath)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -261,13 +248,8 @@ func sendAutoBidDeal() error {
 		return err
 	}
 
-	swanClient, err := client.SwanGetClient()
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	csvFilepaths, err := subcommand.SendAutoBidDeal(swanClient, outputDir)
+	confDeal := model.GetConfDeal(nil)
+	csvFilepaths, err := subcommand.SendAutoBidDeal(*confDeal, outputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
