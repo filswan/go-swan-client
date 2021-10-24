@@ -2,9 +2,7 @@ package test
 
 import (
 	"fmt"
-	"go-swan-client/common/client"
 	"go-swan-client/logs"
-	"go-swan-client/model"
 	"go-swan-client/subcommand"
 	"path/filepath"
 	"strings"
@@ -15,11 +13,11 @@ func Test() {
 }
 
 func TestGetTask() {
-	swanClient := client.SwanGetClient()
-	tasks, err := swanClient.GetAssignedTasks()
-	logs.GetLogger().Info(tasks, err)
-	result, err := swanClient.GetOfflineDealsByTaskUuid("1c2d416e-2f13-4c9a-b329-22e34f09bb7c")
-	logs.GetLogger().Info(result, err)
+	//swanClient := client.SwanGetClient()
+	//tasks, err := swanClient.GetAssignedTasks()
+	//logs.GetLogger().Info(tasks, err)
+	//result, err := swanClient.GetOfflineDealsByTaskUuid("1c2d416e-2f13-4c9a-b329-22e34f09bb7c")
+	//logs.GetLogger().Info(result, err)
 }
 func TestGenerateCarFiles() {
 	//inputDir := "/Users/dorachen/go-workspace/srcFiles"
@@ -52,25 +50,25 @@ func TestLotusClient() {
 }
 
 func TestGetTasks() {
-	swanClient := client.SwanGetClient()
-	swanClient.GetAssignedTasks()
+	//swanClient := client.SwanGetClient()
+	//swanClient.GetAssignedTasks()
 }
 
 func TestCreateTask() {
-	minerId := "miner_test"
-	task := model.Task{
-		TaskName:       "task_dora_test",
-		CuratedDataset: "dataset",
-		Description:    "description",
-		//IsPublic:       1,
-		//IsVerified:     true,
-		MinerFid: &minerId,
-	}
+	//minerId := "miner_test"
+	//task := model.Task{
+	//	TaskName:       "task_dora_test",
+	//	CuratedDataset: "dataset",
+	//	Description:    "description",
+	//	//IsPublic:       1,
+	//	//IsVerified:     true,
+	//	MinerFid: &minerId,
+	//}
 
-	swan := client.SwanGetClient()
+	//swan := client.SwanGetClient()
 
-	response, err := swan.SwanCreateTask(task, "/Users/dorachen/go-workspace/src/go-swan-client/test/car.csv")
-	logs.GetLogger().Info(response, err)
+	//response, err := swan.SwanCreateTask(task, "/Users/dorachen/go-workspace/src/go-swan-client/test/car.csv")
+	//logs.GetLogger().Info(response, err)
 }
 
 func TestFilePath() {

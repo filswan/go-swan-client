@@ -16,7 +16,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, description *string) (*string, error) {
+func CreateTask(swanClient *client.SwanClient, inputDir string, taskName, outputDir, minerFid, dataset, description *string) (*string, error) {
 	err := CheckInputDir(inputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -121,7 +121,7 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 		return nil, err
 	}
 
-	err = SendTask2Swan(task, carFiles, *outputDir)
+	err = SendTask2Swan(swanClient, task, carFiles, *outputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -130,7 +130,7 @@ func CreateTask(inputDir string, taskName, outputDir, minerFid, dataset, descrip
 	return &jsonFileName, nil
 }
 
-func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) error {
+func SendTask2Swan(swanClient *client.SwanClient, task model.Task, carFiles []*model.FileDesc, outDir string) error {
 	csvFilename := task.TaskName + ".csv"
 	csvFilePath, err := CreateCsv4TaskDeal(carFiles, outDir, csvFilename)
 	if err != nil {
@@ -145,7 +145,6 @@ func SendTask2Swan(task model.Task, carFiles []*model.FileDesc, outDir string) e
 
 	logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
 
-	swanClient := client.SwanGetClient()
 	swanCreateTaskResponse, err := swanClient.SwanCreateTask(task, csvFilePath)
 	if err != nil {
 		logs.GetLogger().Error(err)

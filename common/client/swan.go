@@ -27,7 +27,6 @@ type TokenAccessInfo struct {
 
 type SwanClient struct {
 	ApiUrl string
-	ApiKey string
 	Token  string
 }
 
@@ -50,32 +49,91 @@ type UpdateOfflineDealData struct {
 	Message string            `json:"message"`
 }
 
-func SwanGetClient() *SwanClient {
-	mainConf := config.GetConfig().Main
-	uri := mainConf.SwanApiUrl + "/user/api_keys/jwt"
-	data := TokenAccessInfo{ApiKey: mainConf.SwanApiKey, AccessToken: mainConf.SwanAccessToken}
-	response := HttpPostNoToken(uri, data)
+func (swanClient *SwanClient) GetJwtToken() error {
+	data := TokenAccessInfo{
+		ApiKey:      config.GetConfig().Main.SwanApiKey,
+		AccessToken: config.GetConfig().Main.SwanAccessToken,
+	}
+
+	if len(swanClient.ApiUrl) == 0 {
+		err := fmt.Errorf("config [main].api_url is required")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if len(data.ApiKey) == 0 {
+		err := fmt.Errorf("config [main].api_key is required")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if len(data.AccessToken) == 0 {
+		err := fmt.Errorf("config [main].access_token is required")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	apiUrl := swanClient.ApiUrl + "/user/api_keys/jwt"
+
+	response := HttpPostNoToken(apiUrl, data)
+
+	if len(response) == 0 {
+		err := fmt.Errorf("no response from swan platform:%s", apiUrl)
+		logs.GetLogger().Error(err)
+		return err
+	}
 
 	if strings.Contains(response, "fail") {
 		message := utils.GetFieldStrFromJson(response, "message")
 		status := utils.GetFieldStrFromJson(response, "status")
-		logs.GetLogger().Fatal(status, ": ", message)
+		err := fmt.Errorf("status:%s,message:%s", status, message)
+		logs.GetLogger().Error(err)
+
+		if message == "api_key Not found" {
+			logs.GetLogger().Error("please check api_key in ~/.swan/provider/config.toml")
+		}
+
+		if message == "please provide a valid api token" {
+			logs.GetLogger().Error("Please check access_token in ~/.swan/provider/config.toml")
+		}
+
+		logs.GetLogger().Info("for more information about how to config, please check https://docs.filswan.com/run-swan-provider/config-swan-provider")
+
+		return err
 	}
 
 	jwtToken := utils.GetFieldMapFromJson(response, "data")
 	if jwtToken == nil {
-		logs.GetLogger().Fatal("Error: fail to connect swan api")
+		err := fmt.Errorf("error: fail to connect to swan api")
+		logs.GetLogger().Error(err)
+		return err
 	}
 
-	jwt := jwtToken["jwt"].(string)
+	swanClient.Token = jwtToken["jwt"].(string)
 
+	return nil
+}
+
+func SwanGetClient() (*SwanClient, error) {
 	swanClient := &SwanClient{
-		ApiUrl: mainConf.SwanApiUrl,
-		ApiKey: mainConf.SwanApiKey,
-		Token:  jwt,
+		ApiUrl: config.GetConfig().Main.SwanApiUrl,
 	}
 
-	return swanClient
+	var err error
+	for i := 0; i < 3; i++ {
+		err := swanClient.GetJwtToken()
+		if err != nil {
+			logs.GetLogger().Error(err)
+		} else {
+			break
+		}
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return swanClient, err
 }
 
 func (swanClient *SwanClient) SwanGetOfflineDeals(minerFid, status string, limit ...string) []model.OfflineDeal {

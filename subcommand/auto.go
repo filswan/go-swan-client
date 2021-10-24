@@ -10,7 +10,7 @@ import (
 	"go-swan-client/config"
 )
 
-func SendAutoBidDeal(outputDir *string) ([]string, error) {
+func SendAutoBidDeal(swanClient *client.SwanClient, outputDir *string) ([]string, error) {
 	outputDir, err := CreateOutputDir(outputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -19,7 +19,6 @@ func SendAutoBidDeal(outputDir *string) ([]string, error) {
 
 	logs.GetLogger().Info("output dir is:", *outputDir)
 
-	swanClient := client.SwanGetClient()
 	assignedTasks, err := swanClient.GetAssignedTasks()
 	if err != nil {
 		logs.GetLogger().Error(err)

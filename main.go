@@ -174,7 +174,13 @@ func createTask() error {
 
 	logs.GetLogger().Info(inputDir, outputDir, minerFid, dataset, description)
 
-	jsonFileName, err := subcommand.CreateTask(*inputDir, taskName, outputDir, minerFid, dataset, description)
+	swanClient, err := client.SwanGetClient()
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	jsonFileName, err := subcommand.CreateTask(swanClient, *inputDir, taskName, outputDir, minerFid, dataset, description)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -219,7 +225,13 @@ func sendDeal() error {
 	logs.GetLogger().Info("output dir:", *outputDir)
 	logs.GetLogger().Info("miner:", *minerFid)
 
-	err = subcommand.SendDeals(*minerFid, outputDir, *metadataJsonPath)
+	swanClient, err := client.SwanGetClient()
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	err = subcommand.SendDeals(swanClient, *minerFid, outputDir, *metadataJsonPath)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -245,7 +257,13 @@ func sendAutoBidDeal() error {
 		return err
 	}
 
-	csvFilepaths, err := subcommand.SendAutoBidDeal(outputDir)
+	swanClient, err := client.SwanGetClient()
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	csvFilepaths, err := subcommand.SendAutoBidDeal(swanClient, outputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err

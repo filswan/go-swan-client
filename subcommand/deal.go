@@ -17,7 +17,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) error {
+func SendDeals(swanClient *client.SwanClient, minerFid string, outputDir *string, metadataJsonPath string) error {
 	if outputDir == nil {
 		outDir := config.GetConfig().Sender.OutputDir
 		outputDir = &outDir
@@ -31,7 +31,6 @@ func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) erro
 		return err
 	}
 
-	swanClient := client.SwanGetClient()
 	task, err := swanClient.GetOfflineDealsByTaskUuid(carFiles[0].Uuid)
 	if err != nil {
 		logs.GetLogger().Error(err)
