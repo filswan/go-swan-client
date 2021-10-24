@@ -131,11 +131,11 @@ func SendAutobidDeal(deals []model.OfflineDeal, task model.Task, outputDir *stri
 	return dealSentNum, csvFilepath, err
 }
 
-func GetDealConfig4Autobid(task model.Task, deal model.OfflineDeal) *model.DealConfig {
+func GetDealConfig4Autobid(task model.Task, deal model.OfflineDeal) *model.ConfDeal {
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours + 1
 	startEpoch := utils.GetCurrentEpoch() + startEpochIntervalHours*constants.EPOCH_PER_HOUR
 
-	dealConfig := model.DealConfig{
+	dealConfig := model.ConfDeal{
 		MinerFid:         *task.MinerFid,
 		SenderWallet:     config.GetConfig().Sender.Wallet,
 		VerifiedDeal:     *task.Type == constants.TASK_TYPE_VERIFIED,

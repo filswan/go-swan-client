@@ -60,11 +60,11 @@ func SendDeals(swanClient *client.SwanClient, minerFid string, outputDir *string
 	return nil
 }
 
-func GetDealConfig(minerFid string) *model.DealConfig {
+func GetDealConfig(minerFid string) *model.ConfDeal {
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours + 1
 	startEpoch := utils.GetCurrentEpoch() + startEpochIntervalHours*constants.EPOCH_PER_HOUR
 
-	dealConfig := model.DealConfig{
+	dealConfig := model.ConfDeal{
 		MinerFid:         minerFid,
 		SenderWallet:     config.GetConfig().Sender.Wallet,
 		VerifiedDeal:     config.GetConfig().Sender.VerifiedDeal,
@@ -84,7 +84,7 @@ func GetDealConfig(minerFid string) *model.DealConfig {
 	return &dealConfig
 }
 
-func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) (*string, error) {
+func SendDeals2Miner(dealConfig *model.ConfDeal, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) (*string, error) {
 	if dealConfig == nil {
 		dealConfig = GetDealConfig(minerFid)
 		if dealConfig == nil {

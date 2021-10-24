@@ -60,7 +60,7 @@ func CreateOutputDir(outputDir *string) (*string, error) {
 	return outputDir, nil
 }
 
-func CheckDealConfig(dealConfig *model.DealConfig) error {
+func CheckDealConfig(dealConfig *model.ConfDeal) error {
 	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(dealConfig.MinerFid)
 
 	if dealConfig.SenderWallet == "" {

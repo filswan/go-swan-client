@@ -345,7 +345,7 @@ type ClientStartDeal struct {
 }
 
 //"lotus client generate-car " + srcFilePath + " " + destCarFilePath
-func (lotusClient *LotusClient) LotusClientStartDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.DealConfig) (*string, error) {
+func (lotusClient *LotusClient) LotusClientStartDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.ConfDeal) (*string, error) {
 	//costFloat, _ := cost.Float64()
 	//costStr := fmt.Sprintf("%.18f", costFloat)
 
@@ -481,7 +481,7 @@ func LotusGetMinerConfig(minerFid string) (*decimal.Decimal, *decimal.Decimal, *
 	return price, verifiedPrice, &maxPieceSize, &minPieceSize
 }
 
-func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.DealConfig, relativeEpoch int) (*string, *int, error) {
+func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.ConfDeal, relativeEpoch int) (*string, *int, error) {
 	fastRetrieval := strings.ToLower(strconv.FormatBool(dealConfig.FastRetrieval))
 	verifiedDeal := strings.ToLower(strconv.FormatBool(dealConfig.VerifiedDeal))
 	costFloat, _ := cost.Float64()

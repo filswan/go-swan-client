@@ -2,7 +2,7 @@ package model
 
 import "github.com/shopspring/decimal"
 
-type DealConfig struct {
+type ConfDeal struct {
 	MinerFid         string
 	SenderWallet     string
 	MaxPrice         decimal.Decimal
