@@ -22,22 +22,22 @@ import (
 	"strconv"
 )
 
-func CheckDealConfig(dealConfig *model.ConfDeal) error {
-	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(dealConfig.MinerFid)
+func CheckDealConfig(confDeal *model.ConfDeal) error {
+	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(confDeal.MinerFid)
 
-	if dealConfig.SenderWallet == "" {
+	if confDeal.SenderWallet == "" {
 		err := fmt.Errorf("sender.wallet should be set in config file")
 		logs.GetLogger().Error(err)
 		return err
 	}
 
-	if dealConfig.VerifiedDeal {
+	if confDeal.VerifiedDeal {
 		if minerVerifiedPrice == nil {
 			err := fmt.Errorf("cannot get miner verified price for verified deal")
 			logs.GetLogger().Error(err)
 			return err
 		}
-		dealConfig.MinerPrice = *minerVerifiedPrice
+		confDeal.MinerPrice = *minerVerifiedPrice
 		logs.GetLogger().Info("Miner price is:", *minerVerifiedPrice)
 	} else {
 		if minerPrice == nil {
@@ -45,12 +45,12 @@ func CheckDealConfig(dealConfig *model.ConfDeal) error {
 			logs.GetLogger().Error(err)
 			return err
 		}
-		dealConfig.MinerPrice = *minerPrice
+		confDeal.MinerPrice = *minerPrice
 		logs.GetLogger().Info("Miner price is:", *minerPrice)
 	}
 
-	logs.GetLogger().Info("Miner price is:", dealConfig.MinerPrice, " MaxPrice:", dealConfig.MaxPrice, " VerifiedDeal:", dealConfig.VerifiedDeal)
-	priceCmp := dealConfig.MaxPrice.Cmp(dealConfig.MinerPrice)
+	logs.GetLogger().Info("Miner price is:", confDeal.MinerPrice, " MaxPrice:", confDeal.MaxPrice, " VerifiedDeal:", confDeal.VerifiedDeal)
+	priceCmp := confDeal.MaxPrice.Cmp(confDeal.MinerPrice)
 	logs.GetLogger().Info("priceCmp:", priceCmp)
 	if priceCmp < 0 {
 		err := fmt.Errorf("miner price is higher than deal max price")

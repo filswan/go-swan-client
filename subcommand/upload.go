@@ -2,23 +2,22 @@ package subcommand
 
 import (
 	"fmt"
-	"strings"
 
 	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
-	"go-swan-client/config"
+	"go-swan-client/common/utils"
 	"go-swan-client/logs"
+	"go-swan-client/model"
 )
 
-func UploadCarFiles(inputDir string) error {
+func UploadCarFiles(confUpload *model.ConfUpload, inputDir string) error {
 	err := CheckInputDir(inputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
 	}
 
-	storageServerType := config.GetConfig().Main.StorageServerType
-	if storageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
+	if confUpload.StorageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
 		logs.GetLogger().Info("Please upload car files to web server manually.")
 		return nil
 	}
@@ -30,7 +29,6 @@ func UploadCarFiles(inputDir string) error {
 		return err
 	}
 
-	downloadUrlPrefix := config.GetConfig().IpfsServer.DownloadUrlPrefix
 	for _, carFile := range carFiles {
 		logs.GetLogger().Info("Uploading car file:", carFile.CarFilePath)
 		carFileHash, err := client.IpfsUploadCarFile(carFile.CarFilePath)
@@ -39,7 +37,7 @@ func UploadCarFiles(inputDir string) error {
 			return err
 		}
 
-		carFile.CarFileUrl = strings.TrimRight(downloadUrlPrefix, "/") + "/" + *carFileHash
+		carFile.CarFileUrl = utils.UrlJoin(confUpload.IpfsServerDownloadUrlPrefix, *carFileHash)
 		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileUrl)
 	}
 

@@ -23,6 +23,7 @@ type ConfDeal struct {
 	MinerPrice              decimal.Decimal
 	StartEpoch              int
 	StartEpochIntervalHours int
+	OutputDir               string
 }
 
 func GetConfDeal(minerFid *string) *ConfDeal {
@@ -37,6 +38,7 @@ func GetConfDeal(minerFid *string) *ConfDeal {
 		VerifiedDeal:            config.GetConfig().Sender.VerifiedDeal,
 		FastRetrieval:           config.GetConfig().Sender.FastRetrieval,
 		SkipConfirmation:        config.GetConfig().Sender.SkipConfirmation,
+		OutputDir:               config.GetConfig().Sender.OutputDir,
 		StartEpochIntervalHours: startEpochIntervalHours,
 		StartEpoch:              startEpoch,
 	}

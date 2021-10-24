@@ -2,7 +2,6 @@ package subcommand
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"go-swan-client/logs"
@@ -10,6 +9,7 @@ import (
 
 	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
+	"go-swan-client/common/utils"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -93,7 +93,7 @@ func CreateTask(confTask *model.ConfTask, inputDir string, taskName, outputDir, 
 		carFile.MinerFid = task.MinerFid
 
 		if confTask.StorageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
-			carFile.CarFileUrl = strings.TrimRight(confTask.WebServerDownloadUrlPrefix, "/") + "/" + carFile.CarFileName
+			carFile.CarFileUrl = utils.UrlJoin(confTask.WebServerDownloadUrlPrefix, carFile.CarFileName)
 		}
 	}
 

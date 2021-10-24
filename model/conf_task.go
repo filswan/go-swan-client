@@ -15,6 +15,7 @@ type ConfTask struct {
 	StorageServerType          string
 	WebServerDownloadUrlPrefix string
 	ExpireDays                 int
+	OutputDir                  string
 }
 
 func GetConfTask() *ConfTask {
@@ -31,6 +32,7 @@ func GetConfTask() *ConfTask {
 		StorageServerType:          config.GetConfig().Main.StorageServerType,
 		WebServerDownloadUrlPrefix: config.GetConfig().WebServer.DownloadUrlPrefix,
 		ExpireDays:                 config.GetConfig().Sender.ExpireDays,
+		OutputDir:                  config.GetConfig().Sender.OutputDir,
 	}
 
 	return confTask

@@ -131,7 +131,9 @@ func uploadFile() error {
 		return err
 	}
 
-	err = subcommand.UploadCarFiles(*inputDir)
+	confUpload := model.GetConfUpload()
+
+	err = subcommand.UploadCarFiles(confUpload, *inputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
