@@ -33,13 +33,13 @@ const (
 	JSON_FILE_NAME_BY_GOCAR  = "car.json"
 	JSON_FILE_NAME_BY_UPLOAD = "car.json"
 	JSON_FILE_NAME_BY_TASK   = "-metadata.json"
-	JSON_FILE_NAME_BY_DEAL   = "car.json"
+	JSON_FILE_NAME_BY_DEAL   = "-deals.json"
 	JSON_FILE_NAME_BY_AUTO   = "car.json"
 
 	CSV_FILE_NAME_BY_CAR    = "car.csv"
 	CSV_FILE_NAME_BY_GOCAR  = "car.csv"
 	CSV_FILE_NAME_BY_UPLOAD = "car.csv"
 	CSV_FILE_NAME_BY_TASK   = "-metadata.csv"
-	CSV_FILE_NAME_BY_DEAL   = "car.csv"
+	CSV_FILE_NAME_BY_DEAL   = "-deals.csv"
 	CSV_FILE_NAME_BY_AUTO   = "car.csv"
 )
