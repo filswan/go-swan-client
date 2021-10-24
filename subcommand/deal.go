@@ -54,7 +54,7 @@ func SendDeals(confDeal model.ConfDeal) error {
 		return err
 	}
 
-	csvFilepath, err := SendDeals2Miner(nil, taskName, *confDeal.MinerFid, confDeal.OutputDir, carFiles)
+	csvFilepath, err := SendDeals2Miner(&confDeal, taskName, *confDeal.MinerFid, confDeal.OutputDir, carFiles)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
