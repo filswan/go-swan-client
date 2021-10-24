@@ -20,33 +20,33 @@ import (
 	"github.com/filedrive-team/go-graphsplit"
 )
 
-func CreateGoCarFiles(confCar *model.ConfCar, inputDir string, outputDir *string) (*string, []*model.FileDesc, error) {
+func CreateGoCarFiles(confCar *model.ConfCar, inputDir string) ([]*model.FileDesc, error) {
 	err := CheckInputDir(inputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, err
 	}
 
-	outputDir, err = CreateOutputDir(outputDir)
+	err = CreateOutputDir(confCar.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, err
 	}
 
 	sliceSize := config.GetConfig().Sender.GocarFileSizeLimit
 	if sliceSize <= 0 {
 		err := fmt.Errorf("gocar file size limit is too smal")
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, err
 	}
 
 	srcFiles, err := ioutil.ReadDir(inputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, err
 	}
 
-	carDir := *outputDir
+	carDir := confCar.OutputDir
 	for _, srcFile := range srcFiles {
 		parentPath := filepath.Join(inputDir, srcFile.Name())
 		targetPath := parentPath
@@ -63,13 +63,13 @@ func CreateGoCarFiles(confCar *model.ConfCar, inputDir string, outputDir *string
 	carFiles, err := CreateCarFilesDesc(confCar, inputDir, carDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, err
 	}
 
 	logs.GetLogger().Info(len(carFiles), " car files have been created to directory:", carDir)
 	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
 
-	return outputDir, carFiles, nil
+	return carFiles, nil
 }
 
 type ManifestDetail struct {

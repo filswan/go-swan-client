@@ -7,17 +7,16 @@ import (
 	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
 	"go-swan-client/common/utils"
-	"go-swan-client/config"
 )
 
-func SendAutoBidDeal(confDeal *model.ConfDeal, outputDir *string) ([]string, error) {
-	outputDir, err := CreateOutputDir(outputDir)
+func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error) {
+	err := CreateOutputDir(confDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	logs.GetLogger().Info("output dir is:", *outputDir)
+	logs.GetLogger().Info("output dir is:", confDeal.OutputDir)
 
 	swanClient, err := client.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken)
 	if err != nil {
@@ -46,7 +45,7 @@ func SendAutoBidDeal(confDeal *model.ConfDeal, outputDir *string) ([]string, err
 
 		deals := assignedTaskInfo.Data.Deal
 		task := assignedTaskInfo.Data.Task
-		dealSentNum, csvFilePath, err := SendAutobidDeal(confDeal, deals, task, outputDir)
+		dealSentNum, csvFilePath, err := SendAutobidDeal(confDeal, deals, task, confDeal.OutputDir)
 		if err != nil {
 			csvFilepaths = append(csvFilepaths, csvFilePath)
 			logs.GetLogger().Error(err)
@@ -75,7 +74,7 @@ func SendAutoBidDeal(confDeal *model.ConfDeal, outputDir *string) ([]string, err
 	return csvFilepaths, nil
 }
 
-func SendAutobidDeal(confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir *string) (int, string, error) {
+func SendAutobidDeal(confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string) (int, string, error) {
 	carFiles := []*model.FileDesc{}
 
 	dealSentNum := 0
@@ -128,17 +127,12 @@ func SendAutobidDeal(confDeal *model.ConfDeal, deals []model.OfflineDeal, task m
 		}
 	}
 
-	if outputDir == nil {
-		outDir := config.GetConfig().Sender.OutputDir
-		outputDir = &outDir
-	}
-
 	jsonFileName := task.TaskName + "-autodeal-" + constants.JSON_FILE_NAME_BY_AUTO
 	csvFileName := task.TaskName + "-autodeal-" + constants.CSV_FILE_NAME_BY_AUTO
-	WriteCarFilesToFiles(carFiles, *outputDir, jsonFileName, csvFileName)
+	WriteCarFilesToFiles(carFiles, outputDir, jsonFileName, csvFileName)
 
 	csvFilename := task.TaskName + "_autodeal.csv"
-	csvFilepath, err := CreateCsv4TaskDeal(carFiles, *outputDir, csvFilename)
+	csvFilepath, err := CreateCsv4TaskDeal(carFiles, outputDir, csvFilename)
 
 	return dealSentNum, csvFilepath, err
 }

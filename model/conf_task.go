@@ -1,6 +1,9 @@
 package model
 
-import "go-swan-client/config"
+import (
+	"go-swan-client/config"
+	"time"
+)
 
 type ConfTask struct {
 	SwanApiUrl                 string
@@ -18,7 +21,7 @@ type ConfTask struct {
 	OutputDir                  string
 }
 
-func GetConfTask() *ConfTask {
+func GetConfTask(outDir *string) *ConfTask {
 	confTask := &ConfTask{
 		SwanApiUrl:                 config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:                 config.GetConfig().Main.SwanApiKey,
@@ -32,7 +35,11 @@ func GetConfTask() *ConfTask {
 		StorageServerType:          config.GetConfig().Main.StorageServerType,
 		WebServerDownloadUrlPrefix: config.GetConfig().WebServer.DownloadUrlPrefix,
 		ExpireDays:                 config.GetConfig().Sender.ExpireDays,
-		OutputDir:                  config.GetConfig().Sender.OutputDir,
+		OutputDir:                  config.GetConfig().Sender.OutputDir + time.Now().Format("2006-01-02_15:04:05"),
+	}
+
+	if outDir != nil {
+		confTask.OutputDir = *outDir
 	}
 
 	return confTask

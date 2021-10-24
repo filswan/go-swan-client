@@ -81,18 +81,18 @@ func createCarFile(subCmd string) error {
 		return err
 	}
 
-	confCar := model.GetConfCar()
+	confCar := model.GetConfCar(outputDir)
 
 	switch subCmd {
 	case SUBCOMMAND_CAR:
-		_, _, err := subcommand.GenerateCarFiles(confCar, *inputDir, outputDir)
+		_, err := subcommand.GenerateCarFiles(confCar, *inputDir)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
 		//logs.GetLogger().Info(len(carFiles), " car files generated to directory:", *outputDir)
 	case SUBCOMMAND_GOCAR:
-		_, _, err := subcommand.CreateGoCarFiles(lotusclient, *inputDir, outputDir)
+		_, err := subcommand.CreateGoCarFiles(confCar, *inputDir)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
@@ -173,8 +173,8 @@ func createTask() error {
 
 	logs.GetLogger().Info("your input dir: ", *inputDir)
 
-	confTask := model.GetConfTask()
-	jsonFileName, err := subcommand.CreateTask(confTask, *inputDir, taskName, outputDir, minerFid, dataset, description)
+	confTask := model.GetConfTask(outputDir)
+	jsonFileName, err := subcommand.CreateTask(confTask, *inputDir, taskName, minerFid, dataset, description)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -204,7 +204,7 @@ func sendDeal() error {
 	}
 
 	if metadataJsonPath == nil || len(*metadataJsonPath) == 0 {
-		err := fmt.Errorf("input-dir is required")
+		err := fmt.Errorf("json is required")
 		logs.GetLogger().Error(err)
 		return err
 	}
@@ -219,7 +219,7 @@ func sendDeal() error {
 	logs.GetLogger().Info("output dir:", *outputDir)
 	logs.GetLogger().Info("miner:", *minerFid)
 
-	confDeal := model.GetConfDeal(minerFid)
+	confDeal := model.GetConfDeal(outputDir, minerFid)
 	err = subcommand.SendDeals(*confDeal, *minerFid, outputDir, *metadataJsonPath)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -246,8 +246,8 @@ func sendAutoBidDeal() error {
 		return err
 	}
 
-	confDeal := model.GetConfDeal(nil)
-	csvFilepaths, err := subcommand.SendAutoBidDeal(*confDeal, outputDir)
+	confDeal := model.GetConfDeal(outputDir, nil)
+	csvFilepaths, err := subcommand.SendAutoBidDeal(confDeal)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err

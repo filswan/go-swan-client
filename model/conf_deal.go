@@ -6,6 +6,7 @@ import (
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
+	"time"
 
 	"github.com/shopspring/decimal"
 )
@@ -26,11 +27,11 @@ type ConfDeal struct {
 	OutputDir               string
 }
 
-func GetConfDeal(minerFid *string) *ConfDeal {
+func GetConfDeal(outDir *string, minerFid *string) *ConfDeal {
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
 	startEpoch := utils.GetCurrentEpoch() + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
 
-	dealConfig := ConfDeal{
+	confDeal := ConfDeal{
 		SwanApiUrl:              config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:              config.GetConfig().Main.SwanApiKey,
 		SwanAccessToken:         config.GetConfig().Main.SwanAccessToken,
@@ -38,13 +39,17 @@ func GetConfDeal(minerFid *string) *ConfDeal {
 		VerifiedDeal:            config.GetConfig().Sender.VerifiedDeal,
 		FastRetrieval:           config.GetConfig().Sender.FastRetrieval,
 		SkipConfirmation:        config.GetConfig().Sender.SkipConfirmation,
-		OutputDir:               config.GetConfig().Sender.OutputDir,
+		OutputDir:               config.GetConfig().Sender.OutputDir + time.Now().Format("2006-01-02_15:04:05"),
 		StartEpochIntervalHours: startEpochIntervalHours,
 		StartEpoch:              startEpoch,
 	}
 
+	if outDir != nil {
+		confDeal.OutputDir = *outDir
+	}
+
 	if minerFid != nil {
-		dealConfig.MinerFid = *minerFid
+		confDeal.MinerFid = *minerFid
 	}
 
 	maxPriceStr := config.GetConfig().Sender.MaxPrice
@@ -53,9 +58,9 @@ func GetConfDeal(minerFid *string) *ConfDeal {
 		logs.GetLogger().Error("Failed to convert maxPrice(" + maxPriceStr + ") to decimal, MaxPrice:")
 		return nil
 	}
-	dealConfig.MaxPrice = maxPrice
+	confDeal.MaxPrice = maxPrice
 
-	return &dealConfig
+	return &confDeal
 }
 
 func SetDealConfig4Autobid(confDeal *ConfDeal, task Task, deal OfflineDeal) error {

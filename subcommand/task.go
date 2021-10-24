@@ -15,20 +15,20 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func CreateTask(confTask *model.ConfTask, inputDir string, taskName, outputDir, minerFid, dataset, description *string) (*string, error) {
+func CreateTask(confTask *model.ConfTask, inputDir string, taskName, minerFid, dataset, description *string) (*string, error) {
 	err := CheckInputDir(inputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	outputDir, err = CreateOutputDir(outputDir)
+	err = CreateOutputDir(confTask.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	logs.GetLogger().Info("you output dir: ", *outputDir)
+	logs.GetLogger().Info("you output dir: ", confTask.OutputDir)
 
 	if !confTask.PublicDeal && (minerFid == nil || len(*minerFid) == 0) {
 		err := fmt.Errorf("please provide -miner for non public deal")
@@ -98,7 +98,7 @@ func CreateTask(confTask *model.ConfTask, inputDir string, taskName, outputDir, 
 	}
 
 	if !confTask.PublicDeal {
-		_, err := SendDeals2Miner(nil, *taskName, *minerFid, *outputDir, carFiles)
+		_, err := SendDeals2Miner(nil, *taskName, *minerFid, confTask.OutputDir, carFiles)
 		if err != nil {
 			return nil, err
 		}
@@ -106,13 +106,13 @@ func CreateTask(confTask *model.ConfTask, inputDir string, taskName, outputDir, 
 
 	jsonFileName := *taskName + constants.JSON_FILE_NAME_BY_TASK
 	csvFileName := *taskName + constants.CSV_FILE_NAME_BY_TASK
-	err = WriteCarFilesToFiles(carFiles, *outputDir, jsonFileName, csvFileName)
+	err = WriteCarFilesToFiles(carFiles, confTask.OutputDir, jsonFileName, csvFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	err = SendTask2Swan(confTask, task, carFiles, *outputDir)
+	err = SendTask2Swan(confTask, task, carFiles, confTask.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

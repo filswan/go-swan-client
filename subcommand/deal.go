@@ -66,7 +66,7 @@ func SendDeals(confDeal model.ConfDeal, minerFid string, outputDir *string, meta
 
 func SendDeals2Miner(dealConfig *model.ConfDeal, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) (*string, error) {
 	if dealConfig == nil {
-		dealConfig = model.GetConfDeal(&minerFid)
+		dealConfig = model.GetConfDeal(nil, &minerFid)
 		if dealConfig == nil {
 			err := errors.New("failed to get deal config")
 			logs.GetLogger().Error(err)

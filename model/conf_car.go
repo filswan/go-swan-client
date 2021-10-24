@@ -1,6 +1,9 @@
 package model
 
-import "go-swan-client/config"
+import (
+	"go-swan-client/config"
+	"time"
+)
 
 type ConfCar struct {
 	LotusApiUrl      string
@@ -8,11 +11,15 @@ type ConfCar struct {
 	OutputDir        string
 }
 
-func GetConfCar() *ConfCar {
+func GetConfCar(outDir *string) *ConfCar {
 	confCar := &ConfCar{
 		LotusApiUrl:      config.GetConfig().Lotus.ApiUrl,
 		LotusAccessToken: config.GetConfig().Lotus.AccessToken,
-		OutputDir:        config.GetConfig().Sender.OutputDir,
+		OutputDir:        config.GetConfig().Sender.OutputDir + time.Now().Format("2006-01-02_15:04:05"),
+	}
+
+	if outDir != nil {
+		confCar.OutputDir = *outDir
 	}
 
 	return confCar
