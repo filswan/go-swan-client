@@ -11,54 +11,16 @@ import (
 
 	"go-swan-client/logs"
 
+	"go-swan-client/common/client"
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 
-	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
 
 	"io/ioutil"
 	"os"
 	"strconv"
 )
-
-func CheckInputDir(inputDir string) error {
-	if len(inputDir) == 0 {
-		err := fmt.Errorf("please provide -input-dir")
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	if utils.GetPathType(inputDir) != constants.PATH_TYPE_DIR {
-		err := fmt.Errorf("%s is not a directory", inputDir)
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	return nil
-}
-
-func CreateOutputDir(outputDir *string) (*string, error) {
-	if outputDir == nil || len(*outputDir) == 0 {
-		if outputDir == nil {
-			outDir := filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05"))
-			outputDir = &outDir
-		} else {
-			*outputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05"))
-		}
-
-		logs.GetLogger().Info("output-dir is not provided, use default:", *outputDir)
-	}
-
-	err := os.MkdirAll(*outputDir, os.ModePerm)
-	if err != nil {
-		err := fmt.Errorf("%s, failed to create output dir:%s", err.Error(), *outputDir)
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	return outputDir, nil
-}
 
 func CheckDealConfig(dealConfig *model.ConfDeal) error {
 	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(dealConfig.MinerFid)
@@ -99,6 +61,44 @@ func CheckDealConfig(dealConfig *model.ConfDeal) error {
 	logs.GetLogger().Info("Deal check passed.")
 
 	return nil
+}
+
+func CheckInputDir(inputDir string) error {
+	if len(inputDir) == 0 {
+		err := fmt.Errorf("please provide -input-dir")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if utils.GetPathType(inputDir) != constants.PATH_TYPE_DIR {
+		err := fmt.Errorf("%s is not a directory", inputDir)
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	return nil
+}
+
+func CreateOutputDir(outputDir *string) (*string, error) {
+	if outputDir == nil || len(*outputDir) == 0 {
+		if outputDir == nil {
+			outDir := filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05"))
+			outputDir = &outDir
+		} else {
+			*outputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05"))
+		}
+
+		logs.GetLogger().Info("output-dir is not provided, use default:", *outputDir)
+	}
+
+	err := os.MkdirAll(*outputDir, os.ModePerm)
+	if err != nil {
+		err := fmt.Errorf("%s, failed to create output dir:%s", err.Error(), *outputDir)
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return outputDir, nil
 }
 
 func WriteCarFilesToFiles(carFiles []*model.FileDesc, outputDir, jsonFilename, csvFileName string) error {

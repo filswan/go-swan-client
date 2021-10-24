@@ -115,6 +115,24 @@ func (swanClient *SwanClient) GetJwtToken(apiKey, accessToken string) error {
 }
 
 func SwanGetClient(apiUrl, apiKey, accessToken string) (*SwanClient, error) {
+	if len(apiUrl) == 0 {
+		err := fmt.Errorf("config [main].api_url is required")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if len(apiKey) == 0 {
+		err := fmt.Errorf("config [main].api_key is required")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if len(accessToken) == 0 {
+		err := fmt.Errorf("config [main].access_token is required")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	swanClient := &SwanClient{
 		ApiUrl: apiUrl,
 	}
