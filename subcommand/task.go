@@ -63,7 +63,6 @@ func CreateTask(swanClient *client.SwanClient, inputDir string, taskName, output
 	logs.GetLogger().Info("public task: ", publicDeal)
 	logs.GetLogger().Info("verified deals: ", verifiedDeal)
 	logs.GetLogger().Info("connected to swan: ", !offlineMode)
-	logs.GetLogger().Info("csv/car file output dir: ", outputDir)
 	logs.GetLogger().Info("fastRetrieval: ", fastRetrieval)
 
 	carFiles := ReadCarFilesFromJsonFile(inputDir, constants.JSON_FILE_NAME_BY_UPLOAD)
@@ -145,6 +144,11 @@ func SendTask2Swan(swanClient *client.SwanClient, task model.Task, carFiles []*m
 		return nil
 	}
 
+	if swanClient == nil {
+		err := fmt.Errorf("swanClient is not provide while working in online mode")
+		logs.GetLogger().Error(err)
+		return err
+	}
 	logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
 
 	swanCreateTaskResponse, err := swanClient.SwanCreateTask(task, csvFilePath)

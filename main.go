@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"go-swan-client/common/client"
+	"go-swan-client/config"
 	"go-swan-client/logs"
 	"go-swan-client/subcommand"
 )
@@ -174,10 +175,13 @@ func createTask() error {
 
 	logs.GetLogger().Info("your input dir: ", *inputDir)
 
-	swanClient, err := client.SwanGetClient()
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
+	var swanClient *client.SwanClient = nil
+	if !config.GetConfig().Sender.OfflineMode {
+		swanClient, err = client.SwanGetClient()
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
 	}
 
 	jsonFileName, err := subcommand.CreateTask(swanClient, *inputDir, taskName, outputDir, minerFid, dataset, description)
