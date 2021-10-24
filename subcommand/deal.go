@@ -98,7 +98,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, minerFid string,
 		carFile.DealCid = dealCid
 		carFile.StartEpoch = *startEpoch
 
-		logs.GetLogger().Info("Cid:", carFile.DealCid)
+		logs.GetLogger().Info("Cid:", carFile.DealCid, " start epoch:", carFile.StartEpoch)
 	}
 
 	jsonFileName := taskName + constants.JSON_FILE_NAME_BY_DEAL
