@@ -49,7 +49,7 @@ func CheckDealConfig(confDeal *model.ConfDeal) error {
 
 	logs.GetLogger().Info("Miner price is:", confDeal.MinerPrice, " MaxPrice:", confDeal.MaxPrice, " VerifiedDeal:", confDeal.VerifiedDeal)
 	priceCmp := confDeal.MaxPrice.Cmp(confDeal.MinerPrice)
-	logs.GetLogger().Info("priceCmp:", priceCmp)
+	//logs.GetLogger().Info("priceCmp:", priceCmp)
 	if priceCmp < 0 {
 		err := fmt.Errorf("miner price is higher than deal max price")
 		logs.GetLogger().Error(err)
