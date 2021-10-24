@@ -423,7 +423,8 @@ func (swanClient *SwanClient) SwanUpdateTaskByUuid(taskUuid string, minerFid str
 	data := utils.GetFieldMapFromJson(response, "data")
 	filename := data["filename"]
 
-	logs.GetLogger().Info("access:%s succeeded, file:%s", apiUrl, filename)
+	msg := fmt.Sprintf("access:%s succeeded, file:%s", apiUrl, filename)
+	logs.GetLogger().Info(msg)
 
 	return nil
 }
