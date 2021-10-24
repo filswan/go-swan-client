@@ -363,7 +363,7 @@ func (lotusClient *LotusClient) LotusClientStartDeal(carFile model.FileDesc, cos
 	clientStartDealParam := ClientStartDealParam{
 		Data:               clientStartDealParamData,
 		Wallet:             dealConfig.SenderWallet,
-		Miner:              dealConfig.MinerFid,
+		Miner:              *dealConfig.MinerFid,
 		EpochPrice:         "2",
 		MinBlocksDuration:  constants.DURATION,
 		ProviderCollateral: "0",
@@ -499,7 +499,7 @@ func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, piece
 	cmd = cmd + " --start-epoch " + strconv.Itoa(startEpoch)
 	cmd = cmd + " --fast-retrieval=" + fastRetrieval + " --verified-deal=" + verifiedDeal
 	cmd = cmd + " --manual-piece-cid " + carFile.PieceCid + " --manual-piece-size " + strconv.FormatInt(pieceSize, 10)
-	cmd = cmd + " " + carFile.DataCid + " " + dealConfig.MinerFid + " " + costStr + " " + strconv.Itoa(constants.DURATION)
+	cmd = cmd + " " + carFile.DataCid + " " + *dealConfig.MinerFid + " " + costStr + " " + strconv.Itoa(constants.DURATION)
 	logs.GetLogger().Info(cmd)
 
 	if !dealConfig.SkipConfirmation {
