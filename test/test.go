@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/DoraNebula/go-swan-client/logs"
+	"go-swan-client/logs"
 )
 
 func Test() {

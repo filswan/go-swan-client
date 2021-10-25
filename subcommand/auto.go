@@ -1,12 +1,12 @@
 package subcommand
 
 import (
-	"github.com/DoraNebula/go-swan-client/logs"
-	"github.com/DoraNebula/go-swan-client/model"
+	"go-swan-client/logs"
+	"go-swan-client/model"
 
-	"github.com/DoraNebula/go-swan-client/common/client"
-	"github.com/DoraNebula/go-swan-client/common/constants"
-	"github.com/DoraNebula/go-swan-client/common/utils"
+	"go-swan-client/common/client"
+	"go-swan-client/common/constants"
+	"go-swan-client/common/utils"
 )
 
 func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error) {
@@ -24,7 +24,7 @@ func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error) {
 		return nil, err
 	}
 
-	assignedTasks, err := swanClient.GetAssignedTasks()
+	assignedTasks, err := swanClient.SwanGetAssignedTasks()
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -37,7 +37,7 @@ func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error) {
 
 	csvFilepaths := []string{}
 	for _, assignedTask := range assignedTasks {
-		assignedTaskInfo, err := swanClient.GetOfflineDealsByTaskUuid(*assignedTask.Uuid)
+		assignedTaskInfo, err := swanClient.SwanGetOfflineDealsByTaskUuid(*assignedTask.Uuid)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
@@ -62,7 +62,7 @@ func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error) {
 			status = constants.TASK_STATUS_PROGRESS_WITH_FAILURE
 		}
 
-		response, err := swanClient.UpdateAssignedTask(*assignedTask.Uuid, status, csvFilePath)
+		response, err := swanClient.SwanUpdateAssignedTask(*assignedTask.Uuid, status, csvFilePath)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue

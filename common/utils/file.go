@@ -8,8 +8,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/DoraNebula/go-swan-client/common/constants"
-	"github.com/DoraNebula/go-swan-client/logs"
+	"go-swan-client/common/constants"
+	"go-swan-client/logs"
 )
 
 func IsFileExists(filePath, fileName string) bool {

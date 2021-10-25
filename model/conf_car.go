@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/DoraNebula/go-swan-client/config"
+	"go-swan-client/config"
 )
 
 type ConfCar struct {

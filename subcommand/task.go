@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/DoraNebula/go-swan-client/logs"
-	"github.com/DoraNebula/go-swan-client/model"
+	"go-swan-client/logs"
+	"go-swan-client/model"
 
-	"github.com/DoraNebula/go-swan-client/common/client"
-	"github.com/DoraNebula/go-swan-client/common/constants"
-	"github.com/DoraNebula/go-swan-client/common/utils"
+	"go-swan-client/common/client"
+	"go-swan-client/common/constants"
+	"go-swan-client/common/utils"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -98,6 +98,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, er
 	for _, carFile := range carFiles {
 		carFile.Uuid = task.Uuid
 		carFile.MinerFid = task.MinerFid
+		carFile.StartEpoch = confTask.StartEpoch
 
 		if confTask.StorageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
 			carFileUrl := utils.UrlJoin(confTask.WebServerDownloadUrlPrefix, carFile.CarFileName)

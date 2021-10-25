@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/DoraNebula/go-swan-client/common/client"
-	"github.com/DoraNebula/go-swan-client/common/constants"
-	"github.com/DoraNebula/go-swan-client/logs"
-	"github.com/DoraNebula/go-swan-client/model"
+	"go-swan-client/common/client"
+	"go-swan-client/common/constants"
+	"go-swan-client/logs"
+	"go-swan-client/model"
 
 	"github.com/shopspring/decimal"
 )
@@ -37,7 +37,7 @@ func SendDeals(confDeal *model.ConfDeal) error {
 		logs.GetLogger().Error(err)
 		return err
 	}
-	task, err := swanClient.GetOfflineDealsByTaskUuid(*carFiles[0].Uuid)
+	task, err := swanClient.SwanGetOfflineDealsByTaskUuid(*carFiles[0].Uuid)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
