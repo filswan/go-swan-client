@@ -51,6 +51,7 @@ func GetConfDeal(outputDir *string, minerFid *string, metadataJsonPath *string) 
 	if outputDir != nil {
 		confDeal.OutputDir = *outputDir
 	}
+	logs.GetLogger().Info(confDeal.OutputDir)
 
 	maxPriceStr := config.GetConfig().Sender.MaxPrice
 	maxPrice, err := decimal.NewFromString(maxPriceStr)

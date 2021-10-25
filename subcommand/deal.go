@@ -16,6 +16,7 @@ import (
 )
 
 func SendDeals(confDeal *model.ConfDeal) error {
+	logs.GetLogger().Info(confDeal.OutputDir)
 	err := CreateOutputDir(confDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
