@@ -353,6 +353,7 @@ error # error or nil
 ```
 
 
+### SwanGetJwtToken
 
 ### SwanGetClient
 ### SwanGetOfflineDeals
