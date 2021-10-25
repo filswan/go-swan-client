@@ -39,7 +39,7 @@
 ### IpfsUploadCarFile
 
 Inputs:
-```json
+```shell
 carFilePath string
 ```
 
@@ -52,7 +52,7 @@ error: error or nil
 ### LotusGetClients
 
 Inputs:
-```json
+```shell
 apiUrl  string   #lotus node api url, such as http://[ip]:[port]/rpc/v0
 accessToken  string  #lotus node access token, should have admin privilege
 ```
@@ -66,7 +66,7 @@ error: error or nil
 ### LotusClientCalcCommP
 
 Inputs:
-```json
+```shell
 filepath string
 ```
 
@@ -79,7 +79,7 @@ Outputs:
 ### LotusClientImport
 
 Inputs:
-```json
+```shell
 filepath string
 isCar bool
 ```
@@ -93,7 +93,7 @@ Outputs:
 ### LotusClientGenCar
 
 Inputs:
-```json
+```shell
 srcFilePath string
 destCarFilePath string
 srcFilePathIsCar bool
@@ -108,7 +108,7 @@ error  #error or nils
 ### LotusGetMinerConfig
 
 Inputs:
-```json
+```shell
 minerFid string
 ```
 
@@ -123,7 +123,7 @@ Outputs:
 ### LotusProposeOfflineDeal
 
 Inputs:
-```json
+```shell
 carFile model.FileDesc
 cost decimal.Decimal
 pieceSize int64
@@ -138,11 +138,10 @@ Outputs:
 error # error or nil
 ```
 
-
 ### ExecOsCmd2Screen
 
 Inputs:
-```json
+```shell
 cmdStr string
 checkStdErr bool
 ```
@@ -153,12 +152,10 @@ string  # standard output
 error # error or nil
 ```
 
-
-
 ### ExecOsCmd
 
 Inputs:
-```json
+```shell
 cmdStr string
 checkStdErr bool
 ```
@@ -173,7 +170,7 @@ error # error or nil
 ### ExecOsCmdBase
 
 Inputs:
-```json
+```shell
 cmdStr string
 out2Screen bool
 checkStdErr bool
@@ -188,7 +185,7 @@ error # error or nil
 ### HttpPostNoToken
 
 Inputs:
-```json
+```shell
 uri string
 params interface{}
 ```
@@ -201,7 +198,7 @@ string  # result from web api request, if error, then ""
 ### HttpPost
 
 Inputs:
-```json
+```shell
 uri
 tokenString string
 params interface{}
@@ -215,7 +212,7 @@ string  # result from web api request, if error, then ""
 ### HttpGetNoToken
 
 Inputs:
-```json
+```shell
 uri string
 params interface{}
 ```
@@ -228,7 +225,7 @@ string  # result from web api request, if error, then ""
 ### HttpGet
 
 Inputs:
-```json
+```shell
 uri
 tokenString string
 params interface{}
@@ -242,7 +239,7 @@ string  # result from web api request, if error, then ""
 ### HttpPut
 
 Inputs:
-```json
+```shell
 uri
 tokenString string
 params interface{}
@@ -256,7 +253,7 @@ string  # result from web api request, if error, then ""
 ### HttpDelete
 
 Inputs:
-```json
+```shell
 uri
 tokenString string
 params interface{}
@@ -270,7 +267,7 @@ string  # result from web api request, if error, then ""
 ### httpRequest
 
 Inputs:
-```json
+```shell
 httpMethod string
 uri string
 tokenString string
@@ -285,7 +282,7 @@ string  # result from web api request, if error, then ""
 ### HttpPutFile
 
 Inputs:
-```json
+```shell
 url string
 tokenString string
 paramTexts map[string]string
@@ -302,7 +299,7 @@ error # error or nil
 ### HttpPostFile
 
 Inputs:
-```json
+```shell
 url string
 tokenString string
 paramTexts map[string]string
@@ -319,7 +316,7 @@ error # error or nil
 ### HttpRequestFile
 
 Inputs:
-```json
+```shell
 httpMethod string
 url string string
 tokenString string
@@ -337,7 +334,7 @@ error # error or nil
 ### SwanGetJwtToken
 
 Inputs:
-```json
+```shell
 httpMethod string
 url string string
 tokenString string
@@ -356,7 +353,7 @@ error # error or nil
 ### SwanGetJwtToken
 
 Inputs:
-```json
+```shell
 apiKey string
 accessToken string
 ```
@@ -369,7 +366,7 @@ error # error or nil
 ### SwanGetClient
 
 Inputs:
-```json
+```shell
 apiUrl string
 apiKey string
 accessToken string
@@ -384,7 +381,7 @@ error
 ### SwanGetOfflineDeals
 
 Inputs:
-```json
+```shell
 minerFid string
 status string
 limit ...string
@@ -392,14 +389,62 @@ limit ...string
 
 Outputs:
 ```shell
-*SwanClient
-error
+[]model.OfflineDeal
 ```
 
 ### SwanUpdateOfflineDealStatus
+
+Inputs:
+```shell
+dealId int
+status string
+statusInfo ...string
+```
+
+Outputs:
+```shell
+bool
+```
+
 ### SwanCreateTask
+
+Inputs:
+```shell
+task model.Task
+csvFilePath string
+```
+
+Outputs:
+```shell
+*SwanCreateTaskResponse
+error
+```
+
 ### SwanGetTasks
+
+Inputs:
+```shell
+limit *int
+```
+
+Outputs:
+```shell
+*GetTaskResult
+error
+```
+
 ### SwanGetAssignedTasks
+
+Inputs:
+```shell
+```
+
+Outputs:
+```shell
+[]model.Task
+error
+```
+
 ### SwanGetOfflineDealsByTaskUuid
 ### SwanUpdateTaskByUuid
 ### SwanUpdateAssignedTask
