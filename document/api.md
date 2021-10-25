@@ -382,6 +382,20 @@ error
 ```
 
 ### SwanGetOfflineDeals
+
+Inputs:
+```json
+minerFid string
+status string
+limit ...string
+```
+
+Outputs:
+```shell
+*SwanClient
+error
+```
+
 ### SwanUpdateOfflineDealStatus
 ### SwanCreateTask
 ### SwanGetTasks
