@@ -49,7 +49,7 @@ type UpdateOfflineDealData struct {
 	Message string            `json:"message"`
 }
 
-func (swanClient *SwanClient) GetJwtToken(apiKey, accessToken string) error {
+func (swanClient *SwanClient) SwanGetJwtToken(apiKey, accessToken string) error {
 	data := TokenAccessInfo{
 		ApiKey:      config.GetConfig().Main.SwanApiKey,
 		AccessToken: config.GetConfig().Main.SwanAccessToken,
@@ -139,7 +139,7 @@ func SwanGetClient(apiUrl, apiKey, accessToken string) (*SwanClient, error) {
 
 	var err error
 	for i := 0; i < 3; i++ {
-		err = swanClient.GetJwtToken(apiKey, accessToken)
+		err = swanClient.SwanGetJwtToken(apiKey, accessToken)
 		if err != nil {
 			logs.GetLogger().Error(err)
 		} else {

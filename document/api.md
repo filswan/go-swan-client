@@ -20,7 +20,7 @@
   * [HttpPutFile](#HttpPutFile)
   * [HttpPostFile](#HttpPostFile)
   * [HttpRequestFile](#HttpRequestFile)
-  * [GetJwtToken](#GetJwtToken)
+  * [SwanGetJwtToken](#SwanGetJwtToken)
   * [SwanGetClient](#SwanGetClient)
   * [SwanGetOfflineDeals](#SwanGetOfflineDeal)
   * [SwanUpdateOfflineDealStatus](#SwanUpdateOfflineDealStatus)
@@ -334,5 +334,33 @@ string  # result from web api request, if error, then ""
 error # error or nil
 ```
 
+### SwanGetJwtToken
 
+Inputs:
+```json
+httpMethod string
+url string string
+tokenString string
+paramTexts map[string]string
+paramFilename string
+paramFilepath string
+```
+
+Outputs:
+```shell
+string  # result from web api request, if error, then ""
+error # error or nil
+```
+
+
+
+### SwanGetClient
+### SwanGetOfflineDeals
+### SwanUpdateOfflineDealStatus
+### SwanCreateTask
+### SwanGetTasks
+### SwanGetAssignedTasks
+### SwanGetOfflineDealsByTaskUuid
+### SwanUpdateTaskByUuid
+### SwanUpdateAssignedTask
 
