@@ -108,7 +108,10 @@ func SendAutobidDeal(confDeal *model.ConfDeal, deals []model.OfflineDeal, task m
 			PieceCid:   *deal.PieceCid,
 			DataCid:    *deal.PayloadCid,
 		}
-		logs.GetLogger().Info("MinerFid:", carFile.MinerFid)
+		if carFile.MinerFid != nil {
+			logs.GetLogger().Info("MinerFid:", *carFile.MinerFid)
+		}
+
 		logs.GetLogger().Info("FileSourceUrl:", carFile.CarFileUrl)
 		carFiles = append(carFiles, &carFile)
 		for i := 0; i < 60; i++ {
