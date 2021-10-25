@@ -33,7 +33,7 @@ func GetConfDeal(outputDir *string, minerFid *string, metadataJsonPath *string) 
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
 	startEpoch := utils.GetCurrentEpoch() + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
 
-	confDeal := ConfDeal{
+	confDeal := &ConfDeal{
 		SwanApiUrl:              config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:              config.GetConfig().Main.SwanApiKey,
 		SwanAccessToken:         config.GetConfig().Main.SwanAccessToken,
@@ -51,8 +51,11 @@ func GetConfDeal(outputDir *string, minerFid *string, metadataJsonPath *string) 
 		confDeal.OutputDir = *outputDir
 	} else {
 		confOutDir := config.GetConfig().Sender.OutputDir
+		logs.GetLogger().Info("confOutDir:", confDeal.OutputDir)
 		timeFormatStr := time.Now().Format("2006-01-02_15:04:05")
+		logs.GetLogger().Info("timeFormatStr:", confDeal.OutputDir)
 		confDeal.OutputDir = filepath.Join(confOutDir, timeFormatStr)
+		logs.GetLogger().Info("confDeal.OutputDir:", confDeal.OutputDir)
 	}
 
 	logs.GetLogger().Info(confDeal.OutputDir)
@@ -65,7 +68,7 @@ func GetConfDeal(outputDir *string, minerFid *string, metadataJsonPath *string) 
 	}
 	confDeal.MaxPrice = maxPrice
 
-	return &confDeal
+	return confDeal
 }
 
 func SetDealConfig4Autobid(confDeal *ConfDeal, task Task, deal OfflineDeal) error {
