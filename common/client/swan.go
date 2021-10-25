@@ -282,7 +282,7 @@ type GetTaskResultData struct {
 	TotalTaskCount int          `json:"total_task_count"`
 }
 
-func (swanClient *SwanClient) GetTasks(limit *int) (*GetTaskResult, error) {
+func (swanClient *SwanClient) SwanGetTasks(limit *int) (*GetTaskResult, error) {
 	apiUrl := swanClient.ApiUrl + "/tasks"
 	if limit != nil {
 		apiUrl = apiUrl + "?limit=" + strconv.Itoa(*limit)
@@ -314,8 +314,8 @@ func (swanClient *SwanClient) GetTasks(limit *int) (*GetTaskResult, error) {
 	return getTaskResult, nil
 }
 
-func (swanClient *SwanClient) GetAssignedTasks() ([]model.Task, error) {
-	getTaskResult, err := swanClient.GetTasks(nil)
+func (swanClient *SwanClient) SwanGetAssignedTasks() ([]model.Task, error) {
+	getTaskResult, err := swanClient.SwanGetTasks(nil)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -326,7 +326,7 @@ func (swanClient *SwanClient) GetAssignedTasks() ([]model.Task, error) {
 	}
 	//logs.GetLogger().Info(len(getTaskResult.Data.Task), " ", getTaskResult.Data.TotalTaskCount)
 
-	getTaskResult, err = swanClient.GetTasks(&getTaskResult.Data.TotalTaskCount)
+	getTaskResult, err = swanClient.SwanGetTasks(&getTaskResult.Data.TotalTaskCount)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -363,7 +363,7 @@ type GetOfflineDealsByTaskUuidResultData struct {
 	Task             model.Task          `json:"task"`
 }
 
-func (swanClient *SwanClient) GetOfflineDealsByTaskUuid(taskUuid string) (*GetOfflineDealsByTaskUuidResult, error) {
+func (swanClient *SwanClient) SwanGetOfflineDealsByTaskUuid(taskUuid string) (*GetOfflineDealsByTaskUuidResult, error) {
 	if len(taskUuid) == 0 {
 		err := fmt.Errorf("please provide task uuid")
 		logs.GetLogger().Error(err)
@@ -429,7 +429,7 @@ func (swanClient *SwanClient) SwanUpdateTaskByUuid(taskUuid string, minerFid str
 	return nil
 }
 
-func (swanClient *SwanClient) UpdateAssignedTask(taskUuid, status, csvFilePath string) (*SwanCreateTaskResponse, error) {
+func (swanClient *SwanClient) SwanUpdateAssignedTask(taskUuid, status, csvFilePath string) (*SwanCreateTaskResponse, error) {
 	apiUrl := swanClient.ApiUrl + "/tasks/" + taskUuid
 	logs.GetLogger().Info("Updating Swan task")
 	params := map[string]string{}

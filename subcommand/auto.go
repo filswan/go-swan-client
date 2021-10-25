@@ -24,7 +24,7 @@ func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error) {
 		return nil, err
 	}
 
-	assignedTasks, err := swanClient.GetAssignedTasks()
+	assignedTasks, err := swanClient.SwanGetAssignedTasks()
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -37,7 +37,7 @@ func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error) {
 
 	csvFilepaths := []string{}
 	for _, assignedTask := range assignedTasks {
-		assignedTaskInfo, err := swanClient.GetOfflineDealsByTaskUuid(*assignedTask.Uuid)
+		assignedTaskInfo, err := swanClient.SwanGetOfflineDealsByTaskUuid(*assignedTask.Uuid)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
@@ -62,7 +62,7 @@ func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error) {
 			status = constants.TASK_STATUS_PROGRESS_WITH_FAILURE
 		}
 
-		response, err := swanClient.UpdateAssignedTask(*assignedTask.Uuid, status, csvFilePath)
+		response, err := swanClient.SwanUpdateAssignedTask(*assignedTask.Uuid, status, csvFilePath)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue

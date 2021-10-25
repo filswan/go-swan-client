@@ -37,7 +37,7 @@ func SendDeals(confDeal *model.ConfDeal) error {
 		logs.GetLogger().Error(err)
 		return err
 	}
-	task, err := swanClient.GetOfflineDealsByTaskUuid(*carFiles[0].Uuid)
+	task, err := swanClient.SwanGetOfflineDealsByTaskUuid(*carFiles[0].Uuid)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
