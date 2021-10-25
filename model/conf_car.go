@@ -13,7 +13,7 @@ type ConfCar struct {
 	InputDir         string
 }
 
-func GetConfCar(inputDir string, outDir *string) *ConfCar {
+func GetConfCar(inputDir string, outputDir *string) *ConfCar {
 	confCar := &ConfCar{
 		LotusApiUrl:      config.GetConfig().Lotus.ApiUrl,
 		LotusAccessToken: config.GetConfig().Lotus.AccessToken,
@@ -21,8 +21,8 @@ func GetConfCar(inputDir string, outDir *string) *ConfCar {
 		InputDir:         inputDir,
 	}
 
-	if outDir != nil {
-		confCar.OutputDir = *outDir
+	if outputDir != nil && len(*outputDir) != 0 {
+		confCar.OutputDir = *outputDir
 	}
 
 	return confCar

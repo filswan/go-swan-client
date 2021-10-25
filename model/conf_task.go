@@ -27,7 +27,7 @@ type ConfTask struct {
 	Description                *string
 }
 
-func GetConfTask(inputDir string, outDir *string, taskName, minerFid, dataset, description *string) *ConfTask {
+func GetConfTask(inputDir string, outputDir *string, taskName, minerFid, dataset, description *string) *ConfTask {
 	confTask := &ConfTask{
 		SwanApiUrl:                 config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:                 config.GetConfig().Main.SwanApiKey,
@@ -49,8 +49,8 @@ func GetConfTask(inputDir string, outDir *string, taskName, minerFid, dataset, d
 		Description:                description,
 	}
 
-	if outDir != nil {
-		confTask.OutputDir = *outDir
+	if outputDir != nil && len(*outputDir) != 0 {
+		confTask.OutputDir = *outputDir
 	}
 
 	return confTask

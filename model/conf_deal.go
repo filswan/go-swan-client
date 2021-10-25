@@ -43,19 +43,13 @@ func GetConfDeal(outputDir *string, minerFid *string, metadataJsonPath *string) 
 		SkipConfirmation:        config.GetConfig().Sender.SkipConfirmation,
 		StartEpochIntervalHours: startEpochIntervalHours,
 		StartEpoch:              startEpoch,
+		OutputDir:               filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
 		MinerFid:                minerFid,
 		MetadataJsonPath:        metadataJsonPath,
 	}
 
 	if outputDir != nil && len(*outputDir) != 0 {
 		confDeal.OutputDir = *outputDir
-	} else {
-		confOutDir := config.GetConfig().Sender.OutputDir
-		logs.GetLogger().Info("confOutDir:", confDeal.OutputDir)
-		timeFormatStr := time.Now().Format("2006-01-02_15:04:05")
-		logs.GetLogger().Info("timeFormatStr:", confDeal.OutputDir)
-		confDeal.OutputDir = filepath.Join(confOutDir, timeFormatStr)
-		logs.GetLogger().Info("confDeal.OutputDir:", confDeal.OutputDir)
 	}
 
 	logs.GetLogger().Info(confDeal.OutputDir)
