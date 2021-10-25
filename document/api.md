@@ -30,8 +30,42 @@
   * [SwanGetOfflineDealsByTaskUuid](#SwanGetOfflineDealsByTaskUuid)
   * [SwanUpdateTaskByUuid](#SwanUpdateTaskByUuid)
   * [SwanUpdateAssignedTask](#SwanUpdateAssignedTask)
-* [Beacon](#Beacon)
-  * [BeaconGetEntry](#BeaconGetEntry)
+* [Utils](#Utils)
+  * [IsFileExists](#IsFileExists)
+  * [GetPathType](#GetPathType)
+  * [RemoveFile](#RemoveFile)
+  * [GetFileSize](#GetFileSize)
+  * [GetFileSize2](#GetFileSize2)
+  * [CopyFile](#CopyFile)
+  * [CreateFileWithContents](#CreateFileWithContents)
+  * [ReadAllLines](#ReadAllLines)
+  * [ReadFile](#ReadFiles)
+  * [GetFieldFromJson](#GetFieldFromJson)
+  * [GetFieldStrFromJson](#GetFieldStrFromJson)
+  * [GetFieldMapFromJson](#GetFieldMapFromJson)
+  * [ToJson](#ToJson)
+  * [GetInt64FromStr](#GetInt64FromStr)
+  * [GetFloat64FromStr](#GetFloat64FromStr)
+  * [GetIntFromStr](#GetIntFromStr)
+  * [GetNumStrFromStr](#GetNumStrFromStr)
+  * [GetByteSizeFromStr](#GetByteSizeFromStr)
+  * [IsSameDay](#IsSameDay)
+  * [CalculatePieceSize](#CalculatePieceSize)
+  * [CalculateRealCost](#CalculateRealCost)
+* [SubCommand](#SubCommand)
+  * [GenerateCarFiles](#GenerateCarFiles)
+  * [CreateGoCarFiles](#CreateGoCarFiles)
+  * [CreateCarFilesDesc](#CreateCarFilesDesc)
+  * [UploadCarFiles](#UploadCarFiles)
+  * [CreateTask](#CreateTask)
+  * [SendTask2Swan](#SendTask2Swan)
+  * [SendDeals](#SendDeals)
+  * [SendDeals2Miner](#SendDeals2Miner)
+  * [SendAutoBidDeal](#SendAutoBidDeal)
+  * [SendAutobidDeal](#SendAutobidDeal)
+  * [SendDeals](#SendDeals)
+  * [SendDeals](#SendDeals)
+  * [SendDeals](#SendDeals)
 ## 
 
 
@@ -446,6 +480,144 @@ error
 ```
 
 ### SwanGetOfflineDealsByTaskUuid
+
+Inputs:
+```shell
+taskUuid string
+```
+
+Outputs:
+```shell
+*GetOfflineDealsByTaskUuidResult
+error
+```
+
 ### SwanUpdateTaskByUuid
+
+Inputs:
+```shell
+taskUuid string
+minerFid string
+csvFilePath string
+```
+
+Outputs:
+```shell
+*GetOfflineDealsByTaskUuidResult
+error
+```
+
 ### SwanUpdateAssignedTask
 
+Inputs:
+```shell
+taskUuid
+status
+csvFilePath string
+```
+
+Outputs:
+```shell
+*SwanCreateTaskResponse
+error
+```
+
+### IsFileExists
+
+Inputs:
+```shell
+filePath
+fileName string
+```
+
+Outputs:
+```shell
+bool
+```
+### GetPathType
+
+Inputs:
+```shell
+dirFullPath string
+```
+
+Outputs:
+```shell
+int
+```
+### RemoveFile
+
+Inputs:
+```shell
+filePath, fileName string
+```
+
+Outputs:
+```shell
+```
+### GetFileSize
+
+Inputs:
+```shell
+fileFullPath string
+```
+
+Outputs:
+```shell
+int64
+```
+### GetFileSize2
+
+Inputs:
+```shell
+dir, fileName string
+```
+
+Outputs:
+```shell
+int64
+```
+### CopyFile
+
+Inputs:
+```shell
+srcFilePath, destFilePath string
+```
+
+Outputs:
+```shell
+int64, error
+```
+### CreateFileWithContents
+
+Inputs:
+```shell
+filepath string, lines []string
+```
+
+Outputs:
+```shell
+int, error
+```
+### ReadAllLines
+
+Inputs:
+```shell
+dir, filename string
+```
+
+Outputs:
+```shell
+[]string, error
+```
+### ReadFile
+
+Inputs:
+```shell
+filePath string
+```
+
+Outputs:
+```shell
+string, []byte, error
+```

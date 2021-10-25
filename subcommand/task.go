@@ -31,7 +31,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, er
 	logs.GetLogger().Info("you output dir: ", confTask.OutputDir)
 
 	if !confTask.PublicDeal && (confTask.MinerFid == nil || len(*confTask.MinerFid) == 0) {
-		err := fmt.Errorf("please provide -miner for non public deal")
+		err := fmt.Errorf("please provide -miner for private deal")
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
