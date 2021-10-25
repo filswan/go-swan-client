@@ -4,6 +4,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"go-swan-client/common/constants"
+	"go-swan-client/common/utils"
 	"go-swan-client/config"
 )
 
@@ -26,9 +28,14 @@ type ConfTask struct {
 	MinerFid                   *string
 	Dataset                    *string
 	Description                *string
+	StartEpoch                 int
+	StartEpochIntervalHours    int
 }
 
 func GetConfTask(inputDir string, outputDir *string, taskName, minerFid, dataset, description *string) *ConfTask {
+	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
+	startEpoch := utils.GetCurrentEpoch() + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
+
 	confTask := &ConfTask{
 		SwanApiUrl:                 config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:                 config.GetConfig().Main.SwanApiKey,
@@ -48,6 +55,8 @@ func GetConfTask(inputDir string, outputDir *string, taskName, minerFid, dataset
 		MinerFid:                   minerFid,
 		Dataset:                    dataset,
 		Description:                description,
+		StartEpochIntervalHours:    startEpochIntervalHours,
+		StartEpoch:                 startEpoch,
 	}
 
 	if outputDir != nil && len(*outputDir) != 0 {
