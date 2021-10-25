@@ -355,7 +355,32 @@ error # error or nil
 
 ### SwanGetJwtToken
 
+Inputs:
+```json
+apiKey string
+accessToken string
+```
+
+Outputs:
+```shell
+error # error or nil
+```
+
 ### SwanGetClient
+
+Inputs:
+```json
+apiUrl string
+apiKey string
+accessToken string
+```
+
+Outputs:
+```shell
+*SwanClient
+error
+```
+
 ### SwanGetOfflineDeals
 ### SwanUpdateOfflineDealStatus
 ### SwanCreateTask

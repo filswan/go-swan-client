@@ -302,6 +302,7 @@ func (lotusClient *LotusClient) LotusClientGenCar(srcFilePath, destCarFilePath s
 		return err
 	}
 
+	logs.GetLogger().Info(response)
 	lotusJsonRpcResult := &LotusJsonRpcResult{}
 	err := json.Unmarshal([]byte(response), lotusJsonRpcResult)
 	if err != nil {
