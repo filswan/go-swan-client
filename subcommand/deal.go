@@ -7,31 +7,37 @@ import (
 	"path/filepath"
 	"strings"
 
-	"go-swan-client/common/client"
-	"go-swan-client/common/constants"
-	"go-swan-client/config"
-	"go-swan-client/logs"
-	"go-swan-client/model"
+	"github.com/DoraNebula/go-swan-client/common/client"
+	"github.com/DoraNebula/go-swan-client/common/constants"
+	"github.com/DoraNebula/go-swan-client/logs"
+	"github.com/DoraNebula/go-swan-client/model"
 
 	"github.com/shopspring/decimal"
 )
 
-func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) error {
-	if outputDir == nil {
-		outDir := config.GetConfig().Sender.OutputDir
-		outputDir = &outDir
-	}
-	metadataJsonFilename := filepath.Base(metadataJsonPath)
-	taskName := strings.TrimSuffix(metadataJsonFilename, constants.JSON_FILE_NAME_BY_TASK)
-	carFiles := ReadCarFilesFromJsonFileByFullPath(metadataJsonPath)
-	if len(carFiles) == 0 {
-		err := fmt.Errorf("no car files read from:%s", metadataJsonPath)
+func SendDeals(confDeal *model.ConfDeal) error {
+	logs.GetLogger().Info(confDeal.OutputDir)
+	err := CreateOutputDir(confDeal.OutputDir)
+	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
 	}
 
-	swanClient := client.SwanGetClient()
-	task, err := swanClient.GetOfflineDealsByTaskUuid(carFiles[0].Uuid)
+	metadataJsonFilename := filepath.Base(*confDeal.MetadataJsonPath)
+	taskName := strings.TrimSuffix(metadataJsonFilename, constants.JSON_FILE_NAME_BY_TASK)
+	carFiles := ReadCarFilesFromJsonFileByFullPath(*confDeal.MetadataJsonPath)
+	if len(carFiles) == 0 {
+		err := fmt.Errorf("no car files read from:%s", *confDeal.MetadataJsonPath)
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	swanClient, err := client.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+	task, err := swanClient.GetOfflineDealsByTaskUuid(*carFiles[0].Uuid)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -49,50 +55,23 @@ func SendDeals(minerFid string, outputDir *string, metadataJsonPath string) erro
 		return err
 	}
 
-	csvFilepath, err := SendDeals2Miner(nil, taskName, minerFid, *outputDir, carFiles)
+	csvFilepath, err := SendDeals2Miner(confDeal, taskName, *confDeal.MinerFid, confDeal.OutputDir, carFiles)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
 	}
 
-	response := swanClient.SwanUpdateTaskByUuid(carFiles[0].Uuid, minerFid, *csvFilepath)
-	logs.GetLogger().Info(response)
+	err = swanClient.SwanUpdateTaskByUuid(*carFiles[0].Uuid, *confDeal.MinerFid, *csvFilepath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
 	return nil
 }
 
-func GetDealConfig(minerFid string) *model.DealConfig {
-	dealConfig := model.DealConfig{
-		MinerFid:           minerFid,
-		SenderWallet:       config.GetConfig().Sender.Wallet,
-		VerifiedDeal:       config.GetConfig().Sender.VerifiedDeal,
-		FastRetrieval:      config.GetConfig().Sender.FastRetrieval,
-		EpochIntervalHours: config.GetConfig().Sender.StartEpochHours,
-		SkipConfirmation:   config.GetConfig().Sender.SkipConfirmation,
-		StartEpochHours:    config.GetConfig().Sender.StartEpochHours,
-	}
-
-	maxPriceStr := config.GetConfig().Sender.MaxPrice
-	maxPrice, err := decimal.NewFromString(maxPriceStr)
-	if err != nil {
-		logs.GetLogger().Error("Failed to convert maxPrice(" + maxPriceStr + ") to decimal, MaxPrice:")
-		return nil
-	}
-	dealConfig.MaxPrice = maxPrice
-
-	return &dealConfig
-}
-
-func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) (*string, error) {
-	if dealConfig == nil {
-		dealConfig = GetDealConfig(minerFid)
-		if dealConfig == nil {
-			err := errors.New("failed to get deal config")
-			logs.GetLogger().Error(err)
-			return nil, err
-		}
-	}
-
-	err := CheckDealConfig(dealConfig)
+func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) (*string, error) {
+	err := CheckDealConfig(confDeal)
 	if err != nil {
 		err := errors.New("failed to pass deal config check")
 		logs.GetLogger().Error(err)
@@ -105,9 +84,9 @@ func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid str
 			continue
 		}
 		pieceSize, sectorSize := CalculatePieceSize(carFile.CarFileSize)
-		logs.GetLogger().Info("dealConfig.MinerPrice:", dealConfig.MinerPrice)
-		cost := CalculateRealCost(sectorSize, dealConfig.MinerPrice)
-		dealCid, startEpoch, err := client.LotusProposeOfflineDeal(*carFile, cost, pieceSize, *dealConfig, 0)
+		logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
+		cost := CalculateRealCost(sectorSize, confDeal.MinerPrice)
+		dealCid, startEpoch, err := client.LotusProposeOfflineDeal(*carFile, cost, pieceSize, *confDeal, 0)
 		//dealCid, err := client.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig)
 		if err != nil {
 			logs.GetLogger().Error(err)
@@ -116,11 +95,11 @@ func SendDeals2Miner(dealConfig *model.DealConfig, taskName string, minerFid str
 		if dealCid == nil {
 			continue
 		}
-		carFile.MinerFid = &dealConfig.MinerFid
-		carFile.DealCid = *dealCid
+		carFile.MinerFid = confDeal.MinerFid
+		carFile.DealCid = dealCid
 		carFile.StartEpoch = *startEpoch
 
-		logs.GetLogger().Info("Cid:", carFile.DealCid)
+		logs.GetLogger().Info("Cid:", carFile.DealCid, " start epoch:", carFile.StartEpoch)
 	}
 
 	jsonFileName := taskName + constants.JSON_FILE_NAME_BY_DEAL

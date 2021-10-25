@@ -9,11 +9,10 @@ import (
 	"strconv"
 	"strings"
 
-	"go-swan-client/common/constants"
-	"go-swan-client/common/utils"
-	"go-swan-client/config"
-	"go-swan-client/logs"
-	"go-swan-client/model"
+	"github.com/DoraNebula/go-swan-client/common/constants"
+	"github.com/DoraNebula/go-swan-client/common/utils"
+	"github.com/DoraNebula/go-swan-client/logs"
+	"github.com/DoraNebula/go-swan-client/model"
 
 	"github.com/shopspring/decimal"
 )
@@ -42,7 +41,6 @@ type LotusJsonRpcParams struct {
 type LotusClient struct {
 	ApiUrl      string
 	AccessToken string
-	MinerApiUrl string
 }
 
 type LotusJsonRpcResult struct {
@@ -97,14 +95,25 @@ type ClientImportResult struct {
 	ImportID int64
 }
 
-func LotusGetClient() *LotusClient {
-	lotusClient := &LotusClient{
-		ApiUrl:      config.GetConfig().Lotus.ApiUrl,
-		AccessToken: config.GetConfig().Lotus.AccessToken,
-		MinerApiUrl: config.GetConfig().Lotus.MinerApiUrl,
+func LotusGetClient(apiUrl, accessToken string) (*LotusClient, error) {
+	if len(apiUrl) == 0 {
+		err := fmt.Errorf("config lotus api_url is required")
+		logs.GetLogger().Error(err)
+		return nil, err
 	}
 
-	return lotusClient
+	if len(accessToken) == 0 {
+		err := fmt.Errorf("config lotus access_token is required and it should have admin access right")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	lotusClient := &LotusClient{
+		ApiUrl:      apiUrl,
+		AccessToken: accessToken,
+	}
+
+	return lotusClient, nil
 }
 
 type LotusVersionResult struct {
@@ -119,9 +128,7 @@ type LotusVersionResponse struct {
 }
 
 //"lotus client query-ask " + minerFid
-func LotusVersion() (*string, error) {
-	lotusClient := LotusGetClient()
-
+func (lotusClient *LotusClient) LotusVersion() (*string, error) {
 	var params []interface{}
 
 	jsonRpcParams := LotusJsonRpcParams{
@@ -131,7 +138,8 @@ func LotusVersion() (*string, error) {
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := HttpGetNoToken(lotusClient.MinerApiUrl, jsonRpcParams)
+	//here the api url should be miner's api url, need to change later on
+	response := HttpGetNoToken(lotusClient.ApiUrl, jsonRpcParams)
 	if response == "" {
 		err := errors.New("no response from api")
 		logs.GetLogger().Error(err)
@@ -156,9 +164,7 @@ func LotusVersion() (*string, error) {
 }
 
 //"lotus client query-ask " + minerFid
-func LotusMarketGetAsk() *MarketGetAskResultAsk {
-	lotusClient := LotusGetClient()
-
+func (lotusClient *LotusClient) LotusMarketGetAsk() *MarketGetAskResultAsk {
 	var params []interface{}
 
 	jsonRpcParams := LotusJsonRpcParams{
@@ -168,7 +174,8 @@ func LotusMarketGetAsk() *MarketGetAskResultAsk {
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := HttpGetNoToken(lotusClient.MinerApiUrl, jsonRpcParams)
+	//here the api url should be miner's api url, need to change later on
+	response := HttpGetNoToken(lotusClient.ApiUrl, jsonRpcParams)
 	if response == "" {
 		return nil
 	}
@@ -188,9 +195,7 @@ func LotusMarketGetAsk() *MarketGetAskResultAsk {
 }
 
 //"lotus client commP " + carFilePath
-func LotusClientCalcCommP(filepath string) *string {
-	lotusClient := LotusGetClient()
-
+func (lotusClient *LotusClient) LotusClientCalcCommP(filepath string) *string {
 	var params []interface{}
 	params = append(params, filepath)
 
@@ -227,9 +232,7 @@ type ClientFileParam struct {
 }
 
 //"lotus client import --car " + carFilePath
-func LotusClientImport(filepath string, isCar bool) (*string, error) {
-	lotusClient := LotusGetClient()
-
+func (lotusClient *LotusClient) LotusClientImport(filepath string, isCar bool) (*string, error) {
 	var params []interface{}
 	clientFileParam := ClientFileParam{
 		Path:  filepath,
@@ -276,9 +279,7 @@ func LotusClientImport(filepath string, isCar bool) (*string, error) {
 }
 
 //"lotus client generate-car " + srcFilePath + " " + destCarFilePath
-func LotusClientGenCar(srcFilePath, destCarFilePath string, srcFilePathIsCar bool) error {
-	lotusClient := LotusGetClient()
-
+func (lotusClient *LotusClient) LotusClientGenCar(srcFilePath, destCarFilePath string, srcFilePathIsCar bool) error {
 	var params []interface{}
 	clientFileParam := ClientFileParam{
 		Path:  srcFilePath,
@@ -343,9 +344,7 @@ type ClientStartDeal struct {
 }
 
 //"lotus client generate-car " + srcFilePath + " " + destCarFilePath
-func LotusClientStartDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.DealConfig) (*string, error) {
-	lotusClient := LotusGetClient()
-
+func (lotusClient *LotusClient) LotusClientStartDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.ConfDeal) (*string, error) {
 	//costFloat, _ := cost.Float64()
 	//costStr := fmt.Sprintf("%.18f", costFloat)
 
@@ -364,7 +363,7 @@ func LotusClientStartDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSiz
 	clientStartDealParam := ClientStartDealParam{
 		Data:               clientStartDealParamData,
 		Wallet:             dealConfig.SenderWallet,
-		Miner:              dealConfig.MinerFid,
+		Miner:              *dealConfig.MinerFid,
 		EpochPrice:         "2",
 		MinBlocksDuration:  constants.DURATION,
 		ProviderCollateral: "0",
@@ -481,12 +480,13 @@ func LotusGetMinerConfig(minerFid string) (*decimal.Decimal, *decimal.Decimal, *
 	return price, verifiedPrice, &maxPieceSize, &minPieceSize
 }
 
-func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.DealConfig, relativeEpoch int) (*string, *int, error) {
+func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.ConfDeal, relativeEpoch int) (*string, *int, error) {
 	fastRetrieval := strings.ToLower(strconv.FormatBool(dealConfig.FastRetrieval))
 	verifiedDeal := strings.ToLower(strconv.FormatBool(dealConfig.VerifiedDeal))
 	costFloat, _ := cost.Float64()
 	costStr := fmt.Sprintf("%.18f", costFloat)
-	startEpoch := carFile.StartEpoch - relativeEpoch
+	startEpoch := dealConfig.StartEpoch - relativeEpoch
+
 	logs.GetLogger().Info("wallet:", dealConfig.SenderWallet)
 	logs.GetLogger().Info("miner:", dealConfig.MinerFid)
 	logs.GetLogger().Info("price:", dealConfig.MinerPrice)
@@ -499,7 +499,7 @@ func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, piece
 	cmd = cmd + " --start-epoch " + strconv.Itoa(startEpoch)
 	cmd = cmd + " --fast-retrieval=" + fastRetrieval + " --verified-deal=" + verifiedDeal
 	cmd = cmd + " --manual-piece-cid " + carFile.PieceCid + " --manual-piece-size " + strconv.FormatInt(pieceSize, 10)
-	cmd = cmd + " " + carFile.DataCid + " " + dealConfig.MinerFid + " " + costStr + " " + strconv.Itoa(constants.DURATION)
+	cmd = cmd + " " + carFile.DataCid + " " + *dealConfig.MinerFid + " " + costStr + " " + strconv.Itoa(constants.DURATION)
 	logs.GetLogger().Info(cmd)
 
 	if !dealConfig.SkipConfirmation {

@@ -5,22 +5,61 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
-	"time"
 
-	"go-swan-client/model"
+	"github.com/DoraNebula/go-swan-client/model"
 
-	"go-swan-client/logs"
+	"github.com/DoraNebula/go-swan-client/logs"
 
-	"go-swan-client/common/utils"
-	"go-swan-client/config"
+	"github.com/DoraNebula/go-swan-client/common/client"
+	"github.com/DoraNebula/go-swan-client/common/utils"
 
-	"go-swan-client/common/client"
-	"go-swan-client/common/constants"
+	"github.com/DoraNebula/go-swan-client/common/constants"
 
 	"io/ioutil"
 	"os"
 	"strconv"
 )
+
+func CheckDealConfig(confDeal *model.ConfDeal) error {
+	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(*confDeal.MinerFid)
+
+	if confDeal.SenderWallet == "" {
+		err := fmt.Errorf("wallet should be set")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if confDeal.VerifiedDeal {
+		if minerVerifiedPrice == nil {
+			err := fmt.Errorf("cannot get miner verified price for verified deal")
+			logs.GetLogger().Error(err)
+			return err
+		}
+		confDeal.MinerPrice = *minerVerifiedPrice
+		logs.GetLogger().Info("Miner price is:", *minerVerifiedPrice)
+	} else {
+		if minerPrice == nil {
+			err := fmt.Errorf("cannot get miner price for non-verified deal")
+			logs.GetLogger().Error(err)
+			return err
+		}
+		confDeal.MinerPrice = *minerPrice
+		logs.GetLogger().Info("Miner price is:", *minerPrice)
+	}
+
+	logs.GetLogger().Info("Miner price is:", confDeal.MinerPrice, " MaxPrice:", confDeal.MaxPrice, " VerifiedDeal:", confDeal.VerifiedDeal)
+	priceCmp := confDeal.MaxPrice.Cmp(confDeal.MinerPrice)
+	//logs.GetLogger().Info("priceCmp:", priceCmp)
+	if priceCmp < 0 {
+		err := fmt.Errorf("miner price is higher than deal max price")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	logs.GetLogger().Info("Deal check passed.")
+
+	return nil
+}
 
 func CheckInputDir(inputDir string) error {
 	if len(inputDir) == 0 {
@@ -38,65 +77,19 @@ func CheckInputDir(inputDir string) error {
 	return nil
 }
 
-func CreateOutputDir(outputDir *string) (*string, error) {
-	if outputDir == nil || len(*outputDir) == 0 {
-		if outputDir == nil {
-			outDir := filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05"))
-			outputDir = &outDir
-		} else {
-			*outputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05"))
-		}
-
-		logs.GetLogger().Info("output-dir is not provided, use default:", outputDir)
+func CreateOutputDir(outputDir string) error {
+	if len(outputDir) == 0 {
+		err := fmt.Errorf("output dir is not provided")
+		logs.GetLogger().Info(err)
+		return err
 	}
 
-	err := os.MkdirAll(*outputDir, os.ModePerm)
+	err := os.MkdirAll(outputDir, os.ModePerm)
 	if err != nil {
-		err := fmt.Errorf("failed to create output dir:%s", *outputDir)
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	return outputDir, nil
-}
-
-func CheckDealConfig(dealConfig *model.DealConfig) error {
-	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(dealConfig.MinerFid)
-
-	if dealConfig.SenderWallet == "" {
-		err := fmt.Errorf("sender.wallet should be set in config file")
+		err := fmt.Errorf("%s, failed to create output dir:%s", err.Error(), outputDir)
 		logs.GetLogger().Error(err)
 		return err
 	}
-
-	if dealConfig.VerifiedDeal {
-		if minerVerifiedPrice == nil {
-			err := fmt.Errorf("cannot get miner verified price for verified deal")
-			logs.GetLogger().Error(err)
-			return err
-		}
-		dealConfig.MinerPrice = *minerVerifiedPrice
-		logs.GetLogger().Info("Miner price is:", *minerVerifiedPrice)
-	} else {
-		if minerPrice == nil {
-			err := fmt.Errorf("cannot get miner price for non-verified deal")
-			logs.GetLogger().Error(err)
-			return err
-		}
-		dealConfig.MinerPrice = *minerPrice
-		logs.GetLogger().Info("Miner price is:", *minerPrice)
-	}
-
-	logs.GetLogger().Info("Miner price is:", dealConfig.MinerPrice, " MaxPrice:", dealConfig.MaxPrice, " VerifiedDeal:", dealConfig.VerifiedDeal)
-	priceCmp := dealConfig.MaxPrice.Cmp(dealConfig.MinerPrice)
-	logs.GetLogger().Info("priceCmp:", priceCmp)
-	if priceCmp < 0 {
-		err := fmt.Errorf("miner price is higher than deal max price")
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	logs.GetLogger().Info("Deal check passed.")
 
 	return nil
 }
@@ -172,7 +165,6 @@ func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName stri
 	headers = append(headers, "source_file_name")
 	headers = append(headers, "source_file_path")
 	headers = append(headers, "source_file_md5")
-	headers = append(headers, "source_file_url")
 	headers = append(headers, "source_file_size")
 	headers = append(headers, "car_file_name")
 	headers = append(headers, "car_file_path")
@@ -203,18 +195,33 @@ func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName stri
 
 	for _, carFile := range carFiles {
 		var columns []string
-		columns = append(columns, carFile.Uuid)
+		if carFile.Uuid != nil {
+			columns = append(columns, *carFile.Uuid)
+		} else {
+			columns = append(columns, "")
+		}
+
 		columns = append(columns, carFile.SourceFileName)
 		columns = append(columns, carFile.SourceFilePath)
 		columns = append(columns, carFile.SourceFileMd5)
-		columns = append(columns, carFile.SourceFileUrl)
 		columns = append(columns, strconv.FormatInt(carFile.SourceFileSize, 10))
 		columns = append(columns, carFile.CarFileName)
 		columns = append(columns, carFile.CarFilePath)
 		columns = append(columns, carFile.CarFileMd5)
-		columns = append(columns, carFile.CarFileUrl)
+
+		if carFile.CarFileUrl != nil {
+			columns = append(columns, *carFile.CarFileUrl)
+		} else {
+			columns = append(columns, "")
+		}
+
 		columns = append(columns, strconv.FormatInt(carFile.CarFileSize, 10))
-		columns = append(columns, carFile.DealCid)
+		if carFile.DealCid != nil {
+			columns = append(columns, *carFile.DealCid)
+		} else {
+			columns = append(columns, "")
+		}
+
 		columns = append(columns, carFile.DataCid)
 		columns = append(columns, carFile.PieceCid)
 		if carFile.MinerFid != nil {
@@ -271,15 +278,31 @@ func CreateCsv4TaskDeal(carFiles []*model.FileDesc, outDir, csvFileName string) 
 
 	for _, carFile := range carFiles {
 		var columns []string
-		columns = append(columns, carFile.Uuid)
+		if carFile.Uuid != nil {
+			columns = append(columns, *carFile.Uuid)
+		} else {
+			columns = append(columns, "")
+		}
+
 		if carFile.MinerFid != nil {
 			columns = append(columns, *carFile.MinerFid)
 		} else {
 			columns = append(columns, "")
 		}
-		columns = append(columns, carFile.DealCid)
+		if carFile.DealCid != nil {
+			columns = append(columns, *carFile.DealCid)
+		} else {
+			columns = append(columns, "")
+		}
+
 		columns = append(columns, carFile.DataCid)
-		columns = append(columns, carFile.CarFileUrl)
+
+		if carFile.CarFileUrl != nil {
+			columns = append(columns, *carFile.CarFileUrl)
+		} else {
+			columns = append(columns, "")
+		}
+
 		columns = append(columns, carFile.CarFileMd5)
 		columns = append(columns, strconv.Itoa(carFile.StartEpoch))
 		columns = append(columns, carFile.PieceCid)

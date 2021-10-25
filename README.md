@@ -11,6 +11,7 @@
 - [Concepts](#Concepts)
 - [Prerequisites](#Prerequisites)
 - [Installation](#Installation)
+- [After Installation](#After-Installation)
 - [Configuration](#Configuration)
 - [Flowcharts](#Flowcharts)
 - [Create Car Files](#Create-Car-Files)
@@ -32,8 +33,10 @@
 
 In swan project, a task can contain multiple offline deals. There are two basic type of tasks:
 - Task type
-  * Public Task
-    * A public task is a deal set for open bid. If the bid mode is set to manuall,after bidder win the bid, the task holder needs to propose the task to the winner. If the bid mode is set to auto-bid, the task will be automatically assigned to a selected storage provider based on reputation system and Market Matcher.
+  * Public Task:
+    * A public task is a deal set for open bid. It has 2 types: auto-bid and non-auto-bid
+    * Auto-bid public task: this kind of task will be automatically assigned to a selected storage provider based on reputation system and Market Matcher.
+    * Non-auto-bid public task: for this kind of task, after bidder win the bid, the task holder needs to propose the task to the winner. 
   * Private Task. 
     * A private task is used to propose deals to a specified storage provider.
 - Task status:
@@ -41,7 +44,11 @@ In swan project, a task can contain multiple offline deals. There are two basic 
   * Assigned: Tasks have been assigned to storage providers manually by users or automatically by autobid module.
   * ActionRequired: Task with autobid mode on,in other words,`bid_mode` set to `1` and `public_deal` set to `true`, have some information missing or invalid in the [task-name.csv],which cause the failure of automatically assigning storage providers. Action are required to fill in or modify the file and then update the task information on Swan platform with the new csv file.
   * DealSent: Tasks have been sent to storage providers after tasks being assigned.
-  
+
+- Task status change process:
+**Option:one:**
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(DealSent)->(end)" >
+
 ### Offline Deal
 
 The size of an offline deal can be up to 64 GB. It is suggested to create a CSV file contains the following information: 
@@ -72,42 +79,51 @@ chmod +x ./install.sh
 :bell:**go 1.16+** is required
 ```shell
 git clone https://github.com/filswan/go-swan-client.git
-cd go-swan-provider
+cd go-swan-client
 git checkout <release_branch>
 chmod +x ./build_from_source.sh
 ./build_from_source.sh
 ```
-Now your binary file go-swan-client is created under ./build directory, you can copy it to wherever you want and execute it from there.
+
+## After Installation
+- The binary file `go-swan-client` is created under `./build` directory, you need to switch to it.
+```shell
+cd build
+```
+- Before executing, you should check your configuration in `~/.swan/client/config.toml` to ensure it is right.
+```shell
+vi ~/.swan/client/config.toml
+```
 
 ## Configuration
 
-### lotus
+### [lotus]
 - **api_url:**  Url of lotus web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
-- **access_token:**  Access token of lotus node web api. It should have write access right.
+- **access_token:**  Access token of lotus node web api. It should have admin access right. You can get it from your lotus node machine using command `lotus auth create-token --perm admin`. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
 - **miner_api_url:**  Url of lotus miner web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **2345**
 
-### main
+### [main]
 
 - **api_url:** Swan API address. For Swan production, it is "https://api.filswan.com". It can be ignored if offline_mode is set to true in [sender] section
 - :bangbang:**api_key:** Your api key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in [sender] section.
 - :bangbang:**access_token:** Your access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in [sender] section.
 - :bangbang:**storage_server_type:** = "ipfs server"
 
-### web-server
+### [web-server]
 
 Store car files for downloading by storage provider, car file url will be [download_url_prefix]/[filename]
 - **download_url_prefix** web server url prefix, such as: https://[ip]:[port]/download
 
-### ipfs-server
+### [ipfs-server]
 
 Store car files for downloading by storage provider, car file url will be [download_url_prefix]/[filename]
 - **download_url_prefix** ipfs server url prefix, such as: "http://[ip]:[port]/ipfs"
 
-### sender
+### [sender]
 
 - **bid_mode:** [0/1] Default 1, which is auto-bid mod and it means swan will automatically allocate storage provider for it, while 0 is manual-bid mode and it needs to be bidded manually by storage providers.
 - **offline_mode:** [true/false] Default false. If it is set to true, you will not be able to create Swan task on filswan.com, but you can still create CSVs and Car Files for sending deals
-- **output_dir:** When you do not set -out-dir option in your command, it is used as the default output directory for saving generated car files and CSVs 
+- **output_dir:** When you do not set -out-dir option in your command, it is used as the default output directory for saving generated car files and CSVs. Should be absolute path and you need have access right to this folder or to create it. 
 - **public_deal:** [true/false] Whether deals in the tasks are public deals
 - **verified_deal:** [true/false] Whether deals in this task are going to be sent as verified
 - **fast_retrieval:** [true/false] Indicates that data should be available for fast retrieval
@@ -172,8 +188,6 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
 
 ## Upload Car Files
-:bell: The input dir should only be absolute one.
-
 :bell: It is required to upload car files to file server, either to web server or to ipfs server.
 
 ### Option:one: To a web-server manually
@@ -270,12 +284,11 @@ no go-swan-client subcommand should be executed
 ### Option:three: Public and Manual-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
 ```shell
-./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
+./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -dataset [curated_dataset] -description [description]
 ```
 **Command parameters used in this step:**
 - -input-dir(Required): Input directory where the generated car files and metadata files reside in.
 - -out-dir(optional): Metadata files and swan task file will be generated to this directory. When ommitted, use default `[send].output_dir`, see [Configuration](#Configuration)
-- -miner(Required): Storage provider Id you want to send deal to
 - -dataset(optional): The curated dataset from which the car files are generated
 - -description(optional): Details to better describe the data and confine the task or anything the storage provider needs to be informed.
 

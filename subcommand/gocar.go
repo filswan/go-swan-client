@@ -8,48 +8,47 @@ import (
 	"path/filepath"
 	"strings"
 
-	"go-swan-client/common/constants"
-	"go-swan-client/config"
-	"go-swan-client/logs"
-	"go-swan-client/model"
+	"github.com/DoraNebula/go-swan-client/common/client"
+	"github.com/DoraNebula/go-swan-client/common/constants"
+	"github.com/DoraNebula/go-swan-client/config"
+	"github.com/DoraNebula/go-swan-client/logs"
+	"github.com/DoraNebula/go-swan-client/model"
 
-	"go-swan-client/common/utils"
-
-	"go-swan-client/common/client"
+	"github.com/DoraNebula/go-swan-client/common/utils"
 
 	"github.com/codingsince1985/checksum"
 	"github.com/filedrive-team/go-graphsplit"
 )
 
-func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.FileDesc, error) {
-	err := CheckInputDir(inputDir)
+func CreateGoCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error) {
+	err := CheckInputDir(confCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, err
 	}
 
-	outputDir, err = CreateOutputDir(outputDir)
+	err = CreateOutputDir(confCar.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, err
 	}
 
 	sliceSize := config.GetConfig().Sender.GocarFileSizeLimit
 	if sliceSize <= 0 {
 		err := fmt.Errorf("gocar file size limit is too smal")
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, err
 	}
 
-	srcFiles, err := ioutil.ReadDir(inputDir)
+	srcFiles, err := ioutil.ReadDir(confCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, err
 	}
 
-	carDir := *outputDir
+	carDir := confCar.OutputDir
 	for _, srcFile := range srcFiles {
-		parentPath := filepath.Join(inputDir, srcFile.Name())
+		parentPath := filepath.Join(confCar.InputDir, srcFile.Name())
 		targetPath := parentPath
 		graphName := srcFile.Name()
 		parallel := 4
@@ -61,16 +60,16 @@ func CreateGoCarFiles(inputDir string, outputDir *string) (*string, []*model.Fil
 			logs.GetLogger().Error(err)
 		}
 	}
-	carFiles, err := CreateCarFilesDesc(inputDir, carDir)
+	carFiles, err := CreateCarFilesDesc(confCar, confCar.InputDir, carDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, err
 	}
 
 	logs.GetLogger().Info(len(carFiles), " car files have been created to directory:", carDir)
 	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
 
-	return outputDir, carFiles, nil
+	return carFiles, nil
 }
 
 type ManifestDetail struct {
@@ -86,7 +85,7 @@ type ManifestDetailLinkItem struct {
 	Size int
 }
 
-func CreateCarFilesDesc(srcFileDir, carFileDir string) ([]*model.FileDesc, error) {
+func CreateCarFilesDesc(confCar *model.ConfCar, srcFileDir, carFileDir string) ([]*model.FileDesc, error) {
 	manifestFilename := "manifest.csv"
 	lines, err := utils.ReadAllLines(carFileDir, manifestFilename)
 	if err != nil {
@@ -95,6 +94,12 @@ func CreateCarFilesDesc(srcFileDir, carFileDir string) ([]*model.FileDesc, error
 	}
 
 	carFiles := []*model.FileDesc{}
+
+	lotusClient, err := client.LotusGetClient(confCar.LotusApiUrl, confCar.LotusAccessToken)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
 
 	for i, line := range lines {
 		if i == 0 {
@@ -115,7 +120,7 @@ func CreateCarFilesDesc(srcFileDir, carFileDir string) ([]*model.FileDesc, error
 		carFile.PieceCid = fields[2]
 		carFile.CarFileSize = utils.GetInt64FromStr(fields[3])
 
-		pieceCid := client.LotusClientCalcCommP(carFile.CarFilePath)
+		pieceCid := lotusClient.LotusClientCalcCommP(carFile.CarFilePath)
 		if pieceCid == nil {
 			err := fmt.Errorf("failed to generate piece cid")
 			logs.GetLogger().Error(err)
@@ -123,7 +128,7 @@ func CreateCarFilesDesc(srcFileDir, carFileDir string) ([]*model.FileDesc, error
 		}
 
 		carFile.PieceCid = *pieceCid
-		dataCid, err := client.LotusClientImport(carFile.CarFilePath, true)
+		dataCid, err := lotusClient.LotusClientImport(carFile.CarFilePath, true)
 		if err != nil {
 			err := fmt.Errorf("failed to import car file")
 			logs.GetLogger().Error(err)

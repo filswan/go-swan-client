@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"go-swan-client/logs"
-	"go-swan-client/subcommand"
+	"github.com/DoraNebula/go-swan-client/logs"
+	"github.com/DoraNebula/go-swan-client/model"
+	"github.com/DoraNebula/go-swan-client/subcommand"
 )
 
 const SUBCOMMAND_CAR = "car"
@@ -80,21 +81,23 @@ func createCarFile(subCmd string) error {
 		return err
 	}
 
+	confCar := model.GetConfCar(*inputDir, outputDir)
+
 	switch subCmd {
 	case SUBCOMMAND_CAR:
-		outputDir, carFiles, err := subcommand.GenerateCarFiles(*inputDir, outputDir)
+		_, err := subcommand.GenerateCarFiles(confCar)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
-		logs.GetLogger().Info(len(carFiles), " car files generated to directory:", *outputDir)
+		//logs.GetLogger().Info(len(carFiles), " car files generated to directory:", *outputDir)
 	case SUBCOMMAND_GOCAR:
-		outputDir, carFiles, err := subcommand.CreateGoCarFiles(*inputDir, outputDir)
+		_, err := subcommand.CreateGoCarFiles(confCar)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
-		logs.GetLogger().Info(len(carFiles), " gocar files generated to directory:", *outputDir)
+		//logs.GetLogger().Info(len(carFiles), " gocar files generated to directory:", *outputDir)
 	default:
 		err := fmt.Errorf("unknown sub command:%s", subCmd)
 		logs.GetLogger().Error(err)
@@ -128,7 +131,9 @@ func uploadFile() error {
 		return err
 	}
 
-	err = subcommand.UploadCarFiles(*inputDir)
+	confUpload := model.GetConfUpload(*inputDir)
+
+	err = subcommand.UploadCarFiles(confUpload)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -166,9 +171,11 @@ func createTask() error {
 		return err
 	}
 
-	logs.GetLogger().Info(inputDir, outputDir, minerFid, dataset, description)
+	logs.GetLogger().Info("your input dir: ", *inputDir)
 
-	jsonFileName, err := subcommand.CreateTask(*inputDir, taskName, outputDir, minerFid, dataset, description)
+	confTask := model.GetConfTask(*inputDir, outputDir, taskName, minerFid, dataset, description)
+	confDeal := model.GetConfDeal(outputDir, minerFid, nil)
+	jsonFileName, err := subcommand.CreateTask(confTask, confDeal)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -198,7 +205,7 @@ func sendDeal() error {
 	}
 
 	if metadataJsonPath == nil || len(*metadataJsonPath) == 0 {
-		err := fmt.Errorf("input-dir is required")
+		err := fmt.Errorf("json is required")
 		logs.GetLogger().Error(err)
 		return err
 	}
@@ -213,7 +220,8 @@ func sendDeal() error {
 	logs.GetLogger().Info("output dir:", *outputDir)
 	logs.GetLogger().Info("miner:", *minerFid)
 
-	err = subcommand.SendDeals(*minerFid, outputDir, *metadataJsonPath)
+	confDeal := model.GetConfDeal(outputDir, minerFid, metadataJsonPath)
+	err = subcommand.SendDeals(confDeal)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -239,7 +247,8 @@ func sendAutoBidDeal() error {
 		return err
 	}
 
-	csvFilepaths, err := subcommand.SendAutoBidDeal(outputDir)
+	confDeal := model.GetConfDeal(outputDir, nil, nil)
+	csvFilepaths, err := subcommand.SendAutoBidDeal(confDeal)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err

@@ -1,19 +1,18 @@
 package model
 
 type FileDesc struct {
-	Uuid           string
+	Uuid           *string
 	SourceFileName string
 	SourceFilePath string
 	SourceFileMd5  string
-	SourceFileUrl  string
 	SourceFileSize int64
 	CarFileName    string
 	CarFilePath    string
 	CarFileMd5     string
-	CarFileUrl     string
+	CarFileUrl     *string
 	CarFileSize    int64
 	//CarFileAddress string
-	DealCid    string
+	DealCid    *string
 	DataCid    string
 	PieceCid   string
 	MinerFid   *string

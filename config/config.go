@@ -1,10 +1,11 @@
 package config
 
 import (
-	"go-swan-client/logs"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/DoraNebula/go-swan-client/logs"
 
 	"github.com/BurntSushi/toml"
 )
@@ -20,7 +21,6 @@ type Configuration struct {
 type lotus struct {
 	ApiUrl      string `toml:"api_url"`
 	AccessToken string `toml:"access_token"`
-	MinerApiUrl string `toml:"miner_api_url"`
 }
 
 type main struct {

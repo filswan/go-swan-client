@@ -1,7 +1,6 @@
 [lotus]
 api_url=""   # Url of lotus web api
 access_token=""   # Access token of lotus web api
-miner_api_url=""   # Url of lotus miner web api
 
 [main]
 api_url = "https://api.filswan.com"

@@ -32,7 +32,7 @@ type Task struct {
 	MinPrice          *decimal.Decimal `json:"min_price"`
 	MaxPrice          *decimal.Decimal `json:"max_price"`
 	ExpireDays        *int             `json:"expire_days"`
-	Uuid              string           `json:"uuid"`
+	Uuid              *string          `json:"uuid"`
 	CuratedDataset    string           `json:"curated_dataset"`
 	UpdatedOn         string           `json:"updated_on"`
 	BidMode           *int             `json:"bid_mode"`
