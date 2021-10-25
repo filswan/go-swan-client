@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"go-swan-client/logs"
-	"go-swan-client/model"
-	"go-swan-client/subcommand"
+	"github.com/DoraNebula/go-swan-client/logs"
+	"github.com/DoraNebula/go-swan-client/model"
+	"github.com/DoraNebula/go-swan-client/subcommand"
 )
 
 const SUBCOMMAND_CAR = "car"

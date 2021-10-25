@@ -1,9 +1,10 @@
 package test
 
 import (
-	"go-swan-client/logs"
 	"path/filepath"
 	"strings"
+
+	"github.com/DoraNebula/go-swan-client/logs"
 )
 
 func Test() {

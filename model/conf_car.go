@@ -1,9 +1,10 @@
 package model
 
 import (
-	"go-swan-client/config"
 	"path/filepath"
 	"time"
+
+	"github.com/DoraNebula/go-swan-client/config"
 )
 
 type ConfCar struct {

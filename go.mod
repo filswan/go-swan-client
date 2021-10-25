@@ -1,4 +1,4 @@
-module go-swan-client
+module github.com/DoraNebula/go-swan-client
 
 go 1.16
 

@@ -1,7 +1,7 @@
 package model
 
 import (
-	"go-swan-client/config"
+	"github.com/DoraNebula/go-swan-client/config"
 )
 
 type ConfUpload struct {

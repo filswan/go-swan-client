@@ -1,10 +1,11 @@
 package config
 
 import (
-	"go-swan-client/logs"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/DoraNebula/go-swan-client/logs"
 
 	"github.com/BurntSushi/toml"
 )

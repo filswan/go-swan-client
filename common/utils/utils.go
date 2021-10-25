@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"go-swan-client/logs"
+	"github.com/DoraNebula/go-swan-client/logs"
 
 	"github.com/shopspring/decimal"
 )
