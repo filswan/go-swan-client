@@ -47,7 +47,7 @@ func GetConfDeal(outputDir *string, minerFid *string, metadataJsonPath *string) 
 		MetadataJsonPath:        metadataJsonPath,
 	}
 
-	if outputDir != nil && len(*outputDir) == 0 {
+	if outputDir != nil && len(*outputDir) != 0 {
 		confDeal.OutputDir = *outputDir
 	} else {
 		confOutDir := config.GetConfig().Sender.OutputDir
