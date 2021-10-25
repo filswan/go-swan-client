@@ -3,11 +3,11 @@ package subcommand
 import (
 	"fmt"
 
-	"github.com/DoraNebula/go-swan-client/common/client"
-	"github.com/DoraNebula/go-swan-client/common/constants"
-	"github.com/DoraNebula/go-swan-client/common/utils"
-	"github.com/DoraNebula/go-swan-client/logs"
-	"github.com/DoraNebula/go-swan-client/model"
+	"go-swan-client/common/client"
+	"go-swan-client/common/constants"
+	"go-swan-client/common/utils"
+	"go-swan-client/logs"
+	"go-swan-client/model"
 )
 
 func UploadCarFiles(confUpload *model.ConfUpload) error {
