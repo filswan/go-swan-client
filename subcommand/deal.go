@@ -8,7 +8,6 @@ import (
 
 	"go-swan-client/common/client"
 	"go-swan-client/common/constants"
-	"go-swan-client/common/utils"
 	"go-swan-client/logs"
 	"go-swan-client/model"
 )
@@ -53,7 +52,7 @@ func SendDeals(confDeal *model.ConfDeal) error {
 		return err
 	}
 
-	csvFilepath, err := SendDeals2Miner(confDeal, taskName, *confDeal.MinerFid, confDeal.OutputDir, carFiles)
+	csvFilepath, err := SendDeals2Miner(confDeal, taskName, confDeal.OutputDir, carFiles)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -68,7 +67,7 @@ func SendDeals(confDeal *model.ConfDeal) error {
 	return nil
 }
 
-func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) (*string, error) {
+func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, carFiles []*model.FileDesc) (*string, error) {
 	err := CheckDealConfig(confDeal)
 	if err != nil {
 		err := errors.New("failed to pass deal config check")
@@ -81,9 +80,9 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, minerFid string,
 			logs.GetLogger().Error("File:" + carFile.CarFilePath + " %s is too small")
 			continue
 		}
-		pieceSize, sectorSize := utils.CalculatePieceSize(carFile.CarFileSize)
+		pieceSize, sectorSize := CalculatePieceSize(carFile.CarFileSize)
 		logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
-		cost := utils.CalculateRealCost(sectorSize, confDeal.MinerPrice)
+		cost := CalculateRealCost(sectorSize, confDeal.MinerPrice)
 		dealCid, startEpoch, err := client.LotusProposeOfflineDeal(*carFile, cost, pieceSize, *confDeal, 0)
 		//dealCid, err := client.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig)
 		if err != nil {

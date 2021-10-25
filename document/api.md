@@ -63,9 +63,17 @@
   * [SendDeals2Miner](#SendDeals2Miner)
   * [SendAutoBidDeal](#SendAutoBidDeal)
   * [SendAutobidDeal](#SendAutobidDeal)
-  * [SendDeals](#SendDeals)
-  * [SendDeals](#SendDeals)
-  * [SendDeals](#SendDeals)
+  * [CheckDealConfig](#CheckDealConfig)
+  * [CheckInputDir](#CheckInputDir)
+  * [CreateOutputDir](#CreateOutputDir)
+  * [WriteCarFilesToFiles](#WriteCarFilesToFiles)
+  * [WriteCarFilesToJsonFile](#WriteCarFilesToJsonFile)
+  * [ReadCarFilesFromJsonFile](#ReadCarFilesFromJsonFile)
+  * [ReadCarFilesFromJsonFileByFullPath](#ReadCarFilesFromJsonFileByFullPath)
+  * [CreateCsv4TaskDeal](#CreateCsv4TaskDeal)
+  * [WriteCarFilesToCsvFile](#WriteCarFilesToCsvFile)
+  * [WriteCarFilesToCsvFile](#WriteCarFilesToCsvFile)
+  * [WriteCarFilesToCsvFile](#WriteCarFilesToCsvFile)
 ## 
 
 
@@ -679,70 +687,203 @@ error
 
 Inputs:
 ```shell
-filePath string
+confTask *model.ConfTask, confDeal *model.ConfDeal
 ```
 
 Outputs:
 ```shell
-string, []byte, error
+*string, error
 ```
 
 ### SendTask2Swan
 
 Inputs:
 ```shell
-filePath string
+confTask *model.ConfTask, task model.Task, carFiles []*model.FileDesc
 ```
 
 Outputs:
 ```shell
-string, []byte, error
+error
 ```
 
 ### SendDeals
 
 Inputs:
 ```shell
-filePath string
+confDeal *model.ConfDeal
 ```
 
 Outputs:
 ```shell
-string, []byte, error
+error
 ```
 
 ### SendDeals2Miner
 
 Inputs:
 ```shell
-filePath string
+confDeal *model.ConfDeal, taskName string, outputDir string, carFiles []*model.FileDesc
 ```
 
 Outputs:
 ```shell
-string, []byte, error
+*string, error
 ```
 
 ### SendAutoBidDeal
 
 Inputs:
 ```shell
-filePath string
+confDeal *model.ConfDeal
 ```
 
 Outputs:
 ```shell
-string, []byte, error
+[]string, error
 ```
 
 ### SendAutobidDeal
 
 Inputs:
 ```shell
-filePath string
+confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string
 ```
 
 Outputs:
 ```shell
-string, []byte, error
+int, string, error
 ```
+
+### CheckDealConfig
+
+Inputs:
+```shell
+confDeal *model.ConfDeal
+```
+
+Outputs:
+```shell
+error
+```
+
+### CheckInputDir
+
+Inputs:
+```shell
+inputDir string
+```
+
+Outputs:
+```shell
+error
+```
+
+### CreateOutputDir
+
+Inputs:
+```shell
+outputDir string
+```
+
+Outputs:
+```shell
+error
+```
+
+### WriteCarFilesToFiles
+
+Inputs:
+```shell
+confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string
+```
+
+Outputs:
+```shell
+int, string, error
+```
+
+### WriteCarFilesToJsonFile
+
+Inputs:
+```shell
+carFiles []*model.FileDesc, outputDir, jsonFilename, csvFileName string
+```
+
+Outputs:
+```shell
+error
+```
+
+### ReadCarFilesFromJsonFile
+
+Inputs:
+```shell
+carFiles []*model.FileDesc, outputDir, jsonFilename string
+```
+
+Outputs:
+```shell
+error
+```
+
+### ReadCarFilesFromJsonFileByFullPath
+
+Inputs:
+```shell
+confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string
+```
+
+Outputs:
+```shell
+int, string, error
+```
+
+### CreateCsv4TaskDeal
+
+Inputs:
+```shell
+confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string
+```
+
+Outputs:
+```shell
+int, string, error
+```
+
+### WriteCarFilesToCsvFile
+
+Inputs:
+```shell
+confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string
+```
+
+Outputs:
+```shell
+int, string, error
+```
+
+### WriteCarFilesToCsvFile
+
+Inputs:
+```shell
+confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string
+```
+
+Outputs:
+```shell
+int, string, error
+```
+
+### WriteCarFilesToCsvFile
+
+Inputs:
+```shell
+confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string
+```
+
+Outputs:
+```shell
+int, string, error
+```
+
