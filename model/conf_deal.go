@@ -6,6 +6,7 @@ import (
 	"go-swan-client/common/utils"
 	"go-swan-client/config"
 	"go-swan-client/logs"
+	"path/filepath"
 	"time"
 
 	"github.com/shopspring/decimal"
@@ -28,7 +29,7 @@ type ConfDeal struct {
 	MetadataJsonPath        *string
 }
 
-func GetConfDeal(outDir *string, minerFid *string, metadataJsonPath *string) *ConfDeal {
+func GetConfDeal(outputDir *string, minerFid *string, metadataJsonPath *string) *ConfDeal {
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
 	startEpoch := utils.GetCurrentEpoch() + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
 
@@ -42,13 +43,13 @@ func GetConfDeal(outDir *string, minerFid *string, metadataJsonPath *string) *Co
 		SkipConfirmation:        config.GetConfig().Sender.SkipConfirmation,
 		StartEpochIntervalHours: startEpochIntervalHours,
 		StartEpoch:              startEpoch,
-		OutputDir:               config.GetConfig().Sender.OutputDir + time.Now().Format("2006-01-02_15:04:05"),
+		OutputDir:               filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
 		MinerFid:                minerFid,
 		MetadataJsonPath:        metadataJsonPath,
 	}
 
-	if outDir != nil {
-		confDeal.OutputDir = *outDir
+	if outputDir != nil {
+		confDeal.OutputDir = *outputDir
 	}
 
 	maxPriceStr := config.GetConfig().Sender.MaxPrice

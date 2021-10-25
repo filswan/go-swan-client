@@ -15,7 +15,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func SendDeals(confDeal model.ConfDeal) error {
+func SendDeals(confDeal *model.ConfDeal) error {
 	err := CreateOutputDir(confDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -54,7 +54,7 @@ func SendDeals(confDeal model.ConfDeal) error {
 		return err
 	}
 
-	csvFilepath, err := SendDeals2Miner(&confDeal, taskName, *confDeal.MinerFid, confDeal.OutputDir, carFiles)
+	csvFilepath, err := SendDeals2Miner(confDeal, taskName, *confDeal.MinerFid, confDeal.OutputDir, carFiles)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err

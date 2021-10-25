@@ -2,6 +2,7 @@ package model
 
 import (
 	"go-swan-client/config"
+	"path/filepath"
 	"time"
 )
 
@@ -40,7 +41,7 @@ func GetConfTask(inputDir string, outDir *string, taskName, minerFid, dataset, d
 		StorageServerType:          config.GetConfig().Main.StorageServerType,
 		WebServerDownloadUrlPrefix: config.GetConfig().WebServer.DownloadUrlPrefix,
 		ExpireDays:                 config.GetConfig().Sender.ExpireDays,
-		OutputDir:                  config.GetConfig().Sender.OutputDir + time.Now().Format("2006-01-02_15:04:05"),
+		OutputDir:                  filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
 		InputDir:                   inputDir,
 		TaskName:                   taskName,
 		MinerFid:                   minerFid,

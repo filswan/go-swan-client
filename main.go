@@ -221,7 +221,7 @@ func sendDeal() error {
 	logs.GetLogger().Info("miner:", *minerFid)
 
 	confDeal := model.GetConfDeal(outputDir, minerFid, metadataJsonPath)
-	err = subcommand.SendDeals(*confDeal)
+	err = subcommand.SendDeals(confDeal)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
