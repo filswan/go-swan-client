@@ -60,7 +60,7 @@ func CreateGoCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error) {
 			logs.GetLogger().Error(err)
 		}
 	}
-	carFiles, err := CreateCarFilesDesc(confCar, confCar.InputDir, carDir)
+	carFiles, err := CreateCarFilesDescFromGoCarManifest(confCar, confCar.InputDir, carDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -85,7 +85,7 @@ type ManifestDetailLinkItem struct {
 	Size int
 }
 
-func CreateCarFilesDesc(confCar *model.ConfCar, srcFileDir, carFileDir string) ([]*model.FileDesc, error) {
+func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, carFileDir string) ([]*model.FileDesc, error) {
 	manifestFilename := "manifest.csv"
 	lines, err := utils.ReadAllLines(carFileDir, manifestFilename)
 	if err != nil {

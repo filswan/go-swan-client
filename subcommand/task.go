@@ -107,7 +107,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, er
 	}
 
 	if !confTask.PublicDeal {
-		_, err := SendDeals2Miner(confDeal, *confTask.TaskName, *confTask.MinerFid, confTask.OutputDir, carFiles)
+		_, err := SendDeals2Miner(confDeal, *confTask.TaskName, confTask.OutputDir, carFiles)
 		if err != nil {
 			return nil, err
 		}

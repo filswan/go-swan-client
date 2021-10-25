@@ -85,7 +85,7 @@ func createCarFile(subCmd string) error {
 
 	switch subCmd {
 	case SUBCOMMAND_CAR:
-		_, err := subcommand.GenerateCarFiles(confCar)
+		_, err := subcommand.CreateCarFiles(confCar)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err

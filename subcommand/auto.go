@@ -79,7 +79,7 @@ func SendAutobidDeal(confDeal *model.ConfDeal, deals []model.OfflineDeal, task m
 
 	dealSentNum := 0
 	for _, deal := range deals {
-		err := model.SetDealConfig4Autobid(confDeal, task, deal)
+		err := model.SetDealConfig4Autobid(confDeal, task)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue

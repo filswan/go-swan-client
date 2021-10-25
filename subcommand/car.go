@@ -17,7 +17,7 @@ import (
 	"github.com/codingsince1985/checksum"
 )
 
-func GenerateCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error) {
+func CreateCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error) {
 	err := CheckInputDir(confCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)

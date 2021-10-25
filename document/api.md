@@ -621,3 +621,128 @@ Outputs:
 ```shell
 string, []byte, error
 ```
+
+## SubCommand
+### CreateCarFiless
+
+Inputs:
+```shell
+confCar *model.ConfCar
+```
+
+Outputs:
+```shell
+[]*model.FileDesc
+error
+```
+
+### CreateGoCarFiles
+
+Inputs:
+```shell
+confCar *model.ConfCar
+```
+
+Outputs:
+```shell
+[]*model.FileDesc
+error
+```
+
+### CreateCarFilesDescFromGoCarManifest
+
+Inputs:
+```shell
+confCar *model.ConfCar
+srcFileDir string
+carFileDir string
+```
+
+Outputs:
+```shell
+[]*model.FileDesc, error
+```
+
+### UploadCarFiles
+
+Inputs:
+```shell
+confUpload *model.ConfUpload
+```
+
+Outputs:
+```shell
+error
+```
+
+### CreateTask
+
+Inputs:
+```shell
+filePath string
+```
+
+Outputs:
+```shell
+string, []byte, error
+```
+
+### SendTask2Swan
+
+Inputs:
+```shell
+filePath string
+```
+
+Outputs:
+```shell
+string, []byte, error
+```
+
+### SendDeals
+
+Inputs:
+```shell
+filePath string
+```
+
+Outputs:
+```shell
+string, []byte, error
+```
+
+### SendDeals2Miner
+
+Inputs:
+```shell
+filePath string
+```
+
+Outputs:
+```shell
+string, []byte, error
+```
+
+### SendAutoBidDeal
+
+Inputs:
+```shell
+filePath string
+```
+
+Outputs:
+```shell
+string, []byte, error
+```
+
+### SendAutobidDeal
+
+Inputs:
+```shell
+filePath string
+```
+
+Outputs:
+```shell
+string, []byte, error
+```

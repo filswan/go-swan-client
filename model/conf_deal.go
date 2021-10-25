@@ -66,7 +66,7 @@ func GetConfDeal(outputDir *string, minerFid *string, metadataJsonPath *string) 
 	return confDeal
 }
 
-func SetDealConfig4Autobid(confDeal *ConfDeal, task Task, deal OfflineDeal) error {
+func SetDealConfig4Autobid(confDeal *ConfDeal, task Task) error {
 	confDeal.StartEpoch = utils.GetCurrentEpoch() + (confDeal.StartEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
 
 	if task.MinerFid == nil {
