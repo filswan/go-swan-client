@@ -1,5 +1,5 @@
 # Groups
-* [Utils](#Utils)
+* [File](#File)
   * [IsFileExists](#IsFileExists)
   * [GetPathType](#GetPathType)
   * [RemoveFile](#RemoveFile)
@@ -9,19 +9,26 @@
   * [CreateFileWithContents](#CreateFileWithContents)
   * [ReadAllLines](#ReadAllLines)
   * [ReadFile](#ReadFiles)
+* [Json](#Json)
   * [GetFieldFromJson](#GetFieldFromJson)
   * [GetFieldStrFromJson](#GetFieldStrFromJson)
   * [GetFieldMapFromJson](#GetFieldMapFromJson)
   * [ToJson](#ToJson)
+* [Common](#Common)
   * [GetInt64FromStr](#GetInt64FromStr)
   * [GetFloat64FromStr](#GetFloat64FromStr)
   * [GetIntFromStr](#GetIntFromStr)
   * [GetNumStrFromStr](#GetNumStrFromStr)
   * [GetByteSizeFromStr](#GetByteSizeFromStr)
   * [IsSameDay](#IsSameDay)
-  * [CalculatePieceSize](#CalculatePieceSize)
-  * [CalculateRealCost](#CalculateRealCost)
-
+  * [GetRandInRange](#GetRandInRange)
+  * [IsStrEmpty](#IsStrEmpty)
+  * [GetDayNumFromEpoch](#GetDayNumFromEpoch)
+  * [GetEpochFromDay](#GetEpochFromDay)
+  * [GetMinFloat64](#GetMinFloat64)
+  * [GetCurrentEpoch](#GetCurrentEpoch)
+  * [GetDecimalFromStr](#GetDecimalFromStr)
+  * [UrlJoin](#UrlJoin)
 
 ### IsFileExists
 

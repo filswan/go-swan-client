@@ -27,6 +27,8 @@
   * [WriteCarFilesToCsvFile](#WriteCarFilesToCsvFile)
   * [WriteCarFilesToCsvFile](#WriteCarFilesToCsvFile)
   * [WriteCarFilesToCsvFile](#WriteCarFilesToCsvFile)
+  * [CalculatePieceSize](#CalculatePieceSize)
+  * [CalculateRealCost](#CalculateRealCost)
 
 
 ## Car
