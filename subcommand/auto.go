@@ -118,7 +118,7 @@ func SendAutobidDeal(confDeal *model.ConfDeal, deals []model.OfflineDeal, task m
 		logs.GetLogger().Info("FileSourceUrl:", carFile.CarFileUrl)
 		carFiles = append(carFiles, &carFile)
 		for i := 0; i < 60; i++ {
-			msg := fmt.Sprintf("task:%s, deal:%d", task.TaskName, deal.Id)
+			msg := fmt.Sprintf("send deal for task:%s, deal:%d", task.TaskName, deal.Id)
 			logs.GetLogger().Info(msg)
 			dealCid, startEpoch, err := client.LotusProposeOfflineDeal(carFile, cost, pieceSize, *confDeal, i)
 			if err != nil {
