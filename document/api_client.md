@@ -39,9 +39,9 @@
 ## Ipfs
 ### IpfsUploadCarFile
 
-Inputs:
+Definition:
 ```shell
-carFilePath string
+func IpfsUploadCarFile(carFilePath string) (*string, error)
 ```
 
 Outputs:
@@ -53,8 +53,9 @@ error: error or nil
 ## Lotus
 ### LotusGetClients
 
-Inputs:
+Definition:
 ```shell
+func LotusGetClient(apiUrl, accessToken string) (*LotusClient, error)
 apiUrl  string   #lotus node api url, such as http://[ip]:[port]/rpc/v0
 accessToken  string  #lotus node access token, should have admin privilege
 ```
@@ -67,9 +68,9 @@ error: error or nil
 
 ### LotusClientCalcCommP
 
-Inputs:
+Definition:
 ```shell
-filepath string
+func (lotusClient *LotusClient) LotusClientCalcCommP(filepath string) *string
 ```
 
 Outputs:
@@ -79,10 +80,9 @@ Outputs:
 
 ### LotusClientImport
 
-Inputs:
+Definition:
 ```shell
-filepath string
-isCar bool
+func (lotusClient *LotusClient) LotusClientImport(filepath string, isCar bool) (*string, error)
 ```
 
 Outputs:
@@ -92,11 +92,9 @@ Outputs:
 
 ### LotusClientGenCar
 
-Inputs:
+Definition:
 ```shell
-srcFilePath string
-destCarFilePath string
-srcFilePathIsCar bool
+func (lotusClient *LotusClient) LotusClientGenCar(srcFilePath, destCarFilePath string, srcFilePathIsCar bool) error
 ```
 
 Outputs:
@@ -106,9 +104,9 @@ error  #error or nils
 
 ### LotusGetMinerConfig
 
-Inputs:
+Definition:
 ```shell
-minerFid string
+func LotusGetMinerConfig(minerFid string) (*decimal.Decimal, *decimal.Decimal, *string, *string)
 ```
 
 Outputs:
@@ -121,13 +119,9 @@ Outputs:
 
 ### LotusProposeOfflineDeal
 
-Inputs:
+Definition:
 ```shell
-carFile model.FileDesc
-cost decimal.Decimal
-pieceSize int64
-dealConfig model.ConfDeal
-relativeEpoch int
+func LotusProposeOfflineDeal(carFile model.FileDesc, cost decimal.Decimal, pieceSize int64, dealConfig model.ConfDeal, relativeEpoch int) (*string, *int, error)
 ```
 
 Outputs:
@@ -140,10 +134,9 @@ error # error or nil
 ## ExecOsCmd
 ### ExecOsCmd2Screen
 
-Inputs:
+Definition:
 ```shell
-cmdStr string
-checkStdErr bool
+func ExecOsCmd2Screen(cmdStr string, checkStdErr bool) (string, error)
 ```
 
 Outputs:
@@ -154,10 +147,9 @@ error # error or nil
 
 ### ExecOsCmd
 
-Inputs:
+Definition:
 ```shell
-cmdStr string
-checkStdErr bool
+func ExecOsCmd(cmdStr string, checkStdErr bool) (string, error)
 ```
 
 Outputs:
@@ -169,11 +161,9 @@ error # error or nil
 
 ### ExecOsCmdBase
 
-Inputs:
+Definition:
 ```shell
-cmdStr string
-out2Screen bool
-checkStdErr bool
+func ExecOsCmdBase(cmdStr string, out2Screen bool, checkStdErr bool) (string, error)
 ```
 
 Outputs:
@@ -185,10 +175,9 @@ error # error or nil
 ## Http
 ### HttpPostNoToken
 
-Inputs:
+Definition:
 ```shell
-uri string
-params interface{}
+func HttpPostNoToken(uri string, params interface{}) string
 ```
 
 Outputs:
@@ -198,11 +187,9 @@ string  # result from web api request, if error, then ""
 
 ### HttpPost
 
-Inputs:
+Definition:
 ```shell
-uri
-tokenString string
-params interface{}
+func HttpPost(uri, tokenString string, params interface{}) string
 ```
 
 Outputs:
@@ -212,10 +199,9 @@ string  # result from web api request, if error, then ""
 
 ### HttpGetNoToken
 
-Inputs:
+Definition:
 ```shell
-uri string
-params interface{}
+func HttpGetNoToken(uri string, params interface{}) string
 ```
 
 Outputs:
@@ -225,11 +211,9 @@ string  # result from web api request, if error, then ""
 
 ### HttpGet
 
-Inputs:
+Definition:
 ```shell
-uri
-tokenString string
-params interface{}
+func HttpGet(uri, tokenString string, params interface{}) string
 ```
 
 Outputs:
@@ -239,11 +223,9 @@ string  # result from web api request, if error, then ""
 
 ### HttpPut
 
-Inputs:
+Definition:
 ```shell
-uri
-tokenString string
-params interface{}
+func HttpPut(uri, tokenString string, params interface{}) string
 ```
 
 Outputs:
@@ -253,11 +235,9 @@ string  # result from web api request, if error, then ""
 
 ### HttpDelete
 
-Inputs:
+Definition:
 ```shell
-uri
-tokenString string
-params interface{}
+func HttpDelete(uri, tokenString string, params interface{}) string
 ```
 
 Outputs:
@@ -267,12 +247,9 @@ string  # result from web api request, if error, then ""
 
 ### httpRequest
 
-Inputs:
+Definition:
 ```shell
-httpMethod string
-uri string
-tokenString string
-params interface{}
+func httpRequest(httpMethod, uri, tokenString string, params interface{}) string
 ```
 
 Outputs:
@@ -282,16 +259,12 @@ string  # result from web api request, if error, then ""
 
 ### HttpPutFile
 
-Inputs:
+Definition:
 ```shell
-url string
-tokenString string
-paramTexts map[string]string
-paramFilename
-paramFilepath string
+func HttpPutFile(url string, tokenString string, paramTexts map[string]string, paramFilename, paramFilepath string) (string, error)
 ```
 
-Outputs:
+Definition:
 ```shell
 string  # result from web api request, if error, then ""
 error # error or nil
@@ -299,13 +272,9 @@ error # error or nil
 
 ### HttpPostFile
 
-Inputs:
+Definition:
 ```shell
-url string
-tokenString string
-paramTexts map[string]string
-paramFilename
-paramFilepath string
+func HttpPostFile(url string, tokenString string, paramTexts map[string]string, paramFilename, paramFilepath string) (string, error)
 ```
 
 Outputs:
@@ -316,14 +285,9 @@ error # error or nil
 
 ### HttpRequestFile
 
-Inputs:
+Definition:
 ```shell
-httpMethod string
-url string string
-tokenString string
-paramTexts map[string]string
-paramFilename string
-paramFilepath string
+func HttpRequestFile(httpMethod, url string, tokenString string, paramTexts map[string]string, paramFilename, paramFilepath string) (string, error)
 ```
 
 Outputs:
@@ -335,14 +299,9 @@ error # error or nil
 ## Swan
 ### SwanGetJwtToken
 
-Inputs:
+Definition:
 ```shell
-httpMethod string
-url string string
-tokenString string
-paramTexts map[string]string
-paramFilename string
-paramFilepath string
+func (swanClient *SwanClient) SwanGetJwtToken(apiKey, accessToken string) error
 ```
 
 Outputs:
@@ -351,27 +310,11 @@ string  # result from web api request, if error, then ""
 error # error or nil
 ```
 
-
-### SwanGetJwtToken
-
-Inputs:
-```shell
-apiKey string
-accessToken string
-```
-
-Outputs:
-```shell
-error # error or nil
-```
-
 ### SwanGetClient
 
-Inputs:
+Definition:
 ```shell
-apiUrl string
-apiKey string
-accessToken string
+func SwanGetClient(apiUrl, apiKey, accessToken string) (*SwanClient, error)
 ```
 
 Outputs:
@@ -382,11 +325,9 @@ error
 
 ### SwanGetOfflineDeals
 
-Inputs:
+Definition:
 ```shell
-minerFid string
-status string
-limit ...string
+func (swanClient *SwanClient) SwanGetOfflineDeals(minerFid, status string, limit ...string) []model.OfflineDeal
 ```
 
 Outputs:
@@ -396,11 +337,9 @@ Outputs:
 
 ### SwanUpdateOfflineDealStatus
 
-Inputs:
+Definition:
 ```shell
-dealId int
-status string
-statusInfo ...string
+func (swanClient *SwanClient) SwanUpdateOfflineDealStatus(dealId int, status string, statusInfo ...string) bool
 ```
 
 Outputs:
@@ -410,10 +349,9 @@ bool
 
 ### SwanCreateTask
 
-Inputs:
+Definition:
 ```shell
-task model.Task
-csvFilePath string
+func (swanClient *SwanClient) SwanCreateTask(task model.Task, csvFilePath string) (*SwanCreateTaskResponse, error)
 ```
 
 Outputs:
@@ -424,9 +362,9 @@ error
 
 ### SwanGetTasks
 
-Inputs:
+Definition:
 ```shell
-limit *int
+func (swanClient *SwanClient) SwanGetTasks(limit *int) (*GetTaskResult, error)
 ```
 
 Outputs:
@@ -437,8 +375,9 @@ error
 
 ### SwanGetAssignedTasks
 
-Inputs:
+Definition:
 ```shell
+func (swanClient *SwanClient) SwanGetAssignedTasks() ([]model.Task, error)
 ```
 
 Outputs:
@@ -449,9 +388,9 @@ error
 
 ### SwanGetOfflineDealsByTaskUuid
 
-Inputs:
+Definition:
 ```shell
-taskUuid string
+func (swanClient *SwanClient) SwanGetOfflineDealsByTaskUuid(taskUuid string) (*GetOfflineDealsByTaskUuidResult, error)
 ```
 
 Outputs:
@@ -462,11 +401,9 @@ error
 
 ### SwanUpdateTaskByUuid
 
-Inputs:
+Definition:
 ```shell
-taskUuid string
-minerFid string
-csvFilePath string
+func (swanClient *SwanClient) SwanUpdateTaskByUuid(taskUuid string, minerFid string, csvFilePath string) error
 ```
 
 Outputs:
@@ -477,11 +414,9 @@ error
 
 ### SwanUpdateAssignedTask
 
-Inputs:
+Definition:
 ```shell
-taskUuid
-status
-csvFilePath string
+func (swanClient *SwanClient) SwanUpdateAssignedTask(taskUuid, status, csvFilePath string) (*SwanCreateTaskResponse, error)
 ```
 
 Outputs:
