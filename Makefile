@@ -1,4 +1,4 @@
-PROJECT_NAME = go-swan-client
+PROJECT_NAME = github.com/filswan/go-swan-client
 PKG := "$(PROJECT_NAME)"
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
 
