@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"go-swan-client/logs"
+	"github.com/filswan/go-swan-client/logs"
 )
 
 func IpfsUploadCarFile(carFilePath string) (*string, error) {

@@ -6,9 +6,9 @@ import (
 	"os"
 	"time"
 
-	"go-swan-client/logs"
-	"go-swan-client/model"
-	"go-swan-client/subcommand"
+	"github.com/filswan/go-swan-client/logs"
+	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-client/subcommand"
 )
 
 const SUBCOMMAND_CAR = "car"

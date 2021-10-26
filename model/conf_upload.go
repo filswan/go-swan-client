@@ -1,7 +1,7 @@
 package model
 
 import (
-	"go-swan-client/config"
+	"github.com/filswan/go-swan-client/config"
 )
 
 type ConfUpload struct {
