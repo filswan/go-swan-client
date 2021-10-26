@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"go-swan-client/logs"
 	"go-swan-client/model"
@@ -248,15 +249,18 @@ func sendAutoBidDeal() error {
 	}
 
 	confDeal := model.GetConfDeal(outputDir, nil, nil)
-	csvFilepaths, err := subcommand.SendAutoBidDeal(confDeal)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
-	}
+	for {
+		csvFilepaths, err := subcommand.SendAutoBidDeal(confDeal)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			//return err
+			continue
+		}
 
-	for _, csvFilepath := range csvFilepaths {
-		logs.GetLogger().Info(csvFilepath, " is generated")
-	}
+		for _, csvFilepath := range csvFilepaths {
+			logs.GetLogger().Info(csvFilepath, " is generated")
+		}
 
-	return nil
+		time.Sleep(time.Second * 30)
+	}
 }
