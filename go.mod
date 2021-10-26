@@ -10,3 +10,5 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/shopspring/decimal v1.3.1
 )
+
+replace github.com/filecoin-project/filecoin-ffi => ./extern/filecoin-ffi
