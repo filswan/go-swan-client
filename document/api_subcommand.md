@@ -48,7 +48,7 @@ error      # error or nil
 ## GoCar
 ### CreateGoCarFiles
 
-Inputs:
+Definition:
 ```shell
 func CreateGoCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error) 
 ```
@@ -61,7 +61,7 @@ error      # error or nil
 
 ### CreateCarFilesDescFromGoCarManifest
 
-Inputs:
+Definition:
 ```shell
 func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, carFileDir string) ([]*model.FileDesc, error)
 ```
@@ -75,7 +75,7 @@ error      # error or nil
 ## Upload
 ### UploadCarFiles
 
-Inputs:
+Definition:
 ```shell
 func UploadCarFiles(confUpload *model.ConfUpload) error
 ```
@@ -88,7 +88,7 @@ error   # error or nil
 ## Task
 ### CreateTask
 
-Inputs:
+Definition:
 ```shell
 func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, error)
 ```
@@ -101,7 +101,7 @@ error     # error or nil
 
 ### SendTask2Swan
 
-Inputs:
+Definition:
 ```shell
 func SendTask2Swan(confTask *model.ConfTask, task model.Task, carFiles []*model.FileDesc) error 
 ```
@@ -114,7 +114,7 @@ error  # error or nil
 ## Deal
 ### SendDeals
 
-Inputs:
+Definition:
 ```shell
 func SendDeals(confDeal *model.ConfDeal) error 
 ```
@@ -126,7 +126,7 @@ error   # error or nil
 
 ### SendDeals2Miner
 
-Inputs:
+Definition:
 ```shell
 func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, carFiles []*model.FileDesc) (*string, error)
 ```
@@ -140,7 +140,7 @@ error     # error or nil
 ## Auto-bid Deal
 ### SendAutoBidDeal
 
-Inputs:
+Definition:
 ```shell
 func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error)
 ```
@@ -153,7 +153,7 @@ error     # error or nil
 
 ### SendAutobidDeal
 
-Inputs:
+Definition:
 ```shell
 func SendAutobidDeal(confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string) (int, string, error) 
 ```
@@ -168,7 +168,7 @@ error  # error or nil
 ## Common
 ### CheckDealConfig
 
-Inputs:
+Definition:
 ```shell
 func CheckDealConfig(confDeal *model.ConfDeal) error 
 ```
@@ -180,7 +180,7 @@ error   # error or nil
 
 ### CheckInputDir
 
-Inputs:
+Definition:
 ```shell
 func CheckInputDir(inputDir string) error
 ```
@@ -192,7 +192,7 @@ error   # error or nil
 
 ### CreateOutputDir
 
-Inputs:
+Definition:
 ```shell
 func CreateOutputDir(outputDir string) error 
 ```
@@ -204,7 +204,7 @@ error   # error or nil
 
 ### WriteCarFilesToFiles
 
-Inputs:
+Definition:
 ```shell
 func WriteCarFilesToFiles(carFiles []*model.FileDesc, outputDir, jsonFilename, csvFileName string) error 
 ```
@@ -216,7 +216,7 @@ error   # error or nil
 
 ### WriteCarFilesToJsonFile
 
-Inputs:
+Definition:
 ```shell
 func WriteCarFilesToJsonFile(carFiles []*model.FileDesc, outputDir, jsonFilename string) error 
 ```
@@ -228,7 +228,7 @@ error   # error or nil
 
 ### ReadCarFilesFromJsonFile
 
-Inputs:
+Definition:
 ```shell
 func ReadCarFilesFromJsonFile(inputDir, jsonFilename string) []*model.FileDesc
 ```
@@ -240,7 +240,7 @@ Outputs:
 
 ### ReadCarFilesFromJsonFileByFullPath
 
-Inputs:
+Definition:
 ```shell
 func ReadCarFilesFromJsonFileByFullPath(jsonFilePath string) []*model.FileDesc
 ```
@@ -253,7 +253,7 @@ Outputs:
 
 ### WriteCarFilesToCsvFile
 
-Inputs:
+Definition:
 ```shell
 func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName string) error
 ```
@@ -265,7 +265,7 @@ error  # error or nil
 
 ### CreateCsv4TaskDeal
 
-Inputs:
+Definition:
 ```shell
 func CreateCsv4TaskDeal(carFiles []*model.FileDesc, outDir, csvFileName string) (string, error)
 ```
@@ -277,7 +277,7 @@ error   # error or nil
 ```
 ### CalculatePieceSize
 
-Inputs:
+Definition:
 ```shell
 func CalculatePieceSize(fileSize int64) (int64, float64) 
 ```
@@ -290,7 +290,7 @@ float64 # sector size
 
 ### CalculateRealCost
 
-Inputs:
+Definition:
 ```shell
 func CalculateRealCost(sectorSizeBytes float64, pricePerGiB decimal.Decimal) decimal.Decimal 
 ```
