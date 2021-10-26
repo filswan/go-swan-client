@@ -56,7 +56,7 @@ func CreateGoCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error)
 Outputs:
 ```shell
 []*model.FileDesc   # car files info
-error      # error or nil
+error               # error or nil
 ```
 
 ### CreateCarFilesDescFromGoCarManifest
@@ -69,7 +69,7 @@ func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, car
 Outputs:
 ```shell
 []*model.FileDesc   # car files info
-error      # error or nil
+error               # error or nil
 ```
 
 ## Upload
