@@ -34,9 +34,9 @@
 In swan project, a task can contain multiple offline deals. There are two basic type of tasks:
 - Task type
   * Public Task:
-    * A public task is a deal set for open bid. It has 2 types: auto-bid and non-auto-bid
+    * A public task is a deal set for open bid. It has 2 types: auto-bid and manual-bid
     * Auto-bid public task: this kind of task will be automatically assigned to a selected storage provider based on reputation system and Market Matcher.
-    * Non-auto-bid public task: for this kind of task, after bidder win the bid, the task holder needs to propose the task to the winner. 
+    * Manual-bid public task: for this kind of task, after bidder win the bid, the task holder needs to propose the task to the winner. 
   * Private Task. 
     * A private task is used to propose deals to a specified storage provider.
 - Task status:
@@ -65,8 +65,6 @@ uuid is generated for future index purpose.
 
 - Lotus node
 
-## Installation
-### Ubuntu/Debian
 ## Installation
 ### Option:one:  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-client/releases)
 ```shell
@@ -151,7 +149,7 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 
 ### Option:three:
 - **Conditions:** `[sender].public_deal=false` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Private Manual-Bid Task)->(end)" >
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Private Task)->(end)" >
 
 ## Create Car Files
 :bell: The input dir and out dir should only be absolute one.
@@ -210,8 +208,6 @@ no go-swan-client subcommand should be executed
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 ## Create A Task
-:bell: The input dir and out dir should only be absolute one.
-
 :bell: This step is necessary for both public and private tasks. You can choose one of the following 3 options.
 
 ### Option:one: Private Task
