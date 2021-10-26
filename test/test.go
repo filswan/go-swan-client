@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/filswan/go-swan-client/logs"
+	"github.com/filswan/go-swan-lib/logs"
 )
 
 func Test() {

@@ -7,11 +7,12 @@ import (
 	"math"
 	"path/filepath"
 
-	"github.com/filswan/go-swan-client/common/client"
-	"github.com/filswan/go-swan-client/common/constants"
-	"github.com/filswan/go-swan-client/common/utils"
-	"github.com/filswan/go-swan-client/logs"
 	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-lib/client"
+	"github.com/filswan/go-swan-lib/constants"
+	"github.com/filswan/go-swan-lib/logs"
+	libmodel "github.com/filswan/go-swan-lib/model"
+	"github.com/filswan/go-swan-lib/utils"
 
 	"io/ioutil"
 	"os"
@@ -94,7 +95,7 @@ func CreateOutputDir(outputDir string) error {
 	return nil
 }
 
-func WriteCarFilesToFiles(carFiles []*model.FileDesc, outputDir, jsonFilename, csvFileName string) error {
+func WriteCarFilesToFiles(carFiles []*libmodel.FileDesc, outputDir, jsonFilename, csvFileName string) error {
 	err := os.MkdirAll(outputDir, os.ModePerm)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -116,7 +117,7 @@ func WriteCarFilesToFiles(carFiles []*model.FileDesc, outputDir, jsonFilename, c
 	return nil
 }
 
-func WriteCarFilesToJsonFile(carFiles []*model.FileDesc, outputDir, jsonFilename string) error {
+func WriteCarFilesToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFilename string) error {
 	jsonFilePath := filepath.Join(outputDir, jsonFilename)
 	content, err := json.MarshalIndent(carFiles, "", " ")
 	if err != nil {
@@ -134,20 +135,20 @@ func WriteCarFilesToJsonFile(carFiles []*model.FileDesc, outputDir, jsonFilename
 	return nil
 }
 
-func ReadCarFilesFromJsonFile(inputDir, jsonFilename string) []*model.FileDesc {
+func ReadCarFilesFromJsonFile(inputDir, jsonFilename string) []*libmodel.FileDesc {
 	jsonFilePath := filepath.Join(inputDir, jsonFilename)
 	result := ReadCarFilesFromJsonFileByFullPath(jsonFilePath)
 	return result
 }
 
-func ReadCarFilesFromJsonFileByFullPath(jsonFilePath string) []*model.FileDesc {
+func ReadCarFilesFromJsonFileByFullPath(jsonFilePath string) []*libmodel.FileDesc {
 	contents, err := ioutil.ReadFile(jsonFilePath)
 	if err != nil {
 		logs.GetLogger().Error("Failed to read: ", jsonFilePath)
 		return nil
 	}
 
-	carFiles := []*model.FileDesc{}
+	carFiles := []*libmodel.FileDesc{}
 
 	err = json.Unmarshal(contents, &carFiles)
 	if err != nil {
@@ -158,7 +159,7 @@ func ReadCarFilesFromJsonFileByFullPath(jsonFilePath string) []*model.FileDesc {
 	return carFiles
 }
 
-func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName string) error {
+func WriteCarFilesToCsvFile(carFiles []*libmodel.FileDesc, outDir, csvFileName string) error {
 	csvFilePath := filepath.Join(outDir, csvFileName)
 	var headers []string
 	headers = append(headers, "uuid")
@@ -243,7 +244,7 @@ func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName stri
 	return nil
 }
 
-func CreateCsv4TaskDeal(carFiles []*model.FileDesc, outDir, csvFileName string) (string, error) {
+func CreateCsv4TaskDeal(carFiles []*libmodel.FileDesc, outDir, csvFileName string) (string, error) {
 	csvFilePath := filepath.Join(outDir, csvFileName)
 
 	logs.GetLogger().Info("Swan task CSV Generated: ", csvFilePath)
