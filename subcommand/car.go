@@ -5,19 +5,19 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"go-swan-client/logs"
+	"github.com/filswan/go-swan-client/logs"
 
-	"go-swan-client/model"
+	"github.com/filswan/go-swan-client/model"
 
-	"go-swan-client/common/client"
-	"go-swan-client/common/utils"
+	"github.com/filswan/go-swan-client/common/client"
+	"github.com/filswan/go-swan-client/common/utils"
 
-	"go-swan-client/common/constants"
+	"github.com/filswan/go-swan-client/common/constants"
 
 	"github.com/codingsince1985/checksum"
 )
 
-func GenerateCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error) {
+func CreateCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error) {
 	err := CheckInputDir(confCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)

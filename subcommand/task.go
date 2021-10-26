@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"go-swan-client/logs"
-	"go-swan-client/model"
+	"github.com/filswan/go-swan-client/logs"
+	"github.com/filswan/go-swan-client/model"
 
-	"go-swan-client/common/client"
-	"go-swan-client/common/constants"
-	"go-swan-client/common/utils"
+	"github.com/filswan/go-swan-client/common/client"
+	"github.com/filswan/go-swan-client/common/constants"
+	"github.com/filswan/go-swan-client/common/utils"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -31,7 +31,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, er
 	logs.GetLogger().Info("you output dir: ", confTask.OutputDir)
 
 	if !confTask.PublicDeal && (confTask.MinerFid == nil || len(*confTask.MinerFid) == 0) {
-		err := fmt.Errorf("please provide -miner for non public deal")
+		err := fmt.Errorf("please provide -miner for private deal")
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, er
 	}
 
 	if !confTask.PublicDeal {
-		_, err := SendDeals2Miner(confDeal, *confTask.TaskName, *confTask.MinerFid, confTask.OutputDir, carFiles)
+		_, err := SendDeals2Miner(confDeal, *confTask.TaskName, confTask.OutputDir, carFiles)
 		if err != nil {
 			return nil, err
 		}

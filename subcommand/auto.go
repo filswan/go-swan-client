@@ -1,12 +1,12 @@
 package subcommand
 
 import (
-	"go-swan-client/logs"
-	"go-swan-client/model"
+	"github.com/filswan/go-swan-client/logs"
+	"github.com/filswan/go-swan-client/model"
 
-	"go-swan-client/common/client"
-	"go-swan-client/common/constants"
-	"go-swan-client/common/utils"
+	"github.com/filswan/go-swan-client/common/client"
+	"github.com/filswan/go-swan-client/common/constants"
+	"github.com/filswan/go-swan-client/common/utils"
 )
 
 func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error) {
@@ -79,7 +79,7 @@ func SendAutobidDeal(confDeal *model.ConfDeal, deals []model.OfflineDeal, task m
 
 	dealSentNum := 0
 	for _, deal := range deals {
-		err := model.SetDealConfig4Autobid(confDeal, task, deal)
+		err := model.SetDealConfig4Autobid(confDeal, task)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue

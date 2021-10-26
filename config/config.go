@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"go-swan-client/logs"
+	"github.com/filswan/go-swan-client/logs"
 
 	"github.com/BurntSushi/toml"
 )

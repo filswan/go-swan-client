@@ -4,10 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
-	"go-swan-client/logs"
-	"go-swan-client/model"
-	"go-swan-client/subcommand"
+	"github.com/filswan/go-swan-client/logs"
+	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-client/subcommand"
 )
 
 const SUBCOMMAND_CAR = "car"
@@ -85,7 +86,7 @@ func createCarFile(subCmd string) error {
 
 	switch subCmd {
 	case SUBCOMMAND_CAR:
-		_, err := subcommand.GenerateCarFiles(confCar)
+		_, err := subcommand.CreateCarFiles(confCar)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
@@ -248,15 +249,18 @@ func sendAutoBidDeal() error {
 	}
 
 	confDeal := model.GetConfDeal(outputDir, nil, nil)
-	csvFilepaths, err := subcommand.SendAutoBidDeal(confDeal)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
-	}
+	for {
+		csvFilepaths, err := subcommand.SendAutoBidDeal(confDeal)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			//return err
+			continue
+		}
 
-	for _, csvFilepath := range csvFilepaths {
-		logs.GetLogger().Info(csvFilepath, " is generated")
-	}
+		for _, csvFilepath := range csvFilepaths {
+			logs.GetLogger().Info(csvFilepath, " is generated")
+		}
 
-	return nil
+		time.Sleep(time.Second * 30)
+	}
 }

@@ -3,16 +3,13 @@ package subcommand
 import (
 	"errors"
 	"fmt"
-	"math"
 	"path/filepath"
 	"strings"
 
-	"go-swan-client/common/client"
-	"go-swan-client/common/constants"
-	"go-swan-client/logs"
-	"go-swan-client/model"
-
-	"github.com/shopspring/decimal"
+	"github.com/filswan/go-swan-client/common/client"
+	"github.com/filswan/go-swan-client/common/constants"
+	"github.com/filswan/go-swan-client/logs"
+	"github.com/filswan/go-swan-client/model"
 )
 
 func SendDeals(confDeal *model.ConfDeal) error {
@@ -55,7 +52,7 @@ func SendDeals(confDeal *model.ConfDeal) error {
 		return err
 	}
 
-	csvFilepath, err := SendDeals2Miner(confDeal, taskName, *confDeal.MinerFid, confDeal.OutputDir, carFiles)
+	csvFilepath, err := SendDeals2Miner(confDeal, taskName, confDeal.OutputDir, carFiles)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -70,7 +67,7 @@ func SendDeals(confDeal *model.ConfDeal) error {
 	return nil
 }
 
-func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, minerFid string, outputDir string, carFiles []*model.FileDesc) (*string, error) {
+func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, carFiles []*model.FileDesc) (*string, error) {
 	err := CheckDealConfig(confDeal)
 	if err != nil {
 		err := errors.New("failed to pass deal config check")
@@ -99,7 +96,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, minerFid string,
 		carFile.DealCid = dealCid
 		carFile.StartEpoch = *startEpoch
 
-		logs.GetLogger().Info("Cid:", carFile.DealCid, " start epoch:", carFile.StartEpoch)
+		logs.GetLogger().Info("Cid:", *carFile.DealCid, " start epoch:", carFile.StartEpoch)
 	}
 
 	jsonFileName := taskName + constants.JSON_FILE_NAME_BY_DEAL
@@ -114,28 +111,4 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, minerFid string,
 	csvFilepath, err := CreateCsv4TaskDeal(carFiles, outputDir, csvFilename)
 
 	return &csvFilepath, err
-}
-
-// https://docs.filecoin.io/store/lotus/very-large-files/#maximizing-storage-per-sector
-func CalculatePieceSize(fileSize int64) (int64, float64) {
-	exp := math.Ceil(math.Log2(float64(fileSize)))
-	sectorSize2Check := math.Pow(2, exp)
-	pieceSize2Check := int64(sectorSize2Check * 254 / 256)
-	if fileSize <= pieceSize2Check {
-		return pieceSize2Check, sectorSize2Check
-	}
-
-	exp = exp + 1
-	realSectorSize := math.Pow(2, exp)
-	realPieceSize := int64(realSectorSize * 254 / 256)
-	return realPieceSize, realSectorSize
-}
-
-func CalculateRealCost(sectorSizeBytes float64, pricePerGiB decimal.Decimal) decimal.Decimal {
-	logs.GetLogger().Info("sectorSizeBytes:", sectorSizeBytes, " pricePerGiB:", pricePerGiB)
-	bytesPerGiB := decimal.NewFromInt(1024 * 1024 * 1024)
-	sectorSizeGiB := decimal.NewFromFloat(sectorSizeBytes).Div(bytesPerGiB)
-	realCost := sectorSizeGiB.Mul(pricePerGiB)
-	logs.GetLogger().Info("realCost:", realCost)
-	return realCost
 }

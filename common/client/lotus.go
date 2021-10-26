@@ -9,10 +9,10 @@ import (
 	"strconv"
 	"strings"
 
-	"go-swan-client/common/constants"
-	"go-swan-client/common/utils"
-	"go-swan-client/logs"
-	"go-swan-client/model"
+	"github.com/filswan/go-swan-client/common/constants"
+	"github.com/filswan/go-swan-client/common/utils"
+	"github.com/filswan/go-swan-client/logs"
+	"github.com/filswan/go-swan-client/model"
 
 	"github.com/shopspring/decimal"
 )
@@ -302,6 +302,7 @@ func (lotusClient *LotusClient) LotusClientGenCar(srcFilePath, destCarFilePath s
 		return err
 	}
 
+	logs.GetLogger().Info(response)
 	lotusJsonRpcResult := &LotusJsonRpcResult{}
 	err := json.Unmarshal([]byte(response), lotusJsonRpcResult)
 	if err != nil {

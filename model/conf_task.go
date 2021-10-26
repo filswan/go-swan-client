@@ -4,9 +4,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"go-swan-client/common/constants"
-	"go-swan-client/common/utils"
-	"go-swan-client/config"
+	"github.com/filswan/go-swan-client/common/constants"
+	"github.com/filswan/go-swan-client/common/utils"
+	"github.com/filswan/go-swan-client/config"
 )
 
 type ConfTask struct {
