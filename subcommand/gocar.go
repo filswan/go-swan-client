@@ -8,19 +8,20 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/filswan/go-swan-client/common/client"
-	"github.com/filswan/go-swan-client/common/constants"
 	"github.com/filswan/go-swan-client/config"
-	"github.com/filswan/go-swan-client/logs"
 	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-lib/constants"
+	"github.com/filswan/go-swan-lib/logs"
 
-	"github.com/filswan/go-swan-client/common/utils"
+	"github.com/filswan/go-swan-lib/utils"
 
 	"github.com/codingsince1985/checksum"
 	"github.com/filedrive-team/go-graphsplit"
+	"github.com/filswan/go-swan-lib/client"
+	libmodel "github.com/filswan/go-swan-lib/model"
 )
 
-func CreateGoCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error) {
+func CreateGoCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 	err := CheckInputDir(confCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -85,7 +86,7 @@ type ManifestDetailLinkItem struct {
 	Size int
 }
 
-func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, carFileDir string) ([]*model.FileDesc, error) {
+func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, carFileDir string) ([]*libmodel.FileDesc, error) {
 	manifestFilename := "manifest.csv"
 	lines, err := utils.ReadAllLines(carFileDir, manifestFilename)
 	if err != nil {
@@ -93,7 +94,7 @@ func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, car
 		return nil, err
 	}
 
-	carFiles := []*model.FileDesc{}
+	carFiles := []*libmodel.FileDesc{}
 
 	lotusClient, err := client.LotusGetClient(confCar.LotusApiUrl, confCar.LotusAccessToken)
 	if err != nil {
@@ -113,7 +114,7 @@ func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, car
 			return nil, err
 		}
 
-		carFile := model.FileDesc{}
+		carFile := libmodel.FileDesc{}
 		carFile.DataCid = fields[0]
 		carFile.CarFileName = carFile.DataCid + ".car"
 		carFile.CarFilePath = filepath.Join(carFileDir, carFile.CarFileName)

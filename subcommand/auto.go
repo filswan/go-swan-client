@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/filswan/go-swan-client/logs"
 	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-lib/logs"
 
-	"github.com/filswan/go-swan-client/common/client"
-	"github.com/filswan/go-swan-client/common/constants"
-	"github.com/filswan/go-swan-client/common/utils"
+	"github.com/filswan/go-swan-lib/client"
+	"github.com/filswan/go-swan-lib/constants"
+	libmodel "github.com/filswan/go-swan-lib/model"
+	"github.com/filswan/go-swan-lib/utils"
 )
 
 func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error) {
@@ -77,8 +78,8 @@ func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error) {
 	return csvFilepaths, nil
 }
 
-func SendAutobidDeal(confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string) (int, string, error) {
-	carFiles := []*model.FileDesc{}
+func SendAutobidDeal(confDeal *model.ConfDeal, deals []libmodel.OfflineDeal, task libmodel.Task, outputDir string) (int, string, error) {
+	carFiles := []*libmodel.FileDesc{}
 
 	dealSentNum := 0
 	for _, deal := range deals {
@@ -102,7 +103,7 @@ func SendAutobidDeal(confDeal *model.ConfDeal, deals []model.OfflineDeal, task m
 		pieceSize, sectorSize := CalculatePieceSize(fileSizeInt)
 		logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
 		cost := CalculateRealCost(sectorSize, confDeal.MinerPrice)
-		carFile := model.FileDesc{
+		carFile := libmodel.FileDesc{
 			Uuid:       task.Uuid,
 			MinerFid:   task.MinerFid,
 			CarFileUrl: deal.FileSourceUrl,
@@ -120,7 +121,8 @@ func SendAutobidDeal(confDeal *model.ConfDeal, deals []model.OfflineDeal, task m
 		for i := 0; i < 60; i++ {
 			msg := fmt.Sprintf("send deal for task:%s, deal:%d", task.TaskName, deal.Id)
 			logs.GetLogger().Info(msg)
-			dealCid, startEpoch, err := client.LotusProposeOfflineDeal(carFile, cost, pieceSize, *confDeal, i)
+			dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, *confDeal.MinerFid, confDeal.SenderWallet)
+			dealCid, startEpoch, err := client.LotusProposeOfflineDeal(carFile, cost, pieceSize, *dealConfig, i)
 			if err != nil {
 				logs.GetLogger().Error(err)
 

@@ -5,9 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/filswan/go-swan-client/logs"
-
 	"github.com/BurntSushi/toml"
+	"github.com/filswan/go-swan-lib/logs"
 )
 
 type Configuration struct {

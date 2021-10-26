@@ -5,10 +5,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/filswan/go-swan-client/common/constants"
-	"github.com/filswan/go-swan-client/common/utils"
 	"github.com/filswan/go-swan-client/config"
-	"github.com/filswan/go-swan-client/logs"
+	"github.com/filswan/go-swan-lib/constants"
+	"github.com/filswan/go-swan-lib/logs"
+	libmodel "github.com/filswan/go-swan-lib/model"
+	"github.com/filswan/go-swan-lib/utils"
 
 	"github.com/shopspring/decimal"
 )
@@ -70,7 +71,7 @@ func GetConfDeal(outputDir *string, minerFid *string, metadataJsonPath *string, 
 	return confDeal
 }
 
-func SetDealConfig4Autobid(confDeal *ConfDeal, task Task) error {
+func SetDealConfig4Autobid(confDeal *ConfDeal, task libmodel.Task) error {
 	confDeal.StartEpoch = utils.GetCurrentEpoch() + (confDeal.StartEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
 
 	if task.MinerFid == nil {

@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/filswan/go-swan-client/logs"
 	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-lib/logs"
 
-	"github.com/filswan/go-swan-client/common/client"
-	"github.com/filswan/go-swan-client/common/constants"
-	"github.com/filswan/go-swan-client/common/utils"
+	"github.com/filswan/go-swan-lib/client"
+	"github.com/filswan/go-swan-lib/constants"
+	libmodel "github.com/filswan/go-swan-lib/model"
+	"github.com/filswan/go-swan-lib/utils"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -75,7 +76,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, er
 	}
 
 	uuid := uuid.NewString()
-	task := model.Task{
+	task := libmodel.Task{
 		TaskName:          *confTask.TaskName,
 		FastRetrievalBool: confTask.FastRetrieval,
 		Type:              &taskType,
@@ -130,7 +131,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, er
 	return &jsonFileName, nil
 }
 
-func SendTask2Swan(confTask *model.ConfTask, task model.Task, carFiles []*model.FileDesc) error {
+func SendTask2Swan(confTask *model.ConfTask, task libmodel.Task, carFiles []*libmodel.FileDesc) error {
 	csvFilename := task.TaskName + ".csv"
 	csvFilePath, err := CreateCsv4TaskDeal(carFiles, confTask.OutputDir, csvFilename)
 	if err != nil {

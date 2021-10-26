@@ -6,10 +6,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/filswan/go-swan-client/common/client"
-	"github.com/filswan/go-swan-client/common/constants"
-	"github.com/filswan/go-swan-client/logs"
 	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-lib/client"
+	"github.com/filswan/go-swan-lib/constants"
+	"github.com/filswan/go-swan-lib/logs"
+	libmodel "github.com/filswan/go-swan-lib/model"
 )
 
 func SendDeals(confDeal *model.ConfDeal) error {
@@ -67,7 +68,7 @@ func SendDeals(confDeal *model.ConfDeal) error {
 	return nil
 }
 
-func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, carFiles []*model.FileDesc) (*string, error) {
+func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, carFiles []*libmodel.FileDesc) (*string, error) {
 	err := CheckDealConfig(confDeal)
 	if err != nil {
 		err := errors.New("failed to pass deal config check")
@@ -83,7 +84,8 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 		pieceSize, sectorSize := CalculatePieceSize(carFile.CarFileSize)
 		logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
 		cost := CalculateRealCost(sectorSize, confDeal.MinerPrice)
-		dealCid, startEpoch, err := client.LotusProposeOfflineDeal(*carFile, cost, pieceSize, *confDeal, 0)
+		dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, *confDeal.MinerFid, confDeal.SenderWallet)
+		dealCid, startEpoch, err := client.LotusProposeOfflineDeal(*carFile, cost, pieceSize, *dealConfig, 0)
 		//dealCid, err := client.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig)
 		if err != nil {
 			logs.GetLogger().Error(err)

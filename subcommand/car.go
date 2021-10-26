@@ -5,19 +5,18 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/filswan/go-swan-client/logs"
-
 	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-lib/logs"
 
-	"github.com/filswan/go-swan-client/common/client"
-	"github.com/filswan/go-swan-client/common/utils"
-
-	"github.com/filswan/go-swan-client/common/constants"
+	"github.com/filswan/go-swan-lib/client"
+	"github.com/filswan/go-swan-lib/constants"
+	"github.com/filswan/go-swan-lib/utils"
 
 	"github.com/codingsince1985/checksum"
+	libmodel "github.com/filswan/go-swan-lib/model"
 )
 
-func CreateCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error) {
+func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 	err := CheckInputDir(confCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -36,7 +35,7 @@ func CreateCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error) {
 		return nil, err
 	}
 
-	carFiles := []*model.FileDesc{}
+	carFiles := []*libmodel.FileDesc{}
 
 	lotusClient, err := client.LotusGetClient(confCar.LotusApiUrl, confCar.LotusAccessToken)
 	if err != nil {
@@ -45,7 +44,7 @@ func CreateCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error) {
 	}
 
 	for _, srcFile := range srcFiles {
-		carFile := model.FileDesc{}
+		carFile := libmodel.FileDesc{}
 		carFile.SourceFileName = srcFile.Name()
 		carFile.SourceFilePath = filepath.Join(confCar.InputDir, carFile.SourceFileName)
 		carFile.SourceFileSize = srcFile.Size()
