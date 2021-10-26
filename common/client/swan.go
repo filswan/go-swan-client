@@ -11,8 +11,6 @@ import (
 	"github.com/filswan/go-swan-client/logs"
 	"github.com/filswan/go-swan-client/model"
 
-	"github.com/filswan/go-swan-client/config"
-
 	"github.com/filswan/go-swan-client/common/constants"
 	"github.com/filswan/go-swan-client/common/utils"
 )
@@ -51,8 +49,8 @@ type UpdateOfflineDealData struct {
 
 func (swanClient *SwanClient) SwanGetJwtToken(apiKey, accessToken string) error {
 	data := TokenAccessInfo{
-		ApiKey:      config.GetConfig().Main.SwanApiKey,
-		AccessToken: config.GetConfig().Main.SwanAccessToken,
+		ApiKey:      apiKey,
+		AccessToken: accessToken,
 	}
 
 	if len(swanClient.ApiUrl) == 0 {
