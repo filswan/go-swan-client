@@ -3,7 +3,7 @@
   * [GenerateCarFiles](#GenerateCarFiles)
 * [GoCar](#GoCar)
   * [CreateGoCarFiles](#CreateGoCarFiles)
-  * [CreateCarFilesDesc](#CreateCarFilesDesc)
+  * [CreateCarFilesDescFromGoCarManifest](#CreateCarFilesDesc)
 * [Upload](#Upload)
   * [UploadCarFiles](#UploadCarFiles)
 * [Task](#Task)
