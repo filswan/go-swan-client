@@ -34,15 +34,15 @@
 ## Car
 ### CreateCarFiless
 
-Inputs:
+Definition:
 ```shell
-confCar *model.ConfCar
+func CreateCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error)
 ```
 
 Outputs:
 ```shell
-[]*model.FileDesc
-error
+[]*model.FileDesc   # car files info
+error      # error or nil
 ```
 
 ## GoCar
@@ -50,27 +50,26 @@ error
 
 Inputs:
 ```shell
-confCar *model.ConfCar
+func CreateGoCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error) 
 ```
 
 Outputs:
 ```shell
-[]*model.FileDesc
-error
+[]*model.FileDesc   # car files info
+error      # error or nil
 ```
 
 ### CreateCarFilesDescFromGoCarManifest
 
 Inputs:
 ```shell
-confCar *model.ConfCar
-srcFileDir string
-carFileDir string
+func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, carFileDir string) ([]*model.FileDesc, error)
 ```
 
 Outputs:
 ```shell
-[]*model.FileDesc, error
+[]*model.FileDesc   # car files info
+error      # error or nil
 ```
 
 ## Upload
@@ -78,12 +77,12 @@ Outputs:
 
 Inputs:
 ```shell
-confUpload *model.ConfUpload
+func UploadCarFiles(confUpload *model.ConfUpload) error
 ```
 
 Outputs:
 ```shell
-error
+error   # error or nil
 ```
 
 ## Task
@@ -91,24 +90,25 @@ error
 
 Inputs:
 ```shell
-confTask *model.ConfTask, confDeal *model.ConfDeal
+func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, error)
 ```
 
 Outputs:
 ```shell
-*string, error
+*string   # json filename
+error     # error or nil
 ```
 
 ### SendTask2Swan
 
 Inputs:
 ```shell
-confTask *model.ConfTask, task model.Task, carFiles []*model.FileDesc
+func SendTask2Swan(confTask *model.ConfTask, task model.Task, carFiles []*model.FileDesc) error 
 ```
 
 Outputs:
 ```shell
-error
+error  # error or nil
 ```
 
 ## Deal
@@ -116,24 +116,25 @@ error
 
 Inputs:
 ```shell
-confDeal *model.ConfDeal
+func SendDeals(confDeal *model.ConfDeal) error 
 ```
 
 Outputs:
 ```shell
-error
+error   # error or nil
 ```
 
 ### SendDeals2Miner
 
 Inputs:
 ```shell
-confDeal *model.ConfDeal, taskName string, outputDir string, carFiles []*model.FileDesc
+func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, carFiles []*model.FileDesc) (*string, error)
 ```
 
 Outputs:
 ```shell
-*string, error
+*string   # csvFilepath
+error     # error or nil
 ```
 
 ## Auto-bid Deal
@@ -141,24 +142,27 @@ Outputs:
 
 Inputs:
 ```shell
-confDeal *model.ConfDeal
+func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error)
 ```
 
 Outputs:
 ```shell
-[]string, error
+[]string  #csvFilepaths
+error     # error or nil
 ```
 
 ### SendAutobidDeal
 
 Inputs:
 ```shell
-confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string
+func SendAutobidDeal(confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string) (int, string, error) 
 ```
 
 Outputs:
 ```shell
-int, string, error
+int    # dealSentNum
+string # csvFilepath
+error  # error or nil
 ```
 
 ## Common
@@ -166,131 +170,133 @@ int, string, error
 
 Inputs:
 ```shell
-confDeal *model.ConfDeal
+func CheckDealConfig(confDeal *model.ConfDeal) error 
 ```
 
 Outputs:
 ```shell
-error
+error   # error or nil
 ```
 
 ### CheckInputDir
 
 Inputs:
 ```shell
-inputDir string
+func CheckInputDir(inputDir string) error
 ```
 
 Outputs:
 ```shell
-error
+error   # error or nil
 ```
 
 ### CreateOutputDir
 
 Inputs:
 ```shell
-outputDir string
+func CreateOutputDir(outputDir string) error 
 ```
 
 Outputs:
 ```shell
-error
+error   # error or nil
 ```
 
 ### WriteCarFilesToFiles
 
 Inputs:
 ```shell
-confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string
+func WriteCarFilesToFiles(carFiles []*model.FileDesc, outputDir, jsonFilename, csvFileName string) error 
 ```
 
 Outputs:
 ```shell
-int, string, error
+error   # error or nil
 ```
 
 ### WriteCarFilesToJsonFile
 
 Inputs:
 ```shell
-carFiles []*model.FileDesc, outputDir, jsonFilename, csvFileName string
+func WriteCarFilesToJsonFile(carFiles []*model.FileDesc, outputDir, jsonFilename string) error 
 ```
 
 Outputs:
 ```shell
-error
+error   # error or nil
 ```
 
 ### ReadCarFilesFromJsonFile
 
 Inputs:
 ```shell
-carFiles []*model.FileDesc, outputDir, jsonFilename string
+func ReadCarFilesFromJsonFile(inputDir, jsonFilename string) []*model.FileDesc
 ```
 
 Outputs:
 ```shell
-error
+[]*model.FileDesc  # car file info
 ```
 
 ### ReadCarFilesFromJsonFileByFullPath
 
 Inputs:
 ```shell
-confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string
+func ReadCarFilesFromJsonFileByFullPath(jsonFilePath string) []*model.FileDesc
 ```
 
 Outputs:
 ```shell
-int, string, error
+[]*model.FileDesc  # car file info
+```
+
+
+### WriteCarFilesToCsvFile
+
+Inputs:
+```shell
+func WriteCarFilesToCsvFile(carFiles []*model.FileDesc, outDir, csvFileName string) error
+```
+
+Outputs:
+```shell
+error  # error or nil
 ```
 
 ### CreateCsv4TaskDeal
 
 Inputs:
 ```shell
-confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string
+func CreateCsv4TaskDeal(carFiles []*model.FileDesc, outDir, csvFileName string) (string, error)
 ```
 
 Outputs:
 ```shell
-int, string, error
+string  # csv filepath
+error   # error or nil
 ```
-
-### WriteCarFilesToCsvFile
+### CalculatePieceSize
 
 Inputs:
 ```shell
-confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string
+func CalculatePieceSize(fileSize int64) (int64, float64) 
 ```
 
 Outputs:
 ```shell
-int, string, error
+int64   # piece size
+float64 # sector size
 ```
 
-### WriteCarFilesToCsvFile
+### CalculateRealCost
 
 Inputs:
 ```shell
-confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string
+func CalculateRealCost(sectorSizeBytes float64, pricePerGiB decimal.Decimal) decimal.Decimal 
 ```
 
 Outputs:
 ```shell
-int, string, error
-```
-
-### WriteCarFilesToCsvFile
-
-Inputs:
-```shell
-confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string
-```
-
-Outputs:
-```shell
-int, string, error
+decimal.Decimal # real cost
 ```
 
