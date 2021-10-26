@@ -1,15 +1,21 @@
 # Groups
-* [SubCommand](#SubCommand)
+* [Car](#Car)
   * [GenerateCarFiles](#GenerateCarFiles)
+* [GoCar](#GoCar)
   * [CreateGoCarFiles](#CreateGoCarFiles)
   * [CreateCarFilesDesc](#CreateCarFilesDesc)
+* [Upload](#Upload)
   * [UploadCarFiles](#UploadCarFiles)
+* [Task](#Task)
   * [CreateTask](#CreateTask)
   * [SendTask2Swan](#SendTask2Swan)
+* [Deal](#Car)
   * [SendDeals](#SendDeals)
   * [SendDeals2Miner](#SendDeals2Miner)
+* [Auto-Bid Deal](#Auto-Bid-Deal)
   * [SendAutoBidDeal](#SendAutoBidDeal)
   * [SendAutobidDeal](#SendAutobidDeal)
+* [Common](#Common)
   * [CheckDealConfig](#CheckDealConfig)
   * [CheckInputDir](#CheckInputDir)
   * [CreateOutputDir](#CreateOutputDir)
@@ -23,7 +29,7 @@
   * [WriteCarFilesToCsvFile](#WriteCarFilesToCsvFile)
 
 
-## SubCommand
+## Car
 ### CreateCarFiless
 
 Inputs:
@@ -37,6 +43,7 @@ Outputs:
 error
 ```
 
+## GoCar
 ### CreateGoCarFiles
 
 Inputs:
@@ -64,6 +71,7 @@ Outputs:
 []*model.FileDesc, error
 ```
 
+## Upload
 ### UploadCarFiles
 
 Inputs:
@@ -76,6 +84,7 @@ Outputs:
 error
 ```
 
+## Task
 ### CreateTask
 
 Inputs:
@@ -100,6 +109,7 @@ Outputs:
 error
 ```
 
+## Deal
 ### SendDeals
 
 Inputs:
@@ -124,6 +134,7 @@ Outputs:
 *string, error
 ```
 
+## Auto-bid Deal
 ### SendAutoBidDeal
 
 Inputs:
@@ -148,6 +159,7 @@ Outputs:
 int, string, error
 ```
 
+## Common
 ### CheckDealConfig
 
 Inputs:
