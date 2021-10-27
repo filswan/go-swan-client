@@ -16,17 +16,17 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, error) {
+func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []*libmodel.FileDesc, error) {
 	err := CheckInputDir(confTask.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	err = CreateOutputDir(confTask.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	logs.GetLogger().Info("you output dir: ", confTask.OutputDir)
@@ -34,7 +34,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, er
 	if !confTask.PublicDeal && (confTask.MinerFid == nil || len(*confTask.MinerFid) == 0) {
 		err := fmt.Errorf("please provide -miner for private deal")
 		logs.GetLogger().Error(err)
-		return nil, err
+		return nil, nil, err
 	}
 	if confTask.BidMode == constants.TASK_BID_MODE_AUTO && confTask.MinerFid != nil && len(*confTask.MinerFid) != 0 {
 		logs.GetLogger().Warn("miner is unnecessary for aubo-bid task, it will be ignored")
@@ -48,7 +48,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, er
 	maxPrice, err := decimal.NewFromString(confTask.MaxPrice)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, err
+		return nil, nil, err
 	}
 	//generateMd5 := config.GetConfig().Sender.GenerateMd5
 
@@ -62,7 +62,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, er
 	if carFiles == nil {
 		err := fmt.Errorf("failed to read car files from :%s", confTask.InputDir)
 		logs.GetLogger().Error(err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	isPublic := 0
@@ -108,9 +108,9 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, er
 	}
 
 	if !confTask.PublicDeal {
-		_, err := SendDeals2Miner(confDeal, *confTask.TaskName, confTask.OutputDir, carFiles)
+		_, _, err := SendDeals2Miner(confDeal, *confTask.TaskName, confTask.OutputDir, carFiles)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	}
 
@@ -119,16 +119,16 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, er
 	err = WriteCarFilesToFiles(carFiles, confTask.OutputDir, jsonFileName, csvFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	err = SendTask2Swan(confTask, task, carFiles)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, err
+		return nil, nil, err
 	}
 
-	return &jsonFileName, nil
+	return &jsonFileName, carFiles, nil
 }
 
 func SendTask2Swan(confTask *model.ConfTask, task libmodel.Task, carFiles []*libmodel.FileDesc) error {

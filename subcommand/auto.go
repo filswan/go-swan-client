@@ -13,11 +13,11 @@ import (
 	"github.com/filswan/go-swan-lib/utils"
 )
 
-func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error) {
+func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDesc, error) {
 	err := CreateOutputDir(confDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	logs.GetLogger().Info("output dir is:", confDeal.OutputDir)
@@ -25,20 +25,21 @@ func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error) {
 	swanClient, err := client.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	assignedTasks, err := swanClient.SwanGetAssignedTasks()
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, err
+		return nil, nil, err
 	}
 	logs.GetLogger().Info("autobid Swan task count:", len(assignedTasks))
 	if len(assignedTasks) == 0 {
 		logs.GetLogger().Info("no autobid task to be dealt with")
-		return nil, nil
+		return nil, nil, nil
 	}
 
+	var tasksDeals [][]*libmodel.FileDesc
 	csvFilepaths := []string{}
 	for _, assignedTask := range assignedTasks {
 		assignedTaskInfo, err := swanClient.SwanGetOfflineDealsByTaskUuid(*assignedTask.Uuid)
@@ -49,12 +50,14 @@ func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error) {
 
 		deals := assignedTaskInfo.Data.Deal
 		task := assignedTaskInfo.Data.Task
-		dealSentNum, csvFilePath, err := SendAutobidDeal(confDeal, deals, task, confDeal.OutputDir)
+		dealSentNum, csvFilePath, carFiles, err := SendAutobidDeal(confDeal, deals, task, confDeal.OutputDir)
 		if err != nil {
 			csvFilepaths = append(csvFilepaths, csvFilePath)
 			logs.GetLogger().Error(err)
 			continue
 		}
+
+		tasksDeals = append(tasksDeals, carFiles)
 
 		if dealSentNum == 0 {
 			logs.GetLogger().Info(dealSentNum, " deal(s) sent for task:", task.TaskName)
@@ -75,10 +78,10 @@ func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error) {
 		logs.GetLogger().Info(response.Message)
 	}
 
-	return csvFilepaths, nil
+	return csvFilepaths, tasksDeals, nil
 }
 
-func SendAutobidDeal(confDeal *model.ConfDeal, deals []libmodel.OfflineDeal, task libmodel.Task, outputDir string) (int, string, error) {
+func SendAutobidDeal(confDeal *model.ConfDeal, deals []libmodel.OfflineDeal, task libmodel.Task, outputDir string) (int, string, []*libmodel.FileDesc, error) {
 	carFiles := []*libmodel.FileDesc{}
 
 	dealSentNum := 0
@@ -150,5 +153,5 @@ func SendAutobidDeal(confDeal *model.ConfDeal, deals []libmodel.OfflineDeal, tas
 	csvFilename := task.TaskName + "_autodeal.csv"
 	csvFilepath, err := CreateCsv4TaskDeal(carFiles, outputDir, csvFilename)
 
-	return dealSentNum, csvFilepath, err
+	return dealSentNum, csvFilepath, carFiles, err
 }

@@ -13,12 +13,12 @@ import (
 	libmodel "github.com/filswan/go-swan-lib/model"
 )
 
-func SendDeals(confDeal *model.ConfDeal) error {
+func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 	logs.GetLogger().Info(confDeal.OutputDir)
 	err := CreateOutputDir(confDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return err
+		return nil, err
 	}
 
 	metadataJsonFilename := filepath.Base(*confDeal.MetadataJsonPath)
@@ -27,53 +27,53 @@ func SendDeals(confDeal *model.ConfDeal) error {
 	if len(carFiles) == 0 {
 		err := fmt.Errorf("no car files read from:%s", *confDeal.MetadataJsonPath)
 		logs.GetLogger().Error(err)
-		return err
+		return nil, err
 	}
 
 	swanClient, err := client.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return err
+		return nil, err
 	}
 	task, err := swanClient.SwanGetOfflineDealsByTaskUuid(*carFiles[0].Uuid)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return err
+		return nil, err
 	}
 
 	if task.Data.Task.BidMode == nil && *task.Data.Task.BidMode != constants.TASK_BID_MODE_MANUAL {
 		err := fmt.Errorf("auto_bid mode for task:%s is not manual, please check", task.Data.Task.TaskName)
 		logs.GetLogger().Error(err)
-		return err
+		return nil, err
 	}
 
 	if task.Data.Task.IsPublic == nil && *task.Data.Task.IsPublic != constants.TASK_IS_PUBLIC {
 		err := fmt.Errorf("task:%s is not in public mode,please check", task.Data.Task.TaskName)
 		logs.GetLogger().Error(err)
-		return err
+		return nil, err
 	}
 
-	csvFilepath, err := SendDeals2Miner(confDeal, taskName, confDeal.OutputDir, carFiles)
+	csvFilepath, carFiles, err := SendDeals2Miner(confDeal, taskName, confDeal.OutputDir, carFiles)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return err
+		return nil, err
 	}
 
 	err = swanClient.SwanUpdateTaskByUuid(*carFiles[0].Uuid, *confDeal.MinerFid, *csvFilepath)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return err
+		return nil, err
 	}
 
-	return nil
+	return carFiles, nil
 }
 
-func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, carFiles []*libmodel.FileDesc) (*string, error) {
+func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, carFiles []*libmodel.FileDesc) (*string, []*libmodel.FileDesc, error) {
 	err := CheckDealConfig(confDeal)
 	if err != nil {
 		err := errors.New("failed to pass deal config check")
 		logs.GetLogger().Error(err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	for _, carFile := range carFiles {
@@ -106,11 +106,11 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 	err = WriteCarFilesToFiles(carFiles, outputDir, jsonFileName, csvFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	csvFilename := taskName + "-deals.csv"
 	csvFilepath, err := CreateCsv4TaskDeal(carFiles, outputDir, csvFilename)
 
-	return &csvFilepath, err
+	return &csvFilepath, carFiles, err
 }
