@@ -134,7 +134,7 @@ func uploadFile() error {
 
 	confUpload := model.GetConfUpload(*inputDir)
 
-	err = subcommand.UploadCarFiles(confUpload)
+	_, err = subcommand.UploadCarFiles(confUpload)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -176,7 +176,7 @@ func createTask() error {
 
 	confTask := model.GetConfTask(*inputDir, outputDir, taskName, minerFid, dataset, description)
 	confDeal := model.GetConfDeal(outputDir, minerFid, nil, false)
-	jsonFileName, err := subcommand.CreateTask(confTask, confDeal)
+	jsonFileName, _, err := subcommand.CreateTask(confTask, confDeal)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -222,7 +222,7 @@ func sendDeal() error {
 	logs.GetLogger().Info("miner:", *minerFid)
 
 	confDeal := model.GetConfDeal(outputDir, minerFid, metadataJsonPath, false)
-	err = subcommand.SendDeals(confDeal)
+	_, err = subcommand.SendDeals(confDeal)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -250,7 +250,7 @@ func sendAutoBidDeal() error {
 
 	confDeal := model.GetConfDeal(outputDir, nil, nil, true)
 	for {
-		csvFilepaths, err := subcommand.SendAutoBidDeal(confDeal)
+		csvFilepaths, _, err := subcommand.SendAutoBidDeal(confDeal)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			//return err
