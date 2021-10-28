@@ -35,6 +35,7 @@ type webServer struct {
 
 type ipfsServer struct {
 	DownloadUrlPrefix string `toml:"download_url_prefix"`
+	UploadUrl         string `toml:"upload_url"`
 }
 
 type sender struct {
@@ -97,6 +98,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"web_server", "download_url_prefix"},
 
 		{"ipfs_server", "download_url_prefix"},
+		{"ipfs_server", "upload_url"},
 
 		{"sender", "bid_mode"},
 		{"sender", "offline_mode"},
