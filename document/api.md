@@ -4,7 +4,7 @@
 * [UploadCarFiles](#UploadCarFiles)
 * [CreateTask](#CreateTask)
 * [SendDeals](#SendDeals)
-* [SendAutoBidDeal](#SendAutoBidDeal)
+* [SendAutoBidDeals](#SendAutoBidDeals)
 
 ## CreateCarFiless
 
@@ -82,7 +82,7 @@ error                 # error or nil
 
 Definition:
 ```shell
-func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDesc, error)
+func SendAutoBidDeals(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDesc, error)
 ```
 
 Outputs:

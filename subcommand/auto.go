@@ -13,7 +13,7 @@ import (
 	"github.com/filswan/go-swan-lib/utils"
 )
 
-func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDesc, error) {
+func SendAutoBidDeals(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDesc, error) {
 	err := CreateOutputDir(confDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -50,7 +50,7 @@ func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDesc
 
 		deals := assignedTaskInfo.Data.Deal
 		task := assignedTaskInfo.Data.Task
-		dealSentNum, csvFilePath, carFiles, err := SendAutobidDeal(confDeal, deals, task, confDeal.OutputDir)
+		dealSentNum, csvFilePath, carFiles, err := SendAutobidDeals4Task(confDeal, deals, task, confDeal.OutputDir)
 		if err != nil {
 			csvFilepaths = append(csvFilepaths, csvFilePath)
 			logs.GetLogger().Error(err)
@@ -81,7 +81,7 @@ func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDesc
 	return csvFilepaths, tasksDeals, nil
 }
 
-func SendAutobidDeal(confDeal *model.ConfDeal, deals []libmodel.OfflineDeal, task libmodel.Task, outputDir string) (int, string, []*libmodel.FileDesc, error) {
+func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDeal, task libmodel.Task, outputDir string) (int, string, []*libmodel.FileDesc, error) {
 	carFiles := []*libmodel.FileDesc{}
 
 	dealSentNum := 0

@@ -250,7 +250,7 @@ func sendAutoBidDeal() error {
 
 	confDeal := model.GetConfDeal(outputDir, nil, nil, true)
 	for {
-		csvFilepaths, _, err := subcommand.SendAutoBidDeal(confDeal)
+		csvFilepaths, _, err := subcommand.SendAutoBidDeals(confDeal)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			//return err
