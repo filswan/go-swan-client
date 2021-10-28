@@ -21,6 +21,13 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+func GetDefaultTaskName() string {
+	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz0123456789")
+	randStr := utils.RandStringRunes(letterRunes, 6)
+	taskName := "swan-task-" + randStr
+	return taskName
+}
+
 func CheckDealConfig(confDeal *model.ConfDeal) error {
 	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(*confDeal.MinerFid)
 
