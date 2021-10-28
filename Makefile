@@ -1,6 +1,17 @@
+# Go parameters
+GOCMD=go
+GOBUILD=$(GOCMD) build
+GOCLEAN=$(GOCMD) clean
+GOTEST=$(GOCMD) test
+GOGET=$(GOCMD) get
+GOBIN=$(shell pwd)/build
+
 PROJECT_NAME = github.com/filswan/go-swan-client
 PKG := "$(PROJECT_NAME)"
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
+
+BINARY_NAME=go-swan-client
+BINARY_UNIX=$(BINARY_NAME)_unix
 
 .PHONY: all build clean test help
 
@@ -10,8 +21,6 @@ test: ## Run unittests
 	@go test -short ${PKG_LIST}
 	@echo "Done testing."
 
-## FFI
-
 ffi:
 	./extern/filecoin-ffi/install-filcrypto
 .PHONY: ffi
@@ -19,9 +28,14 @@ ffi:
 build: ## Build the binary file
 	@go mod download
 	@go mod tidy
-	@mkdir -p ./build/config
-	@go build -o ./build
+	@go build -o $(GOBIN)/$(BINARY_NAME)  main.go
 	@echo "Done building."
+	@echo "Go to build folder and run \"$(GOBIN)/$(BINARY_NAME)\" to launch swan client."
+
+build-linux:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(GOBIN)/$(BINARY_UNIX) -v  main.go
+build_win: test
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(GOBIN)/$(BINARY_UNIX) -v  main.go
 
 clean: ## Remove previous build
 	@go clean

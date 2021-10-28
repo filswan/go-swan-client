@@ -1,13 +1,16 @@
 #!/bin/bash
 
-CONF_FILE_PATH=${HOME}/.swan/client/config.toml
+CONF_FILE_DIR=${HOME}/.swan/client
+mkdir ${CONF_FILE_DIR}
+
+CONF_FILE_PATH=${CONF_FILE_DIR}/config.toml
 echo $CONF_FILE_PATH
 
 if [ -f "${CONF_FILE_PATH}" ]; then
-    echo "~/.swan/client/config.toml exists"
+    echo "${CONF_FILE_PATH} exists"
 else
     cp ./config/config.toml.example $CONF_FILE_PATH
-    echo "~/.swan/client/config.toml created"
+    echo "${CONF_FILE_PATH} created"
 fi
 
 git submodule update --init --recursive
