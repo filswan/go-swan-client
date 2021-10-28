@@ -13,6 +13,7 @@ download_url_prefix = "https://nbai.io:443/download"
 
 [ipfs_server]
 download_url_prefix = "http://192.168.88.41:5050/ipfs"
+upload_url = "http://192.168.88.41:5001/api/v0/add?stream-channels=true&pin=true"
 
 [sender]
 bid_mode = 1
