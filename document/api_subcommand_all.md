@@ -13,8 +13,8 @@
   * [SendDeals](#SendDeals)
   * [SendDeals2Miner](#SendDeals2Miner)
 * [Auto-Bid Deal](#Auto-Bid-Deal)
-  * [SendAutoBidDeal](#SendAutoBidDeal)
-  * [SendAutobidDeal](#SendAutobidDeal)
+  * [SendAutoBidDeals](#SendAutoBidDeals)
+  * [SendAutobidDeals4Task](#SendAutobidDeals4Task)
 * [Common](#Common)
   * [GetDefaultTaskName](#GetDefaultTaskName)
   * [CheckDealConfig](#CheckDealConfig)
@@ -143,11 +143,11 @@ error                 # error or nil
 ```
 
 ## Auto-bid Deal
-### SendAutoBidDeal
+### SendAutoBidDeals
 
 Definition:
 ```shell
-func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDesc, error)
+func SendAutoBidDeals(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDesc, error)
 ```
 
 Outputs:
@@ -157,11 +157,11 @@ Outputs:
 error                 # error or nil
 ```
 
-### SendAutobidDeal
+### SendAutobidDeals4Task
 
 Definition:
 ```shell
-func SendAutobidDeal(confDeal *model.ConfDeal, deals []libmodel.OfflineDeal, task libmodel.Task, outputDir string) (int, string, []*libmodel.FileDesc, error)
+func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDeal, task libmodel.Task, outputDir string) (int, string, []*libmodel.FileDesc, error)
 ```
 
 Outputs:
