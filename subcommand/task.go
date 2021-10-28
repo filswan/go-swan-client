@@ -2,7 +2,6 @@ package subcommand
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/filswan/go-swan-client/model"
 	"github.com/filswan/go-swan-lib/logs"
@@ -41,8 +40,8 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	}
 
 	if confTask.TaskName == nil || len(*confTask.TaskName) == 0 {
-		nowStr := "task_" + time.Now().Format("2006-01-02_15:04:05")
-		confTask.TaskName = &nowStr
+		taskName := GetDefaultTaskName()
+		confTask.TaskName = &taskName
 	}
 
 	maxPrice, err := decimal.NewFromString(confTask.MaxPrice)
