@@ -16,6 +16,7 @@
   * [SendAutoBidDeal](#SendAutoBidDeal)
   * [SendAutobidDeal](#SendAutobidDeal)
 * [Common](#Common)
+  * [GetDefaultTaskName](#GetDefaultTaskName)
   * [CheckDealConfig](#CheckDealConfig)
   * [CheckInputDir](#CheckInputDir)
   * [CreateOutputDir](#CreateOutputDir)
@@ -36,13 +37,13 @@
 
 Definition:
 ```shell
-func CreateCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error)
+func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error)
 ```
 
 Outputs:
 ```shell
-[]*model.FileDesc   # car files info
-error      # error or nil
+[]*libmodel.FileDesc  # car files info
+error                 # error or nil
 ```
 
 ## GoCar
@@ -50,26 +51,26 @@ error      # error or nil
 
 Definition:
 ```shell
-func CreateGoCarFiles(confCar *model.ConfCar) ([]*model.FileDesc, error) 
+func CreateGoCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error)
 ```
 
 Outputs:
 ```shell
-[]*model.FileDesc   # car files info
-error               # error or nil
+[]*libmodel.FileDesc   # car files info
+error                  # error or nil
 ```
 
 ### CreateCarFilesDescFromGoCarManifest
 
 Definition:
 ```shell
-func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, carFileDir string) ([]*model.FileDesc, error)
+func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, carFileDir string) ([]*libmodel.FileDesc, error)
 ```
 
 Outputs:
 ```shell
-[]*model.FileDesc   # car files info
-error               # error or nil
+[]*libmodel.FileDesc   # car files info
+error                  # error or nil
 ```
 
 ## Upload
@@ -77,12 +78,13 @@ error               # error or nil
 
 Definition:
 ```shell
-func UploadCarFiles(confUpload *model.ConfUpload) error
+func UploadCarFiles(confUpload *model.ConfUpload) ([]*libmodel.FileDesc, error)
 ```
 
 Outputs:
 ```shell
-error   # error or nil
+[]*libmodel.FileDesc  # car files info
+error                 # error or nil
 ```
 
 ## Task
@@ -90,20 +92,21 @@ error   # error or nil
 
 Definition:
 ```shell
-func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, error)
+func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []*libmodel.FileDesc, error)
 ```
 
 Outputs:
 ```shell
-*string   # json filename
-error     # error or nil
+*string               # json file full path
+[]*libmodel.FileDesc  # car files info
+error                 # error or nil
 ```
 
 ### SendTask2Swan
 
 Definition:
 ```shell
-func SendTask2Swan(confTask *model.ConfTask, task model.Task, carFiles []*model.FileDesc) error 
+func SendTask2Swan(confTask *model.ConfTask, task libmodel.Task, carFiles []*libmodel.FileDesc) error
 ```
 
 Outputs:
@@ -116,25 +119,27 @@ error  # error or nil
 
 Definition:
 ```shell
-func SendDeals(confDeal *model.ConfDeal) error 
+func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error)
 ```
 
 Outputs:
 ```shell
-error   # error or nil
+[]*libmodel.FileDesc  # car files info
+error                 # error or nil
 ```
 
 ### SendDeals2Miner
 
 Definition:
 ```shell
-func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, carFiles []*model.FileDesc) (*string, error)
+func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, carFiles []*libmodel.FileDesc) (*string, []*libmodel.FileDesc, error)
 ```
 
 Outputs:
 ```shell
-*string   # csvFilepath
-error     # error or nil
+*string   # csvFilepath which is used to update task by calling filswan api
+[]*libmodel.FileDesc  # car files info
+error                 # error or nil
 ```
 
 ## Auto-bid Deal
@@ -142,35 +147,49 @@ error     # error or nil
 
 Definition:
 ```shell
-func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, error)
+func SendAutoBidDeal(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDesc, error)
 ```
 
 Outputs:
 ```shell
 []string  #csvFilepaths
-error     # error or nil
+[]*libmodel.FileDesc  # car files info
+error                 # error or nil
 ```
 
 ### SendAutobidDeal
 
 Definition:
 ```shell
-func SendAutobidDeal(confDeal *model.ConfDeal, deals []model.OfflineDeal, task model.Task, outputDir string) (int, string, error) 
+func SendAutobidDeal(confDeal *model.ConfDeal, deals []libmodel.OfflineDeal, task libmodel.Task, outputDir string) (int, string, []*libmodel.FileDesc, error)
 ```
 
 Outputs:
 ```shell
 int    # dealSentNum
 string # csvFilepath
-error  # error or nil
+[]*libmodel.FileDesc  # car files info
+error                 # error or nil
 ```
 
 ## Common
+
+### GetDefaultTaskName
+Definition:
+```shell
+func GetDefaultTaskName() string
+```
+
+Outputs:
+```shell
+string   # default task name
+```
+
 ### CheckDealConfig
 
 Definition:
 ```shell
-func CheckDealConfig(confDeal *model.ConfDeal) error 
+func CheckDealConfig(confDeal *model.ConfDeal) error
 ```
 
 Outputs:
