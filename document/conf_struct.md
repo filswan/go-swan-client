@@ -35,6 +35,7 @@ type ConfDeal struct {
 ```
 
 ## ConfTask
+```shell
 type ConfTask struct {
 	SwanApiUrl                 string
 	SwanApiKey                 string
@@ -57,6 +58,7 @@ type ConfTask struct {
 	StartEpoch                 int
 	StartEpochIntervalHours    int
 }
+```
 
 ## ConfUpload
 ```shell
