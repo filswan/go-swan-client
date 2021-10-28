@@ -95,44 +95,44 @@ func CreateOutputDir(outputDir string) error {
 	return nil
 }
 
-func WriteCarFilesToFiles(carFiles []*libmodel.FileDesc, outputDir, jsonFilename, csvFileName string) error {
+func WriteCarFilesToFiles(carFiles []*libmodel.FileDesc, outputDir, jsonFilename, csvFileName string) (*string, error) {
 	err := os.MkdirAll(outputDir, os.ModePerm)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return err
+		return nil, err
 	}
 
-	err = WriteCarFilesToJsonFile(carFiles, outputDir, jsonFilename)
+	jsonFilePath, err := WriteCarFilesToJsonFile(carFiles, outputDir, jsonFilename)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return err
+		return nil, err
 	}
 
 	err = WriteCarFilesToCsvFile(carFiles, outputDir, csvFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return err
+		return nil, err
 	}
 
-	return nil
+	return jsonFilePath, nil
 }
 
-func WriteCarFilesToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFilename string) error {
+func WriteCarFilesToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFilename string) (*string, error) {
 	jsonFilePath := filepath.Join(outputDir, jsonFilename)
 	content, err := json.MarshalIndent(carFiles, "", " ")
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return err
+		return nil, err
 	}
 
 	err = ioutil.WriteFile(jsonFilePath, content, 0644)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return err
+		return nil, err
 	}
 
 	logs.GetLogger().Info("Metadata json generated: ", jsonFilePath)
-	return nil
+	return &jsonFilePath, nil
 }
 
 func ReadCarFilesFromJsonFile(inputDir, jsonFilename string) []*libmodel.FileDesc {
