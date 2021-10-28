@@ -63,6 +63,7 @@ type ConfTask struct {
 type ConfUpload struct {
 	StorageServerType           string
 	IpfsServerDownloadUrlPrefix string
+	IpfsServerUploadUrl         string
 	OutputDir                   string
 	InputDir                    string
 }
