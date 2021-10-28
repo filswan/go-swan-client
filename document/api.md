@@ -78,7 +78,7 @@ Outputs:
 error                 # error or nil
 ```
 
-## SendAutoBidDeal
+## SendAutoBidDeals
 
 Definition:
 ```shell
