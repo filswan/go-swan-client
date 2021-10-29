@@ -18,6 +18,7 @@ type ConfDeal struct {
 	SwanApiUrl              string
 	SwanApiKey              string
 	SwanAccessToken         string
+	SwanJwtToken            string
 	SenderWallet            string
 	MaxPrice                decimal.Decimal
 	VerifiedDeal            bool
