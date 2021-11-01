@@ -185,8 +185,11 @@ func SendAutoBidDealByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int, 
 		return 0, "", nil, err
 	}
 
+	msg := fmt.Sprintf("%d deal(s) sent for task:%s", dealSentNum, task.TaskName)
+	logs.GetLogger().Info(msg)
+
 	if dealSentNum == 0 {
-		err := fmt.Errorf("%d deal(s) sent for task:%s", dealSentNum, task.TaskName)
+		err := fmt.Errorf("no deal sent for task:%s", task.TaskName)
 		logs.GetLogger().Info(err)
 		return 0, "", nil, err
 	}
