@@ -181,13 +181,15 @@ func SendAutoBidDealByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int, 
 	task := assignedTaskInfo.Data.Task
 	dealSentNum, csvFilePath, carFiles, err := SendAutobidDeals4Task(confDeal, deals, task, confDeal.OutputDir)
 	if err != nil {
-		csvFilepaths = append(csvFilepaths, csvFilePath)
 		logs.GetLogger().Error(err)
 		return 0, "", nil, err
 	}
 
+	msg := fmt.Sprintf("%d deal(s) sent for task:%s", dealSentNum, task.TaskName)
+	logs.GetLogger().Info(msg)
+
 	if dealSentNum == 0 {
-		err := fmt.Errorf(dealSentNum, " deal(s) sent for task:", task.TaskName)
+		err := fmt.Errorf("no deal sent for task:%s", task.TaskName)
 		logs.GetLogger().Info(err)
 		return 0, "", nil, err
 	}
@@ -197,7 +199,7 @@ func SendAutoBidDealByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int, 
 		status = constants.TASK_STATUS_PROGRESS_WITH_FAILURE
 	}
 
-	response, err := swanClient.SwanUpdateAssignedTask(*assignedTask.Uuid, status, csvFilePath)
+	response, err := swanClient.SwanUpdateAssignedTask(taskUuid, status, csvFilePath)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return 0, "", nil, err
