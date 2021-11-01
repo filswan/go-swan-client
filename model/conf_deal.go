@@ -72,8 +72,11 @@ func GetConfDeal(outputDir *string, minerFid *string, metadataJsonPath *string, 
 	return confDeal
 }
 
-func SetDealConfig4Autobid(confDeal *ConfDeal, task libmodel.Task) error {
+func SetDealConfig4Autobid(confDeal *ConfDeal, task libmodel.Task, deal libmodel.OfflineDeal) error {
 	confDeal.StartEpoch = utils.GetCurrentEpoch() + (confDeal.StartEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
+	if deal.StartEpoch != nil && *deal.StartEpoch != 0 {
+		confDeal.StartEpoch = *deal.StartEpoch
+	}
 
 	if task.MinerFid == nil {
 		err := fmt.Errorf("no miner allocated to task")
