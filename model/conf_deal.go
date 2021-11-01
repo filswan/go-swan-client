@@ -30,7 +30,6 @@ type ConfDeal struct {
 	OutputDir               string
 	MinerFid                *string
 	MetadataJsonPath        *string
-	RelativeEpoch           int
 }
 
 func GetConfDeal(outputDir *string, minerFid *string, metadataJsonPath *string, isAutoBid bool) *ConfDeal {
@@ -75,9 +74,6 @@ func GetConfDeal(outputDir *string, minerFid *string, metadataJsonPath *string, 
 
 func SetDealConfig4Autobid(confDeal *ConfDeal, task libmodel.Task) error {
 	confDeal.StartEpoch = utils.GetCurrentEpoch() + (confDeal.StartEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
-	if confDeal.RelativeEpoch != 0 {
-		confDeal.StartEpoch = confDeal.StartEpoch + confDeal.RelativeEpoch
-	}
 
 	if task.MinerFid == nil {
 		err := fmt.Errorf("no miner allocated to task")
