@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/filswan/go-swan-client/config"
 	"github.com/filswan/go-swan-client/model"
 	"github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
@@ -34,7 +33,7 @@ func CreateGoCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	sliceSize := config.GetConfig().Sender.GocarFileSizeLimit
+	sliceSize := confCar.GocarFileSizeLimit
 	if sliceSize <= 0 {
 		err := fmt.Errorf("gocar file size limit is too smal")
 		logs.GetLogger().Error(err)
