@@ -5,6 +5,7 @@
 * [CreateTask](#CreateTask)
 * [SendDeals](#SendDeals)
 * [SendAutoBidDeals](#SendAutoBidDeals)
+* [SendAutoBidDealsByTaskUuid](#SendAutoBidDealsByTaskUuid)
 
 ## CreateCarFiless
 
@@ -88,6 +89,21 @@ func SendAutoBidDeals(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDes
 Outputs:
 ```shell
 []string  #csvFilepaths
+[][]*libmodel.FileDesc  # car files info
+error                 # error or nil
+```
+
+## SendAutoBidDealsByTaskUuid
+
+Definition:
+```shell
+func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int, string, []*libmodel.FileDesc, error)
+```
+
+Outputs:
+```shell
+int       # deal sent
+string    # csvFilepath
 []*libmodel.FileDesc  # car files info
 error                 # error or nil
 ```
