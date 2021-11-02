@@ -258,6 +258,7 @@ func CreateCsv4TaskDeal(carFiles []*libmodel.FileDesc, outDir, csvFileName strin
 
 	headers := []string{
 		"uuid",
+		"source_file_name",
 		"miner_id",
 		"deal_cid",
 		"payload_cid",
@@ -291,6 +292,8 @@ func CreateCsv4TaskDeal(carFiles []*libmodel.FileDesc, outDir, csvFileName strin
 		} else {
 			columns = append(columns, "")
 		}
+
+		columns = append(columns, carFile.SourceFileName)
 
 		if carFile.MinerFid != nil {
 			columns = append(columns, *carFile.MinerFid)
