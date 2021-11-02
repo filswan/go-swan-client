@@ -42,7 +42,7 @@ func SendAutoBidDeals(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDes
 	var tasksDeals [][]*libmodel.FileDesc
 	csvFilepaths := []string{}
 	for _, assignedTask := range assignedTasks {
-		_, csvFilePath, carFiles, err := SendAutoBidDealByTaskUuid(confDeal, *assignedTask.Uuid)
+		_, csvFilePath, carFiles, err := SendAutoBidDealsByTaskUuid(confDeal, *assignedTask.Uuid)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
@@ -55,11 +55,70 @@ func SendAutoBidDeals(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDes
 	return csvFilepaths, tasksDeals, nil
 }
 
+func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int, string, []*libmodel.FileDesc, error) {
+	err := CreateOutputDir(confDeal.OutputDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return 0, "", nil, err
+	}
+
+	logs.GetLogger().Info("output dir is:", confDeal.OutputDir)
+
+	swanClient, err := client.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanJwtToken)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return 0, "", nil, err
+	}
+
+	assignedTaskInfo, err := swanClient.SwanGetOfflineDealsByTaskUuid(taskUuid)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return 0, "", nil, err
+	}
+
+	deals := assignedTaskInfo.Data.Deal
+	task := assignedTaskInfo.Data.Task
+	dealSentNum, csvFilePath, carFiles, err := SendAutobidDeals4Task(confDeal, deals, task, confDeal.OutputDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return 0, "", nil, err
+	}
+
+	msg := fmt.Sprintf("%d deal(s) sent for task:%s", dealSentNum, task.TaskName)
+	logs.GetLogger().Info(msg)
+
+	if dealSentNum == 0 {
+		err := fmt.Errorf("no deal sent for task:%s", task.TaskName)
+		logs.GetLogger().Info(err)
+		return 0, "", nil, err
+	}
+
+	status := constants.TASK_STATUS_DEAL_SENT
+	if dealSentNum != len(deals) {
+		status = constants.TASK_STATUS_PROGRESS_WITH_FAILURE
+	}
+
+	response, err := swanClient.SwanUpdateAssignedTask(taskUuid, status, csvFilePath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return 0, "", nil, err
+	}
+
+	logs.GetLogger().Info(response.Message)
+
+	return dealSentNum, csvFilePath, carFiles, nil
+}
+
 func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDeal, task libmodel.Task, outputDir string) (int, string, []*libmodel.FileDesc, error) {
 	carFiles := []*libmodel.FileDesc{}
 
 	dealSentNum := 0
 	for _, deal := range deals {
+		if len(deal.DealCid) != 0 {
+			dealSentNum = dealSentNum + 1
+			continue
+		}
+
 		err := model.SetDealConfig4Autobid(confDeal, task, deal)
 		if err != nil {
 			logs.GetLogger().Error(err)
@@ -128,58 +187,4 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 	csvFilepath, err := CreateCsv4TaskDeal(carFiles, outputDir, csvFilename)
 
 	return dealSentNum, csvFilepath, carFiles, err
-}
-
-func SendAutoBidDealByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int, string, []*libmodel.FileDesc, error) {
-	err := CreateOutputDir(confDeal.OutputDir)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return 0, "", nil, err
-	}
-
-	logs.GetLogger().Info("output dir is:", confDeal.OutputDir)
-
-	swanClient, err := client.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanJwtToken)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return 0, "", nil, err
-	}
-
-	assignedTaskInfo, err := swanClient.SwanGetOfflineDealsByTaskUuid(taskUuid)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return 0, "", nil, err
-	}
-
-	deals := assignedTaskInfo.Data.Deal
-	task := assignedTaskInfo.Data.Task
-	dealSentNum, csvFilePath, carFiles, err := SendAutobidDeals4Task(confDeal, deals, task, confDeal.OutputDir)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return 0, "", nil, err
-	}
-
-	msg := fmt.Sprintf("%d deal(s) sent for task:%s", dealSentNum, task.TaskName)
-	logs.GetLogger().Info(msg)
-
-	if dealSentNum == 0 {
-		err := fmt.Errorf("no deal sent for task:%s", task.TaskName)
-		logs.GetLogger().Info(err)
-		return 0, "", nil, err
-	}
-
-	status := constants.TASK_STATUS_DEAL_SENT
-	if dealSentNum != len(deals) {
-		status = constants.TASK_STATUS_PROGRESS_WITH_FAILURE
-	}
-
-	response, err := swanClient.SwanUpdateAssignedTask(taskUuid, status, csvFilePath)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return 0, "", nil, err
-	}
-
-	logs.GetLogger().Info(response.Message)
-
-	return dealSentNum, csvFilePath, carFiles, nil
 }
