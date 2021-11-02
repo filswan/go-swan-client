@@ -114,6 +114,7 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 
 	dealSentNum := 0
 	for _, deal := range deals {
+		deal.DealCid = strings.Trim(deal.DealCid, " ")
 		if len(deal.DealCid) != 0 {
 			dealSentNum = dealSentNum + 1
 			continue
