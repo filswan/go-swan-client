@@ -159,53 +159,27 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 
 
 - Task status change process in this option:
->> **Possibility 1**:
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(end)" >
+1. <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(end)" >
 
 
 ### Option:two:
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto-Bid Deals)->(end)" >
 
-@startuml
-hide empty description
-[*] --> State1
-State1 --> [*]
-State1 : this is a string
-State1 : this is another string
-
-State1 -> State2
-State2 --> [*]
-@enduml
-
-
-
-- Task status change processes in this option:
->> **Possibility 1**: All deals for this task can be successfully sent.
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(DealSent)->(end)" >
-
->> **Possibility 2**: All deals for this task can be successfully sent.
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(ActionRequired)->[Fix ActionRequired]->(Assigned)->(DealSent)->(end)" >
-
->> **Possibility 3**: Only some deals for this task can be successfully sent.
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(ProgressWithFailure)->(end)" >
-
->> **Possibility 4**: Only some deals for this task can be successfully sent.
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(ActionRequired)->[Fix ActionRequired]->(Assigned)->(ProgressWithFailure)->(end)" >
-
->> **Possibility 5**: No deals for this task can be successfully sent.
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(end)" >
-
->> **Possibility 6**: No deals for this task can be successfully sent.
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(ActionRequired)->[Fix ActionRequired]->(Assigned)->(end)" >
+- Task status change processes in this option. Below are some possibilities:
+1. <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(DealSent)->(end)" >
+2. <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(ActionRequired)->[Fix ActionRequired]->(Assigned)->(DealSent)->(end)" >
+3. <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(ProgressWithFailure)->(end)" >
+4. <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(ActionRequired)->[Fix ActionRequired]->(Assigned)->(ProgressWithFailure)->(end)" >
+5. <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(end)" >
+6. <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(ActionRequired)->[Fix ActionRequired]->(Assigned)->(end)" >
 
 ### Option:three:
 - **Conditions:** `[sender].public_deal=false` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Private Task)->(end)" >
 
 - Task status change process in this option:
->> **Possibility 1**:
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(end)" >
+1. <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(end)" >
 
 ## Create Car Files
 :bell: The input dir and out dir should only be absolute one.
