@@ -16,7 +16,7 @@ import (
 
 	"github.com/codingsince1985/checksum"
 	"github.com/filedrive-team/go-graphsplit"
-	"github.com/filswan/go-swan-lib/client"
+	"github.com/filswan/go-swan-lib/client/lotus"
 	libmodel "github.com/filswan/go-swan-lib/model"
 )
 
@@ -95,7 +95,7 @@ func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, car
 
 	carFiles := []*libmodel.FileDesc{}
 
-	lotusClient, err := client.LotusGetClient(confCar.LotusApiUrl, confCar.LotusAccessToken)
+	lotusClient, err := lotus.LotusGetClient(confCar.LotusApiUrl, confCar.LotusAccessToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

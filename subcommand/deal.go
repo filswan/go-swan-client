@@ -7,7 +7,8 @@ import (
 	"strings"
 
 	"github.com/filswan/go-swan-client/model"
-	"github.com/filswan/go-swan-lib/client"
+	"github.com/filswan/go-swan-lib/client/lotus"
+	"github.com/filswan/go-swan-lib/client/swan"
 	"github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
@@ -30,7 +31,7 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	swanClient, err := client.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanJwtToken)
+	swanClient, err := swan.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanJwtToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -85,7 +86,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 		logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
 		cost := CalculateRealCost(sectorSize, confDeal.MinerPrice)
 		dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, *confDeal.MinerFid, confDeal.SenderWallet)
-		dealCid, startEpoch, err := client.LotusProposeOfflineDeal(*carFile, cost, pieceSize, *dealConfig, 0)
+		dealCid, startEpoch, err := lotus.LotusProposeOfflineDeal(*carFile, cost, pieceSize, *dealConfig, 0)
 		//dealCid, err := client.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig)
 		if err != nil {
 			logs.GetLogger().Error(err)

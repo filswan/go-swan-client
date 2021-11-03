@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 
 	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/logs"
 
-	"github.com/filswan/go-swan-lib/client"
 	"github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/utils"
 
@@ -37,7 +37,7 @@ func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 
 	carFiles := []*libmodel.FileDesc{}
 
-	lotusClient, err := client.LotusGetClient(confCar.LotusApiUrl, confCar.LotusAccessToken)
+	lotusClient, err := lotus.LotusGetClient(confCar.LotusApiUrl, confCar.LotusAccessToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

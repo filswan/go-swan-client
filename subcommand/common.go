@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/filswan/go-swan-client/model"
-	"github.com/filswan/go-swan-lib/client"
+	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
@@ -29,7 +29,7 @@ func GetDefaultTaskName() string {
 }
 
 func CheckDealConfig(confDeal *model.ConfDeal) error {
-	minerPrice, minerVerifiedPrice, _, _ := client.LotusGetMinerConfig(*confDeal.MinerFid)
+	minerPrice, minerVerifiedPrice, _, _ := lotus.LotusGetMinerConfig(*confDeal.MinerFid)
 
 	if confDeal.SenderWallet == "" {
 		err := fmt.Errorf("wallet should be set")
