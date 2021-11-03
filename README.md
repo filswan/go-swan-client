@@ -38,7 +38,7 @@ In swan project, a task can contain multiple offline deals. There are two basic 
     * **Manual-bid** public task: for this kind of task, after bidder win the bid, the task holder needs to propose the task to the winner. 
   * **Private Task**: It is required to propose deals to a specified storage provider.
 - Task status:
-  * **Created**: Tasks are created successfully first time on Swan platform or tasks with `ActionRequired` status have been modified to fullfill the autobid qualification.
+  * **Created**: Tasks are created successfully first time on Swan platform for all kinds of tasks.
   * **Assigned**: Tasks have been assigned to storage providers manually by users or automatically by autobid module.
   * **ActionRequired**: Task with autobid mode on,in other words,`bid_mode` set to `1` and `public_deal` set to `true`, have some information missing or invalid in the [task-name.csv],which cause the failure of automatically assigning storage providers. Action are required to fill in or modify the file and then update the task information on Swan platform with the new csv file.
   * **DealSent**: Tasks have been sent to storage providers after tasks being assigned.
