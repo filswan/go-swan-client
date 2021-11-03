@@ -135,8 +135,8 @@ vi ~/.swan/client/config.toml
 ### [sender]
 
 - **bid_mode**: [0/1] Default 1, which is auto-bid mod and it means swan will automatically allocate storage provider for it, while 0 is manual-bid mode and it needs to be bidded manually by storage providers.
-- **offline_mode**: [true/false] Default false. If it is set to true, you will not be able to create Swan task on filswan.com, but you can still create CSVs and Car Files for sending deals
-- **output_dir**: When you do not set -out-dir option in your command, it is used as the default output directory for saving generated car files and CSVs. Should be absolute path and you need have access right to this folder or to create it.
+- **offline_mode**: [true/false] Default false. If it is set to true, you will not be able to create Swan task on filswan.com, but you can still Car Files, CSV and JSON files for sending deals
+- **output_dir**: When you do not set -out-dir option in your command, it is used as the default output directory for saving generated car files, CSV and JSON files. Should be absolute path and you need have access right to this folder or to create it.
 - **public_deal**: [true/false] Whether deals in the tasks are public deals
 - **verified_deal**: [true/false] Whether deals in this task are going to be sent as verified
 - **fast_retrieval**: [true/false] Indicates that data should be available for fast retrieval
