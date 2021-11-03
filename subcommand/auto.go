@@ -7,7 +7,8 @@ import (
 	"github.com/filswan/go-swan-client/model"
 	"github.com/filswan/go-swan-lib/logs"
 
-	"github.com/filswan/go-swan-lib/client"
+	"github.com/filswan/go-swan-lib/client/lotus"
+	"github.com/filswan/go-swan-lib/client/swan"
 	"github.com/filswan/go-swan-lib/constants"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
@@ -22,7 +23,7 @@ func SendAutoBidDeals(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDes
 
 	logs.GetLogger().Info("output dir is:", confDeal.OutputDir)
 
-	swanClient, err := client.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanJwtToken)
+	swanClient, err := swan.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanJwtToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, err
@@ -42,7 +43,7 @@ func SendAutoBidDeals(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDes
 	var tasksDeals [][]*libmodel.FileDesc
 	csvFilepaths := []string{}
 	for _, assignedTask := range assignedTasks {
-		_, csvFilePath, carFiles, err := SendAutoBidDealsByTaskUuid(confDeal, *assignedTask.Uuid)
+		_, csvFilePath, carFiles, err := SendAutoBidDealsByTaskUuid(confDeal, assignedTask.Uuid)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
@@ -64,7 +65,7 @@ func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int,
 
 	logs.GetLogger().Info("output dir is:", confDeal.OutputDir)
 
-	swanClient, err := client.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanJwtToken)
+	swanClient, err := swan.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanJwtToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return 0, "", nil, err
@@ -132,7 +133,7 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 			continue
 		}
 
-		fileSizeInt := utils.GetInt64FromStr(*deal.FileSize)
+		fileSizeInt := utils.GetInt64FromStr(deal.FileSize)
 		if fileSizeInt <= 0 {
 			logs.GetLogger().Error("file is too small")
 			continue
@@ -141,13 +142,13 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 		logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
 		cost := CalculateRealCost(sectorSize, confDeal.MinerPrice)
 		carFile := libmodel.FileDesc{
-			Uuid:       task.Uuid,
-			MinerFid:   task.MinerFid,
-			CarFileUrl: deal.FileSourceUrl,
+			Uuid:       &task.Uuid,
+			MinerFid:   &task.MinerFid,
+			CarFileUrl: &deal.FileSourceUrl,
 			CarFileMd5: deal.Md5Origin,
-			StartEpoch: *deal.StartEpoch,
-			PieceCid:   *deal.PieceCid,
-			DataCid:    *deal.PayloadCid,
+			StartEpoch: deal.StartEpoch,
+			PieceCid:   deal.PieceCid,
+			DataCid:    deal.PayloadCid,
 		}
 		if carFile.MinerFid != nil {
 			logs.GetLogger().Info("MinerFid:", *carFile.MinerFid)
@@ -159,7 +160,7 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 			msg := fmt.Sprintf("send deal for task:%s, deal:%d", task.TaskName, deal.Id)
 			logs.GetLogger().Info(msg)
 			dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, *confDeal.MinerFid, confDeal.SenderWallet)
-			dealCid, startEpoch, err := client.LotusProposeOfflineDeal(carFile, cost, pieceSize, *dealConfig, i)
+			dealCid, startEpoch, err := lotus.LotusProposeOfflineDeal(carFile, cost, pieceSize, *dealConfig, i)
 			if err != nil {
 				logs.GetLogger().Error(err)
 

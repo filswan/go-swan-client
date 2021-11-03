@@ -74,23 +74,23 @@ func GetConfDeal(outputDir *string, minerFid *string, metadataJsonPath *string, 
 
 func SetDealConfig4Autobid(confDeal *ConfDeal, task libmodel.Task, deal libmodel.OfflineDeal) error {
 	confDeal.StartEpoch = utils.GetCurrentEpoch() + (confDeal.StartEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
-	if deal.StartEpoch != nil && *deal.StartEpoch != 0 {
-		confDeal.StartEpoch = *deal.StartEpoch
+	if deal.StartEpoch != 0 {
+		confDeal.StartEpoch = deal.StartEpoch
 	}
 
-	if task.MinerFid == nil {
+	if task.MinerFid == "" {
 		err := fmt.Errorf("no miner allocated to task")
 		logs.GetLogger().Error(err)
 		return err
 	}
-	confDeal.MinerFid = task.MinerFid
+	confDeal.MinerFid = &task.MinerFid
 
-	if task.Type == nil {
+	if task.Type == "" {
 		err := fmt.Errorf("task type missing")
 		logs.GetLogger().Error(err)
 		return err
 	}
-	confDeal.VerifiedDeal = *task.Type == constants.TASK_TYPE_VERIFIED
+	confDeal.VerifiedDeal = task.Type == constants.TASK_TYPE_VERIFIED
 
 	if task.FastRetrieval == nil {
 		err := fmt.Errorf("task FastRetrieval missing")

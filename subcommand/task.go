@@ -6,7 +6,7 @@ import (
 	"github.com/filswan/go-swan-client/model"
 	"github.com/filswan/go-swan-lib/logs"
 
-	"github.com/filswan/go-swan-lib/client"
+	"github.com/filswan/go-swan-lib/client/swan"
 	"github.com/filswan/go-swan-lib/constants"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
@@ -78,13 +78,17 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	task := libmodel.Task{
 		TaskName:          *confTask.TaskName,
 		FastRetrievalBool: confTask.FastRetrieval,
-		Type:              &taskType,
+		Type:              taskType,
 		IsPublic:          &isPublic,
 		MaxPrice:          &maxPrice,
 		BidMode:           &confTask.BidMode,
 		ExpireDays:        &confTask.ExpireDays,
-		MinerFid:          confTask.MinerFid,
-		Uuid:              &uuid,
+		Uuid:              uuid,
+		SourceId:          confTask.SourceId,
+	}
+
+	if confTask.MinerFid != nil {
+		task.MinerFid = *confTask.MinerFid
 	}
 
 	if confTask.Dataset != nil {
@@ -96,9 +100,10 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	}
 
 	for _, carFile := range carFiles {
-		carFile.Uuid = task.Uuid
-		carFile.MinerFid = task.MinerFid
+		carFile.Uuid = &task.Uuid
+		carFile.MinerFid = &task.MinerFid
 		carFile.StartEpoch = confTask.StartEpoch
+		carFile.SourceId = confTask.SourceId
 
 		if confTask.StorageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
 			carFileUrl := utils.UrlJoin(confTask.WebServerDownloadUrlPrefix, carFile.CarFileName)
@@ -144,7 +149,7 @@ func SendTask2Swan(confTask *model.ConfTask, task libmodel.Task, carFiles []*lib
 	}
 
 	logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
-	swanClient, err := client.SwanGetClient(confTask.SwanApiUrl, confTask.SwanApiKey, confTask.SwanAccessToken, confTask.SwanJwtToken)
+	swanClient, err := swan.SwanGetClient(confTask.SwanApiUrl, confTask.SwanApiKey, confTask.SwanAccessToken, confTask.SwanJwtToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err

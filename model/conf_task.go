@@ -31,6 +31,7 @@ type ConfTask struct {
 	Description                *string
 	StartEpoch                 int
 	StartEpochIntervalHours    int
+	SourceId                   int
 }
 
 func GetConfTask(inputDir string, outputDir *string, taskName, minerFid, dataset, description *string) *ConfTask {
@@ -58,6 +59,7 @@ func GetConfTask(inputDir string, outputDir *string, taskName, minerFid, dataset
 		Description:                description,
 		StartEpochIntervalHours:    startEpochIntervalHours,
 		StartEpoch:                 startEpoch,
+		SourceId:                   2,
 	}
 
 	if outputDir != nil && len(*outputDir) != 0 {
