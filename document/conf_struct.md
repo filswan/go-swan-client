@@ -41,6 +41,7 @@ type ConfTask struct {
 	SwanApiUrl                 string
 	SwanApiKey                 string
 	SwanAccessToken            string
+	SwanJwtToken               string
 	PublicDeal                 bool
 	BidMode                    int
 	VerifiedDeal               bool
@@ -58,6 +59,7 @@ type ConfTask struct {
 	Description                *string
 	StartEpoch                 int
 	StartEpochIntervalHours    int
+	SourceId                   int
 }
 ```
 

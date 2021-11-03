@@ -51,14 +51,32 @@ In swan project, a task can contain multiple offline deals. There are two basic 
 
 ### Offline Deal
 
-The size of an offline deal can be up to 64 GB. It is suggested to create a CSV file contains the following information: 
-uuid|miner_id|deal_cid|payload_cid|file_source_url|md5|start_epoch|piece_cid|file_size
-------------|-------------|-------------|-------------|-------------|-------------|-------------|-------------|-------------
-0b89e0cf-f3ec-41a3-8f1e-52b098f0c503|f047419|---|bafyreid7tw7mcwlj465dqudwanml3mueyzizezct6cm5a7g2djfxjfgxwm|http://download.com/downloads/fil.tar.car|---|544835|baga6ea4seaqeqlfnuhfawhw6rm53t24znnuw76ycfuqvpw4c7olnxpju4la4qfq|122877455
+The size of an offline deal can be up to 64 GB. Every step will generate a JSON file which contains files description like below: 
+```shell
+[
+ {
+  "Uuid": "261ac5ae-cfbb-4ae2-a924-3361075b0e60",
+  "SourceFileName": "test3.txt",
+  "SourceFilePath": "/home/peware/swan_dora/srcFiles/test3.txt",
+  "SourceFileMd5": "17d6f25c72392fc0895b835fa3e3cf52",
+  "SourceFileSize": 43857488,
+  "CarFileName": "test3.txt.car",
+  "CarFilePath": "/home/peware/swan_dora/carFiles/test3.txt.car",
+  "CarFileMd5": "9eb7d54ac1ed8d3927b21a4dcd64a9eb",
+  "CarFileUrl": "http://[IP]:[PORT]/ipfs/Qmb7TMcABYnnM47dznCPxpJKPf9LmD1Yh2EdZGvXi2824C",
+  "CarFileSize": 12402995,
+  "DealCid": "bafyreiccgalsj2a3wtrxygcxpp2hfq3h2fwafh63wcld3uq5hakyimpura",
+  "DataCid": "bafykbzacecpuzwmiaxc2u4r5bb7p3ukkhotmkfw4mfv3un6huvk6ctugowikq",
+  "PieceCid": "baga6ea4seaqjcip2xh265h2pucvwxv7seeawm4gfksfua4zsbb24zujplzsukja",
+  "MinerFid": "t03354",
+  "StartEpoch": 1266686,
+  "SourceId": 2
+ }
+]
+```
 
-
-This CSV file is helpful to enhance the data consistency and rebuild the graph in the future. 
-uuid is generated for future index purpose.
+This JSON file generated in each step is used for next step and can be used to rebuild the graph in the future.
+Uuid is generated for future index purpose.
 
 
 ## Prerequisites
