@@ -75,7 +75,7 @@ In swan project, a task can contain multiple offline deals. There are two basic 
  }
 ]
 ```
-- This JSON file generated in each step is used for next step and can be used to rebuild the graph in the future.
+- This JSON file generated in each step is used in next step and can be used to rebuild the graph in the future.
 - Uuid is generated for future index purpose.
 
 ## Prerequisites
