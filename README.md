@@ -33,21 +33,16 @@
 
 In swan project, a task can contain multiple offline deals. There are two basic type of tasks:
 - Task type
-  * Public Task:
-    * A public task is a deal set for open bid. It has 2 types: auto-bid and manual-bid
-    * Auto-bid public task: this kind of task will be automatically assigned to a selected storage provider based on reputation system and Market Matcher.
-    * Manual-bid public task: for this kind of task, after bidder win the bid, the task holder needs to propose the task to the winner. 
-  * Private Task. 
-    * A private task is used to propose deals to a specified storage provider.
+  * **Public Task**: A deal set for open bid. It has 2 types:
+    * **Auto-bid** public task: this kind of task will be automatically assigned to a selected storage provider based on reputation system and Market Matcher.
+    * **Manual-bid** public task: for this kind of task, after bidder win the bid, the task holder needs to propose the task to the winner. 
+  * **Private Task**: It is required to propose deals to a specified storage provider.
 - Task status:
-  * Created: Tasks are created successfully first time on Swan platform or tasks with `ActionRequired` status have been modified to fullfill the autobid qualification.
-  * Assigned: Tasks have been assigned to storage providers manually by users or automatically by autobid module.
-  * ActionRequired: Task with autobid mode on,in other words,`bid_mode` set to `1` and `public_deal` set to `true`, have some information missing or invalid in the [task-name.csv],which cause the failure of automatically assigning storage providers. Action are required to fill in or modify the file and then update the task information on Swan platform with the new csv file.
-  * DealSent: Tasks have been sent to storage providers after tasks being assigned.
-
-- Task status change process:
-**Option:one:**
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(DealSent)->(end)" >
+  * **Created**: Tasks are created successfully first time on Swan platform or tasks with `ActionRequired` status have been modified to fullfill the autobid qualification.
+  * **Assigned**: Tasks have been assigned to storage providers manually by users or automatically by autobid module.
+  * **ActionRequired**: Task with autobid mode on,in other words,`bid_mode` set to `1` and `public_deal` set to `true`, have some information missing or invalid in the [task-name.csv],which cause the failure of automatically assigning storage providers. Action are required to fill in or modify the file and then update the task information on Swan platform with the new csv file.
+  * **DealSent**: Tasks have been sent to storage providers after tasks being assigned.
+  * **ProgressWithFailure**: Part of deales of the task have been sent to storage providers after tasks being assigned.
 
 ### Offline Deal
 
@@ -160,13 +155,44 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Manual-Bid Task)->(Send Deals)->(end)" >
 
+
+- Task status change process in this option:
+- **Possibility:one:**
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(end)" >
+
+
 ### Option:two:
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto-Bid Deals)->(end)" >
 
+- Task status change process in this option:
+- **Possibility:one:** All deals for this task can be successfully sent.
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(DealSent)->(end)" >
+
+- **Possibility:two:** All deals for this task can be successfully sent.
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(ActionRequired)->[Fix ActionRequired]->(Assigned)->(DealSent)->(end)" >
+
+- Task status change process in this option:
+- **Possibility:three:** Only some deals for this task can be successfully sent.
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(ProgressWithFailure)->(end)" >
+
+- **Possibility:four:** Only some deals for this task can be successfully sent.
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(ActionRequired)->[Fix ActionRequired]->(Assigned)->(ProgressWithFailure)->(end)" >
+
+- Task status change process in this option:
+- **Possibility:five:** No deals for this task can be successfully sent.
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(end)" >
+
+- **Possibility:six:** No deals for this task can be successfully sent.
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(ActionRequired)->[Fix ActionRequired]->(Assigned)->(end)" >
+
 ### Option:three:
 - **Conditions:** `[sender].public_deal=false` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Private Task)->(end)" >
+
+- Task status change process in this option:
+- **Possibility:one:**
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(end)" >
 
 ## Create Car Files
 :bell: The input dir and out dir should only be absolute one.
