@@ -40,15 +40,20 @@ In swan project, a task can contain multiple offline deals. There are two basic 
 - Task status:
   * **Created**: Tasks are created successfully first time on Swan platform for all kinds of tasks.
   * **Assigned**: Tasks have been assigned to storage providers manually by users or automatically by autobid module.
-  * **ActionRequired**: Task with autobid mode on,in other words,`bid_mode` set to `1` and `public_deal` set to `true`, have some information missing or invalid in the [task-name.csv],which cause the failure of automatically assigning storage providers. Action are required to fill in or modify the file and then update the task information on Swan platform with the new csv file.
+  * **ActionRequired**: Task with autobid mode on,in other words,`bid_mode` set to `1` and `public_deal` set to `true`, have some information missing or invalid:
+    - MaxPrice: missing, or is not a valid number
+    - FastRetrieval: missing
+    - Type: missing, or or not have valid values
+    - No offline deals for this task.
+    You need solve the above problems and change the task status to `Created` to participate next run of Market Matcher.
   * **DealSent**: Tasks have been sent to storage providers after tasks being assigned.
   * **ProgressWithFailure**: Part of deales of the task have been sent to storage providers after tasks being assigned.
 
 ### Offline Deal
 
-- The size of an offline deal can be up to 64 GB. 
-- Every step will generate a JSON file which contains files description like below: 
-```shell
+- The size of an offline deal can be up to 64 GB.
+- Every step will generate a JSON file which contains files description like below:
+```json
 [
  {
   "Uuid": "261ac5ae-cfbb-4ae2-a924-3361075b0e60",
@@ -70,7 +75,7 @@ In swan project, a task can contain multiple offline deals. There are two basic 
  }
 ]
 ```
-- This JSON file generated in each step is used in next step and can be used to rebuild the graph in the future.
+- This JSON file generated in each step is used in its next step and can be used to rebuild the graph in the future.
 - Uuid is generated for future index purpose.
 
 ## Prerequisites
@@ -96,7 +101,7 @@ chmod +x ./build_from_source.sh
 ```
 
 ## After Installation
-- The binary file `go-swan-client` is created under `./build` directory, you need to switch to it.
+- The binary file `go-swan-client` is generated under `./build` directory, you need to switch to it.
 ```shell
 cd build
 ```
@@ -108,42 +113,39 @@ vi ~/.swan/client/config.toml
 ## Configuration
 
 ### [lotus]
-- **api_url:**  Url of lotus web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
-- **access_token:**  Access token of lotus node web api. It should have admin access right. You can get it from your lotus node machine using command `lotus auth create-token --perm admin`. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
-- **miner_api_url:**  Url of lotus miner web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **2345**
+- **api_url**:  Url of lotus client web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
+- **access_token**:  Access token of lotus client web api. It should have admin access right. You can get it from your lotus node machine using command `lotus auth create-token --perm admin`. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
 
 ### [main]
 
-- **api_url:** Swan API address. For Swan production, it is "https://api.filswan.com". It can be ignored if offline_mode is set to true in [sender] section
-- :bangbang:**api_key:** Your api key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in [sender] section.
-- :bangbang:**access_token:** Your access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in [sender] section.
-- :bangbang:**storage_server_type:** = "ipfs server"
+- **api_url**: Swan API address. For Swan production, it is "https://api.filswan.com". It can be ignored if offline_mode is set to true in `[sender]` section
+- :bangbang:**api_key**: Your api key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in `[sender]` section.
+- :bangbang:**access_token**: Your access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in `[sender]` section.
+- :bangbang:**storage_server_type**: "ipfs server" or "web server"
 
 ### [web-server]
 
-Store car files for downloading by storage provider, car file url will be [download_url_prefix]/[filename]
-- **download_url_prefix** web server url prefix, such as: https://[ip]:[port]/download
-
+- **download_url_prefix**: web server url prefix, such as: https://[ip]:[port]/download. Store car files for downloading by storage provider, car file url will be `[download_url_prefix]/[filename]`
 ### [ipfs-server]
 
-Store car files for downloading by storage provider, car file url will be [download_url_prefix]/[filename]
-- **download_url_prefix** ipfs server url prefix, such as: "http://[ip]:[port]/ipfs"
+- **download_url_prefix**: ipfs server url prefix, such as: "http://[ip]:[port]/ipfs". Store car files for downloading by storage provider, car file url will be `[download_url_prefix]/[filename]`
+- **upload_url**: ipfs server url for uploading file, such as "http://[ip]:[port]/api/v0/add?stream-channels=true&pin=true"
 
 ### [sender]
 
-- **bid_mode:** [0/1] Default 1, which is auto-bid mod and it means swan will automatically allocate storage provider for it, while 0 is manual-bid mode and it needs to be bidded manually by storage providers.
-- **offline_mode:** [true/false] Default false. If it is set to true, you will not be able to create Swan task on filswan.com, but you can still create CSVs and Car Files for sending deals
-- **output_dir:** When you do not set -out-dir option in your command, it is used as the default output directory for saving generated car files and CSVs. Should be absolute path and you need have access right to this folder or to create it. 
-- **public_deal:** [true/false] Whether deals in the tasks are public deals
-- **verified_deal:** [true/false] Whether deals in this task are going to be sent as verified
-- **fast_retrieval:** [true/false] Indicates that data should be available for fast retrieval
-- **generate_md5:** [true/false] Whether to generate md5 for each car file, note: this is a resource consuming action
-- **skip_confirmation:** [true/false] Whether to skip manual confirmation of each deal before sending
-- **wallet:**  Wallet used for sending offline deals
-- **max_price:** Max price willing to pay per GiB/epoch for offline deal
-- **start_epoch_hours:** start_epoch for deals in hours from current time
-- **expired_days:** expected completion days for storage provider sealing data 
-- **gocar_file_size_limit:** go car file size limit in bytes
+- **bid_mode**: [0/1] Default 1, which is auto-bid mod and it means swan will automatically allocate storage provider for it, while 0 is manual-bid mode and it needs to be bidded manually by storage providers.
+- **offline_mode**: [true/false] Default false. If it is set to true, you will not be able to create Swan task on filswan.com, but you can still create CSVs and Car Files for sending deals
+- **output_dir**: When you do not set -out-dir option in your command, it is used as the default output directory for saving generated car files and CSVs. Should be absolute path and you need have access right to this folder or to create it. 
+- **public_deal**: [true/false] Whether deals in the tasks are public deals
+- **verified_deal**: [true/false] Whether deals in this task are going to be sent as verified
+- **fast_retrieval**: [true/false] Indicates that data should be available for fast retrieval
+- **generate_md5**: [true/false] Whether to generate md5 for each car file, note: this is a resource consuming action
+- **skip_confirmation**: [true/false] Whether to skip manual confirmation of each deal before sending
+- **wallet**:  Wallet used for sending offline deals
+- **max_price**: Max price willing to pay per GiB/epoch for offline deal
+- **start_epoch_hours**: start_epoch for deals in hours from current time
+- **expired_days**: expected completion days for storage provider sealing data 
+- **gocar_file_size_limit**: go car file size limit in bytes
 
 #### Note:
 The **duration** time for offline deals is set to `1512000` epoches in default, which stands for 525 days. It can be further modified in constant `DURATION` of `swan-client/task_sender/service/deal.py` for customized requirement.
