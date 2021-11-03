@@ -36,7 +36,7 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
-	task, err := swanClient.SwanGetOfflineDealsByTaskUuid(*carFiles[0].Uuid)
+	task, err := swanClient.SwanGetOfflineDealsByTaskUuid(carFiles[0].Uuid)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -60,7 +60,7 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	err = swanClient.SwanUpdateTaskByUuid(*carFiles[0].Uuid, *confDeal.MinerFid, *csvFilepath)
+	err = swanClient.SwanUpdateTaskByUuid(carFiles[0].Uuid, *confDeal.MinerFid, *csvFilepath)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -95,11 +95,11 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 		if dealCid == nil {
 			continue
 		}
-		carFile.MinerFid = confDeal.MinerFid
-		carFile.DealCid = dealCid
-		carFile.StartEpoch = *startEpoch
+		carFile.MinerFid = *confDeal.MinerFid
+		carFile.DealCid = *dealCid
+		carFile.StartEpoch = startEpoch
 
-		logs.GetLogger().Info("Cid:", *carFile.DealCid, " start epoch:", carFile.StartEpoch)
+		logs.GetLogger().Info("Cid:", carFile.DealCid, " start epoch:", carFile.StartEpoch)
 	}
 
 	jsonFileName := taskName + constants.JSON_FILE_NAME_BY_DEAL

@@ -184,6 +184,7 @@ func WriteCarFilesToCsvFile(carFiles []*libmodel.FileDesc, outDir, csvFileName s
 	headers = append(headers, "piece_cid")
 	headers = append(headers, "miner_id")
 	headers = append(headers, "start_epoch")
+	headers = append(headers, "source_id")
 
 	file, err := os.Create(csvFilePath)
 	if err != nil {
@@ -203,12 +204,7 @@ func WriteCarFilesToCsvFile(carFiles []*libmodel.FileDesc, outDir, csvFileName s
 
 	for _, carFile := range carFiles {
 		var columns []string
-		if carFile.Uuid != nil {
-			columns = append(columns, *carFile.Uuid)
-		} else {
-			columns = append(columns, "")
-		}
-
+		columns = append(columns, carFile.Uuid)
 		columns = append(columns, carFile.SourceFileName)
 		columns = append(columns, carFile.SourceFilePath)
 		columns = append(columns, carFile.SourceFileMd5)
@@ -216,28 +212,24 @@ func WriteCarFilesToCsvFile(carFiles []*libmodel.FileDesc, outDir, csvFileName s
 		columns = append(columns, carFile.CarFileName)
 		columns = append(columns, carFile.CarFilePath)
 		columns = append(columns, carFile.CarFileMd5)
-
-		if carFile.CarFileUrl != nil {
-			columns = append(columns, *carFile.CarFileUrl)
-		} else {
-			columns = append(columns, "")
-		}
-
+		columns = append(columns, carFile.CarFileUrl)
 		columns = append(columns, strconv.FormatInt(carFile.CarFileSize, 10))
-		if carFile.DealCid != nil {
-			columns = append(columns, *carFile.DealCid)
-		} else {
-			columns = append(columns, "")
-		}
-
+		columns = append(columns, carFile.DealCid)
 		columns = append(columns, carFile.DataCid)
 		columns = append(columns, carFile.PieceCid)
-		if carFile.MinerFid != nil {
-			columns = append(columns, *carFile.MinerFid)
+		columns = append(columns, carFile.MinerFid)
+
+		if carFile.StartEpoch != nil {
+			columns = append(columns, strconv.Itoa(*carFile.StartEpoch))
 		} else {
 			columns = append(columns, "")
 		}
-		columns = append(columns, strconv.Itoa(carFile.StartEpoch))
+
+		if carFile.SourceId != nil {
+			columns = append(columns, strconv.Itoa(*carFile.SourceId))
+		} else {
+			columns = append(columns, "")
+		}
 
 		err = writer.Write(columns)
 		if err != nil {
@@ -287,35 +279,20 @@ func CreateCsv4TaskDeal(carFiles []*libmodel.FileDesc, outDir, csvFileName strin
 
 	for _, carFile := range carFiles {
 		var columns []string
-		if carFile.Uuid != nil {
-			columns = append(columns, *carFile.Uuid)
-		} else {
-			columns = append(columns, "")
-		}
-
+		columns = append(columns, carFile.Uuid)
 		columns = append(columns, carFile.SourceFileName)
-
-		if carFile.MinerFid != nil {
-			columns = append(columns, *carFile.MinerFid)
-		} else {
-			columns = append(columns, "")
-		}
-		if carFile.DealCid != nil {
-			columns = append(columns, *carFile.DealCid)
-		} else {
-			columns = append(columns, "")
-		}
-
+		columns = append(columns, carFile.MinerFid)
+		columns = append(columns, carFile.DealCid)
 		columns = append(columns, carFile.DataCid)
+		columns = append(columns, carFile.CarFileUrl)
+		columns = append(columns, carFile.CarFileMd5)
 
-		if carFile.CarFileUrl != nil {
-			columns = append(columns, *carFile.CarFileUrl)
+		if carFile.StartEpoch != nil {
+			columns = append(columns, strconv.Itoa(*carFile.StartEpoch))
 		} else {
 			columns = append(columns, "")
 		}
 
-		columns = append(columns, carFile.CarFileMd5)
-		columns = append(columns, strconv.Itoa(carFile.StartEpoch))
 		columns = append(columns, carFile.PieceCid)
 		columns = append(columns, strconv.FormatInt(carFile.CarFileSize, 10))
 
