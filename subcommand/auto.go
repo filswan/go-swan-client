@@ -142,16 +142,16 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 		logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
 		cost := CalculateRealCost(sectorSize, confDeal.MinerPrice)
 		carFile := libmodel.FileDesc{
-			Uuid:       &task.Uuid,
-			MinerFid:   &task.MinerFid,
-			CarFileUrl: &deal.FileSourceUrl,
+			Uuid:       task.Uuid,
+			MinerFid:   task.MinerFid,
+			CarFileUrl: deal.FileSourceUrl,
 			CarFileMd5: deal.Md5Origin,
-			StartEpoch: deal.StartEpoch,
+			StartEpoch: &deal.StartEpoch,
 			PieceCid:   deal.PieceCid,
 			DataCid:    deal.PayloadCid,
 		}
-		if carFile.MinerFid != nil {
-			logs.GetLogger().Info("MinerFid:", *carFile.MinerFid)
+		if carFile.MinerFid != "" {
+			logs.GetLogger().Info("MinerFid:", carFile.MinerFid)
 		}
 
 		logs.GetLogger().Info("FileSourceUrl:", carFile.CarFileUrl)
@@ -174,8 +174,8 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 				continue
 			}
 
-			carFile.DealCid = dealCid
-			carFile.StartEpoch = *startEpoch
+			carFile.DealCid = *dealCid
+			carFile.StartEpoch = startEpoch
 			dealSentNum = dealSentNum + 1
 			break
 		}

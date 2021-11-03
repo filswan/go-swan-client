@@ -100,14 +100,14 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	}
 
 	for _, carFile := range carFiles {
-		carFile.Uuid = &task.Uuid
-		carFile.MinerFid = &task.MinerFid
-		carFile.StartEpoch = confTask.StartEpoch
-		carFile.SourceId = confTask.SourceId
+		carFile.Uuid = task.Uuid
+		carFile.MinerFid = task.MinerFid
+		carFile.StartEpoch = &confTask.StartEpoch
+		carFile.SourceId = &confTask.SourceId
 
 		if confTask.StorageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
 			carFileUrl := utils.UrlJoin(confTask.WebServerDownloadUrlPrefix, carFile.CarFileName)
-			carFile.CarFileUrl = &carFileUrl
+			carFile.CarFileUrl = carFileUrl
 		}
 	}
 
