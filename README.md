@@ -68,7 +68,7 @@ The size of an offline deal can be up to 64 GB. Every step will generate a JSON 
   "DealCid": "bafyreiccgalsj2a3wtrxygcxpp2hfq3h2fwafh63wcld3uq5hakyimpura",
   "DataCid": "bafykbzacecpuzwmiaxc2u4r5bb7p3ukkhotmkfw4mfv3un6huvk6ctugowikq",
   "PieceCid": "baga6ea4seaqjcip2xh265h2pucvwxv7seeawm4gfksfua4zsbb24zujplzsukja",
-  "MinerFid": "t03354",
+  "MinerFid": "[miner_fid]",
   "StartEpoch": 1266686,
   "SourceId": 2
  }
