@@ -51,7 +51,8 @@ In swan project, a task can contain multiple offline deals. There are two basic 
 
 ### Offline Deal
 
-The size of an offline deal can be up to 64 GB. Every step will generate a JSON file which contains files description like below: 
+- The size of an offline deal can be up to 64 GB. 
+- Every step will generate a JSON file which contains files description like below: 
 ```shell
 [
  {
@@ -74,10 +75,8 @@ The size of an offline deal can be up to 64 GB. Every step will generate a JSON 
  }
 ]
 ```
-
-This JSON file generated in each step is used for next step and can be used to rebuild the graph in the future.
-Uuid is generated for future index purpose.
-
+- This JSON file generated in each step is used for next step and can be used to rebuild the graph in the future.
+- Uuid is generated for future index purpose.
 
 ## Prerequisites
 
