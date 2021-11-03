@@ -45,10 +45,10 @@ In swan project, a task can contain multiple offline deals. There are two basic 
     - FastRetrieval: missing
     - Type: missing, or or not have valid values
     - No offline deals for this task.
-    
+
     :bell:You need solve the above problems and change the task status to `Created` to participate next run of Market Matcher.
   * **DealSent**: Tasks have been sent to storage providers after tasks being assigned.
-  * **ProgressWithFailure**: Part of deales of the task have been sent to storage providers after tasks being assigned.
+  * **ProgressWithFailure**: Some and not all of deals of the task have been sent to storage providers after tasks being assigned.
 
 ### Offline Deal
 
