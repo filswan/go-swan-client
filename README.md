@@ -53,7 +53,7 @@ In swan project, a task can contain multiple offline deals. There are two basic 
 ### Offline Deal
 
 - The size of an offline deal can be up to 64 GB.
-- Every step will generate a JSON file which contains files description like below:
+- Every step will generate a JSON file which contains file(s) description like below:
 ```json
 [
  {
