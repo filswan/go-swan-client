@@ -45,7 +45,7 @@ In swan project, a task can contain multiple offline deals. There are two basic 
     - FastRetrieval: missing
     - Type: missing, or or not have valid values
     - No offline deals for this task.
-    You need solve the above problems and change the task status to `Created` to participate next run of Market Matcher.
+    :bell:You need solve the above problems and change the task status to `Created` to participate next run of Market Matcher.
   * **DealSent**: Tasks have been sent to storage providers after tasks being assigned.
   * **ProgressWithFailure**: Part of deales of the task have been sent to storage providers after tasks being assigned.
 
@@ -148,7 +148,7 @@ vi ~/.swan/client/config.toml
 - **gocar_file_size_limit**: go car file size limit in bytes
 
 #### Note:
-The **duration** time for offline deals is set to `1512000` epoches in default, which stands for 525 days. It can be further modified in constant `DURATION` of `swan-client/task_sender/service/deal.py` for customized requirement.
+The **duration** time for offline deals is set to `1512000` epoches in default, which stands for 525 days.
 
 
 ## Flowcharts
