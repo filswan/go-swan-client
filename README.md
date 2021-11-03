@@ -57,11 +57,11 @@ The size of an offline deal can be up to 64 GB. Every step will generate a JSON 
  {
   "Uuid": "261ac5ae-cfbb-4ae2-a924-3361075b0e60",
   "SourceFileName": "test3.txt",
-  "SourceFilePath": "/home/peware/swan_dora/srcFiles/test3.txt",
+  "SourceFilePath": "[source_file_dir]/test3.txt",
   "SourceFileMd5": "17d6f25c72392fc0895b835fa3e3cf52",
   "SourceFileSize": 43857488,
   "CarFileName": "test3.txt.car",
-  "CarFilePath": "/home/peware/swan_dora/carFiles/test3.txt.car",
+  "CarFilePath": "[car_file_dir]/test3.txt.car",
   "CarFileMd5": "9eb7d54ac1ed8d3927b21a4dcd64a9eb",
   "CarFileUrl": "http://[IP]:[PORT]/ipfs/Qmb7TMcABYnnM47dznCPxpJKPf9LmD1Yh2EdZGvXi2824C",
   "CarFileSize": 12402995,
