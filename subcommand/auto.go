@@ -138,9 +138,9 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 			logs.GetLogger().Error("file is too small")
 			continue
 		}
-		pieceSize, sectorSize := CalculatePieceSize(fileSizeInt)
+		pieceSize, sectorSize := utils.CalculatePieceSize(fileSizeInt)
 		logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
-		cost := CalculateRealCost(sectorSize, confDeal.MinerPrice)
+		cost := utils.CalculateRealCost(sectorSize, confDeal.MinerPrice)
 		carFile := libmodel.FileDesc{
 			Uuid:       task.Uuid,
 			MinerFid:   task.MinerFid,

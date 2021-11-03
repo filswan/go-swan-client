@@ -12,6 +12,7 @@ import (
 	"github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
+	"github.com/filswan/go-swan-lib/utils"
 )
 
 func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
@@ -82,9 +83,9 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 			logs.GetLogger().Error("File:" + carFile.CarFilePath + " %s is too small")
 			continue
 		}
-		pieceSize, sectorSize := CalculatePieceSize(carFile.CarFileSize)
+		pieceSize, sectorSize := utils.CalculatePieceSize(carFile.CarFileSize)
 		logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
-		cost := CalculateRealCost(sectorSize, confDeal.MinerPrice)
+		cost := utils.CalculateRealCost(sectorSize, confDeal.MinerPrice)
 		dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, *confDeal.MinerFid, confDeal.SenderWallet)
 		dealCid, startEpoch, err := lotus.LotusProposeOfflineDeal(*carFile, cost, pieceSize, *dealConfig, 0)
 		//dealCid, err := client.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig)
