@@ -167,6 +167,19 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto-Bid Deals)->(end)" >
 
+@startuml
+hide empty description
+[*] --> State1
+State1 --> [*]
+State1 : this is a string
+State1 : this is another string
+
+State1 -> State2
+State2 --> [*]
+@enduml
+
+
+
 - Task status change processes in this option:
 >> **Possibility 1**: All deals for this task can be successfully sent.
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(DealSent)->(end)" >
