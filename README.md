@@ -159,7 +159,7 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 
 
 - Task status change process in this option:
-  * **Possibility:one:**
+>> **Possibility:one:**
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(end)" >
 
 
