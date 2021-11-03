@@ -159,7 +159,7 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 
 
 - Task status change process in this option:
-- **Possibility:one:**
+  * **Possibility:one:**
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(end)" >
 
 
@@ -167,25 +167,23 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto-Bid Deals)->(end)" >
 
-- Task status change process in this option:
-- **Possibility:one:** All deals for this task can be successfully sent.
+- Task status change processes in this option:
+  * **Possibility:one:** All deals for this task can be successfully sent.
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(DealSent)->(end)" >
 
-- **Possibility:two:** All deals for this task can be successfully sent.
+  * **Possibility:two:** All deals for this task can be successfully sent.
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(ActionRequired)->[Fix ActionRequired]->(Assigned)->(DealSent)->(end)" >
 
-- Task status change process in this option:
-- **Possibility:three:** Only some deals for this task can be successfully sent.
+  * **Possibility:three:** Only some deals for this task can be successfully sent.
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(ProgressWithFailure)->(end)" >
 
-- **Possibility:four:** Only some deals for this task can be successfully sent.
+  * **Possibility:four:** Only some deals for this task can be successfully sent.
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(ActionRequired)->[Fix ActionRequired]->(Assigned)->(ProgressWithFailure)->(end)" >
 
-- Task status change process in this option:
-- **Possibility:five:** No deals for this task can be successfully sent.
+  * **Possibility:five:** No deals for this task can be successfully sent.
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(end)" >
 
-- **Possibility:six:** No deals for this task can be successfully sent.
+  * **Possibility:six:** No deals for this task can be successfully sent.
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(ActionRequired)->[Fix ActionRequired]->(Assigned)->(end)" >
 
 ### Option:three:
@@ -193,7 +191,7 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Private Task)->(end)" >
 
 - Task status change process in this option:
-- **Possibility:one:**
+  * **Possibility:one:**
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(end)" >
 
 ## Create Car Files
