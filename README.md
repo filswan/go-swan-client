@@ -212,6 +212,7 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 - [lotus].access_token, see [Configuration](#Configuration)
 - [sender].gocar_file_size_limit, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+- [sender].gocar_file_size_limit only used in Option:two:, see [Configuration](#Configuration)
 
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
 
