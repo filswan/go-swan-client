@@ -22,11 +22,13 @@ type ConfDeal struct {
 	SwanApiUrl              string
 	SwanApiKey              string
 	SwanAccessToken         string
+	SwanJwtToken            string
 	SenderWallet            string
 	MaxPrice                decimal.Decimal
 	VerifiedDeal            bool
 	FastRetrieval           bool
 	SkipConfirmation        bool
+	Duration                int
 	MinerPrice              decimal.Decimal
 	StartEpoch              int
 	StartEpochIntervalHours int
@@ -52,6 +54,7 @@ type ConfTask struct {
 	StorageServerType          string
 	WebServerDownloadUrlPrefix string
 	ExpireDays                 int
+	Duration                   int
 	OutputDir                  string
 	InputDir                   string
 	TaskName                   *string
