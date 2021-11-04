@@ -12,8 +12,8 @@ storage_server_type = "ipfs server"
 download_url_prefix = "https://nbai.io:443/download"
 
 [ipfs_server]
-download_url_prefix = "http://192.168.88.41:5050/ipfs"
-upload_url = "http://192.168.88.41:5001/api/v0/add?stream-channels=true&pin=true"
+download_url_prefix = "http://192.168.88.41:5050"
+upload_url = "http://192.168.88.41:5001"
 
 [sender]
 bid_mode = 1
