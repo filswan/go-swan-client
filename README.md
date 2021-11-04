@@ -147,7 +147,7 @@ vi ~/.swan/client/config.toml
 - **start_epoch_hours**: start_epoch for deals in hours from current time
 - **expired_days**: expected completion days for storage provider sealing data
 - **gocar_file_size_limit**: go car file size limit in bytes
-- **duration**: expressed in blocks (1 block is equivalent to 30s)
+- **duration**: expressed in blocks (1 block is equivalent to 30s). Default value is 1512000, that is 525 days.
 
 ## Flowcharts
 
