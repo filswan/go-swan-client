@@ -10,7 +10,7 @@ PROJECT_NAME = swan-client
 PKG := "$(PROJECT_NAME)"
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
 
-BINARY_NAME=go-swan-client
+BINARY_NAME=swan-client
 BINARY_UNIX=$(BINARY_NAME)_unix
 
 .PHONY: all build clean test help
