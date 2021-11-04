@@ -166,11 +166,34 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto-Bid Deals)->(end)" >
 
-flowchart TD
+
+<body>
+  <div class="mermaid">
+  flowchart TD
     B["fa:fa-twitter for peace"]
     B-->C[fa:fa-ban forbidden]
     B-->D(fa:fa-spinner);
     B-->E(A fa:fa-camera-retro perhaps?);
+  </div>
+
+  <script>
+    var callback = function(){
+        alert('A callback was triggered');
+    }
+    var config = {
+        startOnLoad:true,
+        flowchart:{
+            useMaxWidth:true,
+            htmlLabels:true,
+            curve:'cardinal',
+        },
+        securityLevel:'loose',
+    };
+
+    mermaid.initialize(config);
+  </script>
+</body>
+
 
 
 - Task status change processes in this option. Below are some possibilities:
