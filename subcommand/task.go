@@ -74,6 +74,10 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		taskType = constants.TASK_TYPE_VERIFIED
 	}
 
+	if confTask.Duration == 0 {
+		confTask.Duration = DURATION
+	}
+
 	uuid := uuid.NewString()
 	task := libmodel.Task{
 		TaskName:          *confTask.TaskName,

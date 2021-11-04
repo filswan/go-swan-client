@@ -18,6 +18,10 @@ import (
 	"strconv"
 )
 
+const (
+	DURATION = 1512000
+)
+
 func GetDefaultTaskName() string {
 	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz0123456789")
 	randStr := utils.RandStringRunes(letterRunes, 6)
@@ -62,6 +66,10 @@ func CheckDealConfig(confDeal *model.ConfDeal) error {
 	}
 
 	logs.GetLogger().Info("Deal check passed.")
+
+	if confDeal.Duration == 0 {
+		confDeal.Duration = DURATION
+	}
 
 	return nil
 }
