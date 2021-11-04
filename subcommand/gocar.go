@@ -21,6 +21,12 @@ import (
 )
 
 func CreateGoCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
+	if confCar == nil {
+		err := fmt.Errorf("parameter confCar is nil")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	err := CheckInputDir(confCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -86,6 +92,12 @@ type ManifestDetailLinkItem struct {
 }
 
 func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, carFileDir string) ([]*libmodel.FileDesc, error) {
+	if confCar == nil {
+		err := fmt.Errorf("parameter confCar is nil")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	manifestFilename := "manifest.csv"
 	lines, err := utils.ReadAllLines(carFileDir, manifestFilename)
 	if err != nil {
@@ -95,7 +107,7 @@ func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, car
 
 	carFiles := []*libmodel.FileDesc{}
 
-	lotusClient, err := lotus.LotusGetClient(confCar.LotusApiUrl, confCar.LotusAccessToken)
+	lotusClient, err := lotus.LotusGetClient(confCar.LotusClientApiUrl, confCar.LotusClientAccessToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -153,19 +165,21 @@ func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, car
 		carFile.SourceFilePath = filepath.Join(srcFileDir, carFile.SourceFileName)
 		carFile.SourceFileSize = utils.GetFileSize(carFile.SourceFilePath)
 
-		srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return nil, err
-		}
-		carFile.SourceFileMd5 = srcFileMd5
+		if confCar.GenerateMd5 {
+			srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return nil, err
+			}
+			carFile.SourceFileMd5 = srcFileMd5
 
-		carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return nil, err
+			carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return nil, err
+			}
+			carFile.CarFileMd5 = carFileMd5
 		}
-		carFile.CarFileMd5 = carFileMd5
 
 		carFiles = append(carFiles, &carFile)
 	}

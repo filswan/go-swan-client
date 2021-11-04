@@ -17,6 +17,12 @@ import (
 )
 
 func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
+	if confCar == nil {
+		err := fmt.Errorf("parameter confCar is nil")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	err := CheckInputDir(confCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -37,7 +43,7 @@ func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 
 	carFiles := []*libmodel.FileDesc{}
 
-	lotusClient, err := lotus.LotusGetClient(confCar.LotusApiUrl, confCar.LotusAccessToken)
+	lotusClient, err := lotus.LotusGetClient(confCar.LotusClientApiUrl, confCar.LotusClientAccessToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -83,19 +89,21 @@ func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 
 		carFile.CarFileSize = utils.GetFileSize(carFile.CarFilePath)
 
-		srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return nil, err
-		}
-		carFile.SourceFileMd5 = srcFileMd5
+		if confCar.GenerateMd5 {
+			srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return nil, err
+			}
+			carFile.SourceFileMd5 = srcFileMd5
 
-		carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return nil, err
+			carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return nil, err
+			}
+			carFile.CarFileMd5 = carFileMd5
 		}
-		carFile.CarFileMd5 = carFileMd5
 
 		carFiles = append(carFiles, &carFile)
 	}

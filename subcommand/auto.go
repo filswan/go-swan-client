@@ -15,6 +15,12 @@ import (
 )
 
 func SendAutoBidDeals(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDesc, error) {
+	if confDeal == nil {
+		err := fmt.Errorf("parameter confDeal is nil")
+		logs.GetLogger().Error(err)
+		return nil, nil, err
+	}
+
 	err := CreateOutputDir(confDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -57,6 +63,12 @@ func SendAutoBidDeals(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDes
 }
 
 func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int, string, []*libmodel.FileDesc, error) {
+	if confDeal == nil {
+		err := fmt.Errorf("parameter confDeal is nil")
+		logs.GetLogger().Error(err)
+		return 0, "", nil, err
+	}
+
 	err := CreateOutputDir(confDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -111,6 +123,12 @@ func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int,
 }
 
 func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDeal, task libmodel.Task, outputDir string) (int, string, []*libmodel.FileDesc, error) {
+	if confDeal == nil {
+		err := fmt.Errorf("parameter confDeal is nil")
+		logs.GetLogger().Error(err)
+		return 0, "", nil, err
+	}
+
 	carFiles := []*libmodel.FileDesc{}
 
 	dealSentNum := 0
@@ -159,7 +177,7 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 		for i := 0; i < 60; i++ {
 			msg := fmt.Sprintf("send deal for task:%s, deal:%d", task.TaskName, deal.Id)
 			logs.GetLogger().Info(msg)
-			dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, confDeal.Duration, *confDeal.MinerFid, confDeal.SenderWallet)
+			dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, confDeal.Duration, confDeal.MinerFid, confDeal.SenderWallet)
 			dealCid, startEpoch, err := lotus.LotusProposeOfflineDeal(carFile, cost, pieceSize, *dealConfig, i)
 			if err != nil {
 				logs.GetLogger().Error(err)

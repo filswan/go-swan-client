@@ -30,7 +30,13 @@ func GetDefaultTaskName() string {
 }
 
 func CheckDealConfig(confDeal *model.ConfDeal) error {
-	minerPrice, minerVerifiedPrice, _, _ := lotus.LotusGetMinerConfig(*confDeal.MinerFid)
+	if confDeal == nil {
+		err := fmt.Errorf("parameter confDeal is nil")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	minerPrice, minerVerifiedPrice, _, _ := lotus.LotusGetMinerConfig(confDeal.MinerFid)
 
 	if confDeal.SenderWallet == "" {
 		err := fmt.Errorf("wallet should be set")

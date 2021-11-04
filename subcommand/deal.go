@@ -16,6 +16,12 @@ import (
 )
 
 func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
+	if confDeal == nil {
+		err := fmt.Errorf("parameter confDeal is nil")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	logs.GetLogger().Info(confDeal.OutputDir)
 	err := CreateOutputDir(confDeal.OutputDir)
 	if err != nil {
@@ -23,11 +29,11 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	metadataJsonFilename := filepath.Base(*confDeal.MetadataJsonPath)
+	metadataJsonFilename := filepath.Base(confDeal.MetadataJsonPath)
 	taskName := strings.TrimSuffix(metadataJsonFilename, constants.JSON_FILE_NAME_BY_TASK)
-	carFiles := ReadCarFilesFromJsonFileByFullPath(*confDeal.MetadataJsonPath)
+	carFiles := ReadCarFilesFromJsonFileByFullPath(confDeal.MetadataJsonPath)
 	if len(carFiles) == 0 {
-		err := fmt.Errorf("no car files read from:%s", *confDeal.MetadataJsonPath)
+		err := fmt.Errorf("no car files read from:%s", confDeal.MetadataJsonPath)
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
@@ -61,7 +67,7 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	err = swanClient.SwanUpdateTaskByUuid(carFiles[0].Uuid, *confDeal.MinerFid, *csvFilepath)
+	err = swanClient.SwanUpdateTaskByUuid(carFiles[0].Uuid, confDeal.MinerFid, *csvFilepath)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -71,6 +77,12 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 }
 
 func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, carFiles []*libmodel.FileDesc) (*string, []*libmodel.FileDesc, error) {
+	if confDeal == nil {
+		err := fmt.Errorf("parameter confDeal is nil")
+		logs.GetLogger().Error(err)
+		return nil, nil, err
+	}
+
 	err := CheckDealConfig(confDeal)
 	if err != nil {
 		err := errors.New("failed to pass deal config check")
@@ -86,7 +98,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 		pieceSize, sectorSize := utils.CalculatePieceSize(carFile.CarFileSize)
 		logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
 		cost := utils.CalculateRealCost(sectorSize, confDeal.MinerPrice)
-		dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, confDeal.Duration, *confDeal.MinerFid, confDeal.SenderWallet)
+		dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, confDeal.Duration, confDeal.MinerFid, confDeal.SenderWallet)
 		dealCid, startEpoch, err := lotus.LotusProposeOfflineDeal(*carFile, cost, pieceSize, *dealConfig, 0)
 		//dealCid, err := client.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig)
 		if err != nil {
@@ -96,7 +108,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 		if dealCid == nil {
 			continue
 		}
-		carFile.MinerFid = *confDeal.MinerFid
+		carFile.MinerFid = confDeal.MinerFid
 		carFile.DealCid = *dealCid
 		carFile.StartEpoch = startEpoch
 

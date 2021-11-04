@@ -3,6 +3,7 @@ package subcommand
 import (
 	"fmt"
 
+	"github.com/codingsince1985/checksum"
 	"github.com/filswan/go-swan-client/model"
 	"github.com/filswan/go-swan-lib/logs"
 
@@ -12,10 +13,23 @@ import (
 	"github.com/filswan/go-swan-lib/utils"
 
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 )
 
 func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []*libmodel.FileDesc, error) {
+	if confTask == nil {
+		err := fmt.Errorf("parameter confTask is nil")
+		logs.GetLogger().Error(err)
+		return nil, nil, err
+	}
+
+	if !confTask.PublicDeal {
+		if confDeal == nil {
+			err := fmt.Errorf("parameter confDeal is nil")
+			logs.GetLogger().Error(err)
+			return nil, nil, err
+		}
+	}
+
 	err := CheckInputDir(confTask.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -30,26 +44,19 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 
 	logs.GetLogger().Info("you output dir: ", confTask.OutputDir)
 
-	if !confTask.PublicDeal && (confTask.MinerFid == nil || len(*confTask.MinerFid) == 0) {
+	if !confTask.PublicDeal && len(confTask.MinerFid) == 0 {
 		err := fmt.Errorf("please provide -miner for private deal")
 		logs.GetLogger().Error(err)
 		return nil, nil, err
 	}
-	if confTask.BidMode == constants.TASK_BID_MODE_AUTO && confTask.MinerFid != nil && len(*confTask.MinerFid) != 0 {
+	if confTask.BidMode == constants.TASK_BID_MODE_AUTO && len(confTask.MinerFid) != 0 {
 		logs.GetLogger().Warn("miner is unnecessary for aubo-bid task, it will be ignored")
 	}
 
-	if confTask.TaskName == nil || len(*confTask.TaskName) == 0 {
+	if len(confTask.TaskName) == 0 {
 		taskName := GetDefaultTaskName()
-		confTask.TaskName = &taskName
+		confTask.TaskName = taskName
 	}
-
-	maxPrice, err := decimal.NewFromString(confTask.MaxPrice)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, nil, err
-	}
-	//generateMd5 := config.GetConfig().Sender.GenerateMd5
 
 	logs.GetLogger().Info("task settings:")
 	logs.GetLogger().Info("public task: ", confTask.PublicDeal)
@@ -80,28 +87,19 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 
 	uuid := uuid.NewString()
 	task := libmodel.Task{
-		TaskName:          *confTask.TaskName,
+		TaskName:          confTask.TaskName,
 		FastRetrievalBool: confTask.FastRetrieval,
 		Type:              taskType,
 		IsPublic:          &isPublic,
-		MaxPrice:          &maxPrice,
+		MaxPrice:          &confTask.MaxPrice,
 		BidMode:           &confTask.BidMode,
 		ExpireDays:        &confTask.ExpireDays,
 		Uuid:              uuid,
 		SourceId:          confTask.SourceId,
 		Duration:          confTask.Duration,
-	}
-
-	if confTask.MinerFid != nil {
-		task.MinerFid = *confTask.MinerFid
-	}
-
-	if confTask.Dataset != nil {
-		task.CuratedDataset = *confTask.Dataset
-	}
-
-	if confTask.Description != nil {
-		task.Description = *confTask.Description
+		MinerFid:          confTask.MinerFid,
+		CuratedDataset:    confTask.Dataset,
+		Description:       confTask.Description,
 	}
 
 	for _, carFile := range carFiles {
@@ -114,17 +112,37 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 			carFileUrl := utils.UrlJoin(confTask.WebServerDownloadUrlPrefix, carFile.CarFileName)
 			carFile.CarFileUrl = carFileUrl
 		}
+
+		if confTask.GenerateMd5 {
+			if carFile.SourceFileMd5 == "" {
+				srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
+				if err != nil {
+					logs.GetLogger().Error(err)
+					return nil, nil, err
+				}
+				carFile.SourceFileMd5 = srcFileMd5
+			}
+
+			if carFile.CarFileMd5 == "" {
+				carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
+				if err != nil {
+					logs.GetLogger().Error(err)
+					return nil, nil, err
+				}
+				carFile.CarFileMd5 = carFileMd5
+			}
+		}
 	}
 
 	if !confTask.PublicDeal {
-		_, _, err := SendDeals2Miner(confDeal, *confTask.TaskName, confTask.OutputDir, carFiles)
+		_, _, err := SendDeals2Miner(confDeal, confTask.TaskName, confTask.OutputDir, carFiles)
 		if err != nil {
 			return nil, nil, err
 		}
 	}
 
-	jsonFileName := *confTask.TaskName + constants.JSON_FILE_NAME_BY_TASK
-	csvFileName := *confTask.TaskName + constants.CSV_FILE_NAME_BY_TASK
+	jsonFileName := confTask.TaskName + constants.JSON_FILE_NAME_BY_TASK
+	csvFileName := confTask.TaskName + constants.CSV_FILE_NAME_BY_TASK
 	jsonFilepath, err := WriteCarFilesToFiles(carFiles, confTask.OutputDir, jsonFileName, csvFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)

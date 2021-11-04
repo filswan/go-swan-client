@@ -29,11 +29,11 @@ type ConfDeal struct {
 	StartEpoch              int
 	StartEpochIntervalHours int
 	OutputDir               string
-	MinerFid                *string
-	MetadataJsonPath        *string
+	MinerFid                string
+	MetadataJsonPath        string
 }
 
-func GetConfDeal(outputDir *string, minerFid *string, metadataJsonPath *string, isAutoBid bool) *ConfDeal {
+func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string, isAutoBid bool) *ConfDeal {
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
 	startEpoch := utils.GetCurrentEpoch() + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
 
@@ -75,6 +75,12 @@ func GetConfDeal(outputDir *string, minerFid *string, metadataJsonPath *string, 
 }
 
 func SetDealConfig4Autobid(confDeal *ConfDeal, task libmodel.Task, deal libmodel.OfflineDeal) error {
+	if confDeal == nil {
+		err := fmt.Errorf("parameter confDeal is nil")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
 	confDeal.StartEpoch = utils.GetCurrentEpoch() + (confDeal.StartEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
 	if deal.StartEpoch != 0 {
 		confDeal.StartEpoch = deal.StartEpoch
@@ -85,7 +91,7 @@ func SetDealConfig4Autobid(confDeal *ConfDeal, task libmodel.Task, deal libmodel
 		logs.GetLogger().Error(err)
 		return err
 	}
-	confDeal.MinerFid = &task.MinerFid
+	confDeal.MinerFid = task.MinerFid
 
 	if task.Type == "" {
 		err := fmt.Errorf("task type missing")

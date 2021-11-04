@@ -8,11 +8,12 @@
 ## ConfCar
 ```shell
 type ConfCar struct {
-	LotusApiUrl        string
-	LotusAccessToken   string
-	OutputDir          string
-	InputDir           string
-	GocarFileSizeLimit int64
+	LotusClientApiUrl      string
+	LotusClientAccessToken string
+	OutputDir              string
+	InputDir               string
+	GocarFileSizeLimit     int64
+	GenerateMd5            bool
 }
 ```
 
@@ -33,8 +34,8 @@ type ConfDeal struct {
 	StartEpoch              int
 	StartEpochIntervalHours int
 	OutputDir               string
-	MinerFid                *string
-	MetadataJsonPath        *string
+	MinerFid                string
+	MetadataJsonPath        string
 }
 ```
 
@@ -50,17 +51,18 @@ type ConfTask struct {
 	VerifiedDeal               bool
 	OfflineMode                bool
 	FastRetrieval              bool
-	MaxPrice                   string
+	MaxPrice                   decimal.Decimal
 	StorageServerType          string
 	WebServerDownloadUrlPrefix string
 	ExpireDays                 int
+	GenerateMd5                bool
 	Duration                   int
 	OutputDir                  string
 	InputDir                   string
-	TaskName                   *string
-	MinerFid                   *string
-	Dataset                    *string
-	Description                *string
+	TaskName                   string
+	MinerFid                   string
+	Dataset                    string
+	Description                string
 	StartEpoch                 int
 	StartEpochIntervalHours    int
 	SourceId                   int

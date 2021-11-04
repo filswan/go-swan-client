@@ -140,7 +140,7 @@ vi ~/.swan/client/config.toml
 - **public_deal**: [true/false] Whether deals in the tasks are public deals
 - **verified_deal**: [true/false] Whether deals in this task are going to be sent as verified
 - **fast_retrieval**: [true/false] Indicates that data should be available for fast retrieval
-- **generate_md5**: [true/false] Whether to generate md5 for each car file, note: this is a resource consuming action
+- **generate_md5**: [true/false] Whether to generate md5 for each car file, note: this is a resource consuming action.
 - **skip_confirmation**: [true/false] Whether to skip manual confirmation of each deal before sending
 - **wallet**:  Wallet used for sending offline deals
 - **max_price**: Max price willing to pay per GiB/epoch for offline deal
@@ -198,6 +198,7 @@ vi ~/.swan/client/config.toml
 - [lotus].api_url, see [Configuration](#Configuration)
 - [lotus].access_token, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+- [sender].generate_md5, when it is true, then generate md5 for source files and car files, see [Configuration](#Configuration)
 
 ### Option:two: By graphsplit api
 ```shell
@@ -212,6 +213,7 @@ vi ~/.swan/client/config.toml
 - [lotus].access_token, see [Configuration](#Configuration)
 - [sender].gocar_file_size_limit, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+- [sender].generate_md5, when it is true, then generate md5 for source files and car files, see [Configuration](#Configuration)
 
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
 
@@ -261,6 +263,7 @@ no go-swan-client subcommand should be executed
 - [sender].max_price, see [Configuration](#Configuration)
 - [sender].start_epoch_hours, see [Configuration](#Configuration)
 - [sender].expire_days, see [Configuration](#Configuration)
+- [sender].generate_md5, when it is true and there is no md5 in car.json, then generate md5 for source files and car files, see [Configuration](#Configuration)
 - [sender].wallet, see [Configuration](#Configuration)
 - [sender].skip_confirmation, see [Configuration](#Configuration)
 - [sender].duration, see [Configuration](#Configuration)
@@ -297,6 +300,7 @@ no go-swan-client subcommand should be executed
 - [sender].max_price, see [Configuration](#Configuration)
 - [sender].start_epoch_hours, see [Configuration](#Configuration)
 - [sender].expire_days, see [Configuration](#Configuration)
+- [sender].generate_md5, when it is true and there is no md5 in car.json, then generate md5 for source files and car files, see [Configuration](#Configuration)
 - [sender].duration, see [Configuration](#Configuration)
 - [main].storage_server_type, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
@@ -329,6 +333,7 @@ no go-swan-client subcommand should be executed
 - [sender].max_price, see [Configuration](#Configuration)
 - [sender].start_epoch_hours, see [Configuration](#Configuration)
 - [sender].expire_days, see [Configuration](#Configuration)
+- [sender].generate_md5, when it is true and there is no md5 in car.json, then generate md5 for source files and car files, see [Configuration](#Configuration)
 - [sender].duration, see [Configuration](#Configuration)
 - [main].storage_server_type, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
