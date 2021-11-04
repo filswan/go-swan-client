@@ -3,6 +3,7 @@ package subcommand
 import (
 	"fmt"
 
+	"github.com/codingsince1985/checksum"
 	"github.com/filswan/go-swan-client/model"
 	"github.com/filswan/go-swan-lib/logs"
 
@@ -113,6 +114,26 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		if confTask.StorageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
 			carFileUrl := utils.UrlJoin(confTask.WebServerDownloadUrlPrefix, carFile.CarFileName)
 			carFile.CarFileUrl = carFileUrl
+		}
+
+		if confTask.GenerateMd5 {
+			if carFile.SourceFileMd5 == "" {
+				srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
+				if err != nil {
+					logs.GetLogger().Error(err)
+					return nil, nil, err
+				}
+				carFile.SourceFileMd5 = srcFileMd5
+			}
+
+			if carFile.CarFileMd5 == "" {
+				carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
+				if err != nil {
+					logs.GetLogger().Error(err)
+					return nil, nil, err
+				}
+				carFile.CarFileMd5 = carFileMd5
+			}
 		}
 	}
 

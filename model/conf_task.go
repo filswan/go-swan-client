@@ -23,6 +23,7 @@ type ConfTask struct {
 	StorageServerType          string
 	WebServerDownloadUrlPrefix string
 	ExpireDays                 int
+	GenerateMd5                bool
 	Duration                   int
 	OutputDir                  string
 	InputDir                   string
@@ -52,6 +53,7 @@ func GetConfTask(inputDir string, outputDir *string, taskName, minerFid, dataset
 		StorageServerType:          config.GetConfig().Main.StorageServerType,
 		WebServerDownloadUrlPrefix: config.GetConfig().WebServer.DownloadUrlPrefix,
 		ExpireDays:                 config.GetConfig().Sender.ExpireDays,
+		GenerateMd5:                config.GetConfig().Sender.GenerateMd5,
 		Duration:                   config.GetConfig().Sender.Duration,
 		OutputDir:                  filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
 		InputDir:                   inputDir,

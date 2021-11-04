@@ -153,19 +153,21 @@ func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, car
 		carFile.SourceFilePath = filepath.Join(srcFileDir, carFile.SourceFileName)
 		carFile.SourceFileSize = utils.GetFileSize(carFile.SourceFilePath)
 
-		srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return nil, err
-		}
-		carFile.SourceFileMd5 = srcFileMd5
+		if confCar.GenerateMd5 {
+			srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return nil, err
+			}
+			carFile.SourceFileMd5 = srcFileMd5
 
-		carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return nil, err
+			carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return nil, err
+			}
+			carFile.CarFileMd5 = carFileMd5
 		}
-		carFile.CarFileMd5 = carFileMd5
 
 		carFiles = append(carFiles, &carFile)
 	}

@@ -13,6 +13,7 @@ type ConfCar struct {
 	OutputDir          string
 	InputDir           string
 	GocarFileSizeLimit int64
+	GenerateMd5        bool
 }
 
 func GetConfCar(inputDir string, outputDir *string) *ConfCar {
@@ -22,6 +23,7 @@ func GetConfCar(inputDir string, outputDir *string) *ConfCar {
 		OutputDir:          filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
 		InputDir:           inputDir,
 		GocarFileSizeLimit: config.GetConfig().Sender.GocarFileSizeLimit,
+		GenerateMd5:        config.GetConfig().Sender.GenerateMd5,
 	}
 
 	if outputDir != nil && len(*outputDir) != 0 {
