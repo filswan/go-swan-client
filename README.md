@@ -169,11 +169,14 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 
 <body>
   <div class="mermaid">
-  flowchart TD
-    B["fa:fa-twitter for peace"]
-    B-->C[fa:fa-ban forbidden]
-    B-->D(fa:fa-spinner);
-    B-->E(A fa:fa-camera-retro perhaps?);
+    flowchart LR;
+        A-->B;
+        B-->C;
+        C-->D;
+        click A callback "Tooltip"
+        click B "http://www.github.com" "This is a link"
+        click C call callback() "Tooltip"
+        click D href "http://www.github.com" "This is a link"
   </div>
 
   <script>
@@ -193,6 +196,7 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
     mermaid.initialize(config);
   </script>
 </body>
+
 
 
 
