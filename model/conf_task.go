@@ -23,6 +23,7 @@ type ConfTask struct {
 	StorageServerType          string
 	WebServerDownloadUrlPrefix string
 	ExpireDays                 int
+	Duration                   int
 	OutputDir                  string
 	InputDir                   string
 	TaskName                   *string
@@ -51,6 +52,7 @@ func GetConfTask(inputDir string, outputDir *string, taskName, minerFid, dataset
 		StorageServerType:          config.GetConfig().Main.StorageServerType,
 		WebServerDownloadUrlPrefix: config.GetConfig().WebServer.DownloadUrlPrefix,
 		ExpireDays:                 config.GetConfig().Sender.ExpireDays,
+		Duration:                   config.GetConfig().Sender.Duration,
 		OutputDir:                  filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
 		InputDir:                   inputDir,
 		TaskName:                   taskName,
@@ -59,7 +61,7 @@ func GetConfTask(inputDir string, outputDir *string, taskName, minerFid, dataset
 		Description:                description,
 		StartEpochIntervalHours:    startEpochIntervalHours,
 		StartEpoch:                 startEpoch,
-		SourceId:                   2,
+		SourceId:                   constants.TASK_SOURCE_ID_SWAN_CLIENT,
 	}
 
 	if outputDir != nil && len(*outputDir) != 0 {

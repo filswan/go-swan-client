@@ -33,33 +33,51 @@
 
 In swan project, a task can contain multiple offline deals. There are two basic type of tasks:
 - Task type
-  * Public Task:
-    * A public task is a deal set for open bid. It has 2 types: auto-bid and manual-bid
-    * Auto-bid public task: this kind of task will be automatically assigned to a selected storage provider based on reputation system and Market Matcher.
-    * Manual-bid public task: for this kind of task, after bidder win the bid, the task holder needs to propose the task to the winner. 
-  * Private Task. 
-    * A private task is used to propose deals to a specified storage provider.
+  * **Public Task**: A deal set for open bid. It has 2 types:
+    * **Auto-bid** public task: this kind of task will be automatically assigned to a selected storage provider based on reputation system and Market Matcher.
+    * **Manual-bid** public task: for this kind of task, after bidder win the bid, the task holder needs to propose the task to the winner. 
+  * **Private Task**: It is required to propose deals to a specified storage provider.
 - Task status:
-  * Created: Tasks are created successfully first time on Swan platform or tasks with `ActionRequired` status have been modified to fullfill the autobid qualification.
-  * Assigned: Tasks have been assigned to storage providers manually by users or automatically by autobid module.
-  * ActionRequired: Task with autobid mode on,in other words,`bid_mode` set to `1` and `public_deal` set to `true`, have some information missing or invalid in the [task-name.csv],which cause the failure of automatically assigning storage providers. Action are required to fill in or modify the file and then update the task information on Swan platform with the new csv file.
-  * DealSent: Tasks have been sent to storage providers after tasks being assigned.
+  * **Created**: Tasks are created successfully first time on Swan platform for all kinds of tasks.
+  * **Assigned**: Tasks have been assigned to storage providers manually by users or automatically by autobid module.
+  * **ActionRequired**: Task with autobid mode on,in other words,`bid_mode` set to `1` and `public_deal` set to `true`, have some information missing or invalid:
+    - MaxPrice: missing, or is not a valid number
+    - FastRetrieval: missing
+    - Type: missing, or or not have valid values
+    - No offline deals for this task.
 
-- Task status change process:
-**Option:one:**
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Created)->(Assigned)->(DealSent)->(end)" >
+    :bell:You need solve the above problems and change the task status to `Created` to participate next run of Market Matcher.
+  * **DealSent**: Tasks have been sent to storage providers after tasks being assigned.
+  * **ProgressWithFailure**: Some and not all of deals of the task have been sent to storage providers after tasks being assigned.
 
 ### Offline Deal
 
-The size of an offline deal can be up to 64 GB. It is suggested to create a CSV file contains the following information: 
-uuid|miner_id|deal_cid|payload_cid|file_source_url|md5|start_epoch|piece_cid|file_size
-------------|-------------|-------------|-------------|-------------|-------------|-------------|-------------|-------------
-0b89e0cf-f3ec-41a3-8f1e-52b098f0c503|f047419|---|bafyreid7tw7mcwlj465dqudwanml3mueyzizezct6cm5a7g2djfxjfgxwm|http://download.com/downloads/fil.tar.car|---|544835|baga6ea4seaqeqlfnuhfawhw6rm53t24znnuw76ycfuqvpw4c7olnxpju4la4qfq|122877455
-
-
-This CSV file is helpful to enhance the data consistency and rebuild the graph in the future. 
-uuid is generated for future index purpose.
-
+- The size of an offline deal can be up to 64 GB.
+- Every step will generate a JSON file which contains file(s) description like below:
+```json
+[
+ {
+  "Uuid": "261ac5ae-cfbb-4ae2-a924-3361075b0e60",
+  "SourceFileName": "test3.txt",
+  "SourceFilePath": "[source_file_dir]/test3.txt",
+  "SourceFileMd5": "17d6f25c72392fc0895b835fa3e3cf52",
+  "SourceFileSize": 43857488,
+  "CarFileName": "test3.txt.car",
+  "CarFilePath": "[car_file_dir]/test3.txt.car",
+  "CarFileMd5": "9eb7d54ac1ed8d3927b21a4dcd64a9eb",
+  "CarFileUrl": "http://[IP]:[PORT]/ipfs/Qmb7TMcABYnnM47dznCPxpJKPf9LmD1Yh2EdZGvXi2824C",
+  "CarFileSize": 12402995,
+  "DealCid": "bafyreiccgalsj2a3wtrxygcxpp2hfq3h2fwafh63wcld3uq5hakyimpura",
+  "DataCid": "bafykbzacecpuzwmiaxc2u4r5bb7p3ukkhotmkfw4mfv3un6huvk6ctugowikq",
+  "PieceCid": "baga6ea4seaqjcip2xh265h2pucvwxv7seeawm4gfksfua4zsbb24zujplzsukja",
+  "MinerFid": "[miner_fid]",
+  "StartEpoch": 1266686,
+  "SourceId": 2
+ }
+]
+```
+- This JSON file generated in each step is used in its next step and can be used to rebuild the graph in the future.
+- Uuid is generated for future index purpose.
 
 ## Prerequisites
 
@@ -84,7 +102,7 @@ chmod +x ./build_from_source.sh
 ```
 
 ## After Installation
-- The binary file `go-swan-client` is created under `./build` directory, you need to switch to it.
+- The binary file `go-swan-client` is generated under `./build` directory, you need to switch to it.
 ```shell
 cd build
 ```
@@ -96,46 +114,40 @@ vi ~/.swan/client/config.toml
 ## Configuration
 
 ### [lotus]
-- **api_url:**  Url of lotus web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
-- **access_token:**  Access token of lotus node web api. It should have admin access right. You can get it from your lotus node machine using command `lotus auth create-token --perm admin`. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
-- **miner_api_url:**  Url of lotus miner web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **2345**
+- **api_url**:  Url of lotus client web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
+- **access_token**:  Access token of lotus client web api. It should have admin access right. You can get it from your lotus node machine using command `lotus auth create-token --perm admin`. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
 
 ### [main]
 
-- **api_url:** Swan API address. For Swan production, it is "https://api.filswan.com". It can be ignored if offline_mode is set to true in [sender] section
-- :bangbang:**api_key:** Your api key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in [sender] section.
-- :bangbang:**access_token:** Your access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in [sender] section.
-- :bangbang:**storage_server_type:** = "ipfs server"
+- **api_url**: Swan API address. For Swan production, it is "https://api.filswan.com". It can be ignored if offline_mode is set to true in `[sender]` section
+- :bangbang:**api_key**: Your api key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in `[sender]` section.
+- :bangbang:**access_token**: Your access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in `[sender]` section.
+- :bangbang:**storage_server_type**: "ipfs server" or "web server"
 
 ### [web-server]
 
-Store car files for downloading by storage provider, car file url will be [download_url_prefix]/[filename]
-- **download_url_prefix** web server url prefix, such as: https://[ip]:[port]/download
-
+- **download_url_prefix**: web server url prefix, such as: `https://[ip]:[port]/download`. Store car files for downloading by storage provider, car file url will be `[download_url_prefix]/[filename]`
 ### [ipfs-server]
 
-Store car files for downloading by storage provider, car file url will be [download_url_prefix]/[filename]
-- **download_url_prefix** ipfs server url prefix, such as: "http://[ip]:[port]/ipfs"
+- **download_url_prefix**: ipfs server url prefix, such as: `http://[ip]:[port]/ipfs`. Store car files for downloading by storage provider, car file url will be `[download_url_prefix]/[filename]`
+- **upload_url**: ipfs server url for uploading file, such as `http://[ip]:[port]/api/v0/add?stream-channels=true&pin=true`
 
 ### [sender]
 
-- **bid_mode:** [0/1] Default 1, which is auto-bid mod and it means swan will automatically allocate storage provider for it, while 0 is manual-bid mode and it needs to be bidded manually by storage providers.
-- **offline_mode:** [true/false] Default false. If it is set to true, you will not be able to create Swan task on filswan.com, but you can still create CSVs and Car Files for sending deals
-- **output_dir:** When you do not set -out-dir option in your command, it is used as the default output directory for saving generated car files and CSVs. Should be absolute path and you need have access right to this folder or to create it. 
-- **public_deal:** [true/false] Whether deals in the tasks are public deals
-- **verified_deal:** [true/false] Whether deals in this task are going to be sent as verified
-- **fast_retrieval:** [true/false] Indicates that data should be available for fast retrieval
-- **generate_md5:** [true/false] Whether to generate md5 for each car file, note: this is a resource consuming action
-- **skip_confirmation:** [true/false] Whether to skip manual confirmation of each deal before sending
-- **wallet:**  Wallet used for sending offline deals
-- **max_price:** Max price willing to pay per GiB/epoch for offline deal
-- **start_epoch_hours:** start_epoch for deals in hours from current time
-- **expired_days:** expected completion days for storage provider sealing data 
-- **gocar_file_size_limit:** go car file size limit in bytes
-
-#### Note:
-The **duration** time for offline deals is set to `1512000` epoches in default, which stands for 525 days. It can be further modified in constant `DURATION` of `swan-client/task_sender/service/deal.py` for customized requirement.
-
+- **bid_mode**: [0/1] Default 1, which is auto-bid mod and it means swan will automatically allocate storage provider for it, while 0 is manual-bid mode and it needs to be bidded manually by storage providers.
+- **offline_mode**: [true/false] Default false. If it is set to true, you will not be able to create Swan task on filswan.com, but you can still Car Files, CSV and JSON files for sending deals
+- **output_dir**: When you do not set -out-dir option in your command, it is used as the default output directory for saving generated car files, CSV and JSON files. Should be absolute path and you need have access right to this folder or to create it.
+- **public_deal**: [true/false] Whether deals in the tasks are public deals
+- **verified_deal**: [true/false] Whether deals in this task are going to be sent as verified
+- **fast_retrieval**: [true/false] Indicates that data should be available for fast retrieval
+- **generate_md5**: [true/false] Whether to generate md5 for each car file, note: this is a resource consuming action
+- **skip_confirmation**: [true/false] Whether to skip manual confirmation of each deal before sending
+- **wallet**:  Wallet used for sending offline deals
+- **max_price**: Max price willing to pay per GiB/epoch for offline deal
+- **start_epoch_hours**: start_epoch for deals in hours from current time
+- **expired_days**: expected completion days for storage provider sealing data
+- **gocar_file_size_limit**: go car file size limit in bytes
+- **duration**: expressed in blocks (1 block is equivalent to 30s)
 
 ## Flowcharts
 
@@ -143,13 +155,31 @@ The **duration** time for offline deals is set to `1512000` epoches in default, 
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Manual-Bid Task)->(Send Deals)->(end)" >
 
+
+- Task status change process in this option:
+
+[![](https://mermaid.ink/img/eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBW0NyZWF0ZWRdIC0tPiBCW0Fzc2lnbmVkXSIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In0sInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjpmYWxzZX0)](https://mermaid-js.github.io/mermaid-live-editor/edit/#eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBW0NyZWF0ZWRdIC0tPiBCW0Fzc2lnbmVkXSIsIm1lcm1haWQiOiJ7XG4gIFwidGhlbWVcIjogXCJkZWZhdWx0XCJcbn0iLCJ1cGRhdGVFZGl0b3IiOmZhbHNlLCJhdXRvU3luYyI6dHJ1ZSwidXBkYXRlRGlhZ3JhbSI6ZmFsc2V9)
+
+
 ### Option:two:
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto-Bid Deals)->(end)" >
 
+
+- Task status change process in this option. Below are some possibilities:
+
+[![](https://mermaid.ink/img/eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBW0NyZWF0ZWRdIC0tPiBDe01lZXQgRjF9XG4gICAgQyAtLT58Tm98IERbQWN0aW9uUmVxdWlyZWRdXG4gICAgQyAtLT58WWVzfCBFe01lZXQgRjJ9XG4gICAgRSAtLT4gfE5PfCBBXG4gICAgRSAtLT4gfFlFU3wgRltBc3NpZ25lZF0gLS0-R1tTZW5kIERlYWxdIC0tPiBIe0RlYWwgU2VudD99XG4gICAgSCAtLT4gfDB8IEZcbiAgICBIIC0tPiB8QUxMfCBJW0RlYWwgU2VudF1cbiAgICBIIC0tPiB8U09NRXwgSltQcm9ncmVzc1dpdGhGYWlsdXJlXSIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In0sInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjp0cnVlfQ)](https://mermaid-js.github.io/mermaid-live-editor/edit/#eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBW0NyZWF0ZWRdIC0tPiBDe01lZXQgRjF9XG4gICAgQyAtLT58Tm98IERbQWN0aW9uUmVxdWlyZWRdXG4gICAgQyAtLT58WWVzfCBFe01lZXQgRjJ9XG4gICAgRSAtLT4gfE5PfCBBXG4gICAgRSAtLT4gfFlFU3wgRltBc3NpZ25lZF0gLS0-R1tTZW5kIERlYWxdIC0tPiBIe0RlYWwgU2VudD99XG4gICAgSCAtLT4gfDB8IEZcbiAgICBIIC0tPiB8QUxMfCBJW0RlYWwgU2VudF1cbiAgICBIIC0tPiB8U09NRXwgSltQcm9ncmVzc1dpdGhGYWlsdXJlXSIsIm1lcm1haWQiOiJ7XG4gIFwidGhlbWVcIjogXCJkZWZhdWx0XCJcbn0iLCJ1cGRhdGVFZGl0b3IiOmZhbHNlLCJhdXRvU3luYyI6dHJ1ZSwidXBkYXRlRGlhZ3JhbSI6dHJ1ZX0)
+
+- F1: all conditions for auto-bid that a task and its offline deals must match when run market matcher
+- F2: market matcher can select a miner that can meet all conditions of auto-bid for this task and its offline deals
+
 ### Option:three:
 - **Conditions:** `[sender].public_deal=false` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Private Task)->(end)" >
+
+- Task status change process in this option:
+
+[![](https://mermaid.ink/img/eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBW0NyZWF0ZWRdIiwibWVybWFpZCI6eyJ0aGVtZSI6ImRlZmF1bHQifSwidXBkYXRlRWRpdG9yIjpmYWxzZSwiYXV0b1N5bmMiOnRydWUsInVwZGF0ZURpYWdyYW0iOmZhbHNlfQ)](https://mermaid-js.github.io/mermaid-live-editor/edit/#eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBW0NyZWF0ZWRdIiwibWVybWFpZCI6IntcbiAgXCJ0aGVtZVwiOiBcImRlZmF1bHRcIlxufSIsInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjpmYWxzZX0)
 
 ## Create Car Files
 :bell: The input dir and out dir should only be absolute one.
@@ -233,6 +263,7 @@ no go-swan-client subcommand should be executed
 - [sender].expire_days, see [Configuration](#Configuration)
 - [sender].wallet, see [Configuration](#Configuration)
 - [sender].skip_confirmation, see [Configuration](#Configuration)
+- [sender].duration, see [Configuration](#Configuration)
 - [main].storage_server_type, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
@@ -266,6 +297,7 @@ no go-swan-client subcommand should be executed
 - [sender].max_price, see [Configuration](#Configuration)
 - [sender].start_epoch_hours, see [Configuration](#Configuration)
 - [sender].expire_days, see [Configuration](#Configuration)
+- [sender].duration, see [Configuration](#Configuration)
 - [main].storage_server_type, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
@@ -297,6 +329,7 @@ no go-swan-client subcommand should be executed
 - [sender].max_price, see [Configuration](#Configuration)
 - [sender].start_epoch_hours, see [Configuration](#Configuration)
 - [sender].expire_days, see [Configuration](#Configuration)
+- [sender].duration, see [Configuration](#Configuration)
 - [main].storage_server_type, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
@@ -336,6 +369,7 @@ no go-swan-client subcommand should be executed
 - [sender].start_epoch_hours, see [Configuration](#Configuration)
 - [sender].skip_confirmation, see [Configuration](#Configuration)
 - [sender].max_price, see [Configuration](#Configuration)
+- [sender].duration, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
 - [main].access_token, see [Configuration](#Configuration)
@@ -358,8 +392,6 @@ no go-swan-client subcommand should be executed
 
 **Configurations used in this step:**
 - [sender].wallet, see [Configuration](#Configuration)
-- [sender].start_epoch_hours, see [Configuration](#Configuration)
-- [sender].skip_confirmation, see [Configuration](#Configuration)
 - [sender].max_price, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)

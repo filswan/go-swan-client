@@ -32,14 +32,15 @@ func UploadCarFiles(confUpload *model.ConfUpload) ([]*libmodel.FileDesc, error) 
 	}
 
 	for _, carFile := range carFiles {
-		logs.GetLogger().Info("Uploading car file:", carFile.CarFilePath, " to:", confUpload.IpfsServerUploadUrl)
-		carFileHash, err := client.IpfsUploadCarFileByWebApi(confUpload.IpfsServerUploadUrl, carFile.CarFilePath)
+		uploadUrl := utils.UrlJoin(confUpload.IpfsServerUploadUrl, "api/v0/add?stream-channels=true&pin=true")
+		logs.GetLogger().Info("Uploading car file:", carFile.CarFilePath, " to:", uploadUrl)
+		carFileHash, err := client.IpfsUploadCarFileByWebApi(uploadUrl, carFile.CarFilePath)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
 
-		carFileUrl := utils.UrlJoin(confUpload.IpfsServerDownloadUrlPrefix, *carFileHash)
+		carFileUrl := utils.UrlJoin(confUpload.IpfsServerDownloadUrlPrefix, "ipfs", *carFileHash)
 		carFile.CarFileUrl = carFileUrl
 		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileUrl)
 	}

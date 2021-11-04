@@ -85,6 +85,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		ExpireDays:        &confTask.ExpireDays,
 		Uuid:              uuid,
 		SourceId:          confTask.SourceId,
+		Duration:          confTask.Duration,
 	}
 
 	if confTask.MinerFid != nil {

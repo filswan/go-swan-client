@@ -1,6 +1,6 @@
 [lotus]
-api_url=""   # Url of lotus web api
-access_token=""   # Access token of lotus web api
+client_api_url = "http://[ip]:[port]/rpc/v0"   # Url of lotus client web api, generally the [port] is 1234
+client_access_token = ""   # Access token of lotus client web api, it should have admin access right
 
 [main]
 api_url = "https://api.filswan.com"
@@ -12,8 +12,8 @@ storage_server_type = "ipfs server"
 download_url_prefix = "https://nbai.io:443/download"
 
 [ipfs_server]
-download_url_prefix = "http://192.168.88.41:5050/ipfs"
-upload_url = "http://192.168.88.41:5001/api/v0/add?stream-channels=true&pin=true"
+download_url_prefix = "http://192.168.88.41:5050"
+upload_url = "http://192.168.88.41:5001"
 
 [sender]
 bid_mode = 1
@@ -29,3 +29,4 @@ max_price = "0"
 start_epoch_hours = 96
 expire_days = 4
 gocar_file_size_limit=8589934592
+duration = 1051200    # Duration is expressed in blocks (1 block is equivalent to 30s).

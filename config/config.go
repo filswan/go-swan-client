@@ -18,8 +18,8 @@ type Configuration struct {
 }
 
 type lotus struct {
-	ApiUrl      string `toml:"api_url"`
-	AccessToken string `toml:"access_token"`
+	ClientApiUrl      string `toml:"client_api_url"`
+	ClientAccessToken string `toml:"client_access_token"`
 }
 
 type main struct {
@@ -52,6 +52,7 @@ type sender struct {
 	StartEpochHours    int    `toml:"start_epoch_hours"`
 	ExpireDays         int    `toml:"expire_days"`
 	GocarFileSizeLimit int64  `toml:"gocar_file_size_limit"`
+	Duration           int    `toml:"duration"`
 }
 
 var config *Configuration
@@ -87,8 +88,8 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"ipfs_server"},
 		{"sender"},
 
-		{"lotus", "api_url"},
-		{"lotus", "access_token"},
+		{"lotus", "client_api_url"},
+		{"lotus", "client_access_token"},
 
 		{"main", "api_url"},
 		{"main", "api_key"},
@@ -113,6 +114,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"sender", "start_epoch_hours"},
 		{"sender", "expire_days"},
 		{"sender", "gocar_file_size_limit"},
+		{"sender", "duration"},
 	}
 
 	for _, v := range requiredFields {
