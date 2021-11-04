@@ -21,6 +21,12 @@ import (
 )
 
 func CreateGoCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
+	if confCar == nil {
+		err := fmt.Errorf("parameter confCar is nil")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	err := CheckInputDir(confCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -86,6 +92,12 @@ type ManifestDetailLinkItem struct {
 }
 
 func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, carFileDir string) ([]*libmodel.FileDesc, error) {
+	if confCar == nil {
+		err := fmt.Errorf("parameter confCar is nil")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	manifestFilename := "manifest.csv"
 	lines, err := utils.ReadAllLines(carFileDir, manifestFilename)
 	if err != nil {

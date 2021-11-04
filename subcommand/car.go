@@ -17,6 +17,12 @@ import (
 )
 
 func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
+	if confCar == nil {
+		err := fmt.Errorf("parameter confCar is nil")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	err := CheckInputDir(confCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)

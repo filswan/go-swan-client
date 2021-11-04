@@ -13,10 +13,23 @@ import (
 	"github.com/filswan/go-swan-lib/utils"
 
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 )
 
 func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []*libmodel.FileDesc, error) {
+	if confTask == nil {
+		err := fmt.Errorf("parameter confTask is nil")
+		logs.GetLogger().Error(err)
+		return nil, nil, err
+	}
+
+	if !confTask.PublicDeal {
+		if confDeal == nil {
+			err := fmt.Errorf("parameter confDeal is nil")
+			logs.GetLogger().Error(err)
+			return nil, nil, err
+		}
+	}
+
 	err := CheckInputDir(confTask.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -44,13 +57,6 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		taskName := GetDefaultTaskName()
 		confTask.TaskName = taskName
 	}
-
-	maxPrice, err := decimal.NewFromString(confTask.MaxPrice)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, nil, err
-	}
-	//generateMd5 := config.GetConfig().Sender.GenerateMd5
 
 	logs.GetLogger().Info("task settings:")
 	logs.GetLogger().Info("public task: ", confTask.PublicDeal)
@@ -85,7 +91,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		FastRetrievalBool: confTask.FastRetrieval,
 		Type:              taskType,
 		IsPublic:          &isPublic,
-		MaxPrice:          &maxPrice,
+		MaxPrice:          &confTask.MaxPrice,
 		BidMode:           &confTask.BidMode,
 		ExpireDays:        &confTask.ExpireDays,
 		Uuid:              uuid,

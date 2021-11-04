@@ -6,7 +6,9 @@ import (
 
 	"github.com/filswan/go-swan-client/config"
 	"github.com/filswan/go-swan-lib/constants"
+	"github.com/filswan/go-swan-lib/logs"
 	"github.com/filswan/go-swan-lib/utils"
+	"github.com/shopspring/decimal"
 )
 
 type ConfTask struct {
@@ -19,7 +21,7 @@ type ConfTask struct {
 	VerifiedDeal               bool
 	OfflineMode                bool
 	FastRetrieval              bool
-	MaxPrice                   string
+	MaxPrice                   decimal.Decimal
 	StorageServerType          string
 	WebServerDownloadUrlPrefix string
 	ExpireDays                 int
@@ -49,7 +51,6 @@ func GetConfTask(inputDir string, outputDir *string, taskName, minerFid, dataset
 		VerifiedDeal:               config.GetConfig().Sender.VerifiedDeal,
 		OfflineMode:                config.GetConfig().Sender.OfflineMode,
 		FastRetrieval:              config.GetConfig().Sender.FastRetrieval,
-		MaxPrice:                   config.GetConfig().Sender.MaxPrice,
 		StorageServerType:          config.GetConfig().Main.StorageServerType,
 		WebServerDownloadUrlPrefix: config.GetConfig().WebServer.DownloadUrlPrefix,
 		ExpireDays:                 config.GetConfig().Sender.ExpireDays,
@@ -68,6 +69,14 @@ func GetConfTask(inputDir string, outputDir *string, taskName, minerFid, dataset
 
 	if outputDir != nil && len(*outputDir) != 0 {
 		confTask.OutputDir = *outputDir
+	}
+
+	var err error
+	maxPrice := config.GetConfig().Sender.MaxPrice
+	confTask.MaxPrice, err = decimal.NewFromString(maxPrice)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil
 	}
 
 	return confTask

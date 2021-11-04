@@ -16,6 +16,12 @@ import (
 )
 
 func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
+	if confDeal == nil {
+		err := fmt.Errorf("parameter confDeal is nil")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	logs.GetLogger().Info(confDeal.OutputDir)
 	err := CreateOutputDir(confDeal.OutputDir)
 	if err != nil {
@@ -71,6 +77,12 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 }
 
 func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, carFiles []*libmodel.FileDesc) (*string, []*libmodel.FileDesc, error) {
+	if confDeal == nil {
+		err := fmt.Errorf("parameter confDeal is nil")
+		logs.GetLogger().Error(err)
+		return nil, nil, err
+	}
+
 	err := CheckDealConfig(confDeal)
 	if err != nil {
 		err := errors.New("failed to pass deal config check")
