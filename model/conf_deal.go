@@ -24,6 +24,7 @@ type ConfDeal struct {
 	VerifiedDeal            bool
 	FastRetrieval           bool
 	SkipConfirmation        bool
+	Duration                int
 	MinerPrice              decimal.Decimal
 	StartEpoch              int
 	StartEpochIntervalHours int
@@ -44,6 +45,7 @@ func GetConfDeal(outputDir *string, minerFid *string, metadataJsonPath *string, 
 		VerifiedDeal:            config.GetConfig().Sender.VerifiedDeal,
 		FastRetrieval:           config.GetConfig().Sender.FastRetrieval,
 		SkipConfirmation:        config.GetConfig().Sender.SkipConfirmation,
+		Duration:                config.GetConfig().Sender.Duration,
 		StartEpochIntervalHours: startEpochIntervalHours,
 		StartEpoch:              startEpoch,
 		OutputDir:               filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
@@ -106,6 +108,8 @@ func SetDealConfig4Autobid(confDeal *ConfDeal, task libmodel.Task, deal libmodel
 		return err
 	}
 	confDeal.MaxPrice = *task.MaxPrice
+
+	confDeal.Duration = task.Duration
 
 	return nil
 }

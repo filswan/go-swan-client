@@ -86,7 +86,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 		pieceSize, sectorSize := utils.CalculatePieceSize(carFile.CarFileSize)
 		logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
 		cost := utils.CalculateRealCost(sectorSize, confDeal.MinerPrice)
-		dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, *confDeal.MinerFid, confDeal.SenderWallet)
+		dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, confDeal.Duration, *confDeal.MinerFid, confDeal.SenderWallet)
 		dealCid, startEpoch, err := lotus.LotusProposeOfflineDeal(*carFile, cost, pieceSize, *dealConfig, 0)
 		//dealCid, err := client.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig)
 		if err != nil {

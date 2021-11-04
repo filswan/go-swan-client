@@ -159,7 +159,7 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 		for i := 0; i < 60; i++ {
 			msg := fmt.Sprintf("send deal for task:%s, deal:%d", task.TaskName, deal.Id)
 			logs.GetLogger().Info(msg)
-			dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, *confDeal.MinerFid, confDeal.SenderWallet)
+			dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, confDeal.Duration, *confDeal.MinerFid, confDeal.SenderWallet)
 			dealCid, startEpoch, err := lotus.LotusProposeOfflineDeal(carFile, cost, pieceSize, *dealConfig, i)
 			if err != nil {
 				logs.GetLogger().Error(err)
