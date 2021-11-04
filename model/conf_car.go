@@ -17,8 +17,8 @@ type ConfCar struct {
 
 func GetConfCar(inputDir string, outputDir *string) *ConfCar {
 	confCar := &ConfCar{
-		LotusApiUrl:        config.GetConfig().Lotus.ApiUrl,
-		LotusAccessToken:   config.GetConfig().Lotus.AccessToken,
+		LotusApiUrl:        config.GetConfig().Lotus.ClientApiUrl,
+		LotusAccessToken:   config.GetConfig().Lotus.ClientAccessToken,
 		OutputDir:          filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
 		InputDir:           inputDir,
 		GocarFileSizeLimit: config.GetConfig().Sender.GocarFileSizeLimit,
