@@ -147,9 +147,7 @@ vi ~/.swan/client/config.toml
 - **start_epoch_hours**: start_epoch for deals in hours from current time
 - **expired_days**: expected completion days for storage provider sealing data
 - **gocar_file_size_limit**: go car file size limit in bytes
-
-#### Note:
-The **duration** time for offline deals is set to `1512000` epoches in default, which stands for 525 days.
+- **duration**: expressed in blocks (1 block is equivalent to 30s)
 
 ## Flowcharts
 
@@ -265,6 +263,7 @@ no go-swan-client subcommand should be executed
 - [sender].expire_days, see [Configuration](#Configuration)
 - [sender].wallet, see [Configuration](#Configuration)
 - [sender].skip_confirmation, see [Configuration](#Configuration)
+- [sender].duration, see [Configuration](#Configuration)
 - [main].storage_server_type, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
@@ -298,6 +297,7 @@ no go-swan-client subcommand should be executed
 - [sender].max_price, see [Configuration](#Configuration)
 - [sender].start_epoch_hours, see [Configuration](#Configuration)
 - [sender].expire_days, see [Configuration](#Configuration)
+- [sender].duration, see [Configuration](#Configuration)
 - [main].storage_server_type, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
@@ -329,6 +329,7 @@ no go-swan-client subcommand should be executed
 - [sender].max_price, see [Configuration](#Configuration)
 - [sender].start_epoch_hours, see [Configuration](#Configuration)
 - [sender].expire_days, see [Configuration](#Configuration)
+- [sender].duration, see [Configuration](#Configuration)
 - [main].storage_server_type, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
@@ -368,6 +369,7 @@ no go-swan-client subcommand should be executed
 - [sender].start_epoch_hours, see [Configuration](#Configuration)
 - [sender].skip_confirmation, see [Configuration](#Configuration)
 - [sender].max_price, see [Configuration](#Configuration)
+- [sender].duration, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
 - [main].access_token, see [Configuration](#Configuration)
@@ -390,8 +392,6 @@ no go-swan-client subcommand should be executed
 
 **Configurations used in this step:**
 - [sender].wallet, see [Configuration](#Configuration)
-- [sender].start_epoch_hours, see [Configuration](#Configuration)
-- [sender].skip_confirmation, see [Configuration](#Configuration)
 - [sender].max_price, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)

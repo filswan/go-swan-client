@@ -61,7 +61,7 @@ func GetConfTask(inputDir string, outputDir *string, taskName, minerFid, dataset
 		Description:                description,
 		StartEpochIntervalHours:    startEpochIntervalHours,
 		StartEpoch:                 startEpoch,
-		SourceId:                   2,
+		SourceId:                   constants.TASK_SOURCE_ID_SWAN_CLIENT,
 	}
 
 	if outputDir != nil && len(*outputDir) != 0 {
