@@ -107,7 +107,7 @@ func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, car
 
 	carFiles := []*libmodel.FileDesc{}
 
-	lotusClient, err := lotus.LotusGetClient(confCar.LotusApiUrl, confCar.LotusAccessToken)
+	lotusClient, err := lotus.LotusGetClient(confCar.LotusClientApiUrl, confCar.LotusClientAccessToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
