@@ -156,6 +156,7 @@ func SendTask2Swan(confTask *model.ConfTask, task libmodel.Task, carFiles []*lib
 		return err
 	}
 
+	logs.GetLogger().Info("task duration:", task.Duration)
 	swanCreateTaskResponse, err := swanClient.SwanCreateTask(task, csvFilePath)
 	if err != nil {
 		logs.GetLogger().Error(err)
