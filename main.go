@@ -174,7 +174,7 @@ func createTask() error {
 
 	logs.GetLogger().Info("your input dir: ", *inputDir)
 
-	confTask := model.GetConfTask(*inputDir, outputDir, taskName, minerFid, dataset, description)
+	confTask := model.GetConfTask(*inputDir, outputDir, *taskName, *minerFid, *dataset, *description)
 	confDeal := model.GetConfDeal(outputDir, minerFid, nil, false)
 	jsonFileName, _, err := subcommand.CreateTask(confTask, confDeal)
 	if err != nil {

@@ -27,16 +27,16 @@ type ConfTask struct {
 	Duration                   int
 	OutputDir                  string
 	InputDir                   string
-	TaskName                   *string
-	MinerFid                   *string
-	Dataset                    *string
-	Description                *string
+	TaskName                   string
+	MinerFid                   string
+	Dataset                    string
+	Description                string
 	StartEpoch                 int
 	StartEpochIntervalHours    int
 	SourceId                   int
 }
 
-func GetConfTask(inputDir string, outputDir *string, taskName, minerFid, dataset, description *string) *ConfTask {
+func GetConfTask(inputDir string, outputDir *string, taskName, minerFid, dataset, description string) *ConfTask {
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
 	startEpoch := utils.GetCurrentEpoch() + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
 
