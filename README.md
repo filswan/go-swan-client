@@ -45,8 +45,8 @@ In swan project, a task can contain multiple offline deals.
     - No offline deals for this task.
 
     :bell:You need to solve the above problems and change the task status to `Created` to participate next run of Market Matcher.
-  * **DealSent**: All offline deals of this task have been sent to storage providers after a miner have been assigned to this task.
-  * **ProgressWithFailure**: Some and not all of the deals of the task have been sent to storage providers after this task have been assigned a miner.
+  * **DealSent**: All offline deals of this task have been sent to a storage provider which has been assigned to this task.
+  * **ProgressWithFailure**: Some and not all of the deals of the task have been sent to a storage provider which has been assigned to this task.
 
 ### Offline Deal
 
@@ -75,7 +75,7 @@ In swan project, a task can contain multiple offline deals.
  }
 ]
 ```
-- This JSON file generated in each step is used in its next step and can be used to rebuild the graph in the future.
+- This JSON file generated in each step will be used in its next step and can be used to rebuild the graph in the future.
 - Uuid is generated for future index purpose.
 
 ## Prerequisites
@@ -110,35 +110,31 @@ vi ~/.swan/client/config.toml
 ```
 
 ## Configuration
-
 ### [lotus]
 - **client_api_url**:  Url of lotus client web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
 - **client_access_token**:  Access token of lotus client web api. It should have admin access right. You can get it from your lotus node machine using command `lotus auth create-token --perm admin`. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
 
 ### [main]
-
 - **api_url**: Swan API address. For Swan production, it is "https://api.filswan.com". It can be ignored if offline_mode is set to true in `[sender]` section
-- :bangbang:**api_key**: Your api key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in `[sender]` section.
-- :bangbang:**access_token**: Your access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in `[sender]` section.
+- :bangbang:**api_key**: Your Swan API key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in `[sender]` section.
+- :bangbang:**access_token**: Your Swan API access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in `[sender]` section.
 - :bangbang:**storage_server_type**: "ipfs server" or "web server"
 
 ### [web-server]
-
 - **download_url_prefix**: web server url prefix, such as: `https://[ip]:[port]/download`. Store car files for downloading by storage provider, car file url will be `[download_url_prefix]/[filename]`
 ### [ipfs-server]
 
-- **download_url_prefix**: ipfs server url prefix, such as: `http://[ip]:[port]/ipfs`. Store car files for downloading by storage provider, car file url will be `[download_url_prefix]/[filename]`
-- **upload_url**: ipfs server url for uploading file, such as `http://[ip]:[port]/api/v0/add?stream-channels=true&pin=true`
+- **download_url_prefix**: ipfs server url prefix, such as: `http://[ip]:[port]`. Store car files for downloading by storage provider, car file url will be `[download_url_prefix]/ipfs/[filename]`
+- **upload_url**: ipfs server url for uploading file, such as `http://[ip]:[port]`
 
 ### [sender]
-
 - **bid_mode**: [0/1] Default 1, which is auto-bid mod and it means swan will automatically allocate storage provider for it, while 0 is manual-bid mode and it needs to be bidded manually by storage providers.
-- **offline_mode**: [true/false] Default false. If it is set to true, you will not be able to create Swan task on filswan.com, but you can still Car Files, CSV and JSON files for sending deals
-- **output_dir**: When you do not set -out-dir option in your command, it is used as the default output directory for saving generated car files, CSV and JSON files. Should be absolute path and you need have access right to this folder or to create it.
+- **offline_mode**: [true/false] Default false. If it is set to true, you will not be able to create Swan task on filswan.com, but you can still generate Car Files, CSV and JSON files for sending deals
+- **output_dir**: When you do not set -out-dir option in your command, it is used as the default output directory for saving generated car files, CSV and JSON files. You need have access right to this folder or to create it.
 - **public_deal**: [true/false] Whether deals in the tasks are public deals
 - **verified_deal**: [true/false] Whether deals in this task are going to be sent as verified
 - **fast_retrieval**: [true/false] Indicates that data should be available for fast retrieval
-- **generate_md5**: [true/false] Whether to generate md5 for each car file, note: this is a resource consuming action.
+- **generate_md5**: [true/false] Whether to generate md5 for each car file and source file, note: this is a resource consuming action.
 - **skip_confirmation**: [true/false] Whether to skip manual confirmation of each deal before sending
 - **wallet**:  Wallet used for sending offline deals
 - **max_price**: Max price willing to pay per GiB/epoch for offline deal
@@ -154,7 +150,7 @@ vi ~/.swan/client/config.toml
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Manual-Bid Task)->(Send Deals)->(end)" >
 
 
-- Task status change process in this option:
+- Partial task status change process in this option:
 
 [![](https://mermaid.ink/img/eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBW0NyZWF0ZWRdIC0tPiBCW0Fzc2lnbmVkXSIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In0sInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjpmYWxzZX0)](https://mermaid-js.github.io/mermaid-live-editor/edit/#eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBW0NyZWF0ZWRdIC0tPiBCW0Fzc2lnbmVkXSIsIm1lcm1haWQiOiJ7XG4gIFwidGhlbWVcIjogXCJkZWZhdWx0XCJcbn0iLCJ1cGRhdGVFZGl0b3IiOmZhbHNlLCJhdXRvU3luYyI6dHJ1ZSwidXBkYXRlRGlhZ3JhbSI6ZmFsc2V9)
 
@@ -164,7 +160,7 @@ vi ~/.swan/client/config.toml
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto-Bid Deals)->(end)" >
 
 
-- Task status change process in this option. Below are some possibilities:
+- Partial task status change process in this option. Below are some possibilities:
 
 [![](https://mermaid.ink/img/eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBW0NyZWF0ZWRdIC0tPiBDe01lZXQgRjF9XG4gICAgQyAtLT58Tm98IERbQWN0aW9uUmVxdWlyZWRdXG4gICAgQyAtLT58WWVzfCBFe01lZXQgRjJ9XG4gICAgRSAtLT4gfE5PfCBBXG4gICAgRSAtLT4gfFlFU3wgRltBc3NpZ25lZF0gLS0-R1tTZW5kIERlYWxdIC0tPiBIe0RlYWwgU2VudD99XG4gICAgSCAtLT4gfDB8IEZcbiAgICBIIC0tPiB8QUxMfCBJW0RlYWxTZW50XVxuICAgIEggLS0-IHxTT01FfCBKW1Byb2dyZXNzV2l0aEZhaWx1cmVdIiwibWVybWFpZCI6eyJ0aGVtZSI6ImRlZmF1bHQifSwidXBkYXRlRWRpdG9yIjpmYWxzZSwiYXV0b1N5bmMiOnRydWUsInVwZGF0ZURpYWdyYW0iOmZhbHNlfQ)](https://mermaid-js.github.io/mermaid-live-editor/edit/#eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBW0NyZWF0ZWRdIC0tPiBDe01lZXQgRjF9XG4gICAgQyAtLT58Tm98IERbQWN0aW9uUmVxdWlyZWRdXG4gICAgQyAtLT58WWVzfCBFe01lZXQgRjJ9XG4gICAgRSAtLT4gfE5PfCBBXG4gICAgRSAtLT4gfFlFU3wgRltBc3NpZ25lZF0gLS0-R1tTZW5kIERlYWxdIC0tPiBIe0RlYWwgU2VudD99XG4gICAgSCAtLT4gfDB8IEZcbiAgICBIIC0tPiB8QUxMfCBJW0RlYWxTZW50XVxuICAgIEggLS0-IHxTT01FfCBKW1Byb2dyZXNzV2l0aEZhaWx1cmVdIiwibWVybWFpZCI6IntcbiAgXCJ0aGVtZVwiOiBcImRlZmF1bHRcIlxufSIsInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjpmYWxzZX0)
 
@@ -172,10 +168,12 @@ vi ~/.swan/client/config.toml
 - F2: market matcher can select a miner that can meet all conditions of auto-bid for this task and its offline deals
 
 ### Option:three:
-- **Conditions:** `[sender].public_deal=false` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
+- **Conditions:** `[sender].public_deal=false`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Private Task)->(end)" >
 
-- Task status change process in this option:
+- In this option, deal(s) will be sent when creating a task.
+
+- Partial task status change process in this option:
 
 [![](https://mermaid.ink/img/eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBW0NyZWF0ZWRdIiwibWVybWFpZCI6eyJ0aGVtZSI6ImRlZmF1bHQifSwidXBkYXRlRWRpdG9yIjpmYWxzZSwiYXV0b1N5bmMiOnRydWUsInVwZGF0ZURpYWdyYW0iOmZhbHNlfQ)](https://mermaid-js.github.io/mermaid-live-editor/edit/#eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBW0NyZWF0ZWRdIiwibWVybWFpZCI6IntcbiAgXCJ0aGVtZVwiOiBcImRlZmF1bHRcIlxufSIsInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjpmYWxzZX0)
 
@@ -186,7 +184,7 @@ vi ~/.swan/client/config.toml
 
 ### Option:one: By lotus web json rpc api
 ```shell
-./go-swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
+./swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
 **Command parameters used in this step:**
 - -input-dir(Required): The directory where the source files reside in.
@@ -205,7 +203,7 @@ vi ~/.swan/client/config.toml
 
 ### Option:two: By graphsplit api
 ```shell
-./go-swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
+./swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
 **Command parameters used in this step:**
 - -input-dir(Required): The directory where the source files reside in.
@@ -230,14 +228,14 @@ Credits should be given to filedrive-team. More information can be found in http
 
 ### Option:one: To a web-server manually
 ```shell
-no go-swan-client subcommand should be executed
+no swan-client subcommand should be executed
 ```
 **Configurations used in this step:**
 - [main].storage_server_type, it should be set to `web server`, see [Configuration](#Configuration)
 
 ### Option:two: To a local ipfs server
 ```shell
-./go-swan-client upload -input-dir [input_file_dir]
+./swan-client upload -input-dir [input_file_dir]
 ```
 **Command parameters used in this step:**
 - -input-dir(Required): The directory where the car files and metadata files reside in. Metadata files will be used and updated after car files uploaded.
@@ -245,6 +243,7 @@ no go-swan-client subcommand should be executed
 **Configurations used in this step:**
 - [main].storage_server_type, it should be set to `ipfs server` see [Configuration](#Configuration)
 - [ipfs_server].download_url_prefix, see [Configuration](#Configuration)
+- [ipfs_server].upload_url, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files updated after this step:**
@@ -257,12 +256,12 @@ no go-swan-client subcommand should be executed
 ### Option:one: Private Task
 - **Conditions:** `[sender].public_deal=false`, see [Configuration](#Configuration)
 ```shell
-./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
+./swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
 ```
 **Command parameters used in this step:**
 - -input-dir(Required): Input directory where the generated car files and metadata files reside in.
 - -out-dir(optional): Metadata files and swan task file will be generated to this directory. When ommitted, use default `[send].output_dir`, see [Configuration](#Configuration)
-- -miner(Required): Storage provider Id you want to send deal to
+- -miner(Required): Storage provider Id you want to send deal to, such as `t03354`.
 - -dataset(optional): The curated dataset from which the car files are generated
 - -description(optional): Details to better describe the data and confine the task or anything the storage provider needs to be informed.
 
@@ -279,13 +278,14 @@ no go-swan-client subcommand should be executed
 - [sender].wallet, see [Configuration](#Configuration)
 - [sender].skip_confirmation, see [Configuration](#Configuration)
 - [sender].duration, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [main].storage_server_type, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
 - [main].access_token, see [Configuration](#Configuration)
-- [lotus].api_url, see [Configuration](#Configuration)
-- [lotus].access_token, see [Configuration](#Configuration)
-- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+- [web_server].download_url_prefix, used only when `[main].storage_server_type="web server"`, see [Configuration](#Configuration)
+- [lotus].client_api_url, see [Configuration](#Configuration)
+- [lotus].client_access_token, see [Configuration](#Configuration)
 
 **Files generated after this step:**
 - [task-name].csv: a CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
@@ -295,7 +295,7 @@ no go-swan-client subcommand should be executed
 ### Option:two: Public and Auto-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
 ```shell
-./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -dataset [curated_dataset] -description [description]
+./swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -dataset [curated_dataset] -description [description]
 ```
 **Command parameters used in this step:**
 - -input-dir(Required): Input directory where the generated car files and metadata files reside in.
@@ -314,11 +314,12 @@ no go-swan-client subcommand should be executed
 - [sender].expire_days, see [Configuration](#Configuration)
 - [sender].generate_md5, when it is true and there is no md5 in car.json, then generate md5 for source files and car files, see [Configuration](#Configuration)
 - [sender].duration, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [main].storage_server_type, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
 - [main].access_token, see [Configuration](#Configuration)
-- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+- [web_server].download_url_prefix, used only when `[main].storage_server_type="web server"`, see [Configuration](#Configuration)
 
 **Files generated after this step:**
 - [task-name].csv: a CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
@@ -328,7 +329,7 @@ no go-swan-client subcommand should be executed
 ### Option:three: Public and Manual-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
 ```shell
-./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -dataset [curated_dataset] -description [description]
+./swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -dataset [curated_dataset] -description [description]
 ```
 **Command parameters used in this step:**
 - -input-dir(Required): Input directory where the generated car files and metadata files reside in.
@@ -347,11 +348,12 @@ no go-swan-client subcommand should be executed
 - [sender].expire_days, see [Configuration](#Configuration)
 - [sender].generate_md5, when it is true and there is no md5 in car.json, then generate md5 for source files and car files, see [Configuration](#Configuration)
 - [sender].duration, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [main].storage_server_type, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
 - [main].access_token, see [Configuration](#Configuration)
-- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+- [web_server].download_url_prefix, used only when `[main].storage_server_type="web server"`, see [Configuration](#Configuration)
 
 **Files generated after this step:**
 - [task-name].csv: a CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
@@ -372,7 +374,7 @@ no go-swan-client subcommand should be executed
 
 **Note** This step is used only for public deals, since for private deals, the step `Create A Task` includes sending deals.
 ```shell
-./go-swan-client deal -json [task-name-metadata.json] -out-dir [output_files_dir] -miner [storage_provider_id]
+./swan-client deal -json [task-name-metadata.json] -out-dir [output_files_dir] -miner [storage_provider_id]
 ```
 **Command parameters used in this step:**
 - -json(Required): File path to the metadata json file. Mandatory metadata fields: source_file_size, car_file_url, data_cid, piece_cid
@@ -402,7 +404,7 @@ no go-swan-client subcommand should be executed
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
 - **Note** After swan allocated a miner to a task, the client needs to sending auto-bid deal using the information submitted to swan in step `Create A Task`
 ```shell
-./go-swan-client auto -out-dir [output_files_dir]
+./swan-client auto -out-dir [output_files_dir]
 ```
 **Command parameters used in this step:**
 - -miner(Required): Target storage provider id, e.g f01276
