@@ -3,6 +3,7 @@ package subcommand
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/filswan/go-swan-client/model"
 
@@ -14,6 +15,23 @@ import (
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
 )
+
+func SendAutoBidDealsLoop(confDeal *model.ConfDeal) {
+	for {
+		csvFilepaths, _, err := SendAutoBidDeals(confDeal)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			//return err
+			continue
+		}
+
+		for _, csvFilepath := range csvFilepaths {
+			logs.GetLogger().Info(csvFilepath, " is generated")
+		}
+
+		time.Sleep(time.Second * 30)
+	}
+}
 
 func SendAutoBidDeals(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDesc, error) {
 	if confDeal == nil {

@@ -17,43 +17,42 @@
 - [Create Car Files](#Create-Car-Files)
 - [Upload Car Files](#Upload-Car-Files)
 - [Create A Task](#Create-A-Task)
-- [Send deals](#Send-deals)
+- [Send Deals](#Send-Deals)
 
 ## Functions
-* Generate Car files from downloaded source files with or without Lotus.
-* Generate metadata e.g. Car file URI, start epoch, etc. and save them to a metadata CSV file.
-* Propose deals based on the metadata CSV file.
-* Generate a final CSV file contains deal CIDs and storage provider id for storage provider to import deals.
+* Generate Car files from your source files with or without Lotus.
+* Generate metadata e.g. Car file URI, start epoch, etc. and save them to a metadata JSON file.
+* Propose deals based on the metadata JSON file.
+* Generate a final JSON file contains deal CIDs and storage provider id for storage provider to import deals.
 * Create tasks on Swan Platform.
 * Send deal automatically to auto-bid storage providers.
 
 ## Concepts
-
 ### Task
-
-In swan project, a task can contain multiple offline deals. There are two basic type of tasks:
-- Task type
+In swan project, a task can contain multiple offline deals.
+- Task type: There are two basic types of tasks:
   * **Public Task**: A deal set for open bid. It has 2 types:
     * **Auto-bid** public task: this kind of task will be automatically assigned to a selected storage provider based on reputation system and Market Matcher.
-    * **Manual-bid** public task: for this kind of task, after bidder win the bid, the task holder needs to propose the task to the winner. 
+    * **Manual-bid** public task: for this kind of task, after bidder win the bid, the task holder needs to propose the task to the winner.
   * **Private Task**: It is required to propose deals to a specified storage provider.
 - Task status:
   * **Created**: Tasks are created successfully first time on Swan platform for all kinds of tasks.
-  * **Assigned**: Tasks have been assigned to storage providers manually by users or automatically by autobid module.
-  * **ActionRequired**: Task with autobid mode on,in other words,`bid_mode` set to `1` and `public_deal` set to `true`, have some information missing or invalid:
+  * **Assigned**: Tasks have been assigned to storage providers manually by users or automatically by auto-bid module: Market Matcher.
+  * **ActionRequired**: Task with autobid mode on, in other words, `bid_mode=1` and `public_deal=true`, have some information missing or invalid:
     - MaxPrice: missing, or is not a valid number
     - FastRetrieval: missing
-    - Type: missing, or or not have valid values
+    - Type: missing, or not have valid values
     - No offline deals for this task.
 
-    :bell:You need solve the above problems and change the task status to `Created` to participate next run of Market Matcher.
-  * **DealSent**: Tasks have been sent to storage providers after tasks being assigned.
-  * **ProgressWithFailure**: Some and not all of deals of the task have been sent to storage providers after tasks being assigned.
+    :bell:You need to solve the above problems and change the task status to `Created` to participate next run of Market Matcher.
+  * **DealSent**: All offline deals of this task have been sent to storage providers after a miner have been assigned to this task.
+  * **ProgressWithFailure**: Some and not all of the deals of the task have been sent to storage providers after this task have been assigned a miner.
 
 ### Offline Deal
 
-- The size of an offline deal can be up to 64 GB.
-- Every step will generate a JSON file which contains file(s) description like below:
+- Each offline deal contains information about a car file generated from the client tool.
+- The size of a car file can be up to 64 GB.
+- Every step of this tool will generate a JSON file which contains file(s) description like below:
 ```json
 [
  {
@@ -80,7 +79,6 @@ In swan project, a task can contain multiple offline deals. There are two basic 
 - Uuid is generated for future index purpose.
 
 ## Prerequisites
-
 - Lotus node
 
 ## Installation
@@ -360,7 +358,7 @@ no go-swan-client subcommand should be executed
 - [task-name]-metadata.csv: contains more contents used for review, uuid will be added based upon car.csv generated in last step
 - [task-name]-metadata.json: contains more content for creating proposal in the next step, uuid will be added based upon car.csv generated in last step
 
-## Send deals
+## Send Deals
 :bell: The input dir and out dir should only be absolute one.
 
 :bell: This step is only necessary for public tasks. You can choose one of the following 2 options according to your task bid_mode.
