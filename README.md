@@ -114,8 +114,8 @@ vi ~/.swan/client/config.toml
 ## Configuration
 
 ### [lotus]
-- **api_url**:  Url of lotus client web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
-- **access_token**:  Access token of lotus client web api. It should have admin access right. You can get it from your lotus node machine using command `lotus auth create-token --perm admin`. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
+- **client_api_url**:  Url of lotus client web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
+- **client_access_token**:  Access token of lotus client web api. It should have admin access right. You can get it from your lotus node machine using command `lotus auth create-token --perm admin`. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
 
 ### [main]
 
@@ -195,10 +195,15 @@ vi ~/.swan/client/config.toml
 - -out-dir(optional): Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
 
 **Configurations used in this step:**
-- [lotus].api_url, see [Configuration](#Configuration)
-- [lotus].access_token, see [Configuration](#Configuration)
+- [lotus].client_api_url, see [Configuration](#Configuration)
+- [lotus].client_access_token, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [sender].generate_md5, when it is true, then generate md5 for source files and car files, see [Configuration](#Configuration)
+
+**Files generated after this step:**
+- car.csv: contains information for both source files and car files
+- car.json: contains information for both source files and car files
+- [source_file_name].car: each source file has a related car file
 
 ### Option:two: By graphsplit api
 ```shell
@@ -209,11 +214,16 @@ vi ~/.swan/client/config.toml
 - -out-dir(optional): Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
 
 **Configurations used in this step:**
-- [lotus].api_url, see [Configuration](#Configuration)
-- [lotus].access_token, see [Configuration](#Configuration)
+- [lotus].client_api_url, see [Configuration](#Configuration)
+- [lotus].client_access_token, see [Configuration](#Configuration)
 - [sender].gocar_file_size_limit, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [sender].generate_md5, when it is true, then generate md5 for source files and car files, see [Configuration](#Configuration)
+
+**Files generated after this step:**
+- car.csv: contains information for both source files and car files
+- car.json: contains information for both source files and car files
+- [source_file_name].car: each source file has one or more related car file(s) according to its size and `[sender].gocar_file_size_limit`
 
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
 
@@ -238,6 +248,10 @@ no go-swan-client subcommand should be executed
 - [main].storage_server_type, it should be set to `ipfs server` see [Configuration](#Configuration)
 - [ipfs_server].download_url_prefix, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+
+**Files updated after this step:**
+- car.csv: car file url will be updated on the original one
+- car.json: car file url will be updated on the original one
 
 ## Create A Task
 :bell: This step is necessary for both public and private tasks. You can choose one of the following 3 options.
@@ -276,9 +290,9 @@ no go-swan-client subcommand should be executed
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files generated after this step:**
-- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
-- [task-name]-metadata.csv contains more contents used for review
-- [task-name]-metadata.json contains more content for creating proposal in the next step
+- [task-name].csv: a CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv: contains more contents used for review, uuid will be added based upon car.csv generated in last step
+- [task-name]-metadata.json: contains more content for creating proposal in the next step, uuid will be added based upon car.csv generated in last step
 
 ### Option:two: Public and Auto-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
@@ -309,9 +323,9 @@ no go-swan-client subcommand should be executed
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files generated after this step:**
-- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
-- [task-name]-metadata.csv contains more contents used for review
-- [task-name]-metadata.json contains more content for creating proposal in the next step
+- [task-name].csv: a CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv: contains more contents used for review, uuid will be added based upon car.csv generated in last step
+- [task-name]-metadata.json: contains more content for creating proposal in the next step, uuid will be added based upon car.csv generated in last step
 
 ### Option:three: Public and Manual-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
@@ -342,9 +356,9 @@ no go-swan-client subcommand should be executed
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files generated after this step:**
-- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
-- [task-name]-metadata.csv contains more contents used for review
-- [task-name]-metadata.json contains more content for creating proposal in the next step
+- [task-name].csv: a CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv: contains more contents used for review, uuid will be added based upon car.csv generated in last step
+- [task-name]-metadata.json: contains more content for creating proposal in the next step, uuid will be added based upon car.csv generated in last step
 
 ## Send deals
 :bell: The input dir and out dir should only be absolute one.
