@@ -1,4 +1,4 @@
-module github.com/filswan/go-swan-client
+module github.com/filswan/swan-client
 
 go 1.16
 
