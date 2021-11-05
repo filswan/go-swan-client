@@ -184,7 +184,7 @@ vi ~/.swan/client/config.toml
 
 ### Option:one: By lotus web json rpc api
 ```shell
-./go-swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
+./swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
 **Command parameters used in this step:**
 - -input-dir(Required): The directory where the source files reside in.
@@ -203,7 +203,7 @@ vi ~/.swan/client/config.toml
 
 ### Option:two: By graphsplit api
 ```shell
-./go-swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
+./swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
 **Command parameters used in this step:**
 - -input-dir(Required): The directory where the source files reside in.
@@ -228,14 +228,14 @@ Credits should be given to filedrive-team. More information can be found in http
 
 ### Option:one: To a web-server manually
 ```shell
-no go-swan-client subcommand should be executed
+no swan-client subcommand should be executed
 ```
 **Configurations used in this step:**
 - [main].storage_server_type, it should be set to `web server`, see [Configuration](#Configuration)
 
 ### Option:two: To a local ipfs server
 ```shell
-./go-swan-client upload -input-dir [input_file_dir]
+./swan-client upload -input-dir [input_file_dir]
 ```
 **Command parameters used in this step:**
 - -input-dir(Required): The directory where the car files and metadata files reside in. Metadata files will be used and updated after car files uploaded.
@@ -256,7 +256,7 @@ no go-swan-client subcommand should be executed
 ### Option:one: Private Task
 - **Conditions:** `[sender].public_deal=false`, see [Configuration](#Configuration)
 ```shell
-./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
+./swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
 ```
 **Command parameters used in this step:**
 - -input-dir(Required): Input directory where the generated car files and metadata files reside in.
@@ -295,7 +295,7 @@ no go-swan-client subcommand should be executed
 ### Option:two: Public and Auto-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
 ```shell
-./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -dataset [curated_dataset] -description [description]
+./swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -dataset [curated_dataset] -description [description]
 ```
 **Command parameters used in this step:**
 - -input-dir(Required): Input directory where the generated car files and metadata files reside in.
@@ -329,7 +329,7 @@ no go-swan-client subcommand should be executed
 ### Option:three: Public and Manual-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
 ```shell
-./go-swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -dataset [curated_dataset] -description [description]
+./swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -dataset [curated_dataset] -description [description]
 ```
 **Command parameters used in this step:**
 - -input-dir(Required): Input directory where the generated car files and metadata files reside in.
@@ -374,7 +374,7 @@ no go-swan-client subcommand should be executed
 
 **Note** This step is used only for public deals, since for private deals, the step `Create A Task` includes sending deals.
 ```shell
-./go-swan-client deal -json [task-name-metadata.json] -out-dir [output_files_dir] -miner [storage_provider_id]
+./swan-client deal -json [task-name-metadata.json] -out-dir [output_files_dir] -miner [storage_provider_id]
 ```
 **Command parameters used in this step:**
 - -json(Required): File path to the metadata json file. Mandatory metadata fields: source_file_size, car_file_url, data_cid, piece_cid
@@ -404,7 +404,7 @@ no go-swan-client subcommand should be executed
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
 - **Note** After swan allocated a miner to a task, the client needs to sending auto-bid deal using the information submitted to swan in step `Create A Task`
 ```shell
-./go-swan-client auto -out-dir [output_files_dir]
+./swan-client auto -out-dir [output_files_dir]
 ```
 **Command parameters used in this step:**
 - -miner(Required): Target storage provider id, e.g f01276
