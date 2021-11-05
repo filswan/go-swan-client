@@ -114,8 +114,8 @@ vi ~/.swan/client/config.toml
 ## Configuration
 
 ### [lotus]
-- **api_url**:  Url of lotus client web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
-- **access_token**:  Access token of lotus client web api. It should have admin access right. You can get it from your lotus node machine using command `lotus auth create-token --perm admin`. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
+- **client_api_url**:  Url of lotus client web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
+- **client_access_token**:  Access token of lotus client web api. It should have admin access right. You can get it from your lotus node machine using command `lotus auth create-token --perm admin`. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
 
 ### [main]
 
@@ -195,8 +195,8 @@ vi ~/.swan/client/config.toml
 - -out-dir(optional): Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
 
 **Configurations used in this step:**
-- [lotus].api_url, see [Configuration](#Configuration)
-- [lotus].access_token, see [Configuration](#Configuration)
+- [lotus].client_api_url, see [Configuration](#Configuration)
+- [lotus].client_access_token, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [sender].generate_md5, when it is true, then generate md5 for source files and car files, see [Configuration](#Configuration)
 
@@ -209,8 +209,8 @@ vi ~/.swan/client/config.toml
 - -out-dir(optional): Car files and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
 
 **Configurations used in this step:**
-- [lotus].api_url, see [Configuration](#Configuration)
-- [lotus].access_token, see [Configuration](#Configuration)
+- [lotus].client_api_url, see [Configuration](#Configuration)
+- [lotus].client_access_token, see [Configuration](#Configuration)
 - [sender].gocar_file_size_limit, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [sender].generate_md5, when it is true, then generate md5 for source files and car files, see [Configuration](#Configuration)
