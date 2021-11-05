@@ -282,8 +282,8 @@ no go-swan-client subcommand should be executed
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
 - [main].access_token, see [Configuration](#Configuration)
-- [lotus].api_url, see [Configuration](#Configuration)
-- [lotus].access_token, see [Configuration](#Configuration)
+- [lotus].client_api_url, see [Configuration](#Configuration)
+- [lotus].client_access_token, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files generated after this step:**
