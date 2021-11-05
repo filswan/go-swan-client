@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"swan-client/model"
+	"github.com/filswan/go-swan-client/model"
 
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/client/swan"

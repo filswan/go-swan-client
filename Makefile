@@ -36,7 +36,7 @@ build: ## Build the binary file
 
 build_linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(GOBIN)/$(BINARY_UNIX) -v  main.go
-.PHONY: build-linux
+.PHONY: build_linux
 
 build_win: test
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(GOBIN)/$(BINARY_UNIX) -v  main.go

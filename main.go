@@ -6,9 +6,9 @@ import (
 	"os"
 	"time"
 
-	"swan-client/model"
+	"github.com/filswan/go-swan-client/model"
 
-	"swan-client/subcommand"
+	"github.com/filswan/go-swan-client/subcommand"
 
 	"github.com/filswan/go-swan-lib/logs"
 )

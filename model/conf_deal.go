@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"swan-client/config"
+	"github.com/filswan/go-swan-client/config"
 
 	"github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"

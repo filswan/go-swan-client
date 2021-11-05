@@ -3,7 +3,7 @@ package subcommand
 import (
 	"fmt"
 
-	"swan-client/model"
+	"github.com/filswan/go-swan-client/model"
 
 	"github.com/codingsince1985/checksum"
 	"github.com/filswan/go-swan-lib/logs"
