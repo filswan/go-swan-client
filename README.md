@@ -200,6 +200,11 @@ vi ~/.swan/client/config.toml
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [sender].generate_md5, when it is true, then generate md5 for source files and car files, see [Configuration](#Configuration)
 
+**Files generated after this step:**
+- car.csv: contains information for both source files and car files
+- car.json: contains information for both source files and car files
+- [source_file_name].car: each source file has a related car file
+
 ### Option:two: By graphsplit api
 ```shell
 ./go-swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
@@ -215,6 +220,10 @@ vi ~/.swan/client/config.toml
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [sender].generate_md5, when it is true, then generate md5 for source files and car files, see [Configuration](#Configuration)
 
+**Files generated after this step:**
+- car.csv: contains information for both source files and car files
+- car.json: contains information for both source files and car files
+- [source_file_name].car: each source file has one or more related car file(s) according to its size and `[sender].gocar_file_size_limit`
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
 
 ## Upload Car Files
@@ -238,6 +247,10 @@ no go-swan-client subcommand should be executed
 - [main].storage_server_type, it should be set to `ipfs server` see [Configuration](#Configuration)
 - [ipfs_server].download_url_prefix, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+
+**Files updated after this step:**
+- car.csv: car file url will be updated on the original one
+- car.json: car file url will be updated on the original one
 
 ## Create A Task
 :bell: This step is necessary for both public and private tasks. You can choose one of the following 3 options.
@@ -276,9 +289,9 @@ no go-swan-client subcommand should be executed
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files generated after this step:**
-- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
-- [task-name]-metadata.csv contains more contents used for review
-- [task-name]-metadata.json contains more content for creating proposal in the next step
+- [task-name].csv: a CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv: contains more contents used for review, uuid will be added based upon car.csv generated in last step
+- [task-name]-metadata.json: contains more content for creating proposal in the next step, uuid will be added based upon car.csv generated in last step
 
 ### Option:two: Public and Auto-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
@@ -309,9 +322,9 @@ no go-swan-client subcommand should be executed
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files generated after this step:**
-- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
-- [task-name]-metadata.csv contains more contents used for review
-- [task-name]-metadata.json contains more content for creating proposal in the next step
+- [task-name].csv: a CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv: contains more contents used for review, uuid will be added based upon car.csv generated in last step
+- [task-name]-metadata.json: contains more content for creating proposal in the next step, uuid will be added based upon car.csv generated in last step
 
 ### Option:three: Public and Manual-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
@@ -342,9 +355,9 @@ no go-swan-client subcommand should be executed
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files generated after this step:**
-- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
-- [task-name]-metadata.csv contains more contents used for review
-- [task-name]-metadata.json contains more content for creating proposal in the next step
+- [task-name].csv: a CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv: contains more contents used for review, uuid will be added based upon car.csv generated in last step
+- [task-name]-metadata.json: contains more content for creating proposal in the next step, uuid will be added based upon car.csv generated in last step
 
 ## Send deals
 :bell: The input dir and out dir should only be absolute one.
