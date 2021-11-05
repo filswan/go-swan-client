@@ -123,7 +123,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 		return nil, nil, err
 	}
 
-	csvFilename := taskName + "-deals.csv"
+	csvFilename := taskName + ".csv"
 	csvFilepath, err := CreateCsv4TaskDeal(carFiles, outputDir, csvFilename)
 
 	return &csvFilepath, carFiles, err

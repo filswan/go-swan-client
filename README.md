@@ -203,7 +203,7 @@ vi ~/.swan/client/config.toml
 **Files generated after this step:**
 - car.csv: contains information for both source files and car files
 - car.json: contains information for both source files and car files
-- [source_file_name].car: each source file has a related car file
+- [source-file-name].car: each source file has a related car file
 
 ### Option:two: By graphsplit api
 ```shell
@@ -223,7 +223,7 @@ vi ~/.swan/client/config.toml
 **Files generated after this step:**
 - car.csv: contains information for both source files and car files
 - car.json: contains information for both source files and car files
-- [source_file_name].car: each source file has one or more related car file(s) according to its size and `[sender].gocar_file_size_limit`
+- [source-file-name].car: each source file has one or more related car file(s) according to its size and `[sender].gocar_file_size_limit`
 
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
 
@@ -395,9 +395,9 @@ no go-swan-client subcommand should be executed
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files generated after this step:**
-- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
-- [task-name]-metadata.csv contains more contents used for review
-- [task-name]-metadata.json contains more content for creating proposal in the next step
+- [task-name].csv: a CSV generated for updating offline deal status and fill deal CID for offline deals
+- [task-name]-deals.csv: deal CID added based on [task-name]-metadata.csv generated on next step
+- [task-name]-deals.json: deal CID added based on [task-name]-metadata.json generated on next step
 
 ### Option:two: Auto-bid deal
 
@@ -417,7 +417,7 @@ no go-swan-client subcommand should be executed
 - [main].access_token, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
-**Files generated after this step:**
-- [task-name].csv is a CSV generated for posting a task on Swan platform or transferring to storage providers directly for offline import
-- [task-name]-metadata.csv contains more contents used for review
-- [task-name]-metadata.json contains more content for creating proposal in the next step
+**Files generated for each task after this step:**
+- [task-name].csv: a CSV generated for updating task status and fill deal CID for offline deals
+- [task-name]-deals.csv: deal CID added based on [task-name]-metadata.csv generated on next step
+- [task-name]-deals.json: deal CID added based on [task-name]-metadata.json generated on next step
