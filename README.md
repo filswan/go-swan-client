@@ -375,7 +375,7 @@ no swan-client subcommand should be executed
 ./swan-client deal -json [task-name-metadata.json] -out-dir [output_files_dir] -miner [storage_provider_id]
 ```
 **Command parameters used in this step:**
-- -json(Required): File path to the metadata json file. Mandatory metadata fields: source_file_size, car_file_url, data_cid, piece_cid
+- -json(Required): File path to the metadata JSON file, see [Offline Deal](#Offline-Deal)
 - -out-dir(optional): Swan deal final metadata files will be generated to the given directory. When ommitted, use default: `[sender].output_dir`, see [Configuration](#Configuration)
 - -miner(Required): Target storage provider id, e.g f01276
 
