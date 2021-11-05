@@ -290,7 +290,7 @@ no swan-client subcommand should be executed
 **Files generated after this step:**
 - [task-name].csv: a CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
 - [task-name]-metadata.csv: contains more contents used for review, uuid will be updated based upon car.csv generated in last step
-- [task-name]-metadata.json: contains more content for creating proposal in the next step, uuid will be updated based upon car.csv generated in last step, see [Offline Deal](#Offline-Deal)
+- [task-name]-metadata.json: contains more content for creating proposal in the next step, uuid will be updated based upon car.json generated in last step, see [Offline Deal](#Offline-Deal)
 
 ### Option:two: Public and Auto-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
@@ -324,7 +324,7 @@ no swan-client subcommand should be executed
 **Files generated after this step:**
 - [task-name].csv: a CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
 - [task-name]-metadata.csv: contains more contents used for review, uuid will be updated based upon car.csv generated in last step
-- [task-name]-metadata.json: contains more content for creating proposal in the next step, uuid will be updated based upon car.csv generated in last step, see [Offline Deal](#Offline-Deal)
+- [task-name]-metadata.json: contains more content for creating proposal in the next step, uuid will be updated based upon car.json generated in last step, see [Offline Deal](#Offline-Deal)
 
 ### Option:three: Public and Manual-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
@@ -358,7 +358,7 @@ no swan-client subcommand should be executed
 **Files generated after this step:**
 - [task-name].csv: a CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
 - [task-name]-metadata.csv: contains more contents used for review, uuid will be updated based upon car.csv generated in last step
-- [task-name]-metadata.json: contains more content for creating proposal in the next step, uuid will be updated based upon car.csv generated in last step, see [Offline Deal](#Offline-Deal)
+- [task-name]-metadata.json: contains more content for creating proposal in the next step, uuid will be updated based upon car.json generated in last step, see [Offline Deal](#Offline-Deal)
 
 ## Send Deals
 :bell: The input dir and out dir should only be absolute one.
