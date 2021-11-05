@@ -278,13 +278,14 @@ no go-swan-client subcommand should be executed
 - [sender].wallet, see [Configuration](#Configuration)
 - [sender].skip_confirmation, see [Configuration](#Configuration)
 - [sender].duration, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [main].storage_server_type, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
 - [main].access_token, see [Configuration](#Configuration)
+- [web_server].download_url_prefix, used only when `[main].storage_server_type="web server"`, see [Configuration](#Configuration)
 - [lotus].client_api_url, see [Configuration](#Configuration)
 - [lotus].client_access_token, see [Configuration](#Configuration)
-- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files generated after this step:**
 - [task-name].csv: a CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
@@ -313,11 +314,12 @@ no go-swan-client subcommand should be executed
 - [sender].expire_days, see [Configuration](#Configuration)
 - [sender].generate_md5, when it is true and there is no md5 in car.json, then generate md5 for source files and car files, see [Configuration](#Configuration)
 - [sender].duration, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [main].storage_server_type, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
 - [main].access_token, see [Configuration](#Configuration)
-- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+- [web_server].download_url_prefix, used only when `[main].storage_server_type="web server"`, see [Configuration](#Configuration)
 
 **Files generated after this step:**
 - [task-name].csv: a CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
@@ -346,11 +348,12 @@ no go-swan-client subcommand should be executed
 - [sender].expire_days, see [Configuration](#Configuration)
 - [sender].generate_md5, when it is true and there is no md5 in car.json, then generate md5 for source files and car files, see [Configuration](#Configuration)
 - [sender].duration, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [main].storage_server_type, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
 - [main].access_token, see [Configuration](#Configuration)
-- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+- [web_server].download_url_prefix, used only when `[main].storage_server_type="web server"`, see [Configuration](#Configuration)
 
 **Files generated after this step:**
 - [task-name].csv: a CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
