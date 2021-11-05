@@ -399,7 +399,7 @@ no swan-client subcommand should be executed
 
 ### Option:two: Auto-bid deal
 - After swan allocated a miner to a task, the client needs to sending auto-bid deals using the information submitted to swan in step `Create A Task`
-- This step is executed in infinite loop mode, it will send auto-bid deals contiuously when deals exist that can meet below conditions.
+- This step is executed in infinite loop mode, it will send auto-bid deals contiuously when there are deals that can meet below conditions.
 
 **Conditions:**
 - `your tasks in swan`
