@@ -17,7 +17,7 @@
 - [Create Car Files](#Create-Car-Files)
 - [Upload Car Files](#Upload-Car-Files)
 - [Create A Task](#Create-A-Task)
-- [Send deals](#Send-deals)
+- [Send Deals](#Send-Deals)
 
 ## Functions
 * Generate Car files from downloaded source files with or without Lotus.
@@ -360,7 +360,7 @@ no go-swan-client subcommand should be executed
 - [task-name]-metadata.csv: contains more contents used for review, uuid will be added based upon car.csv generated in last step
 - [task-name]-metadata.json: contains more content for creating proposal in the next step, uuid will be added based upon car.csv generated in last step
 
-## Send deals
+## Send Deals
 :bell: The input dir and out dir should only be absolute one.
 
 :bell: This step is only necessary for public tasks. You can choose one of the following 2 options according to your task bid_mode.
