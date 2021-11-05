@@ -6,7 +6,7 @@ import (
 	"github.com/filswan/go-swan-lib/client"
 	libmodel "github.com/filswan/go-swan-lib/model"
 
-	"swan-client/model"
+	"github.com/filswan/go-swan-client/model"
 
 	"github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"

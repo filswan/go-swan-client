@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"swan-client/model"
+	"github.com/filswan/go-swan-client/model"
 
 	"github.com/filswan/go-swan-lib/logs"
 
