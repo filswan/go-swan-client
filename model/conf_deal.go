@@ -5,11 +5,12 @@ import (
 	"path/filepath"
 	"time"
 
+	"swan-client/config"
+
 	"github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
-	"github.com/filswan/swan-client/config"
 
 	"github.com/shopspring/decimal"
 )

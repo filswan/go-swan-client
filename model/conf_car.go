@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/filswan/swan-client/config"
+	"swan-client/config"
 )
 
 type ConfCar struct {
