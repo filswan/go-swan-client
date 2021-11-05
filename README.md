@@ -168,7 +168,7 @@ vi ~/.swan/client/config.toml
 - F2: market matcher can select a miner that can meet all conditions of auto-bid for this task and its offline deals
 
 ### Option:three:
-- **Conditions:** `[sender].public_deal=false` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
+- **Conditions:** `[sender].public_deal=false`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Private Task)->(end)" >
 
 - Partial task status change process in this option:
