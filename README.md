@@ -224,6 +224,7 @@ vi ~/.swan/client/config.toml
 - car.csv: contains information for both source files and car files
 - car.json: contains information for both source files and car files
 - [source_file_name].car: each source file has one or more related car file(s) according to its size and `[sender].gocar_file_size_limit`
+
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
 
 ## Upload Car Files
