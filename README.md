@@ -85,7 +85,6 @@ In swan project, a task can contain multiple offline deals.
 ### Option:one:  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-client/releases)
 ```shell
 wget https://github.com/filswan/go-swan-client/releases/download/release-0.1.0/install.sh
-chmod +x ./install.sh
 ./install.sh
 ```
 
@@ -95,7 +94,6 @@ chmod +x ./install.sh
 git clone https://github.com/filswan/go-swan-client.git
 cd go-swan-client
 git checkout <release_branch>
-chmod +x ./build_from_source.sh
 ./build_from_source.sh
 ```
 
