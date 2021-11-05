@@ -261,7 +261,7 @@ no go-swan-client subcommand should be executed
 **Command parameters used in this step:**
 - -input-dir(Required): Input directory where the generated car files and metadata files reside in.
 - -out-dir(optional): Metadata files and swan task file will be generated to this directory. When ommitted, use default `[send].output_dir`, see [Configuration](#Configuration)
-- -miner(Required): Storage provider Id you want to send deal to, such as `t03354`
+- -miner(Required): Storage provider Id you want to send deal to, such as `t03354`.
 - -dataset(optional): The curated dataset from which the car files are generated
 - -description(optional): Details to better describe the data and confine the task or anything the storage provider needs to be informed.
 
