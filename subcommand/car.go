@@ -5,9 +5,10 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
+	"swan-client/model"
+
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/logs"
-	"github.com/filswan/swan-client/model"
 
 	"github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/utils"

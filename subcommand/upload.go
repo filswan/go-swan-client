@@ -6,10 +6,11 @@ import (
 	"github.com/filswan/go-swan-lib/client"
 	libmodel "github.com/filswan/go-swan-lib/model"
 
+	"swan-client/model"
+
 	"github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	"github.com/filswan/go-swan-lib/utils"
-	"github.com/filswan/swan-client/model"
 )
 
 func UploadCarFiles(confUpload *model.ConfUpload) ([]*libmodel.FileDesc, error) {
