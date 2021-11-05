@@ -241,6 +241,7 @@ no go-swan-client subcommand should be executed
 **Configurations used in this step:**
 - [main].storage_server_type, it should be set to `ipfs server` see [Configuration](#Configuration)
 - [ipfs_server].download_url_prefix, see [Configuration](#Configuration)
+- [ipfs_server].upload_url, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files updated after this step:**
