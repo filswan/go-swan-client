@@ -401,11 +401,11 @@ no swan-client subcommand should be executed
 - After swan allocated a miner to a task, the client needs to sending auto-bid deals using the information submitted to swan in step `Create A Task`
 - This step is executed in infinite loop mode, it will send auto-bid deals contiuously when deals exist that can meet below conditions.
 
-- **Conditions:**
-`your tasks in swan`
-`bid-mode=auto`
-`status=Assigned`
-`miner is not null`
+**Conditions:**
+- `your tasks in swan`
+- `bid-mode=auto`
+- `status=Assigned`
+- `miner is not null`
 
 ```shell
 ./swan-client auto -out-dir [output_files_dir]
