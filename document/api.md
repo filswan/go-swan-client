@@ -5,6 +5,7 @@
 * [UploadCarFiles](#UploadCarFiles)
 * [CreateTask](#CreateTask)
 * [SendDeals](#SendDeals)
+* [SendAutoBidDealsLoop](#SendAutoBidDealsLoop)
 * [SendAutoBidDeals](#SendAutoBidDeals)
 * [SendAutoBidDealsByTaskUuid](#SendAutoBidDealsByTaskUuid)
 
@@ -122,4 +123,19 @@ int       # deal sent
 string    # csvFilepath
 []*libmodel.FileDesc  # car files info
 error                 # error or nil
+```
+
+## SendAutoBidDealsLoop
+
+Definition:
+
+```shell
+func SendAutoBidDealsLoop(confDeal *model.ConfDeal)
+```
+
+Outputs:
+
+```shell
+no outputs
+print logs about error and csv filepaths
 ```

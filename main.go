@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/filswan/go-swan-client/model"
 
@@ -251,18 +250,6 @@ func sendAutoBidDeal() error {
 	}
 
 	confDeal := model.GetConfDeal(outputDir, "", "", true)
-	for {
-		csvFilepaths, _, err := subcommand.SendAutoBidDeals(confDeal)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			//return err
-			continue
-		}
-
-		for _, csvFilepath := range csvFilepaths {
-			logs.GetLogger().Info(csvFilepath, " is generated")
-		}
-
-		time.Sleep(time.Second * 30)
-	}
+	subcommand.SendAutoBidDealsLoop(confDeal)
+	return nil
 }
