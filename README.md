@@ -161,8 +161,8 @@ vi ~/.swan/client/config.toml
 
 [![](https://mermaid.ink/img/eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBW0NyZWF0ZWRdIC0tPiBDe01lZXQgRjF9XG4gICAgQyAtLT58Tm98IERbQWN0aW9uUmVxdWlyZWRdXG4gICAgQyAtLT58WWVzfCBFe01lZXQgRjJ9XG4gICAgRSAtLT4gfE5PfCBBXG4gICAgRSAtLT4gfFlFU3wgRltBc3NpZ25lZF0gLS0-R1tTZW5kIERlYWxdIC0tPiBIe0RlYWwgU2VudD99XG4gICAgSCAtLT4gfDB8IEZcbiAgICBIIC0tPiB8QUxMfCBJW0RlYWxTZW50XVxuICAgIEggLS0-IHxTT01FfCBKW1Byb2dyZXNzV2l0aEZhaWx1cmVdIiwibWVybWFpZCI6eyJ0aGVtZSI6ImRlZmF1bHQifSwidXBkYXRlRWRpdG9yIjpmYWxzZSwiYXV0b1N5bmMiOnRydWUsInVwZGF0ZURpYWdyYW0iOmZhbHNlfQ)](https://mermaid-js.github.io/mermaid-live-editor/edit/#eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBW0NyZWF0ZWRdIC0tPiBDe01lZXQgRjF9XG4gICAgQyAtLT58Tm98IERbQWN0aW9uUmVxdWlyZWRdXG4gICAgQyAtLT58WWVzfCBFe01lZXQgRjJ9XG4gICAgRSAtLT4gfE5PfCBBXG4gICAgRSAtLT4gfFlFU3wgRltBc3NpZ25lZF0gLS0-R1tTZW5kIERlYWxdIC0tPiBIe0RlYWwgU2VudD99XG4gICAgSCAtLT4gfDB8IEZcbiAgICBIIC0tPiB8QUxMfCBJW0RlYWxTZW50XVxuICAgIEggLS0-IHxTT01FfCBKW1Byb2dyZXNzV2l0aEZhaWx1cmVdIiwibWVybWFpZCI6IntcbiAgXCJ0aGVtZVwiOiBcImRlZmF1bHRcIlxufSIsInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjpmYWxzZX0)
 
-- F1: All conditions for auto-bid that a task and its offline deals must match in Market Matcher.
-- F2: Market Matcher can select a miner that can meet all conditions of auto-bid for this task and its offline deals.
+- F1: All conditions for auto-bid that a task and its offline deal(s) must match in Market Matcher.
+- F2: Market Matcher can select a miner that can meet all conditions of auto-bid for this task and its offline deal(s).
 
 ### Option:three:
 - **Conditions:** `[sender].public_deal=false`, see [Configuration](#Configuration)
