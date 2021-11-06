@@ -51,7 +51,7 @@ In swan project, a task can contain one or multiple offline deal(s).
 ### Offline Deal
 
 - Each offline deal contains information about a car file generated from the client tool.
-- The size of a car file can be up to 64 GB.
+- The size of a car file can be up to 64GB.
 - Every step of this tool will generate a JSON file which contains file(s) description like below:
 ```json
 [
@@ -98,7 +98,7 @@ git checkout <release_branch>
 ```
 
 ## After Installation
-- The binary file `go-swan-client` is generated under `./build` directory, you need to switch to it.
+- The binary file `go-swan-client` is under `./build` directory, you need to switch to it.
 ```shell
 cd build
 ```
@@ -113,15 +113,14 @@ vi ~/.swan/client/config.toml
 - **client_access_token**:  Access token of lotus client web api. It should have admin access right. You can get it from your lotus node machine using command `lotus auth create-token --perm admin`. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
 
 ### [main]
-- **api_url**: Swan API address. For Swan production, it is "https://api.filswan.com". It can be ignored if offline_mode is set to true in `[sender]` section
-- :bangbang:**api_key**: Your Swan API key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in `[sender]` section.
-- :bangbang:**access_token**: Your Swan API access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if offline_mode is set to true in `[sender]` section.
+- **api_url**: Swan API address. For Swan production, it is "https://api.filswan.com". It can be ignored if `[sender].offline_mode=true`.
+- :bangbang:**api_key**: Your Swan API key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_mode=true`.
+- :bangbang:**access_token**: Your Swan API access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_mode=true`.
 - :bangbang:**storage_server_type**: "ipfs server" or "web server"
 
 ### [web-server]
 - **download_url_prefix**: web server url prefix, such as: `https://[ip]:[port]/download`. Store car files for downloading by storage provider, car file url will be `[download_url_prefix]/[filename]`
 ### [ipfs-server]
-
 - **download_url_prefix**: ipfs server url prefix, such as: `http://[ip]:[port]`. Store car files for downloading by storage provider, car file url will be `[download_url_prefix]/ipfs/[filename]`
 - **upload_url**: ipfs server url for uploading file, such as `http://[ip]:[port]`
 
