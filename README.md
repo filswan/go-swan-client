@@ -34,7 +34,7 @@ In swan project, a task can contain one or multiple offline deal(s).
   * **Public Task**: A deal set for open bid. It has 2 types:
     * **Auto-bid**: an auto-bid task will be automatically assigned to a selected storage provider based on reputation system and Market Matcher.
     * **Manual-bid**: after bidder winning the bid, the task holder needs to propose the manual-bid task to the winner.
-  * **Private Task**: It is required to propose deals of a private task to a specified storage provider.
+  * **Private Task**: It is required to propose deal(s) of a private task to a specified storage provider.
 - Task status:
   * **Created**: A task is created successfully first time on Swan platform, regardless of its type.
   * **Assigned**: A task has been assigned to a storage provider manually by users or automatically by auto-bid module: Market Matcher.
@@ -42,10 +42,10 @@ In swan project, a task can contain one or multiple offline deal(s).
     - MaxPrice: missing, or is not a valid number
     - FastRetrieval: missing
     - Type: missing, or not have valid value
-    - No offline deals for this task.
+    - No offline deal for this task.
 
     :bell:You need to solve the above problems and change the task status to `Created` to participate next run of Market Matcher.
-  * **DealSent**: All offline deals of this task have been sent to a storage provider which has been assigned to this task.
+  * **DealSent**: All offline deal(s) of this task have been sent to a storage provider which has been assigned to this task.
   * **ProgressWithFailure**: Some and not all of the deals of the task have been sent to a storage provider which has been assigned to this task.
 
 ### Offline Deal
