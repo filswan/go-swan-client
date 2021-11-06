@@ -29,7 +29,7 @@
 
 ## Concepts
 ### Task
-In swan project, a task can contain multiple offline deals.
+In swan project, a task can contain one or multiple offline deal(s).
 - Task type: There are two basic types of tasks:
   * **Public Task**: A deal set for open bid. It has 2 types:
     * **Auto-bid** public task: this kind of task will be automatically assigned to a selected storage provider based on reputation system and Market Matcher.
@@ -41,7 +41,7 @@ In swan project, a task can contain multiple offline deals.
   * **ActionRequired**: Task with autobid mode on, in other words, `bid_mode=1` and `public_deal=true`, have some information missing or invalid:
     - MaxPrice: missing, or is not a valid number
     - FastRetrieval: missing
-    - Type: missing, or not have valid values
+    - Type: missing, or not have valid value
     - No offline deals for this task.
 
     :bell:You need to solve the above problems and change the task status to `Created` to participate next run of Market Matcher.
