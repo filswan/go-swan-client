@@ -32,13 +32,13 @@
 In swan project, a task can contain one or multiple offline deal(s).
 - Task type: There are two basic types of tasks:
   * **Public Task**: A deal set for open bid. It has 2 types:
-    * **Auto-bid** public task: this kind of task will be automatically assigned to a selected storage provider based on reputation system and Market Matcher.
-    * **Manual-bid** public task: for this kind of task, after bidder win the bid, the task holder needs to propose the task to the winner.
-  * **Private Task**: It is required to propose deals to a specified storage provider.
+    * **Auto-bid**: an auto-bid task will be automatically assigned to a selected storage provider based on reputation system and Market Matcher.
+    * **Manual-bid**: after bidder winning the bid, the task holder needs to propose the manual-bid task to the winner.
+  * **Private Task**: It is required to propose deals of a private task to a specified storage provider.
 - Task status:
-  * **Created**: Tasks are created successfully first time on Swan platform for all kinds of tasks.
-  * **Assigned**: Tasks have been assigned to storage providers manually by users or automatically by auto-bid module: Market Matcher.
-  * **ActionRequired**: Task with autobid mode on, in other words, `bid_mode=1` and `public_deal=true`, have some information missing or invalid:
+  * **Created**: A task is created successfully first time on Swan platform, regardless of its type.
+  * **Assigned**: A task has been assigned to a storage provider manually by users or automatically by auto-bid module: Market Matcher.
+  * **ActionRequired**: An autobid task, that is, `bid_mode=1` and `public_deal=true`, has some information missing or invalid:
     - MaxPrice: missing, or is not a valid number
     - FastRetrieval: missing
     - Type: missing, or not have valid value
