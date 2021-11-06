@@ -109,7 +109,7 @@ vi ~/.swan/client/config.toml
 
 ## Configuration
 ### [lotus]
-- **client_api_url**:  Url of lotus client web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
+- **client_api_url**:  Url of lotus client web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**. See [Lotus API](https://docs.filecoin.io/reference/lotus-api/#features)
 - **client_access_token**:  Access token of lotus client web api. It should have admin access right. You can get it from your lotus node machine using command `lotus auth create-token --perm admin`. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
 
 ### [main]
