@@ -285,9 +285,9 @@ no swan-client subcommand should be executed
 - [lotus].client_access_token, see [Configuration](#Configuration)
 
 **Files generated after this step:**
-- [task-name].csv: a CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
-- [task-name]-metadata.csv: contains more contents used for review, uuid will be updated based upon car.csv generated in last step
-- [task-name]-metadata.json: contains more content for creating proposal in the next step, uuid will be updated based upon car.json generated in last step, see [Offline Deal](#Offline-Deal)
+- [task-name].csv: A CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv: Contains more contents used for review. Uuid will be updated based upon car.csv generated in last step.
+- [task-name]-metadata.json: Contains more content for creating proposal in the next step. Uuid will be updated based upon car.json generated in last step. See [Offline Deal](#Offline-Deal)
 
 ### Option:two: Public and Auto-Bid Task
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
