@@ -353,9 +353,9 @@ no swan-client subcommand should be executed
 - [web_server].download_url_prefix, used only when `[main].storage_server_type="web server"`, see [Configuration](#Configuration)
 
 **Files generated after this step:**
-- [task-name].csv: a CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
-- [task-name]-metadata.csv: contains more contents used for review, uuid will be updated based upon car.csv generated in last step
-- [task-name]-metadata.json: contains more content for creating proposal in the next step, uuid will be updated based upon car.json generated in last step, see [Offline Deal](#Offline-Deal)
+- [task-name].csv: A CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
+- [task-name]-metadata.csv: Contains more contents used for review. Uuid will be updated based upon car.csv generated in last step.
+- [task-name]-metadata.json: Contains more content for creating proposal in the next step. Uuid will be updated based upon car.json generated in last step. See [Offline Deal](#Offline-Deal)
 
 ## Send Deals
 :bell: The input dir and out dir should only be absolute one.
