@@ -119,7 +119,7 @@ vi ~/.swan/client/config.toml
 - :bangbang:**storage_server_type**: "ipfs server" or "web server"
 
 ### [web-server]
-- **download_url_prefix**: web server url prefix, such as: `https://[ip]:[port]/download`. Store car files for downloading by storage provider. Car file url will be `[download_url_prefix]/[filename]`
+- **download_url_prefix**: Web server url prefix, such as: `https://[ip]:[port]/download`. Store car files for downloading by storage provider. Car file url will be `[download_url_prefix]/[filename]`
 ### [ipfs-server]
 - **download_url_prefix**: Ipfs server url prefix, such as: `http://[ip]:[port]`. Store car files for downloading by storage provider. Car file url will be `[download_url_prefix]/ipfs/[filename]`
 - **upload_url**: Ipfs server url for uploading file, such as `http://[ip]:[port]`
