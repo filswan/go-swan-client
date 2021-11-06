@@ -45,7 +45,7 @@ In swan project, a task can contain one or multiple offline deal(s).
     - No offline deal for this task.
 
     :bell:You need to solve the above problems and change the task status to `Created` to participate next run of Market Matcher.
-  * **DealSent**: All offline deal(s) of this task have been sent to a storage provider which has been assigned to this task.
+  * **DealSent**: All offline deal(s) of this task has(have) been sent to a storage provider which has been assigned to this task.
   * **ProgressWithFailure**: Some and not all of the deals of the task have been sent to a storage provider which has been assigned to this task.
 
 ### Offline Deal
