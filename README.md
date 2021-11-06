@@ -119,26 +119,26 @@ vi ~/.swan/client/config.toml
 - :bangbang:**storage_server_type**: "ipfs server" or "web server"
 
 ### [web-server]
-- **download_url_prefix**: web server url prefix, such as: `https://[ip]:[port]/download`. Store car files for downloading by storage provider, car file url will be `[download_url_prefix]/[filename]`
+- **download_url_prefix**: web server url prefix, such as: `https://[ip]:[port]/download`. Store car files for downloading by storage provider. Car file url will be `[download_url_prefix]/[filename]`
 ### [ipfs-server]
-- **download_url_prefix**: ipfs server url prefix, such as: `http://[ip]:[port]`. Store car files for downloading by storage provider, car file url will be `[download_url_prefix]/ipfs/[filename]`
+- **download_url_prefix**: ipfs server url prefix, such as: `http://[ip]:[port]`. Store car files for downloading by storage provider. Car file url will be `[download_url_prefix]/ipfs/[filename]`
 - **upload_url**: ipfs server url for uploading file, such as `http://[ip]:[port]`
 
 ### [sender]
 - **bid_mode**: [0/1] Default 1, which is auto-bid mod and it means swan will automatically allocate storage provider for it, while 0 is manual-bid mode and it needs to be bidded manually by storage providers.
-- **offline_mode**: [true/false] Default false. If it is set to true, you will not be able to create Swan task on filswan.com, but you can still generate Car Files, CSV and JSON files for sending deals
+- **offline_mode**: [true/false] Default false. When set to true, you will not be able to create a Swan task on filswan.com, but you can still generate Car Files, CSV and JSON files for sending deals.
 - **output_dir**: When you do not set -out-dir option in your command, it is used as the default output directory for saving generated car files, CSV and JSON files. You need have access right to this folder or to create it.
-- **public_deal**: [true/false] Whether deals in the tasks are public deals
-- **verified_deal**: [true/false] Whether deals in this task are going to be sent as verified
-- **fast_retrieval**: [true/false] Indicates that data should be available for fast retrieval
+- **public_deal**: [true/false] Whether deals in this task are public or not.
+- **verified_deal**: [true/false] Whether deals in this task are going to be sent as verified or not.
+- **fast_retrieval**: [true/false] Indicates that data should be available for fast retrieval or not.
 - **generate_md5**: [true/false] Whether to generate md5 for each car file and source file, note: this is a resource consuming action.
-- **skip_confirmation**: [true/false] Whether to skip manual confirmation of each deal before sending
+- **skip_confirmation**: [true/false] Whether to skip manual confirmation of each deal before sending.
 - **wallet**:  Wallet used for sending offline deals
-- **max_price**: Max price willing to pay per GiB/epoch for offline deal
-- **start_epoch_hours**: start_epoch for deals in hours from current time
-- **expired_days**: expected completion days for storage provider sealing data
-- **gocar_file_size_limit**: go car file size limit in bytes
-- **duration**: expressed in blocks (1 block is equivalent to 30s). Default value is 1512000, that is 525 days.
+- **max_price**: Max price willing to pay per GiB/epoch for offline deals
+- **start_epoch_hours**: Start_epoch for deals in hours from current time.
+- **expired_days**: Expected completion days for storage provider sealing data.
+- **gocar_file_size_limit**: Go car file size limit in bytes
+- **duration**: expressed in blocks (1 block is equivalent to 30s). Default value is 1512000, that is 525 days.See [Make the Deal](https://docs.filecoin.io/store/lotus/store-data/#make-the-deal)
 
 ## Flowcharts
 
