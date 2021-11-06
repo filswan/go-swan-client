@@ -121,8 +121,8 @@ vi ~/.swan/client/config.toml
 ### [web-server]
 - **download_url_prefix**: web server url prefix, such as: `https://[ip]:[port]/download`. Store car files for downloading by storage provider. Car file url will be `[download_url_prefix]/[filename]`
 ### [ipfs-server]
-- **download_url_prefix**: ipfs server url prefix, such as: `http://[ip]:[port]`. Store car files for downloading by storage provider. Car file url will be `[download_url_prefix]/ipfs/[filename]`
-- **upload_url**: ipfs server url for uploading file, such as `http://[ip]:[port]`
+- **download_url_prefix**: Ipfs server url prefix, such as: `http://[ip]:[port]`. Store car files for downloading by storage provider. Car file url will be `[download_url_prefix]/ipfs/[filename]`
+- **upload_url**: Ipfs server url for uploading file, such as `http://[ip]:[port]`
 
 ### [sender]
 - **bid_mode**: [0/1] Default 1, which is auto-bid mod and it means swan will automatically allocate storage provider for it, while 0 is manual-bid mode and it needs to be bidded manually by storage providers.
@@ -138,7 +138,7 @@ vi ~/.swan/client/config.toml
 - **start_epoch_hours**: Start_epoch for deals in hours from current time.
 - **expired_days**: Expected completion days for storage provider sealing data.
 - **gocar_file_size_limit**: Go car file size limit in bytes
-- **duration**: expressed in blocks (1 block is equivalent to 30s). Default value is 1512000, that is 525 days. See [Make the Deal](https://docs.filecoin.io/store/lotus/store-data/#make-the-deal)
+- **duration**: Expressed in blocks (1 block is equivalent to 30s). Default value is 1512000, that is 525 days. See [Make the Deal](https://docs.filecoin.io/store/lotus/store-data/#make-the-deal)
 
 ## Flowcharts
 
