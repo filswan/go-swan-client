@@ -235,7 +235,7 @@ no swan-client subcommand should be executed
 ./swan-client upload -input-dir [input_file_dir]
 ```
 **Command parameters used in this step:**
-- -input-dir(Required): The directory where the car files and metadata files reside in. Metadata files will be used and updated after car files uploaded.
+- -input-dir(Required): The directory where the car files and metadata files reside in. Metadata files will be used and updated here after car files uploaded.
 
 **Configurations used in this step:**
 - [main].storage_server_type, it should be set to `ipfs server` see [Configuration](#Configuration)
