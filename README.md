@@ -320,7 +320,7 @@ no swan-client subcommand should be executed
 
 **Files generated after this step:**
 - [task-name].csv: A CSV generated for posting a task and its offline deals on Swan platform or transferring to storage providers directly for offline import
-- [task-name]-metadata.csv: Contains more contents used for review. Uuid will be updated based upon car.csv generated in last step
+- [task-name]-metadata.csv: Contains more contents used for review. Uuid will be updated based upon car.csv generated in last step.
 - [task-name]-metadata.json: Contains more content for creating proposal in the next step. Uuid will be updated based upon car.json generated in last step. See [Offline Deal](#Offline-Deal)
 
 ### Option:three: Public and Manual-Bid Task
