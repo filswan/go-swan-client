@@ -122,7 +122,7 @@ vi ~/.swan/client/config.toml
 - **download_url_prefix**: Web server url prefix, such as: `https://[ip]:[port]/download`. Store car files for downloading by storage provider. Car file url will be `[download_url_prefix]/[filename]`
 ### [ipfs-server]
 - **download_url_prefix**: Ipfs server url prefix, such as: `http://[ip]:[port]`. Store car files for downloading by storage provider. Car file url will be `[download_url_prefix]/ipfs/[filename]`
-- **upload_url**: Ipfs server url for uploading file, such as `http://[ip]:[port]`
+- **upload_url**: Ipfs server url for uploading files, such as `http://[ip]:[port]`
 
 ### [sender]
 - **bid_mode**: [0/1] Default 1, which is auto-bid mod and it means swan will automatically allocate storage provider for it, while 0 is manual-bid mode and it needs to be bidded manually by storage providers.
