@@ -364,7 +364,7 @@ no swan-client subcommand should be executed
 ### Option:one: Manual deal
 **Conditions:**
 - `task can be found by uuid in JSON file from swan platform`
-- `task.public_deal=true`
+- `task.is_public=true`
 - `task.bid_mode=0`
 
 ```shell
@@ -399,8 +399,8 @@ no swan-client subcommand should be executed
 
 **Conditions:**
 - `your tasks in swan`
-- `public task`
-- `bid-mode=auto`
+- `task.is_public=true`
+- `task.bid_mode=1`
 - `status=Assigned`
 - `miner is not null`
 
