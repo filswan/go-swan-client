@@ -369,11 +369,11 @@ no swan-client subcommand should be executed
 - `task.bid_mode=0`
 
 ```shell
-./swan-client deal -json [task-name-metadata.json] -out-dir [output_files_dir] -miner [storage_provider_id]
+./swan-client deal -json [path]/[task-name]-metadata.json -out-dir [output_files_dir] -miner [storage_provider_id]
 ```
 **Command parameters used in this step:**
-- -json(Required): File path to the metadata JSON file, see [Offline Deal](#Offline-Deal)
-- -out-dir(optional): Swan deal final metadata files will be generated to the given directory. When ommitted, use default: `[sender].output_dir`, see [Configuration](#Configuration)
+- -json(Required): Full file path to the metadata JSON file, see [Offline Deal](#Offline-Deal)
+- -out-dir(optional): Swan deal final metadata files will be generated to the given directory. When ommitted, use default: `[sender].output_dir`. See [Configuration](#Configuration)
 - -miner(Required): Target storage provider id, e.g f01276
 
 **Configurations used in this step:**
@@ -390,16 +390,17 @@ no swan-client subcommand should be executed
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files generated after this step:**
-- [task-name].csv: a CSV generated for updating offline deal status and filling deal CID for offline deals
-- [task-name]-deals.csv: deal CID updated based on [task-name]-metadata.csv generated on previous step
-- [task-name]-deals.json: deal CID updated based on [task-name]-metadata.json generated on previous step, see [Offline Deal](#Offline-Deal)
+- [task-name].csv: A CSV generated for updating offline deal status and filling deal CID for offline deals
+- [task-name]-deals.csv: Deal CID updated based on [task-name]-metadata.csv generated on previous step
+- [task-name]-deals.json: Deal CID updated based on [task-name]-metadata.json generated on previous step, see [Offline Deal](#Offline-Deal)
 
 ### Option:two: Auto-bid deal
-- After swan allocated a miner to a task, the client needs to sending auto-bid deals using the information submitted to swan in step `Create A Task`
+- After swan allocated a miner to a task, the client needs to sending auto-bid deals using the information submitted to swan in step [Create A Task](#Create-A-Task).
 - This step is executed in infinite loop mode, it will send auto-bid deals contiuously when there are deals that can meet below conditions.
 
 **Conditions:**
 - `your tasks in swan`
+- `public task`
 - `bid-mode=auto`
 - `status=Assigned`
 - `miner is not null`
@@ -408,7 +409,7 @@ no swan-client subcommand should be executed
 ./swan-client auto -out-dir [output_files_dir]
 ```
 **Command parameters used in this step:**
-- -miner(Required): Target storage provider id, e.g f01276
+- -out-dir(optional): Swan deal final metadata files will be generated to the given directory. When ommitted, use default: `[sender].output_dir`. See [Configuration](#Configuration)
 
 **Configurations used in this step:**
 - [sender].wallet, see [Configuration](#Configuration)
@@ -418,6 +419,6 @@ no swan-client subcommand should be executed
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files generated for each task after this step:**
-- [task-name].csv: a CSV generated for updating task status and fill deal CID for offline deals
-- [task-name]-deals.csv: deal CID updated based on [task-name]-metadata.csv generated on next step
-- [task-name]-deals.json: deal CID updated based on [task-name]-metadata.json generated on next step, see [Offline Deal](#Offline-Deal)
+- [task-name]-auto.csv: A CSV generated for updating task status and fill deal CID for offline deals
+- [task-name]-auto-deals.csv: Deal CID updated based on [task-name]-metadata.csv generated on next step.
+- [task-name]-auto-deals.json: Deal CID updated based on [task-name]-metadata.json generated on next step. See [Offline Deal](#Offline-Deal)
