@@ -199,7 +199,7 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 			dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, confDeal.Duration, confDeal.MinerFid, confDeal.SenderWallet)
 			dealCid, startEpoch, err := lotus.LotusProposeOfflineDeal(carFile, cost, pieceSize, *dealConfig, i)
 			if err != nil {
-				logs.GetLogger().Error(err)
+				logs.GetLogger().Error("tried ", i, " times,", err)
 
 				if strings.Contains(err.Error(), "already tracking identifier") {
 					continue
@@ -208,12 +208,14 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 				}
 			}
 			if dealCid == nil {
+				logs.GetLogger().Info("no deal CID returned")
 				continue
 			}
 
 			carFile.DealCid = *dealCid
 			carFile.StartEpoch = startEpoch
 			dealSentNum = dealSentNum + 1
+			logs.GetLogger().Info("task:", task.TaskName, "deal CID:", carFile.DataCid, " start epoch:", carFile.StartEpoch, " deal sent number:", dealSentNum)
 			break
 		}
 	}
