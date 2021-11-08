@@ -208,12 +208,14 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 				}
 			}
 			if dealCid == nil {
+				logs.GetLogger().Info("no deal CID returned")
 				continue
 			}
 
 			carFile.DealCid = *dealCid
 			carFile.StartEpoch = startEpoch
 			dealSentNum = dealSentNum + 1
+			logs.GetLogger().Info("task:", task.TaskName, "deal CID:", carFile.DataCid, " start epoch:", carFile.StartEpoch, " deal sent number:", dealSentNum)
 			break
 		}
 	}
