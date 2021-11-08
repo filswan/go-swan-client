@@ -218,11 +218,12 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 		}
 	}
 
-	jsonFileName := task.TaskName + "-autodeal-" + constants.JSON_FILE_NAME_BY_AUTO
-	csvFileName := task.TaskName + "-autodeal-" + constants.CSV_FILE_NAME_BY_AUTO
+	auto := "-auto"
+	jsonFileName := task.TaskName + auto + constants.JSON_FILE_NAME_BY_DEAL
+	csvFileName := task.TaskName + auto + constants.CSV_FILE_NAME_BY_DEAL
 	WriteCarFilesToFiles(carFiles, outputDir, jsonFileName, csvFileName)
 
-	csvFilename := task.TaskName + "_autodeal.csv"
+	csvFilename := task.TaskName + auto + ".csv"
 	csvFilepath, err := CreateCsv4TaskDeal(carFiles, outputDir, csvFilename)
 
 	return dealSentNum, csvFilepath, carFiles, err
