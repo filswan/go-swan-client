@@ -202,6 +202,7 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 				logs.GetLogger().Error(err)
 
 				if strings.Contains(err.Error(), "already tracking identifier") {
+					logs.GetLogger().Info("i:", i)
 					continue
 				} else {
 					break
