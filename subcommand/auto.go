@@ -221,7 +221,8 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 			carFile.DealCid = *dealCid
 			carFile.StartEpoch = startEpoch
 			dealSentNum = dealSentNum + 1
-			logs.GetLogger().Info("task:", task.TaskName, "deal CID:", carFile.DataCid, " start epoch:", carFile.StartEpoch, " deal sent number:", dealSentNum)
+
+			logs.GetLogger().Info("task:", task.TaskName, ", deal CID:", carFile.DealCid, ", start epoch:", *carFile.StartEpoch, ", deal sent successfully")
 			break
 		}
 	}
