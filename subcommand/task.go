@@ -64,6 +64,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	logs.GetLogger().Info("verified deals: ", confTask.VerifiedDeal)
 	logs.GetLogger().Info("connected to swan: ", !confTask.OfflineMode)
 	logs.GetLogger().Info("fastRetrieval: ", confTask.FastRetrieval)
+	logs.GetLogger().Info("auto-bid: ", confTask.BidMode == constants.TASK_BID_MODE_AUTO)
 
 	carFiles := ReadCarFilesFromJsonFile(confTask.InputDir, constants.JSON_FILE_NAME_BY_UPLOAD)
 	if carFiles == nil {
