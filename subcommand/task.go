@@ -50,8 +50,8 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		logs.GetLogger().Error(err)
 		return nil, nil, err
 	}
-	if confTask.BidMode == constants.TASK_BID_MODE_AUTO && len(confTask.MinerFid) != 0 {
-		logs.GetLogger().Warn("miner is unnecessary for aubo-bid task, it will be ignored")
+	if confTask.PublicDeal && len(confTask.MinerFid) != 0 {
+		logs.GetLogger().Warn("miner is unnecessary for public task, it will be ignored")
 	}
 
 	if len(confTask.TaskName) == 0 {
