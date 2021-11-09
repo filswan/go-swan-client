@@ -20,6 +20,8 @@ type ConfDeal struct {
 	SwanApiKey              string
 	SwanAccessToken         string
 	SwanJwtToken            string
+	LotusClientApiUrl       string
+	LotusClientAccessToken  string
 	SenderWallet            string
 	MaxPrice                decimal.Decimal
 	VerifiedDeal            bool
@@ -42,6 +44,8 @@ func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string, isAutoBid
 		SwanApiUrl:              config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:              config.GetConfig().Main.SwanApiKey,
 		SwanAccessToken:         config.GetConfig().Main.SwanAccessToken,
+		LotusClientApiUrl:       config.GetConfig().Lotus.ClientApiUrl,
+		LotusClientAccessToken:  config.GetConfig().Lotus.ClientAccessToken,
 		SenderWallet:            config.GetConfig().Sender.Wallet,
 		VerifiedDeal:            config.GetConfig().Sender.VerifiedDeal,
 		FastRetrieval:           config.GetConfig().Sender.FastRetrieval,
