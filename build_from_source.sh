@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CONF_FILE_DIR=${HOME}/.swan/client
-mkdir ${CONF_FILE_DIR}
+mkdir -p ${CONF_FILE_DIR}
 
 CONF_FILE_PATH=${CONF_FILE_DIR}/config.toml
 echo $CONF_FILE_PATH
