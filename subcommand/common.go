@@ -53,20 +53,20 @@ func CheckDealConfig(confDeal *model.ConfDeal) error {
 
 	if confDeal.VerifiedDeal {
 		if minerVerifiedPrice == nil {
-			err := fmt.Errorf("cannot get miner verified price for verified deal")
+			err := fmt.Errorf("miner:%s,cannot get miner verified price for verified deal", confDeal.MinerFid)
 			logs.GetLogger().Error(err)
 			return err
 		}
 		confDeal.MinerPrice = *minerVerifiedPrice
-		logs.GetLogger().Info("Miner price is:", *minerVerifiedPrice)
+		logs.GetLogger().Info("miner:", confDeal.MinerFid, ",price is:", *minerVerifiedPrice)
 	} else {
 		if minerPrice == nil {
-			err := fmt.Errorf("cannot get miner price for non-verified deal")
+			err := fmt.Errorf("miner:%s,cannot get miner price for non-verified deal", confDeal.MinerFid)
 			logs.GetLogger().Error(err)
 			return err
 		}
 		confDeal.MinerPrice = *minerPrice
-		logs.GetLogger().Info("Miner price is:", *minerPrice)
+		logs.GetLogger().Info("miner:", confDeal.MinerFid, ",price is:", *minerPrice)
 	}
 
 	logs.GetLogger().Info("Miner price is:", confDeal.MinerPrice, " MaxPrice:", confDeal.MaxPrice, " VerifiedDeal:", confDeal.VerifiedDeal)
