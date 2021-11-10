@@ -24,6 +24,8 @@ type ConfDeal struct {
 	SwanApiKey              string
 	SwanAccessToken         string
 	SwanJwtToken            string
+	LotusClientApiUrl       string
+	LotusClientAccessToken  string
 	SenderWallet            string
 	MaxPrice                decimal.Decimal
 	VerifiedDeal            bool
