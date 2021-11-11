@@ -20,41 +20,41 @@ type ConfCar struct {
 ## ConfUpload
 ```shell
 type ConfUpload struct {
-	StorageServerType           string
-	IpfsServerDownloadUrlPrefix string
-	IpfsServerUploadUrl         string
-	OutputDir                   string
-	InputDir                    string
+	StorageServerType           string //required
+	IpfsServerDownloadUrlPrefix string //required only when upload to ipfs server
+	IpfsServerUploadUrl         string //required only when upload to ipfs server
+	OutputDir                   string //invalid
+	InputDir                    string //required
 }
 ```
 
 ## ConfTask
 ```shell
 type ConfTask struct {
-	SwanApiUrl                 string
-	SwanApiKey                 string
-	SwanAccessToken            string
-	SwanJwtToken               string
-	PublicDeal                 bool
-	BidMode                    int
-	VerifiedDeal               bool
-	OfflineMode                bool
-	FastRetrieval              bool
-	MaxPrice                   decimal.Decimal
-	StorageServerType          string
-	WebServerDownloadUrlPrefix string
-	ExpireDays                 int
-	GenerateMd5                bool
-	Duration                   int
-	OutputDir                  string
-	InputDir                   string
-	TaskName                   string
-	MinerFid                   string
-	Dataset                    string
-	Description                string
-	StartEpoch                 int
-	StartEpochIntervalHours    int
-	SourceId                   int
+	SwanApiUrl                 string          //required
+	SwanApiKey                 string          //required only when SwanJwtToken is not provided
+	SwanAccessToken            string          //required only when SwanJwtToken is not provided
+	SwanJwtToken               string          //required only when SwanApiKey & SwanAccessToken are not provided
+	PublicDeal                 bool            //required
+	BidMode                    int             //required
+	VerifiedDeal               bool            //required
+	OfflineMode                bool            //required
+	FastRetrieval              bool            //required
+	MaxPrice                   decimal.Decimal //required
+	StorageServerType          string          //required
+	WebServerDownloadUrlPrefix string          //required only when StorageServerType is web server
+	ExpireDays                 int             //required
+	GenerateMd5                bool            //required
+	Duration                   int             //not necessary, when not provided use default value:1512000
+	OutputDir                  string          //required
+	InputDir                   string          //required
+	TaskName                   string          //not necessary, when not provided use default value:swan_task_xxxxxx
+	MinerFid                   string          //required only when PublicDeal=false
+	Dataset                    string          //not necessary
+	Description                string          //not necessary
+	StartEpoch                 int             //required
+	StartEpochIntervalHours    int             //invalid
+	SourceId                   int             //required
 }
 ```
 
