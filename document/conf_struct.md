@@ -1,9 +1,9 @@
 # Groups
 
 * [ConfCar](#ConfCar)
-* [ConfDeal](#ConfDeal)
-* [ConfTask](#ConfTask)
 * [ConfUpload](#ConfUpload)
+* [ConfTask](#ConfTask)
+* [ConfDeal](#ConfDeal)
 
 ## ConfCar
 ```shell
@@ -17,27 +17,14 @@ type ConfCar struct {
 }
 ```
 
-## ConfDeal
+## ConfUpload
 ```shell
-type ConfDeal struct {
-	SwanApiUrl              string
-	SwanApiKey              string
-	SwanAccessToken         string
-	SwanJwtToken            string
-	LotusClientApiUrl       string
-	LotusClientAccessToken  string
-	SenderWallet            string
-	MaxPrice                decimal.Decimal
-	VerifiedDeal            bool
-	FastRetrieval           bool
-	SkipConfirmation        bool
-	Duration                int
-	MinerPrice              decimal.Decimal
-	StartEpoch              int
-	StartEpochIntervalHours int
-	OutputDir               string
-	MinerFid                string
-	MetadataJsonPath        string
+type ConfUpload struct {
+	StorageServerType           string
+	IpfsServerDownloadUrlPrefix string
+	IpfsServerUploadUrl         string
+	OutputDir                   string
+	InputDir                    string
 }
 ```
 
@@ -71,13 +58,28 @@ type ConfTask struct {
 }
 ```
 
-## ConfUpload
+## ConfDeal
 ```shell
-type ConfUpload struct {
-	StorageServerType           string
-	IpfsServerDownloadUrlPrefix string
-	IpfsServerUploadUrl         string
-	OutputDir                   string
-	InputDir                    string
+type ConfDeal struct {
+	SwanApiUrl                   string
+	SwanApiKey                   string
+	SwanAccessToken              string
+	SwanJwtToken                 string
+	LotusClientApiUrl            string
+	LotusClientAccessToken       string
+	SenderWallet                 string
+	MaxPrice                     decimal.Decimal
+	VerifiedDeal                 bool
+	FastRetrieval                bool
+	SkipConfirmation             bool
+	Duration                     int
+	MinerPrice                   decimal.Decimal
+	StartEpoch                   int
+	StartEpochIntervalHours      int
+	OutputDir                    string
+	MinerFid                     string
+	MetadataJsonPath             string
+	DealSourceIds                []int
+	RelativeEpochFromMainNetwork int
 }
 ```
