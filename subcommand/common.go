@@ -23,6 +23,24 @@ const (
 	DURATION = 1512000
 )
 
+func IsTaskSourceRight(confDeal *model.ConfDeal, task libmodel.Task) bool {
+	if confDeal == nil {
+		return false
+	}
+
+	if confDeal.DealSourceIds == nil || len(confDeal.DealSourceIds) == 0 {
+		return false
+	}
+
+	for _, sourceId := range confDeal.DealSourceIds {
+		if task.SourceId == sourceId {
+			return true
+		}
+	}
+
+	return false
+}
+
 func GetDefaultTaskName() string {
 	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz0123456789")
 	randStr := utils.RandStringRunes(letterRunes, 6)

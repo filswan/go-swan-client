@@ -68,6 +68,10 @@ func SendAutoBidDeals(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDes
 	var tasksDeals [][]*libmodel.FileDesc
 	csvFilepaths := []string{}
 	for _, assignedTask := range assignedTasks {
+		if !IsTaskSourceRight(confDeal, assignedTask) {
+			continue
+		}
+
 		_, csvFilePath, carFiles, err := SendAutoBidDealsByTaskUuid(confDeal, assignedTask.Uuid)
 		if err != nil {
 			logs.GetLogger().Error(err)
@@ -116,7 +120,7 @@ func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int,
 		return 0, "", nil, err
 	}
 
-	msg := fmt.Sprintf("%d deal(s) sent for task:%s", dealSentNum, task.TaskName)
+	msg := fmt.Sprintf("%d deal(s) sent to:%s for task:%s", dealSentNum, confDeal.MinerFid, task.TaskName)
 	logs.GetLogger().Info(msg)
 
 	if dealSentNum == 0 {
@@ -144,6 +148,12 @@ func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int,
 func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDeal, task libmodel.Task, outputDir string) (int, string, []*libmodel.FileDesc, error) {
 	if confDeal == nil {
 		err := fmt.Errorf("parameter confDeal is nil")
+		logs.GetLogger().Error(err)
+		return 0, "", nil, err
+	}
+
+	if !IsTaskSourceRight(confDeal, task) {
+		err := fmt.Errorf("you cannot send deal from this kind of source")
 		logs.GetLogger().Error(err)
 		return 0, "", nil, err
 	}
@@ -178,14 +188,16 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 		pieceSize, sectorSize := utils.CalculatePieceSize(fileSizeInt)
 		logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
 		cost := utils.CalculateRealCost(sectorSize, confDeal.MinerPrice)
+		startEpoch := deal.StartEpoch + confDeal.RelativeEpochFromMainNetwork
 		carFile := libmodel.FileDesc{
-			Uuid:       task.Uuid,
-			MinerFid:   task.MinerFid,
-			CarFileUrl: deal.FileSourceUrl,
-			CarFileMd5: deal.Md5Origin,
-			StartEpoch: &deal.StartEpoch,
-			PieceCid:   deal.PieceCid,
-			DataCid:    deal.PayloadCid,
+			Uuid:        task.Uuid,
+			MinerFid:    task.MinerFid,
+			CarFileUrl:  deal.FileSourceUrl,
+			CarFileMd5:  deal.Md5Origin,
+			StartEpoch:  &startEpoch,
+			PieceCid:    deal.PieceCid,
+			DataCid:     deal.PayloadCid,
+			CarFileSize: utils.GetInt64FromStr(deal.FileSize),
 		}
 		if carFile.MinerFid != "" {
 			logs.GetLogger().Info("MinerFid:", carFile.MinerFid)
@@ -222,7 +234,7 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 			carFile.StartEpoch = startEpoch
 			dealSentNum = dealSentNum + 1
 
-			logs.GetLogger().Info("task:", task.TaskName, ", deal CID:", carFile.DealCid, ", start epoch:", *carFile.StartEpoch, ", deal sent successfully")
+			logs.GetLogger().Info("task:", task.TaskName, ", deal CID:", carFile.DealCid, ", start epoch:", *carFile.StartEpoch, ", deal sent to ", confDeal.MinerFid, "successfully")
 			break
 		}
 	}
