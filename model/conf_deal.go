@@ -16,26 +16,26 @@ import (
 )
 
 type ConfDeal struct {
-	SwanApiUrl                   string
-	SwanApiKey                   string
-	SwanAccessToken              string
-	SwanJwtToken                 string
-	LotusClientApiUrl            string
-	LotusClientAccessToken       string
-	SenderWallet                 string
-	MaxPrice                     decimal.Decimal
-	VerifiedDeal                 bool
-	FastRetrieval                bool
-	SkipConfirmation             bool
-	Duration                     int
-	MinerPrice                   decimal.Decimal
-	StartEpoch                   int
-	StartEpochIntervalHours      int
-	OutputDir                    string
-	MinerFid                     string
-	MetadataJsonPath             string
-	DealSourceIds                []int
-	RelativeEpochFromMainNetwork int
+	SwanApiUrl                   string          //required
+	SwanApiKey                   string          //required when SwanJwtToken is not provided
+	SwanAccessToken              string          //required when SwanJwtToken is not provided
+	SwanJwtToken                 string          //required when SwanApiKey and SwanAccessToken are not provided
+	LotusClientApiUrl            string          //required
+	LotusClientAccessToken       string          //required
+	SenderWallet                 string          //required
+	MaxPrice                     decimal.Decimal //required only for manual-bid deal
+	VerifiedDeal                 bool            //required only for manual-bid deal
+	FastRetrieval                bool            //required only for manual-bid deal
+	SkipConfirmation             bool            //required only for manual-bid deal
+	Duration                     int             //not necessary, when not provided use default value:1512000
+	MinerPrice                   decimal.Decimal //used internally, not need to provide
+	StartEpoch                   int             //required only for manual-bid deal
+	StartEpochIntervalHours      int             //invalid
+	OutputDir                    string          //required
+	MinerFid                     string          //required only for manual-bid deal
+	MetadataJsonPath             string          //required only for manual-bid deal
+	DealSourceIds                []int           //required
+	RelativeEpochFromMainNetwork int             //required
 }
 
 func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string, isAutoBid bool) *ConfDeal {

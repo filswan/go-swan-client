@@ -91,6 +91,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 		return nil, nil, err
 	}
 
+	dealSentNum := 0
 	for _, carFile := range carFiles {
 		if carFile.CarFileSize <= 0 {
 			logs.GetLogger().Error("File:" + carFile.CarFilePath + " %s is too small")
@@ -119,8 +120,11 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 		carFile.DealCid = *dealCid
 		carFile.StartEpoch = startEpoch
 
-		logs.GetLogger().Info("task:", taskName, ", deal CID:", carFile.DealCid, ", start epoch:", *carFile.StartEpoch, ", deal sent to ", confDeal.MinerFid, "successfully")
+		dealSentNum = dealSentNum + 1
+		logs.GetLogger().Info("task:", taskName, ", deal CID:", carFile.DealCid, ", start epoch:", *carFile.StartEpoch, ", deal sent to ", confDeal.MinerFid, " successfully")
 	}
+
+	logs.GetLogger().Info(dealSentNum, " deal(s) has(ve) been sent for task:", taskName)
 
 	jsonFileName := taskName + constants.JSON_FILE_NAME_BY_DEAL
 	csvFileName := taskName + constants.CSV_FILE_NAME_BY_DEAL

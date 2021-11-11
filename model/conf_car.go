@@ -8,12 +8,12 @@ import (
 )
 
 type ConfCar struct {
-	LotusClientApiUrl      string
-	LotusClientAccessToken string
-	OutputDir              string
-	InputDir               string
-	GocarFileSizeLimit     int64
-	GenerateMd5            bool
+	LotusClientApiUrl      string //required
+	LotusClientAccessToken string //required
+	OutputDir              string //required
+	InputDir               string //required
+	GocarFileSizeLimit     int64  //required only when creating gocar file(s)
+	GenerateMd5            bool   //required
 }
 
 func GetConfCar(inputDir string, outputDir *string) *ConfCar {

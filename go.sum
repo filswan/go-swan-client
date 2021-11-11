@@ -141,8 +141,8 @@ github.com/filecoin-project/specs-actors/v5 v5.0.0-20210512015452-4fe3889fff57 h
 github.com/filecoin-project/specs-actors/v5 v5.0.0-20210512015452-4fe3889fff57/go.mod h1:283yBMMUSDB2abcjP/hhrwTkhb9h3sfM6KGrep/ZlBI=
 github.com/filedrive-team/go-graphsplit v0.4.1 h1:TxzaOrJk/SDK8vfRFu/v46z/2Za5xSpoHC0UF135Oyk=
 github.com/filedrive-team/go-graphsplit v0.4.1/go.mod h1:W+ivPZK6/qa7I7n34DSLVMjTrszpeZv7UaP98QbQ++A=
-github.com/filswan/go-swan-lib v0.2.33 h1:EzPS2gp7VuzaPWTJ8GFThWZS/nYtqKSp/e+x7wVEj4o=
-github.com/filswan/go-swan-lib v0.2.33/go.mod h1:+roryt281JKxvfWI6O5gxTMpKaDNMad9MMiOYDtsrfw=
+github.com/filswan/go-swan-lib v0.2.34 h1:nIRzUFie8nX8Q0SpUqb03Od9QGj4Up3Gy0lCkyRvcUY=
+github.com/filswan/go-swan-lib v0.2.34/go.mod h1:+roryt281JKxvfWI6O5gxTMpKaDNMad9MMiOYDtsrfw=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI435gkrCt3MPfRiAkVrwSbHsst4LCFVfpJc=
 github.com/flynn/noise v0.0.0-20180327030543-2492fe189ae6/go.mod h1:1i71OnUq3iUe1ma7Lr6yG6/rjvM3emb6yoL7xLFzcVQ=
 github.com/francoispqt/gojay v1.2.13/go.mod h1:ehT5mTG4ua4581f1++1WLG0vPdaA9HaiDsoyrBGkyDY=
