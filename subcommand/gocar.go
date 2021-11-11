@@ -164,7 +164,7 @@ func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, car
 
 		carFile.SourceFileName = manifestDetail.Link[0].Name
 		carFile.SourceFilePath = filepath.Join(srcFileDir, carFile.SourceFileName)
-		carFile.SourceFileSize = utils.GetFileSize(carFile.SourceFilePath)
+		carFile.SourceFileSize = int64(manifestDetail.Link[0].Size)
 
 		if confCar.GenerateMd5 {
 			srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
