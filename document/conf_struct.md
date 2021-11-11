@@ -61,25 +61,25 @@ type ConfTask struct {
 ## ConfDeal
 ```shell
 type ConfDeal struct {
-	SwanApiUrl                   string
-	SwanApiKey                   string
-	SwanAccessToken              string
-	SwanJwtToken                 string
-	LotusClientApiUrl            string
-	LotusClientAccessToken       string
-	SenderWallet                 string
-	MaxPrice                     decimal.Decimal
-	VerifiedDeal                 bool
-	FastRetrieval                bool
-	SkipConfirmation             bool
-	Duration                     int
-	MinerPrice                   decimal.Decimal
-	StartEpoch                   int
-	StartEpochIntervalHours      int
-	OutputDir                    string
-	MinerFid                     string
-	MetadataJsonPath             string
-	DealSourceIds                []int
-	RelativeEpochFromMainNetwork int
+	SwanApiUrl                   string          //required
+	SwanApiKey                   string          //required when SwanJwtToken is not provided
+	SwanAccessToken              string          //required when SwanJwtToken is not provided
+	SwanJwtToken                 string          //required when SwanApiKey and SwanAccessToken are not provided
+	LotusClientApiUrl            string          //required
+	LotusClientAccessToken       string          //required
+	SenderWallet                 string          //required
+	MaxPrice                     decimal.Decimal //required only for non-auto-bid deal
+	VerifiedDeal                 bool            //required only for non-auto-bid deal
+	FastRetrieval                bool            //required only for non-auto-bid deal
+	SkipConfirmation             bool            //required only for non-auto-bid deal
+	Duration                     int             //not necessary, when not provided use default value:1512000
+	MinerPrice                   decimal.Decimal //used internally, not need to provide
+	StartEpoch                   int             //required only for non-auto-bid deal
+	StartEpochIntervalHours      int             //invalid
+	OutputDir                    string          //required
+	MinerFid                     string          //required only for non-auto-bid deal
+	MetadataJsonPath             string          //required only for non-auto-bid deal
+	DealSourceIds                []int           //required
+	RelativeEpochFromMainNetwork int             //required
 }
 ```
