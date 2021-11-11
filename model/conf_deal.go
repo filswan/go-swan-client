@@ -16,47 +16,54 @@ import (
 )
 
 type ConfDeal struct {
-	SwanApiUrl              string
-	SwanApiKey              string
-	SwanAccessToken         string
-	SwanJwtToken            string
-	LotusClientApiUrl       string
-	LotusClientAccessToken  string
-	SenderWallet            string
-	MaxPrice                decimal.Decimal
-	VerifiedDeal            bool
-	FastRetrieval           bool
-	SkipConfirmation        bool
-	Duration                int
-	MinerPrice              decimal.Decimal
-	StartEpoch              int
-	StartEpochIntervalHours int
-	OutputDir               string
-	MinerFid                string
-	MetadataJsonPath        string
+	SwanApiUrl                   string
+	SwanApiKey                   string
+	SwanAccessToken              string
+	SwanJwtToken                 string
+	LotusClientApiUrl            string
+	LotusClientAccessToken       string
+	SenderWallet                 string
+	MaxPrice                     decimal.Decimal
+	VerifiedDeal                 bool
+	FastRetrieval                bool
+	SkipConfirmation             bool
+	Duration                     int
+	MinerPrice                   decimal.Decimal
+	StartEpoch                   int
+	StartEpochIntervalHours      int
+	OutputDir                    string
+	MinerFid                     string
+	MetadataJsonPath             string
+	DealSourceIds                []int
+	RelativeEpochFromMainNetwork int
 }
 
 func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string, isAutoBid bool) *ConfDeal {
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
 	startEpoch := utils.GetCurrentEpoch() + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
+	startEpoch = startEpoch + config.GetConfig().Sender.RelativeEpochFromMainNetwork
 
 	confDeal := &ConfDeal{
-		SwanApiUrl:              config.GetConfig().Main.SwanApiUrl,
-		SwanApiKey:              config.GetConfig().Main.SwanApiKey,
-		SwanAccessToken:         config.GetConfig().Main.SwanAccessToken,
-		LotusClientApiUrl:       config.GetConfig().Lotus.ClientApiUrl,
-		LotusClientAccessToken:  config.GetConfig().Lotus.ClientAccessToken,
-		SenderWallet:            config.GetConfig().Sender.Wallet,
-		VerifiedDeal:            config.GetConfig().Sender.VerifiedDeal,
-		FastRetrieval:           config.GetConfig().Sender.FastRetrieval,
-		SkipConfirmation:        config.GetConfig().Sender.SkipConfirmation,
-		Duration:                config.GetConfig().Sender.Duration,
-		StartEpochIntervalHours: startEpochIntervalHours,
-		StartEpoch:              startEpoch,
-		OutputDir:               filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
-		MinerFid:                minerFid,
-		MetadataJsonPath:        metadataJsonPath,
+		SwanApiUrl:                   config.GetConfig().Main.SwanApiUrl,
+		SwanApiKey:                   config.GetConfig().Main.SwanApiKey,
+		SwanAccessToken:              config.GetConfig().Main.SwanAccessToken,
+		LotusClientApiUrl:            config.GetConfig().Lotus.ClientApiUrl,
+		LotusClientAccessToken:       config.GetConfig().Lotus.ClientAccessToken,
+		SenderWallet:                 config.GetConfig().Sender.Wallet,
+		VerifiedDeal:                 config.GetConfig().Sender.VerifiedDeal,
+		FastRetrieval:                config.GetConfig().Sender.FastRetrieval,
+		SkipConfirmation:             config.GetConfig().Sender.SkipConfirmation,
+		Duration:                     config.GetConfig().Sender.Duration,
+		StartEpochIntervalHours:      startEpochIntervalHours,
+		StartEpoch:                   startEpoch,
+		OutputDir:                    filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
+		MinerFid:                     minerFid,
+		MetadataJsonPath:             metadataJsonPath,
+		RelativeEpochFromMainNetwork: config.GetConfig().Sender.RelativeEpochFromMainNetwork,
 	}
+
+	confDeal.DealSourceIds = append(confDeal.DealSourceIds, constants.TASK_SOURCE_ID_SWAN)
+	confDeal.DealSourceIds = append(confDeal.DealSourceIds, constants.TASK_SOURCE_ID_SWAN_CLIENT)
 
 	if isAutoBid {
 		confDeal.SkipConfirmation = true
