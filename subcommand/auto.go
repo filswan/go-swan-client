@@ -193,7 +193,6 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 			MinerFid:    task.MinerFid,
 			CarFileUrl:  deal.FileSourceUrl,
 			CarFileMd5:  deal.Md5Origin,
-			StartEpoch:  &confDeal.StartEpoch,
 			PieceCid:    deal.PieceCid,
 			DataCid:     deal.PayloadCid,
 			CarFileSize: utils.GetInt64FromStr(deal.FileSize),
