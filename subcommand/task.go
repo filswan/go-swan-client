@@ -158,7 +158,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	}
 
 	if *task.IsPublic == constants.TASK_IS_PUBLIC && *task.BidMode == constants.TASK_BID_MODE_MANUAL {
-		logs.GetLogger().Info("task ", task.TaskName, " has been created, please send deal(s) later using deal subcommand and ", *jsonFilepath)
+		logs.GetLogger().Info("task ", task.TaskName, " has been created, please send its deal(s) later using deal subcommand and ", *jsonFilepath)
 	}
 
 	return jsonFilepath, carFiles, nil
