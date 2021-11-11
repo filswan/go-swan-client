@@ -93,10 +93,7 @@ func SetDealConfig4Autobid(confDeal *ConfDeal, task libmodel.Task, deal libmodel
 		return err
 	}
 
-	confDeal.StartEpoch = utils.GetCurrentEpoch() + (confDeal.StartEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
-	if deal.StartEpoch != 0 {
-		confDeal.StartEpoch = deal.StartEpoch
-	}
+	confDeal.StartEpoch = deal.StartEpoch + confDeal.RelativeEpochFromMainNetwork
 
 	if task.MinerFid == "" {
 		err := fmt.Errorf("no miner allocated to task")
