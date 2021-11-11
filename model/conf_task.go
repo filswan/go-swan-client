@@ -13,10 +13,10 @@ import (
 )
 
 type ConfTask struct {
-	SwanApiUrl                 string          //required
-	SwanApiKey                 string          //required only when SwanJwtToken is not provided
-	SwanAccessToken            string          //required only when SwanJwtToken is not provided
-	SwanJwtToken               string          //required only when SwanApiKey & SwanAccessToken are not provided
+	SwanApiUrl                 string          //required when OfflineMode is false
+	SwanApiKey                 string          //required when OfflineMode is false and SwanJwtToken is not provided
+	SwanAccessToken            string          //required when OfflineMode is false and SwanJwtToken is not provided
+	SwanJwtToken               string          //required when OfflineMode is false and SwanApiKey & SwanAccessToken are not provided
 	PublicDeal                 bool            //required
 	BidMode                    int             //required
 	VerifiedDeal               bool            //required
