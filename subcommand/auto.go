@@ -48,7 +48,7 @@ func SendAutoBidDeals(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDes
 
 	logs.GetLogger().Info("output dir is:", confDeal.OutputDir)
 
-	swanClient, err := swan.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanJwtToken)
+	swanClient, err := swan.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, err
@@ -100,7 +100,7 @@ func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int,
 
 	logs.GetLogger().Info("output dir is:", confDeal.OutputDir)
 
-	swanClient, err := swan.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanJwtToken)
+	swanClient, err := swan.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return 0, "", nil, err
@@ -114,6 +114,21 @@ func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int,
 
 	deals := assignedTaskInfo.Data.Deal
 	task := assignedTaskInfo.Data.Task
+
+	if task.Type == constants.TASK_TYPE_VERIFIED {
+		isWalletVerified, err := swanClient.CheckDatacap(confDeal.SenderWallet)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return 0, "", nil, err
+		}
+
+		if !isWalletVerified {
+			err := fmt.Errorf("task:%s is verified, but your wallet:%s is not verified", task.TaskName, confDeal.SenderWallet)
+			logs.GetLogger().Error(err)
+			return 0, "", nil, err
+		}
+	}
+
 	dealSentNum, csvFilePath, carFiles, err := SendAutobidDeals4Task(confDeal, deals, task, confDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -213,6 +228,7 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 				logs.GetLogger().Error(err)
 				return 0, "", nil, err
 			}
+
 			dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(carFile, cost, pieceSize, *dealConfig, i)
 			if err != nil {
 				logs.GetLogger().Error("tried ", i, " times,", err)
@@ -231,6 +247,7 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 			carFile.DealCid = *dealCid
 			carFile.StartEpoch = startEpoch
 			dealSentNum = dealSentNum + 1
+			carFile.Cost = GetDealPrice(cost, confDeal.Duration)
 
 			logs.GetLogger().Info("task:", task.TaskName, ", deal CID:", carFile.DealCid, ", start epoch:", *carFile.StartEpoch, ", deal sent to ", confDeal.MinerFid, " successfully")
 			break

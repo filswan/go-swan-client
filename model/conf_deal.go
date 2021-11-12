@@ -19,7 +19,7 @@ type ConfDeal struct {
 	SwanApiUrl                   string          //required
 	SwanApiKey                   string          //required when SwanJwtToken is not provided
 	SwanAccessToken              string          //required when SwanJwtToken is not provided
-	SwanJwtToken                 string          //required when SwanApiKey and SwanAccessToken are not provided
+	SwanToken                    string          //required when SwanApiKey and SwanAccessToken are not provided
 	LotusClientApiUrl            string          //required
 	LotusClientAccessToken       string          //required
 	SenderWallet                 string          //required

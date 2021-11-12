@@ -16,7 +16,7 @@ type ConfTask struct {
 	SwanApiUrl                 string          //required when OfflineMode is false
 	SwanApiKey                 string          //required when OfflineMode is false and SwanJwtToken is not provided
 	SwanAccessToken            string          //required when OfflineMode is false and SwanJwtToken is not provided
-	SwanJwtToken               string          //required when OfflineMode is false and SwanApiKey & SwanAccessToken are not provided
+	SwanToken                  string          //required when OfflineMode is false and SwanApiKey & SwanAccessToken are not provided
 	PublicDeal                 bool            //required
 	BidMode                    int             //required
 	VerifiedDeal               bool            //required

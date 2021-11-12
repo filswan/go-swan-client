@@ -139,6 +139,7 @@ vi ~/.swan/client/config.toml
 - **expired_days**: Expected completion days for storage provider sealing data.
 - **gocar_file_size_limit**: Go car file size limit in bytes
 - **duration**: Expressed in blocks (1 block is equivalent to 30s). Default value is 1512000, that is 525 days. See [Make the Deal](https://docs.filecoin.io/store/lotus/store-data/#make-the-deal)
+- **relative_epoch_to_main_network**: # Your network current epoch - main network current epoch
 
 ## Flowcharts
 
@@ -387,10 +388,11 @@ no swan-client subcommand should be executed
 - [sender].skip_confirmation, see [Configuration](#Configuration)
 - [sender].max_price, see [Configuration](#Configuration)
 - [sender].duration, see [Configuration](#Configuration)
+- [sender].relative_epoch_to_main_network, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
 - [main].access_token, see [Configuration](#Configuration)
-- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files generated after this step:**
 - [task-name].csv: A CSV generated for updating offline deal status and filling deal CID for offline deals
@@ -416,10 +418,11 @@ no swan-client subcommand should be executed
 
 **Configurations used in this step:**
 - [sender].wallet, see [Configuration](#Configuration)
+- [sender].relative_epoch_to_main_network, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
 - [main].access_token, see [Configuration](#Configuration)
-- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files generated for each task after this step:**
 - [task-name]-auto.csv: A CSV generated for updating task status and fill deal CID for offline deals
@@ -428,10 +431,10 @@ no swan-client subcommand should be executed
 
 **Note:**
 - Logs are in directory ./logs
-- You can add **nohup** before **./swan-client** to ignore the HUP (hangup) signal and therefore avoid stop when you log out.
-- You can add **>>swan-client.log** in the command to let all the logs output to swan-client.log.
-- You can add **&** at the end of the command to let the program run in background.
+- You can add `nohup` before `./swan-client` to ignore the HUP (hangup) signal and therefore avoid stop when you log out.
+- You can add `>>swan-client.log` in the command to let all the logs output to swan-client.log.
+- You can add `&` at the end of the command to let the program run in background.
 - Such as:
 ```shell
-nohup ./swan-client auto -out-dir [output_files_dir] >>swan-client.log &
+nohup ./swan-client auto -out-dir [output_files_dir] >> swan-client.log &
 ```

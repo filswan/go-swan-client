@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/filswan/go-swan-client/model"
+	"github.com/shopspring/decimal"
 
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/constants"
@@ -22,6 +23,13 @@ import (
 const (
 	DURATION = 1512000
 )
+
+func GetDealPrice(pricePerEpoch decimal.Decimal, duration int) string {
+	durationDecimal := decimal.NewFromInt(int64(duration))
+	result := pricePerEpoch.Mul(durationDecimal)
+
+	return result.String()
+}
 
 func IsTaskSourceRight(confDeal *model.ConfDeal, task libmodel.Task) bool {
 	if confDeal == nil {
@@ -221,6 +229,7 @@ func WriteCarFilesToCsvFile(carFiles []*libmodel.FileDesc, outDir, csvFileName s
 	headers = append(headers, "miner_id")
 	headers = append(headers, "start_epoch")
 	headers = append(headers, "source_id")
+	headers = append(headers, "cost")
 
 	file, err := os.Create(csvFilePath)
 	if err != nil {
@@ -266,6 +275,7 @@ func WriteCarFilesToCsvFile(carFiles []*libmodel.FileDesc, outDir, csvFileName s
 		} else {
 			columns = append(columns, "")
 		}
+		columns = append(columns, carFile.Cost)
 
 		err = writer.Write(columns)
 		if err != nil {
@@ -295,6 +305,7 @@ func CreateCsv4TaskDeal(carFiles []*libmodel.FileDesc, outDir, csvFileName strin
 		"start_epoch",
 		"piece_cid",
 		"file_size",
+		"cost",
 	}
 
 	file, err := os.Create(csvFilePath)
@@ -331,6 +342,7 @@ func CreateCsv4TaskDeal(carFiles []*libmodel.FileDesc, outDir, csvFileName strin
 
 		columns = append(columns, carFile.PieceCid)
 		columns = append(columns, strconv.FormatInt(carFile.CarFileSize, 10))
+		columns = append(columns, carFile.Cost)
 
 		err = writer.Write(columns)
 		if err != nil {

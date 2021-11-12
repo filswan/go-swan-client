@@ -39,7 +39,7 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	swanClient, err := swan.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanJwtToken)
+	swanClient, err := swan.SwanGetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -60,6 +60,20 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		err := fmt.Errorf("auto_bid mode for task:%s is not manual, please check", task.Data.Task.TaskName)
 		logs.GetLogger().Error(err)
 		return nil, err
+	}
+
+	if confDeal.VerifiedDeal {
+		isWalletVerified, err := swanClient.CheckDatacap(confDeal.SenderWallet)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
+
+		if !isWalletVerified {
+			err := fmt.Errorf("task:%s is verified, but your wallet:%s is not verified", taskName, confDeal.SenderWallet)
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
 	}
 
 	csvFilepath, carFiles, err := SendDeals2Miner(confDeal, taskName, confDeal.OutputDir, carFiles)
@@ -107,6 +121,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 			logs.GetLogger().Error(err)
 			return nil, nil, err
 		}
+
 		dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig, 0)
 		//dealCid, err := client.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig)
 		if err != nil {
@@ -119,6 +134,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 		carFile.MinerFid = confDeal.MinerFid
 		carFile.DealCid = *dealCid
 		carFile.StartEpoch = startEpoch
+		carFile.Cost = GetDealPrice(cost, confDeal.Duration)
 
 		dealSentNum = dealSentNum + 1
 		logs.GetLogger().Info("task:", taskName, ", deal CID:", carFile.DealCid, ", start epoch:", *carFile.StartEpoch, ", deal sent to ", confDeal.MinerFid, " successfully")
