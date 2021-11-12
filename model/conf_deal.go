@@ -16,50 +16,50 @@ import (
 )
 
 type ConfDeal struct {
-	SwanApiUrl                 string          //required
-	SwanApiKey                 string          //required when SwanJwtToken is not provided
-	SwanAccessToken            string          //required when SwanJwtToken is not provided
-	SwanJwtToken               string          //required when SwanApiKey and SwanAccessToken are not provided
-	LotusClientApiUrl          string          //required
-	LotusClientAccessToken     string          //required
-	SenderWallet               string          //required
-	MaxPrice                   decimal.Decimal //required only for manual-bid deal
-	VerifiedDeal               bool            //required only for manual-bid deal
-	FastRetrieval              bool            //required only for manual-bid deal
-	SkipConfirmation           bool            //required only for manual-bid deal
-	Duration                   int             //not necessary, when not provided use default value:1512000
-	MinerPrice                 decimal.Decimal //used internally, not need to provide
-	StartEpoch                 int             //required only for manual-bid deal
-	StartEpochIntervalHours    int             //invalid
-	OutputDir                  string          //required
-	MinerFid                   string          //required only for manual-bid deal
-	MetadataJsonPath           string          //required only for manual-bid deal
-	DealSourceIds              []int           //required
-	RelativeEpochToMainNetwork int             //required
+	SwanApiUrl                   string          //required
+	SwanApiKey                   string          //required when SwanJwtToken is not provided
+	SwanAccessToken              string          //required when SwanJwtToken is not provided
+	SwanJwtToken                 string          //required when SwanApiKey and SwanAccessToken are not provided
+	LotusClientApiUrl            string          //required
+	LotusClientAccessToken       string          //required
+	SenderWallet                 string          //required
+	MaxPrice                     decimal.Decimal //required only for manual-bid deal
+	VerifiedDeal                 bool            //required only for manual-bid deal
+	FastRetrieval                bool            //required only for manual-bid deal
+	SkipConfirmation             bool            //required only for manual-bid deal
+	Duration                     int             //not necessary, when not provided use default value:1512000
+	MinerPrice                   decimal.Decimal //used internally, not need to provide
+	StartEpoch                   int             //required only for manual-bid deal
+	StartEpochIntervalHours      int             //invalid
+	OutputDir                    string          //required
+	MinerFid                     string          //required only for manual-bid deal
+	MetadataJsonPath             string          //required only for manual-bid deal
+	DealSourceIds                []int           //required
+	RelativeEpochFromMainNetwork int             //required
 }
 
 func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string, isAutoBid bool) *ConfDeal {
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
 	startEpoch := utils.GetCurrentEpoch() + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
-	startEpoch = startEpoch + config.GetConfig().Sender.RelativeEpochToMainNetwork
+	startEpoch = startEpoch + config.GetConfig().Sender.RelativeEpochFromMainNetwork
 
 	confDeal := &ConfDeal{
-		SwanApiUrl:                 config.GetConfig().Main.SwanApiUrl,
-		SwanApiKey:                 config.GetConfig().Main.SwanApiKey,
-		SwanAccessToken:            config.GetConfig().Main.SwanAccessToken,
-		LotusClientApiUrl:          config.GetConfig().Lotus.ClientApiUrl,
-		LotusClientAccessToken:     config.GetConfig().Lotus.ClientAccessToken,
-		SenderWallet:               config.GetConfig().Sender.Wallet,
-		VerifiedDeal:               config.GetConfig().Sender.VerifiedDeal,
-		FastRetrieval:              config.GetConfig().Sender.FastRetrieval,
-		SkipConfirmation:           config.GetConfig().Sender.SkipConfirmation,
-		Duration:                   config.GetConfig().Sender.Duration,
-		StartEpochIntervalHours:    startEpochIntervalHours,
-		StartEpoch:                 startEpoch,
-		OutputDir:                  filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
-		MinerFid:                   minerFid,
-		MetadataJsonPath:           metadataJsonPath,
-		RelativeEpochToMainNetwork: config.GetConfig().Sender.RelativeEpochToMainNetwork,
+		SwanApiUrl:                   config.GetConfig().Main.SwanApiUrl,
+		SwanApiKey:                   config.GetConfig().Main.SwanApiKey,
+		SwanAccessToken:              config.GetConfig().Main.SwanAccessToken,
+		LotusClientApiUrl:            config.GetConfig().Lotus.ClientApiUrl,
+		LotusClientAccessToken:       config.GetConfig().Lotus.ClientAccessToken,
+		SenderWallet:                 config.GetConfig().Sender.Wallet,
+		VerifiedDeal:                 config.GetConfig().Sender.VerifiedDeal,
+		FastRetrieval:                config.GetConfig().Sender.FastRetrieval,
+		SkipConfirmation:             config.GetConfig().Sender.SkipConfirmation,
+		Duration:                     config.GetConfig().Sender.Duration,
+		StartEpochIntervalHours:      startEpochIntervalHours,
+		StartEpoch:                   startEpoch,
+		OutputDir:                    filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
+		MinerFid:                     minerFid,
+		MetadataJsonPath:             metadataJsonPath,
+		RelativeEpochFromMainNetwork: config.GetConfig().Sender.RelativeEpochFromMainNetwork,
 	}
 
 	confDeal.DealSourceIds = append(confDeal.DealSourceIds, constants.TASK_SOURCE_ID_SWAN)
@@ -93,7 +93,7 @@ func SetDealConfig4Autobid(confDeal *ConfDeal, task libmodel.Task, deal libmodel
 		return err
 	}
 
-	confDeal.StartEpoch = deal.StartEpoch + confDeal.RelativeEpochToMainNetwork
+	confDeal.StartEpoch = deal.StartEpoch + confDeal.RelativeEpochFromMainNetwork
 
 	if task.MinerFid == "" {
 		err := fmt.Errorf("no miner allocated to task")
