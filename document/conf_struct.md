@@ -34,7 +34,7 @@ type ConfTask struct {
 	SwanApiUrl                 string          //required when OfflineMode is false
 	SwanApiKey                 string          //required when OfflineMode is false and SwanJwtToken is not provided
 	SwanAccessToken            string          //required when OfflineMode is false and SwanJwtToken is not provided
-	SwanJwtToken               string          //required when OfflineMode is false and SwanApiKey & SwanAccessToken are not provided
+	SwanToken                  string          //required when OfflineMode is false and SwanApiKey & SwanAccessToken are not provided
 	PublicDeal                 bool            //required
 	BidMode                    int             //required
 	VerifiedDeal               bool            //required
@@ -64,7 +64,7 @@ type ConfDeal struct {
 	SwanApiUrl                   string          //required
 	SwanApiKey                   string          //required when SwanJwtToken is not provided
 	SwanAccessToken              string          //required when SwanJwtToken is not provided
-	SwanJwtToken                 string          //required when SwanApiKey and SwanAccessToken are not provided
+	SwanToken                    string          //required when SwanApiKey and SwanAccessToken are not provided
 	LotusClientApiUrl            string          //required
 	LotusClientAccessToken       string          //required
 	SenderWallet                 string          //required
