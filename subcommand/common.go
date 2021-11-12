@@ -229,7 +229,7 @@ func WriteCarFilesToCsvFile(carFiles []*libmodel.FileDesc, outDir, csvFileName s
 	headers = append(headers, "miner_id")
 	headers = append(headers, "start_epoch")
 	headers = append(headers, "source_id")
-	headers = append(headers, "price")
+	headers = append(headers, "cost")
 
 	file, err := os.Create(csvFilePath)
 	if err != nil {
@@ -275,7 +275,7 @@ func WriteCarFilesToCsvFile(carFiles []*libmodel.FileDesc, outDir, csvFileName s
 		} else {
 			columns = append(columns, "")
 		}
-		columns = append(columns, carFile.Price)
+		columns = append(columns, carFile.Cost)
 
 		err = writer.Write(columns)
 		if err != nil {
@@ -305,7 +305,7 @@ func CreateCsv4TaskDeal(carFiles []*libmodel.FileDesc, outDir, csvFileName strin
 		"start_epoch",
 		"piece_cid",
 		"file_size",
-		"price",
+		"cost",
 	}
 
 	file, err := os.Create(csvFilePath)
@@ -342,7 +342,7 @@ func CreateCsv4TaskDeal(carFiles []*libmodel.FileDesc, outDir, csvFileName strin
 
 		columns = append(columns, carFile.PieceCid)
 		columns = append(columns, strconv.FormatInt(carFile.CarFileSize, 10))
-		columns = append(columns, carFile.Price)
+		columns = append(columns, carFile.Cost)
 
 		err = writer.Write(columns)
 		if err != nil {
