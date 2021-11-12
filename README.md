@@ -436,5 +436,5 @@ no swan-client subcommand should be executed
 - You can add `&` at the end of the command to let the program run in background.
 - Such as:
 ```shell
-nohup ./swan-client auto -out-dir [output_files_dir] >>swan-client.log &
+nohup ./swan-client auto -out-dir [output_files_dir] >> swan-client.log &
 ```
