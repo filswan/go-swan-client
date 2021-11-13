@@ -21,8 +21,24 @@ import (
 )
 
 const (
-	DURATION = 1512000
+	DURATION     = 1512000
+	DURATION_MIN = 518400
+	DURATION_MAX = 1555200
 )
+
+func CheckDuration(duration int) error {
+	if duration == 0 {
+		return nil
+	}
+
+	if duration < DURATION_MIN || duration > DURATION_MAX {
+		err := fmt.Errorf("deal duration out of bounds (min, max, provided): %d, %d, %d", DURATION_MIN, DURATION_MAX, duration)
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	return nil
+}
 
 func GetDealCost(pricePerEpoch decimal.Decimal, duration int) string {
 	durationDecimal := decimal.NewFromInt(int64(duration))
@@ -109,6 +125,12 @@ func CheckDealConfig(confDeal *model.ConfDeal) error {
 
 	if confDeal.Duration == 0 {
 		confDeal.Duration = DURATION
+	}
+
+	err = CheckDuration(confDeal.Duration)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
 	}
 
 	return nil

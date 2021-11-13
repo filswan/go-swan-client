@@ -87,6 +87,12 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		confTask.Duration = DURATION
 	}
 
+	err = CheckDuration(confTask.Duration)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, nil, err
+	}
+
 	uuid := uuid.NewString()
 	task := libmodel.Task{
 		TaskName:          confTask.TaskName,
