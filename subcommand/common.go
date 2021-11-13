@@ -23,7 +23,7 @@ import (
 const (
 	DURATION     = 1512000
 	DURATION_MIN = 518400
-	DURATION_MAX = 1555200
+	DURATION_MAX = 1555201
 )
 
 func CheckDuration(duration int) error {
