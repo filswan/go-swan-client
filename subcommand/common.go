@@ -24,11 +24,12 @@ const (
 	DURATION = 1512000
 )
 
-func GetDealPrice(pricePerEpoch decimal.Decimal, duration int) string {
+func GetDealCost(pricePerEpoch decimal.Decimal, duration int) string {
 	durationDecimal := decimal.NewFromInt(int64(duration))
-	result := pricePerEpoch.Mul(durationDecimal)
+	cost := pricePerEpoch.Mul(durationDecimal)
+	cost = cost.Mul(decimal.NewFromFloat(constants.LOTUS_PRICE_MULTIPLE))
 
-	return result.String()
+	return cost.String()
 }
 
 func IsTaskSourceRight(confDeal *model.ConfDeal, task libmodel.Task) bool {
