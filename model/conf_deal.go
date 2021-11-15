@@ -40,8 +40,11 @@ type ConfDeal struct {
 
 func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string, isAutoBid bool) *ConfDeal {
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
-	startEpoch := utils.GetCurrentEpoch() + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
+	startEpoch := utils.GetCurrentEpoch()
 	startEpoch = startEpoch + config.GetConfig().Sender.RelativeEpochFromMainNetwork
+	logs.GetLogger().Info("startEpoch:", startEpoch)
+	startEpoch = startEpoch + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
+	logs.GetLogger().Info("startEpoch:", startEpoch)
 
 	confDeal := &ConfDeal{
 		SwanApiUrl:                   config.GetConfig().Main.SwanApiUrl,

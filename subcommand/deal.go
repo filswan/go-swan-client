@@ -134,7 +134,14 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 		carFile.MinerFid = confDeal.MinerFid
 		carFile.DealCid = *dealCid
 		carFile.StartEpoch = startEpoch
-		carFile.Cost = GetDealCost(cost, confDeal.Duration)
+
+		dealCost, err := lotusClient.LotusClientGetDealInfo(carFile.DealCid)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			continue
+		}
+
+		carFile.Cost = dealCost
 
 		dealSentNum = dealSentNum + 1
 		logs.GetLogger().Info("task:", taskName, ", deal CID:", carFile.DealCid, ", start epoch:", *carFile.StartEpoch, ", deal sent to ", confDeal.MinerFid, " successfully")

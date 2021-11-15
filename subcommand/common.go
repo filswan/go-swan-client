@@ -23,16 +23,26 @@ import (
 const (
 	DURATION     = 1512000
 	DURATION_MIN = 518400
-	DURATION_MAX = 1555201
+	DURATION_MAX = 1540000
 )
 
-func CheckDuration(duration int) error {
+func CheckDuration(duration int, startEpoch int, relativeEpochFromMainNetwork int) error {
 	if duration == 0 {
 		return nil
 	}
 
 	if duration < DURATION_MIN || duration > DURATION_MAX {
 		err := fmt.Errorf("deal duration out of bounds (min, max, provided): %d, %d, %d", DURATION_MIN, DURATION_MAX, duration)
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	currentEpoch := utils.GetCurrentEpoch() + relativeEpochFromMainNetwork
+	endEpoch := startEpoch + duration
+
+	epoch2EndfromNow := endEpoch - currentEpoch
+	if epoch2EndfromNow >= DURATION_MAX {
+		err := fmt.Errorf("invalid deal end epoch %d: cannot be more than %d past current epoch %d", endEpoch, DURATION_MAX, currentEpoch)
 		logs.GetLogger().Error(err)
 		return err
 	}
@@ -127,7 +137,7 @@ func CheckDealConfig(confDeal *model.ConfDeal) error {
 		confDeal.Duration = DURATION
 	}
 
-	err = CheckDuration(confDeal.Duration)
+	err = CheckDuration(confDeal.Duration, confDeal.StartEpoch, confDeal.RelativeEpochFromMainNetwork)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
