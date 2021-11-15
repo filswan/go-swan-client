@@ -141,7 +141,8 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 			continue
 		}
 
-		carFile.Cost = dealCost
+		logs.GetLogger().Info(*dealCost)
+		carFile.Cost = dealCost.CostComputed
 
 		dealSentNum = dealSentNum + 1
 		logs.GetLogger().Info("task:", taskName, ", deal CID:", carFile.DealCid, ", start epoch:", *carFile.StartEpoch, ", deal sent to ", confDeal.MinerFid, " successfully")
