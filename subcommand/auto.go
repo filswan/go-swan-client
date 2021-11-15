@@ -253,8 +253,7 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 				continue
 			}
 
-			logs.GetLogger().Info(*dealCost)
-
+			//logs.GetLogger().Info(*dealCost)
 			carFile.Cost = dealCost.CostComputed
 			dealSentNum = dealSentNum + 1
 
