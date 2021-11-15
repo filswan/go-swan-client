@@ -246,8 +246,15 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 
 			carFile.DealCid = *dealCid
 			carFile.StartEpoch = startEpoch
+
+			dealCost, err := lotusClient.LotusClientGetDealInfo(carFile.DealCid)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				continue
+			}
+
+			carFile.Cost = dealCost
 			dealSentNum = dealSentNum + 1
-			carFile.Cost = GetDealCost(cost, confDeal.Duration)
 
 			logs.GetLogger().Info("task:", task.TaskName, ", deal CID:", carFile.DealCid, ", start epoch:", *carFile.StartEpoch, ", deal sent to ", confDeal.MinerFid, " successfully")
 			break
