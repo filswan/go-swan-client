@@ -87,7 +87,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		confTask.Duration = DURATION
 	}
 
-	err = CheckDuration(confTask.Duration)
+	err = CheckDuration(confTask.Duration, confTask.StartEpoch, 0)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, err
