@@ -42,9 +42,9 @@ func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string, isAutoBid
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
 	startEpoch := utils.GetCurrentEpoch()
 	startEpoch = startEpoch + config.GetConfig().Sender.RelativeEpochFromMainNetwork
-	logs.GetLogger().Info("startEpoch:", startEpoch)
+	logs.GetLogger().Info("current epoch:", startEpoch)
 	startEpoch = startEpoch + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
-	logs.GetLogger().Info("startEpoch:", startEpoch)
+	logs.GetLogger().Info("start epoch:", startEpoch)
 
 	confDeal := &ConfDeal{
 		SwanApiUrl:                   config.GetConfig().Main.SwanApiUrl,

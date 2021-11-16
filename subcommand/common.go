@@ -169,6 +169,10 @@ func CreateOutputDir(outputDir string) error {
 		return err
 	}
 
+	if utils.IsDirExists(outputDir) {
+		return nil
+	}
+
 	err := os.MkdirAll(outputDir, os.ModePerm)
 	if err != nil {
 		err := fmt.Errorf("%s, failed to create output dir:%s", err.Error(), outputDir)
