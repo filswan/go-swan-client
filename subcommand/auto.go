@@ -16,7 +16,13 @@ import (
 	"github.com/filswan/go-swan-lib/utils"
 )
 
-func SendAutoBidDealsLoop(confDeal *model.ConfDeal) {
+func SendAutoBidDealsLoop(confDeal *model.ConfDeal) error {
+	err := CreateOutputDir(confDeal.OutputDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
 	for {
 		csvFilepaths, _, err := SendAutoBidDeals(confDeal)
 		if err != nil {
