@@ -4,6 +4,7 @@
 * [ConfUpload](#ConfUpload)
 * [ConfTask](#ConfTask)
 * [ConfDeal](#ConfDeal)
+* [Deal](#Deal)
 
 ## ConfCar
 ```shell
@@ -81,5 +82,22 @@ type ConfDeal struct {
 	MetadataJsonPath             string          //required only for manual-bid deal
 	DealSourceIds                []int           //required
 	RelativeEpochFromMainNetwork int             //required
+}
+```
+
+## Deal
+```shell
+type Deal struct {
+	Uuid           string `json:"uuid"`
+	SourceFileName string `json:"source_file_name"`
+	MinerId        string `json:"miner_id"`
+	DealCid        string `json:"deal_cid"`
+	PayloadCid     string `json:"payload_cid"`
+	FileSourceUrl  string `json:"file_source_url"`
+	Md5            string `json:"md5"`
+	StartEpoch     *int   `json:"start_epoch"`
+	PieceCid       string `json:"piece_cid"`
+	FileSize       int64  `json:"file_size"`
+	Cost           string `json:"cost"`
 }
 ```

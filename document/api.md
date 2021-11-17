@@ -59,7 +59,7 @@ error                 # error or nil
 Definition:
 
 ```shell
-func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []*libmodel.FileDesc, error)
+func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []*libmodel.FileDesc, []*Deal, error)
 ```
 
 Inputs:
