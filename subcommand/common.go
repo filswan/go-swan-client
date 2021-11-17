@@ -187,6 +187,7 @@ func CreateOutputDir(outputDir string) error {
 		return err
 	}
 
+	logs.GetLogger().Info(outputDir, " created")
 	return nil
 }
 
@@ -333,7 +334,7 @@ func WriteCarFilesToCsvFile(carFiles []*libmodel.FileDesc, outDir, csvFileName, 
 	return nil
 }
 
-func CreateCsv4TaskDeal(carFiles []*libmodel.FileDesc, outDir, csvFileName string) (string, error) {
+func CreateCsv4TaskDeal(carFiles []*libmodel.FileDesc, outDir, csvFileName string) (string, []*Deal, error) {
 	csvFilePath := filepath.Join(outDir, csvFileName)
 
 	logs.GetLogger().Info("Swan task CSV Generated: ", csvFilePath)
@@ -355,7 +356,7 @@ func CreateCsv4TaskDeal(carFiles []*libmodel.FileDesc, outDir, csvFileName strin
 	file, err := os.Create(csvFilePath)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return "", err
+		return "", nil, err
 	}
 	defer file.Close()
 
@@ -365,8 +366,10 @@ func CreateCsv4TaskDeal(carFiles []*libmodel.FileDesc, outDir, csvFileName strin
 	err = writer.Write(headers)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return "", err
+		return "", nil, err
 	}
+
+	deals := []*Deal{}
 
 	for _, carFile := range carFiles {
 		var columns []string
@@ -391,9 +394,38 @@ func CreateCsv4TaskDeal(carFiles []*libmodel.FileDesc, outDir, csvFileName strin
 		err = writer.Write(columns)
 		if err != nil {
 			logs.GetLogger().Error(err)
-			return "", err
+			return "", nil, err
 		}
+
+		deal := Deal{
+			Uuid:           carFile.Uuid,
+			SourceFileName: carFile.SourceFileName,
+			MinerId:        carFile.MinerFid,
+			DealCid:        carFile.DealCid,
+			PayloadCid:     carFile.DataCid,
+			FileSourceUrl:  carFile.CarFileUrl,
+			Md5:            carFile.CarFileMd5,
+			StartEpoch:     carFile.StartEpoch,
+			PieceCid:       carFile.PieceCid,
+			FileSize:       carFile.CarFileSize,
+			Cost:           carFile.Cost,
+		}
+		deals = append(deals, &deal)
 	}
 
-	return csvFilePath, nil
+	return csvFilePath, deals, nil
+}
+
+type Deal struct {
+	Uuid           string `json:"uuid"`
+	SourceFileName string `json:"source_file_name"`
+	MinerId        string `json:"miner_id"`
+	DealCid        string `json:"deal_cid"`
+	PayloadCid     string `json:"payload_cid"`
+	FileSourceUrl  string `json:"file_source_url"`
+	Md5            string `json:"md5"`
+	StartEpoch     *int   `json:"start_epoch"`
+	PieceCid       string `json:"piece_cid"`
+	FileSize       int64  `json:"file_size"`
+	Cost           string `json:"cost"`
 }

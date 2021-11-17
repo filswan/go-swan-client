@@ -16,31 +16,31 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []*libmodel.FileDesc, error) {
+func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []*libmodel.FileDesc, []*Deal, error) {
 	if confTask == nil {
 		err := fmt.Errorf("parameter confTask is nil")
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	if !confTask.PublicDeal {
 		if confDeal == nil {
 			err := fmt.Errorf("parameter confDeal is nil")
 			logs.GetLogger().Error(err)
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 	}
 
 	err := CheckInputDir(confTask.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	err = CreateOutputDir(confTask.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	logs.GetLogger().Info("you output dir: ", confTask.OutputDir)
@@ -48,7 +48,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	if !confTask.PublicDeal && len(confTask.MinerFid) == 0 {
 		err := fmt.Errorf("please provide -miner for private deal")
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	if confTask.PublicDeal && len(confTask.MinerFid) != 0 {
 		logs.GetLogger().Warn("miner is unnecessary for public task, it will be ignored")
@@ -70,7 +70,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	if carFiles == nil {
 		err := fmt.Errorf("failed to read car files from :%s", confTask.InputDir)
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	isPublic := 0
@@ -90,7 +90,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	err = CheckDuration(confTask.Duration, confTask.StartEpoch, 0)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	uuid := uuid.NewString()
@@ -126,7 +126,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 				srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
 				if err != nil {
 					logs.GetLogger().Error(err)
-					return nil, nil, err
+					return nil, nil, nil, err
 				}
 				carFile.SourceFileMd5 = srcFileMd5
 			}
@@ -135,7 +135,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 				carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
 				if err != nil {
 					logs.GetLogger().Error(err)
-					return nil, nil, err
+					return nil, nil, nil, err
 				}
 				carFile.CarFileMd5 = carFileMd5
 			}
@@ -145,7 +145,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	if !confTask.PublicDeal {
 		_, _, err := SendDeals2Miner(confDeal, confTask.TaskName, confTask.OutputDir, carFiles)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 	}
 
@@ -154,55 +154,55 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	jsonFilepath, err := WriteCarFilesToFiles(carFiles, confTask.OutputDir, jsonFileName, csvFileName, SUBCOMMAND_TASK)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
-	err = SendTask2Swan(confTask, task, carFiles)
+	deals, err := SendTask2Swan(confTask, task, carFiles)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	if *task.IsPublic == constants.TASK_IS_PUBLIC && *task.BidMode == constants.TASK_BID_MODE_MANUAL {
 		logs.GetLogger().Info("task ", task.TaskName, " has been created, please send its deal(s) later using deal subcommand and ", *jsonFilepath)
 	}
 
-	return jsonFilepath, carFiles, nil
+	return jsonFilepath, carFiles, deals, nil
 }
 
-func SendTask2Swan(confTask *model.ConfTask, task libmodel.Task, carFiles []*libmodel.FileDesc) error {
+func SendTask2Swan(confTask *model.ConfTask, task libmodel.Task, carFiles []*libmodel.FileDesc) ([]*Deal, error) {
 	csvFilename := task.TaskName + ".csv"
-	csvFilePath, err := CreateCsv4TaskDeal(carFiles, confTask.OutputDir, csvFilename)
+	csvFilePath, deals, err := CreateCsv4TaskDeal(carFiles, confTask.OutputDir, csvFilename)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return err
+		return deals, err
 	}
 
 	if confTask.OfflineMode {
 		logs.GetLogger().Info("Working in Offline Mode. You need to manually send out task on filwan.com.")
-		return nil
+		return deals, nil
 	}
 
 	logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
 	swanClient, err := swan.SwanGetClient(confTask.SwanApiUrl, confTask.SwanApiKey, confTask.SwanAccessToken, confTask.SwanToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return err
+		return deals, err
 	}
 
 	swanCreateTaskResponse, err := swanClient.SwanCreateTask(task, csvFilePath)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return err
+		return deals, err
 	}
 
 	if swanCreateTaskResponse.Status != "success" {
 		err := fmt.Errorf("error, status%s, message:%s", swanCreateTaskResponse.Status, swanCreateTaskResponse.Message)
 		logs.GetLogger().Info(err)
-		return err
+		return deals, err
 	}
 
 	logs.GetLogger().Info("status:", swanCreateTaskResponse.Status, ", message:", swanCreateTaskResponse.Message)
 
-	return nil
+	return deals, nil
 }
