@@ -187,6 +187,7 @@ func CreateOutputDir(outputDir string) error {
 		return err
 	}
 
+	logs.GetLogger().Info(outputDir, " created")
 	return nil
 }
 
