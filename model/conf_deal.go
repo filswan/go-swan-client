@@ -76,7 +76,7 @@ func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string, isAutoBid
 		confDeal.OutputDir = *outputDir
 	}
 
-	logs.GetLogger().Info(confDeal.OutputDir)
+	//logs.GetLogger().Info(confDeal.OutputDir)
 
 	maxPriceStr := config.GetConfig().Sender.MaxPrice
 	maxPrice, err := decimal.NewFromString(maxPriceStr)

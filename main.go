@@ -12,13 +12,6 @@ import (
 	"github.com/filswan/go-swan-lib/logs"
 )
 
-const SUBCOMMAND_CAR = "car"
-const SUBCOMMAND_GOCAR = "gocar"
-const SUBCOMMAND_UPLOAD = "upload"
-const SUBCOMMAND_TASK = "task"
-const SUBCOMMAND_DEAL = "deal"
-const SUBCOMMAND_AUTO = "auto"
-
 func main() {
 	execSubCmd()
 	//subcommand.GoCar("",)
@@ -34,15 +27,15 @@ func execSubCmd() error {
 	var err error = nil
 	subCmd := os.Args[1]
 	switch subCmd {
-	case SUBCOMMAND_CAR, SUBCOMMAND_GOCAR:
+	case subcommand.SUBCOMMAND_CAR, subcommand.SUBCOMMAND_GOCAR:
 		err = createCarFile(subCmd)
-	case SUBCOMMAND_UPLOAD:
+	case subcommand.SUBCOMMAND_UPLOAD:
 		err = uploadFile()
-	case SUBCOMMAND_TASK:
+	case subcommand.SUBCOMMAND_TASK:
 		err = createTask()
-	case SUBCOMMAND_DEAL:
+	case subcommand.SUBCOMMAND_DEAL:
 		err = sendDeal()
-	case SUBCOMMAND_AUTO:
+	case subcommand.SUBCOMMAND_AUTO:
 		err = sendAutoBidDeal()
 	default:
 		err = fmt.Errorf("sub command should be: car|gocar|upload|task|deal|auto")
@@ -86,14 +79,14 @@ func createCarFile(subCmd string) error {
 	confCar := model.GetConfCar(*inputDir, outputDir)
 
 	switch subCmd {
-	case SUBCOMMAND_CAR:
+	case subcommand.SUBCOMMAND_CAR:
 		_, err := subcommand.CreateCarFiles(confCar)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
 		//logs.GetLogger().Info(len(carFiles), " car files generated to directory:", *outputDir)
-	case SUBCOMMAND_GOCAR:
+	case subcommand.SUBCOMMAND_GOCAR:
 		_, err := subcommand.CreateGoCarFiles(confCar)
 		if err != nil {
 			logs.GetLogger().Error(err)
@@ -111,7 +104,7 @@ func createCarFile(subCmd string) error {
 
 //python3 swan_cli.py upload --input-dir /home/peware/testGoSwanProvider/output
 func uploadFile() error {
-	cmd := flag.NewFlagSet(SUBCOMMAND_UPLOAD, flag.ExitOnError)
+	cmd := flag.NewFlagSet(subcommand.SUBCOMMAND_UPLOAD, flag.ExitOnError)
 
 	inputDir := cmd.String("input-dir", "", "Directory where source files are in.")
 
@@ -146,7 +139,7 @@ func uploadFile() error {
 
 //python3 swan_cli.py task --input-dir /home/peware/testGoSwanProvider/output --out-dir /home/peware/testGoSwanProvider/task --miner t03354 --dataset test --description test
 func createTask() error {
-	cmd := flag.NewFlagSet(SUBCOMMAND_TASK, flag.ExitOnError)
+	cmd := flag.NewFlagSet(subcommand.SUBCOMMAND_TASK, flag.ExitOnError)
 
 	taskName := cmd.String("name", "", "Directory where source files are in.")
 	inputDir := cmd.String("input-dir", "", "Directory where source files are in.")
@@ -188,7 +181,7 @@ func createTask() error {
 }
 
 func sendDeal() error {
-	cmd := flag.NewFlagSet(SUBCOMMAND_DEAL, flag.ExitOnError)
+	cmd := flag.NewFlagSet(subcommand.SUBCOMMAND_DEAL, flag.ExitOnError)
 
 	metadataJsonPath := cmd.String("json", "", "The JSON file path of deal metadata.")
 	outputDir := cmd.String("out-dir", "", "Directory where target files will in.")
@@ -233,7 +226,7 @@ func sendDeal() error {
 }
 
 func sendAutoBidDeal() error {
-	cmd := flag.NewFlagSet(SUBCOMMAND_DEAL, flag.ExitOnError)
+	cmd := flag.NewFlagSet(subcommand.SUBCOMMAND_DEAL, flag.ExitOnError)
 
 	outputDir := cmd.String("out-dir", "", "Directory where target files will in.")
 

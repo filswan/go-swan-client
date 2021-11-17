@@ -151,7 +151,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 
 	jsonFileName := confTask.TaskName + constants.JSON_FILE_NAME_BY_TASK
 	csvFileName := confTask.TaskName + constants.CSV_FILE_NAME_BY_TASK
-	jsonFilepath, err := WriteCarFilesToFiles(carFiles, confTask.OutputDir, jsonFileName, csvFileName)
+	jsonFilepath, err := WriteCarFilesToFiles(carFiles, confTask.OutputDir, jsonFileName, csvFileName, SUBCOMMAND_TASK)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, err
