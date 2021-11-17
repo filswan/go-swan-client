@@ -24,6 +24,13 @@ const (
 	DURATION     = 1512000
 	DURATION_MIN = 518400
 	DURATION_MAX = 1540000
+
+	SUBCOMMAND_CAR    = "car"
+	SUBCOMMAND_GOCAR  = "gocar"
+	SUBCOMMAND_UPLOAD = "upload"
+	SUBCOMMAND_TASK   = "task"
+	SUBCOMMAND_DEAL   = "deal"
+	SUBCOMMAND_AUTO   = "auto"
 )
 
 func CheckDuration(duration int, startEpoch int, relativeEpochFromMainNetwork int) error {
@@ -119,19 +126,19 @@ func CheckDealConfig(confDeal *model.ConfDeal) error {
 			return err
 		}
 		confDeal.MinerPrice = *minerPrice
-		logs.GetLogger().Info("miner:", confDeal.MinerFid, ",price is:", *minerPrice)
+		//logs.GetLogger().Info("miner:", confDeal.MinerFid, ",price is:", *minerPrice)
 	}
 
-	logs.GetLogger().Info("Miner price is:", confDeal.MinerPrice, " MaxPrice:", confDeal.MaxPrice, " VerifiedDeal:", confDeal.VerifiedDeal)
 	priceCmp := confDeal.MaxPrice.Cmp(confDeal.MinerPrice)
 	//logs.GetLogger().Info("priceCmp:", priceCmp)
 	if priceCmp < 0 {
+		logs.GetLogger().Info("Miner price is:", confDeal.MinerPrice, " MaxPrice:", confDeal.MaxPrice, " VerifiedDeal:", confDeal.VerifiedDeal)
 		err := fmt.Errorf("miner price is higher than deal max price")
 		logs.GetLogger().Error(err)
 		return err
 	}
 
-	logs.GetLogger().Info("Deal check passed.")
+	//logs.GetLogger().Info("Deal check passed.")
 
 	if confDeal.Duration == 0 {
 		confDeal.Duration = DURATION
@@ -183,20 +190,20 @@ func CreateOutputDir(outputDir string) error {
 	return nil
 }
 
-func WriteCarFilesToFiles(carFiles []*libmodel.FileDesc, outputDir, jsonFilename, csvFileName string) (*string, error) {
+func WriteCarFilesToFiles(carFiles []*libmodel.FileDesc, outputDir, jsonFilename, csvFileName, subcommand string) (*string, error) {
 	err := os.MkdirAll(outputDir, os.ModePerm)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	jsonFilePath, err := WriteCarFilesToJsonFile(carFiles, outputDir, jsonFilename)
+	jsonFilePath, err := WriteCarFilesToJsonFile(carFiles, outputDir, jsonFilename, subcommand)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	err = WriteCarFilesToCsvFile(carFiles, outputDir, csvFileName)
+	err = WriteCarFilesToCsvFile(carFiles, outputDir, csvFileName, subcommand)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -205,7 +212,7 @@ func WriteCarFilesToFiles(carFiles []*libmodel.FileDesc, outputDir, jsonFilename
 	return jsonFilePath, nil
 }
 
-func WriteCarFilesToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFilename string) (*string, error) {
+func WriteCarFilesToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFilename, subcommand string) (*string, error) {
 	jsonFilePath := filepath.Join(outputDir, jsonFilename)
 	content, err := json.MarshalIndent(carFiles, "", " ")
 	if err != nil {
@@ -219,7 +226,7 @@ func WriteCarFilesToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFilen
 		return nil, err
 	}
 
-	logs.GetLogger().Info("Metadata json generated: ", jsonFilePath)
+	logs.GetLogger().Info(subcommand, ": metadata json generated: ", jsonFilePath)
 	return &jsonFilePath, nil
 }
 
@@ -247,7 +254,7 @@ func ReadCarFilesFromJsonFileByFullPath(jsonFilePath string) []*libmodel.FileDes
 	return carFiles
 }
 
-func WriteCarFilesToCsvFile(carFiles []*libmodel.FileDesc, outDir, csvFileName string) error {
+func WriteCarFilesToCsvFile(carFiles []*libmodel.FileDesc, outDir, csvFileName, subcommand string) error {
 	csvFilePath := filepath.Join(outDir, csvFileName)
 	var headers []string
 	headers = append(headers, "uuid")
@@ -321,7 +328,7 @@ func WriteCarFilesToCsvFile(carFiles []*libmodel.FileDesc, outDir, csvFileName s
 		}
 	}
 
-	logs.GetLogger().Info("Metadata csv generated: ", csvFilePath)
+	logs.GetLogger().Info(subcommand, ": metadata csv generated: ", csvFilePath)
 
 	return nil
 }

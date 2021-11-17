@@ -112,7 +112,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 			continue
 		}
 		pieceSize, sectorSize := utils.CalculatePieceSize(carFile.CarFileSize)
-		logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
+		//logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
 		cost := utils.CalculateRealCost(sectorSize, confDeal.MinerPrice)
 		dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, confDeal.Duration, confDeal.MinerFid, confDeal.SenderWallet)
 
@@ -152,7 +152,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 
 	jsonFileName := taskName + constants.JSON_FILE_NAME_BY_DEAL
 	csvFileName := taskName + constants.CSV_FILE_NAME_BY_DEAL
-	_, err = WriteCarFilesToFiles(carFiles, outputDir, jsonFileName, csvFileName)
+	_, err = WriteCarFilesToFiles(carFiles, outputDir, jsonFileName, csvFileName, SUBCOMMAND_DEAL)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, err

@@ -46,7 +46,7 @@ func UploadCarFiles(confUpload *model.ConfUpload) ([]*libmodel.FileDesc, error) 
 		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileUrl)
 	}
 
-	_, err = WriteCarFilesToFiles(carFiles, confUpload.InputDir, constants.JSON_FILE_NAME_BY_UPLOAD, constants.CSV_FILE_NAME_BY_UPLOAD)
+	_, err = WriteCarFilesToFiles(carFiles, confUpload.InputDir, constants.JSON_FILE_NAME_BY_UPLOAD, constants.CSV_FILE_NAME_BY_UPLOAD, SUBCOMMAND_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

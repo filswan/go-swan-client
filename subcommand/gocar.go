@@ -187,7 +187,7 @@ func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, car
 		carFiles = append(carFiles, &carFile)
 	}
 
-	_, err = WriteCarFilesToFiles(carFiles, carFileDir, constants.JSON_FILE_NAME_BY_GOCAR, constants.CSV_FILE_NAME_BY_GOCAR)
+	_, err = WriteCarFilesToFiles(carFiles, carFileDir, constants.JSON_FILE_NAME_BY_GOCAR, constants.CSV_FILE_NAME_BY_GOCAR, SUBCOMMAND_GOCAR)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
