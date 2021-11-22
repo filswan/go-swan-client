@@ -129,5 +129,7 @@ func SetDealConfig4Autobid(confDeal *ConfDeal, task libmodel.Task, deal libmodel
 
 	confDeal.Duration = task.Duration
 
+	confDeal.SkipConfirmation = true
+
 	return nil
 }
