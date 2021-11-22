@@ -38,7 +38,7 @@ type ConfDeal struct {
 	RelativeEpochFromMainNetwork int             //required
 }
 
-func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string, isAutoBid bool) *ConfDeal {
+func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string) *ConfDeal {
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
 	startEpoch := utils.GetCurrentEpoch()
 	startEpoch = startEpoch + config.GetConfig().Sender.RelativeEpochFromMainNetwork
@@ -67,10 +67,6 @@ func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string, isAutoBid
 
 	confDeal.DealSourceIds = append(confDeal.DealSourceIds, constants.TASK_SOURCE_ID_SWAN)
 	confDeal.DealSourceIds = append(confDeal.DealSourceIds, constants.TASK_SOURCE_ID_SWAN_CLIENT)
-
-	if isAutoBid {
-		confDeal.SkipConfirmation = true
-	}
 
 	if outputDir != nil && len(*outputDir) != 0 {
 		confDeal.OutputDir = *outputDir
