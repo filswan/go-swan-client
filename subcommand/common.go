@@ -60,7 +60,7 @@ func CheckDuration(duration int, startEpoch int, relativeEpochFromMainNetwork in
 func GetDealCost(pricePerEpoch decimal.Decimal, duration int) string {
 	durationDecimal := decimal.NewFromInt(int64(duration))
 	cost := pricePerEpoch.Mul(durationDecimal)
-	cost = cost.Mul(decimal.NewFromFloat(constants.LOTUS_PRICE_MULTIPLE))
+	cost = cost.Mul(decimal.NewFromFloat(constants.LOTUS_PRICE_MULTIPLE_1E18))
 
 	return cost.String()
 }

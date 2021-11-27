@@ -3,7 +3,7 @@ package subcommand
 import (
 	"fmt"
 
-	"github.com/filswan/go-swan-lib/client"
+	"github.com/filswan/go-swan-lib/client/ipfs"
 	libmodel "github.com/filswan/go-swan-lib/model"
 
 	"github.com/filswan/go-swan-client/model"
@@ -35,7 +35,7 @@ func UploadCarFiles(confUpload *model.ConfUpload) ([]*libmodel.FileDesc, error) 
 	for _, carFile := range carFiles {
 		uploadUrl := utils.UrlJoin(confUpload.IpfsServerUploadUrl, "api/v0/add?stream-channels=true&pin=true")
 		logs.GetLogger().Info("Uploading car file:", carFile.CarFilePath, " to:", uploadUrl)
-		carFileHash, err := client.IpfsUploadCarFileByWebApi(uploadUrl, carFile.CarFilePath)
+		carFileHash, err := ipfs.IpfsUploadFileByWebApi(uploadUrl, carFile.CarFilePath)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, err
