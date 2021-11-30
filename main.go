@@ -27,7 +27,7 @@ func execSubCmd() error {
 	var err error = nil
 	subCmd := os.Args[1]
 	switch subCmd {
-	case subcommand.SUBCOMMAND_CAR, subcommand.SUBCOMMAND_GOCAR:
+	case subcommand.SUBCOMMAND_CAR, subcommand.SUBCOMMAND_GOCAR, subcommand.SUBCOMMAND_IPFSCAR:
 		err = createCarFile(subCmd)
 	case subcommand.SUBCOMMAND_UPLOAD:
 		err = uploadFile()
@@ -88,6 +88,12 @@ func createCarFile(subCmd string) error {
 		//logs.GetLogger().Info(len(carFiles), " car files generated to directory:", *outputDir)
 	case subcommand.SUBCOMMAND_GOCAR:
 		_, err := subcommand.CreateGoCarFiles(confCar)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
+	case subcommand.SUBCOMMAND_IPFSCAR:
+		_, err := subcommand.CreateIpfsCarFiles(confCar)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
