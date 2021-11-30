@@ -235,7 +235,7 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []libmodel.OfflineDea
 				return 0, "", nil, err
 			}
 
-			dealCid, startEpoch, err := lotus.LotusProposeOfflineDeal(carFile, cost, pieceSize, *dealConfig, i)
+			dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(carFile, cost, pieceSize, *dealConfig, i)
 			if err != nil {
 				logs.GetLogger().Error("tried ", i, " times,", err)
 
