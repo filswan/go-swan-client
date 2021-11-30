@@ -25,12 +25,13 @@ const (
 	DURATION_MIN = 518400
 	DURATION_MAX = 1540000
 
-	SUBCOMMAND_CAR    = "car"
-	SUBCOMMAND_GOCAR  = "gocar"
-	SUBCOMMAND_UPLOAD = "upload"
-	SUBCOMMAND_TASK   = "task"
-	SUBCOMMAND_DEAL   = "deal"
-	SUBCOMMAND_AUTO   = "auto"
+	SUBCOMMAND_CAR     = "car"
+	SUBCOMMAND_GOCAR   = "gocar"
+	SUBCOMMAND_IPFSCAR = "ipfscar"
+	SUBCOMMAND_UPLOAD  = "upload"
+	SUBCOMMAND_TASK    = "task"
+	SUBCOMMAND_DEAL    = "deal"
+	SUBCOMMAND_AUTO    = "auto"
 )
 
 func CheckDuration(duration int, startEpoch int, relativeEpochFromMainNetwork int) error {
