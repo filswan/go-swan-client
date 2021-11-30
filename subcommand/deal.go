@@ -122,9 +122,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 			return nil, nil, err
 		}
 
-		dealCid, startEpoch, err := lotus.LotusProposeOfflineDeal(*carFile, cost, pieceSize, *dealConfig, 0)
-		//dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig, 0)
-		//dealCid, err := client.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig)
+		dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig, 0)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
