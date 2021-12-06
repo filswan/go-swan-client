@@ -181,6 +181,7 @@ vi ~/.swan/client/config.toml
 :bell: This step is necessary for both public and private tasks. You can choose one of the following 3 options.
 
 ### Option:one: By lotus web json rpc api
+:bell: This option will generate a car file for each file in source directory.
 ```shell
 ./swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
@@ -200,6 +201,7 @@ vi ~/.swan/client/config.toml
 - [source-file-name].car: each source file has a related car file
 
 ### Option:two: By graphsplit api
+:bell: This option can split a file under source directory to one or more car file(s) in output directory.
 ```shell
 ./swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
 ```
