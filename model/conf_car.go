@@ -14,7 +14,7 @@ type ConfCar struct {
 	InputDir                  string //required
 	GocarFileSizeLimit        int64  //required only when creating gocar file(s)
 	GenerateMd5               bool   //required
-	IpfsServerUploadUrlPrefix string //required only when upload to ipfs server
+	IpfsServerUploadUrlPrefix string //required only when creating ipfs car file
 }
 
 func GetConfCar(inputDir string, outputDir *string) *ConfCar {
