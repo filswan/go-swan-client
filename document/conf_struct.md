@@ -9,12 +9,13 @@
 ## ConfCar
 ```shell
 type ConfCar struct {
-	LotusClientApiUrl      string //required
-	LotusClientAccessToken string //required
-	OutputDir              string //required
-	InputDir               string //required
-	GocarFileSizeLimit     int64  //required only when creating gocar file(s)
-	GenerateMd5            bool   //required
+	LotusClientApiUrl         string //required
+	LotusClientAccessToken    string //required
+	OutputDir                 string //required
+	InputDir                  string //required
+	GocarFileSizeLimit        int64  //required only when creating gocar file(s)
+	GenerateMd5               bool   //required
+	IpfsServerUploadUrlPrefix string //required only when creating ipfs car file
 }
 ```
 
@@ -23,7 +24,7 @@ type ConfCar struct {
 type ConfUpload struct {
 	StorageServerType           string //required
 	IpfsServerDownloadUrlPrefix string //required only when upload to ipfs server
-	IpfsServerUploadUrl         string //required only when upload to ipfs server
+	IpfsServerUploadUrlPrefix   string //required only when upload to ipfs server
 	OutputDir                   string //invalid
 	InputDir                    string //required
 }

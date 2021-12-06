@@ -13,7 +13,7 @@ download_url_prefix = "https://nbai.io:443/download"
 
 [ipfs_server]
 download_url_prefix = "http://[ip]:[port]"
-upload_url = "http://[ip]:[port]"
+upload_url_prefix = "http://[ip]:[port]"
 
 [sender]
 bid_mode = 1
