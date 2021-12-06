@@ -248,7 +248,6 @@ Credits should be given to filedrive-team. More information can be found in http
 **Note:**
 We do not create source file MD5 in the metadata files.
 
-
 ## Upload Car Files
 :bell: It is required to upload car files to file server, either to web server or to ipfs server.
 
