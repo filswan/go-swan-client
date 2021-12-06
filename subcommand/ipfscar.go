@@ -22,6 +22,12 @@ func CreateIpfsCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
+	if confCar.IpfsServerUploadUrlPrefix == "" {
+		err := fmt.Errorf("IpfsServerUploadUrlPrefix is required")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	err := CheckInputDir(confCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
