@@ -7,7 +7,7 @@ import (
 type ConfUpload struct {
 	StorageServerType           string //required
 	IpfsServerDownloadUrlPrefix string //required only when upload to ipfs server
-	IpfsServerUploadUrl         string //required only when upload to ipfs server
+	IpfsServerUploadUrlPrefix   string //required only when upload to ipfs server
 	OutputDir                   string //invalid
 	InputDir                    string //required
 }
@@ -16,7 +16,7 @@ func GetConfUpload(inputDir string) *ConfUpload {
 	confUpload := &ConfUpload{
 		StorageServerType:           config.GetConfig().Main.StorageServerType,
 		IpfsServerDownloadUrlPrefix: config.GetConfig().IpfsServer.DownloadUrlPrefix,
-		IpfsServerUploadUrl:         config.GetConfig().IpfsServer.UploadUrl,
+		IpfsServerUploadUrlPrefix:   config.GetConfig().IpfsServer.UploadUrlPrefix,
 		OutputDir:                   inputDir,
 		InputDir:                    inputDir,
 	}

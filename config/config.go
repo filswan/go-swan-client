@@ -35,7 +35,7 @@ type webServer struct {
 
 type ipfsServer struct {
 	DownloadUrlPrefix string `toml:"download_url_prefix"`
-	UploadUrl         string `toml:"upload_url"`
+	UploadUrlPrefix   string `toml:"upload_url_prefix"`
 }
 
 type sender struct {
