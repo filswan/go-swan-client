@@ -100,7 +100,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"web_server", "download_url_prefix"},
 
 		{"ipfs_server", "download_url_prefix"},
-		{"ipfs_server", "upload_url"},
+		{"ipfs_server", "upload_url_prefix"},
 
 		{"sender", "bid_mode"},
 		{"sender", "offline_mode"},
