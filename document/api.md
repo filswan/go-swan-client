@@ -2,6 +2,7 @@
 
 * [GenerateCarFiles](#GenerateCarFiles)
 * [CreateGoCarFiles](#CreateGoCarFiles)
+* [CreateIpfsCarFiles](#CreateIpfsCarFiles)
 * [UploadCarFiles](#UploadCarFiles)
 * [CreateTask](#CreateTask)
 * [SendDeals](#SendDeals)
@@ -30,6 +31,21 @@ Definition:
 
 ```shell
 func CreateGoCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error)
+```
+
+Outputs:
+
+```shell
+[]*libmodel.FileDesc   # car files info
+error                  # error or nil
+```
+
+## CreateIpfsCarFiles
+
+Definition:
+
+```shell
+func CreateIpfsCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) 
 ```
 
 Outputs:

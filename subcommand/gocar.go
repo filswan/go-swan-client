@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -20,6 +21,8 @@ import (
 	"github.com/filswan/go-swan-lib/client/lotus"
 	libmodel "github.com/filswan/go-swan-lib/model"
 )
+
+const GRAPHSPLIT_METADATA_CSV_FILE_NAME = "manifest.csv"
 
 func CreateGoCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 	if confCar == nil {
@@ -47,17 +50,19 @@ func CreateGoCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	srcFiles, err := ioutil.ReadDir(confCar.InputDir)
+	carDir := confCar.OutputDir
+
+	fileFullPath := filepath.Join(carDir, GRAPHSPLIT_METADATA_CSV_FILE_NAME)
+	err = os.Remove(fileFullPath)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	carDir := confCar.OutputDir
-	for _, srcFile := range srcFiles {
-		parentPath := filepath.Join(confCar.InputDir, srcFile.Name())
+	if confCar.GocarFolderBased {
+		parentPath := confCar.InputDir
 		targetPath := parentPath
-		graphName := srcFile.Name()
+		graphName := filepath.Base(parentPath)
 		parallel := 4
 
 		Emptyctx := context.Background()
@@ -65,8 +70,31 @@ func CreateGoCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 		err = graphsplit.Chunk(Emptyctx, sliceSize, parentPath, targetPath, carDir, graphName, parallel, cb)
 		if err != nil {
 			logs.GetLogger().Error(err)
+			return nil, err
+		}
+	} else {
+		srcFiles, err := ioutil.ReadDir(confCar.InputDir)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
+
+		for _, srcFile := range srcFiles {
+			parentPath := filepath.Join(confCar.InputDir, srcFile.Name())
+			targetPath := parentPath
+			graphName := srcFile.Name()
+			parallel := 4
+
+			Emptyctx := context.Background()
+			cb := graphsplit.CommPCallback(carDir)
+			err = graphsplit.Chunk(Emptyctx, sliceSize, parentPath, targetPath, carDir, graphName, parallel, cb)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return nil, err
+			}
 		}
 	}
+
 	carFiles, err := CreateCarFilesDescFromGoCarManifest(confCar, confCar.InputDir, carDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
