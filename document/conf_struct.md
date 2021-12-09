@@ -14,6 +14,7 @@ type ConfCar struct {
 	OutputDir                 string //required
 	InputDir                  string //required
 	GocarFileSizeLimit        int64  //required only when creating gocar file(s)
+	GocarFolderBased          bool   //required only when creating gocar file(s), true: create car files based on whole folder, otherwise based on each file respectively
 	GenerateMd5               bool   //required
 	IpfsServerUploadUrlPrefix string //required only when creating ipfs car file
 }
