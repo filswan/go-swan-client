@@ -13,6 +13,7 @@ type ConfCar struct {
 	OutputDir                 string //required
 	InputDir                  string //required
 	GocarFileSizeLimit        int64  //required only when creating gocar file(s)
+	GocarFolderBased          bool   //required only when creating gocar file(s), true: create car files based on whole folder, otherwise based on each file respectively
 	GenerateMd5               bool   //required
 	IpfsServerUploadUrlPrefix string //required only when creating ipfs car file
 }
@@ -24,6 +25,7 @@ func GetConfCar(inputDir string, outputDir *string) *ConfCar {
 		OutputDir:                 filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
 		InputDir:                  inputDir,
 		GocarFileSizeLimit:        config.GetConfig().Sender.GocarFileSizeLimit,
+		GocarFolderBased:          config.GetConfig().Sender.GocarFolderBased,
 		GenerateMd5:               config.GetConfig().Sender.GenerateMd5,
 		IpfsServerUploadUrlPrefix: config.GetConfig().IpfsServer.UploadUrlPrefix,
 	}

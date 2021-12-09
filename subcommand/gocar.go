@@ -54,10 +54,10 @@ func CreateGoCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 	}
 
 	carDir := confCar.OutputDir
-	for _, srcFile := range srcFiles {
-		parentPath := filepath.Join(confCar.InputDir, srcFile.Name())
+	if confCar.GocarFolderBased {
+		parentPath := confCar.InputDir
 		targetPath := parentPath
-		graphName := srcFile.Name()
+		graphName := filepath.Base(parentPath)
 		parallel := 4
 
 		Emptyctx := context.Background()
@@ -66,7 +66,22 @@ func CreateGoCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 		if err != nil {
 			logs.GetLogger().Error(err)
 		}
+	} else {
+		for _, srcFile := range srcFiles {
+			parentPath := filepath.Join(confCar.InputDir, srcFile.Name())
+			targetPath := parentPath
+			graphName := srcFile.Name()
+			parallel := 4
+
+			Emptyctx := context.Background()
+			cb := graphsplit.CommPCallback(carDir)
+			err = graphsplit.Chunk(Emptyctx, sliceSize, parentPath, targetPath, carDir, graphName, parallel, cb)
+			if err != nil {
+				logs.GetLogger().Error(err)
+			}
+		}
 	}
+
 	carFiles, err := CreateCarFilesDescFromGoCarManifest(confCar, confCar.InputDir, carDir)
 	if err != nil {
 		logs.GetLogger().Error(err)

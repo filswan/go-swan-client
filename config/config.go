@@ -52,6 +52,7 @@ type sender struct {
 	StartEpochHours              int    `toml:"start_epoch_hours"`
 	ExpireDays                   int    `toml:"expire_days"`
 	GocarFileSizeLimit           int64  `toml:"gocar_file_size_limit"`
+	GocarFolderBased             bool   `toml:"gocar_folder_based"`
 	Duration                     int    `toml:"duration"`
 	RelativeEpochFromMainNetwork int    `toml:"relative_epoch_from_main_network"`
 }
@@ -115,6 +116,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"sender", "start_epoch_hours"},
 		{"sender", "expire_days"},
 		{"sender", "gocar_file_size_limit"},
+		{"sender", "gocar_folder_based"},
 		{"sender", "duration"},
 		{"sender", "relative_epoch_from_main_network"},
 	}
