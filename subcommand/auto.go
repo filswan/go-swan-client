@@ -150,11 +150,11 @@ func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int,
 	}
 
 	logs.GetLogger().Info(status)
-	//response, err := swanClient.SwanUpdateAssignedTask(taskUuid, status, csvFilePath)
-	//if err != nil {
-	//	logs.GetLogger().Error(err)
-	//	return 0, nil, err
-	//}
+	_, err = swanClient.SwanUpdateTaskByUuid(task, carFiles)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return 0, nil, err
+	}
 
 	return dealSentNum, carFiles, nil
 }
@@ -252,7 +252,6 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []*libmodel.OfflineDe
 				continue
 			}
 
-			//logs.GetLogger().Info(*dealCost)
 			carFile.Cost = dealCost.CostComputed
 			dealSentNum = dealSentNum + 1
 

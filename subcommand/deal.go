@@ -82,11 +82,11 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	//err = swanClient.SwanUpdateTaskByUuid(carFiles[0].Uuid, confDeal.MinerFid, *csvFilepath)
-	//if err != nil {
-	//	logs.GetLogger().Error(err)
-	//	return nil, err
-	//}
+	_, err = swanClient.SwanUpdateTaskByUuid(task.Data.Task, carFiles)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
 
 	return carFiles, nil
 }

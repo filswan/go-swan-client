@@ -228,148 +228,9 @@ func ReadCarFilesFromJsonFileByFullPath(jsonFilePath string) []*libmodel.FileDes
 	return carFiles
 }
 
-func WriteCarFilesToCsvFile(carFiles []*libmodel.FileDesc, outDir, csvFileName, subcommand string) error {
-	csvFilePath := filepath.Join(outDir, csvFileName)
-	var headers []string
-	headers = append(headers, "uuid")
-	headers = append(headers, "source_file_name")
-	headers = append(headers, "source_file_path")
-	headers = append(headers, "source_file_md5")
-	headers = append(headers, "source_file_size")
-	headers = append(headers, "car_file_name")
-	headers = append(headers, "car_file_path")
-	headers = append(headers, "car_file_md5")
-	headers = append(headers, "car_file_url")
-	headers = append(headers, "car_file_size")
-	headers = append(headers, "deal_cid")
-	headers = append(headers, "data_cid")
-	headers = append(headers, "piece_cid")
-	headers = append(headers, "miner_id")
-	headers = append(headers, "start_epoch")
-	headers = append(headers, "source_id")
-	headers = append(headers, "cost")
-
-	file, err := os.Create(csvFilePath)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
-	}
-	defer file.Close()
-
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
-
-	err = writer.Write(headers)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	for _, carFile := range carFiles {
-		var columns []string
-		columns = append(columns, carFile.Uuid)
-		columns = append(columns, carFile.SourceFileName)
-		columns = append(columns, carFile.SourceFilePath)
-		columns = append(columns, carFile.SourceFileMd5)
-		columns = append(columns, strconv.FormatInt(carFile.SourceFileSize, 10))
-		columns = append(columns, carFile.CarFileName)
-		columns = append(columns, carFile.CarFilePath)
-		columns = append(columns, carFile.CarFileMd5)
-		columns = append(columns, carFile.CarFileUrl)
-		columns = append(columns, strconv.FormatInt(carFile.CarFileSize, 10))
-		columns = append(columns, carFile.DealCid)
-		columns = append(columns, carFile.DataCid)
-		columns = append(columns, carFile.PieceCid)
-		columns = append(columns, carFile.MinerFid)
-
-		if carFile.StartEpoch != nil {
-			columns = append(columns, strconv.Itoa(*carFile.StartEpoch))
-		} else {
-			columns = append(columns, "")
-		}
-
-		if carFile.SourceId != nil {
-			columns = append(columns, strconv.Itoa(*carFile.SourceId))
-		} else {
-			columns = append(columns, "")
-		}
-		columns = append(columns, carFile.Cost)
-
-		err = writer.Write(columns)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return err
-		}
-	}
-
-	logs.GetLogger().Info(subcommand, ": metadata csv generated: ", csvFilePath)
-
-	return nil
-}
-
-func CreateCsv4TaskDeal(carFiles []*libmodel.FileDesc, outDir, csvFileName string) (string, []*Deal, error) {
-	csvFilePath := filepath.Join(outDir, csvFileName)
-
-	logs.GetLogger().Info("Swan task CSV Generated: ", csvFilePath)
-
-	headers := []string{
-		"uuid",
-		"source_file_name",
-		"miner_id",
-		"deal_cid",
-		"payload_cid",
-		"file_source_url",
-		"md5",
-		"start_epoch",
-		"piece_cid",
-		"file_size",
-		"cost",
-	}
-
-	file, err := os.Create(csvFilePath)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return "", nil, err
-	}
-	defer file.Close()
-
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
-
-	err = writer.Write(headers)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return "", nil, err
-	}
-
+func GetDeals(carFiles []*libmodel.FileDesc) ([]*Deal, error) {
 	deals := []*Deal{}
-
 	for _, carFile := range carFiles {
-		var columns []string
-		columns = append(columns, carFile.Uuid)
-		columns = append(columns, carFile.SourceFileName)
-		columns = append(columns, carFile.MinerFid)
-		columns = append(columns, carFile.DealCid)
-		columns = append(columns, carFile.DataCid)
-		columns = append(columns, carFile.CarFileUrl)
-		columns = append(columns, carFile.CarFileMd5)
-
-		if carFile.StartEpoch != nil {
-			columns = append(columns, strconv.Itoa(*carFile.StartEpoch))
-		} else {
-			columns = append(columns, "")
-		}
-
-		columns = append(columns, carFile.PieceCid)
-		columns = append(columns, strconv.FormatInt(carFile.CarFileSize, 10))
-		columns = append(columns, carFile.Cost)
-
-		err = writer.Write(columns)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return "", nil, err
-		}
-
 		deal := Deal{
 			Uuid:           carFile.Uuid,
 			SourceFileName: carFile.SourceFileName,
@@ -386,7 +247,7 @@ func CreateCsv4TaskDeal(carFiles []*libmodel.FileDesc, outDir, csvFileName strin
 		deals = append(deals, &deal)
 	}
 
-	return csvFilePath, deals, nil
+	return deals, nil
 }
 
 type Deal struct {
