@@ -44,16 +44,6 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	}
 
 	logs.GetLogger().Info("you output dir: ", confTask.OutputDir)
-
-	if !confTask.PublicDeal && len(confTask.MinerFid) == 0 {
-		err := fmt.Errorf("please provide -miner for private deal")
-		logs.GetLogger().Error(err)
-		return nil, nil, nil, err
-	}
-	if confTask.PublicDeal && len(confTask.MinerFid) != 0 {
-		logs.GetLogger().Warn("miner is unnecessary for public task, it will be ignored")
-	}
-
 	if len(confTask.TaskName) == 0 {
 		taskName := GetDefaultTaskName()
 		confTask.TaskName = taskName
@@ -105,7 +95,6 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		Uuid:              uuid,
 		SourceId:          confTask.SourceId,
 		Duration:          confTask.Duration,
-		MinerFid:          confTask.MinerFid,
 		CuratedDataset:    confTask.Dataset,
 		Description:       confTask.Description,
 	}
@@ -143,15 +132,14 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	}
 
 	if !confTask.PublicDeal {
-		_, _, err := SendDeals2Miner(confDeal, confTask.TaskName, confTask.OutputDir, carFiles)
+		_, err := SendDeals2Miner(confDeal, confTask.TaskName, confTask.OutputDir, carFiles)
 		if err != nil {
 			return nil, nil, nil, err
 		}
 	}
 
 	jsonFileName := confTask.TaskName + constants.JSON_FILE_NAME_BY_TASK
-	csvFileName := confTask.TaskName + constants.CSV_FILE_NAME_BY_TASK
-	jsonFilepath, err := WriteCarFilesToFiles(carFiles, confTask.OutputDir, jsonFileName, csvFileName, SUBCOMMAND_TASK)
+	jsonFilepath, err := WriteCarFilesToJsonFile(carFiles, confTask.OutputDir, jsonFileName, SUBCOMMAND_TASK)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
@@ -171,8 +159,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 }
 
 func SendTask2Swan(confTask *model.ConfTask, task libmodel.Task, carFiles []*libmodel.FileDesc) ([]*Deal, error) {
-	csvFilename := task.TaskName + ".csv"
-	csvFilePath, deals, err := CreateCsv4TaskDeal(carFiles, confTask.OutputDir, csvFilename)
+	deals, err := GetDeals(carFiles)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return deals, err
@@ -190,7 +177,7 @@ func SendTask2Swan(confTask *model.ConfTask, task libmodel.Task, carFiles []*lib
 		return deals, err
 	}
 
-	swanCreateTaskResponse, err := swanClient.SwanCreateTask(task, csvFilePath)
+	swanCreateTaskResponse, err := swanClient.SwanCreateTask(task, carFiles)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return deals, err

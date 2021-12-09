@@ -1,7 +1,6 @@
 package subcommand
 
 import (
-	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"path/filepath"
@@ -17,7 +16,6 @@ import (
 
 	"io/ioutil"
 	"os"
-	"strconv"
 )
 
 const (
@@ -127,19 +125,15 @@ func CheckDealConfig(confDeal *model.ConfDeal) error {
 			return err
 		}
 		confDeal.MinerPrice = *minerPrice
-		//logs.GetLogger().Info("miner:", confDeal.MinerFid, ",price is:", *minerPrice)
 	}
 
 	priceCmp := confDeal.MaxPrice.Cmp(confDeal.MinerPrice)
-	//logs.GetLogger().Info("priceCmp:", priceCmp)
 	if priceCmp < 0 {
 		logs.GetLogger().Info("Miner price is:", confDeal.MinerPrice, " MaxPrice:", confDeal.MaxPrice, " VerifiedDeal:", confDeal.VerifiedDeal)
 		err := fmt.Errorf("miner price is higher than deal max price")
 		logs.GetLogger().Error(err)
 		return err
 	}
-
-	//logs.GetLogger().Info("Deal check passed.")
 
 	if confDeal.Duration == 0 {
 		confDeal.Duration = DURATION
@@ -192,30 +186,8 @@ func CreateOutputDir(outputDir string) error {
 	return nil
 }
 
-func WriteCarFilesToFiles(carFiles []*libmodel.FileDesc, outputDir, jsonFilename, csvFileName, subcommand string) (*string, error) {
-	err := os.MkdirAll(outputDir, os.ModePerm)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	jsonFilePath, err := WriteCarFilesToJsonFile(carFiles, outputDir, jsonFilename, subcommand)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	err = WriteCarFilesToCsvFile(carFiles, outputDir, csvFileName, subcommand)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	return jsonFilePath, nil
-}
-
-func WriteCarFilesToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFilename, subcommand string) (*string, error) {
-	jsonFilePath := filepath.Join(outputDir, jsonFilename)
+func WriteCarFilesToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFileName, subcommand string) (*string, error) {
+	jsonFilePath := filepath.Join(outputDir, jsonFileName)
 	content, err := json.MarshalIndent(carFiles, "", " ")
 	if err != nil {
 		logs.GetLogger().Error(err)

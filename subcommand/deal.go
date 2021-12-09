@@ -44,7 +44,7 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
-	task, err := swanClient.SwanGetOfflineDealsByTaskUuid(carFiles[0].Uuid)
+	task, err := swanClient.SwanGetTaskByUuid(carFiles[0].Uuid)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -76,33 +76,33 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		}
 	}
 
-	csvFilepath, carFiles, err := SendDeals2Miner(confDeal, taskName, confDeal.OutputDir, carFiles)
+	carFiles, err = SendDeals2Miner(confDeal, taskName, confDeal.OutputDir, carFiles)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	err = swanClient.SwanUpdateTaskByUuid(carFiles[0].Uuid, confDeal.MinerFid, *csvFilepath)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
+	//err = swanClient.SwanUpdateTaskByUuid(carFiles[0].Uuid, confDeal.MinerFid, *csvFilepath)
+	//if err != nil {
+	//	logs.GetLogger().Error(err)
+	//	return nil, err
+	//}
 
 	return carFiles, nil
 }
 
-func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, carFiles []*libmodel.FileDesc) (*string, []*libmodel.FileDesc, error) {
+func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, carFiles []*libmodel.FileDesc) ([]*libmodel.FileDesc, error) {
 	if confDeal == nil {
 		err := fmt.Errorf("parameter confDeal is nil")
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, err
 	}
 
 	err := CheckDealConfig(confDeal)
 	if err != nil {
 		err := errors.New("failed to pass deal config check")
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, err
 	}
 
 	dealSentNum := 0
@@ -119,7 +119,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 		lotusClient, err := lotus.LotusGetClient(confDeal.LotusClientApiUrl, confDeal.LotusClientAccessToken)
 		if err != nil {
 			logs.GetLogger().Error(err)
-			return nil, nil, err
+			return nil, err
 		}
 
 		dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig, 0)
@@ -150,15 +150,11 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 	logs.GetLogger().Info(dealSentNum, " deal(s) has(ve) been sent for task:", taskName)
 
 	jsonFileName := taskName + constants.JSON_FILE_NAME_BY_DEAL
-	csvFileName := taskName + constants.CSV_FILE_NAME_BY_DEAL
-	_, err = WriteCarFilesToFiles(carFiles, outputDir, jsonFileName, csvFileName, SUBCOMMAND_DEAL)
+	_, err = WriteCarFilesToJsonFile(carFiles, outputDir, jsonFileName, SUBCOMMAND_DEAL)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return nil, err
 	}
 
-	csvFilename := taskName + ".csv"
-	csvFilepath, _, err := CreateCsv4TaskDeal(carFiles, outputDir, csvFilename)
-
-	return &csvFilepath, carFiles, err
+	return carFiles, err
 }

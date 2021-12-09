@@ -31,7 +31,6 @@ type ConfTask struct {
 	OutputDir                  string          //required
 	InputDir                   string          //required
 	TaskName                   string          //not necessary, when not provided use default value:swan_task_xxxxxx
-	MinerFid                   string          //required only when PublicDeal=false
 	Dataset                    string          //not necessary
 	Description                string          //not necessary
 	StartEpoch                 int             //required
@@ -60,7 +59,6 @@ func GetConfTask(inputDir string, outputDir *string, taskName, minerFid, dataset
 		OutputDir:                  filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
 		InputDir:                   inputDir,
 		TaskName:                   taskName,
-		MinerFid:                   minerFid,
 		Dataset:                    dataset,
 		Description:                description,
 		StartEpochIntervalHours:    startEpochIntervalHours,

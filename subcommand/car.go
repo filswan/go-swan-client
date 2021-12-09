@@ -109,7 +109,7 @@ func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 		carFiles = append(carFiles, &carFile)
 	}
 
-	_, err = WriteCarFilesToFiles(carFiles, confCar.OutputDir, constants.JSON_FILE_NAME_BY_CAR, constants.CSV_FILE_NAME_BY_CAR, SUBCOMMAND_CAR)
+	_, err = WriteCarFilesToJsonFile(carFiles, confCar.OutputDir, constants.JSON_FILE_NAME_BY_CAR, SUBCOMMAND_CAR)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
