@@ -113,7 +113,7 @@ func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int,
 		return 0, nil, err
 	}
 
-	deals := assignedTaskInfo.Data.Deal
+	carFiles := assignedTaskInfo.Data.Deal
 	task := assignedTaskInfo.Data.Task
 
 	if task.Type == libconstants.TASK_TYPE_VERIFIED {
@@ -130,7 +130,7 @@ func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int,
 		}
 	}
 
-	dealSentNum, carFiles, err := SendAutobidDeals4Task(confDeal, deals, task, confDeal.OutputDir)
+	dealNum, dealSentNum, carFiles, err := SendAutobidDeals4Task(confDeal, task, confDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return 0, nil, err
@@ -146,7 +146,7 @@ func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int,
 	}
 
 	status := libconstants.TASK_STATUS_DEAL_SENT
-	if dealSentNum != len(deals) {
+	if dealSentNum != dealNum {
 		status = libconstants.TASK_STATUS_PROGRESS_WITH_FAILURE
 	}
 
@@ -159,21 +159,32 @@ func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int,
 
 	return dealSentNum, carFiles, nil
 }
-func SendAutobidDeals4Task(confDeal *model.ConfDeal, offlineDeals []*libmodel.OfflineDeal, task libmodel.Task, outputDir string) (int, []*libmodel.FileDesc, error) {
+func SendAutobidDeals4Task(confDeal *model.ConfDeal, task libmodel.Task, carFiles []*model.CarFile, outputDir string) (int, int, []*libmodel.FileDesc, error) {
 	fileDescs := []*libmodel.FileDesc{}
-	carFile := model.CarFile{}
-	dealSentNum, fileDesc, err := SendAutobidDeals4CarFile(confDeal, offlineDeals, carFile, task, outputDir)
+	allDealNum := 0
+	allDealSentNum := 0
+	for _, carFile := range carFiles {
+		offlineDeals := []*libmodel.OfflineDeal{}
+		allDealNum = allDealNum + len(offlineDeals)
+		dealSentNum, fileDesc, err := SendAutobidDeals4CarFile(confDeal, offlineDeals, carFile, task, outputDir)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return 0, 0, nil, err
+		}
+		fileDescs = append(fileDescs, fileDesc)
+
+		allDealSentNum = allDealSentNum + dealSentNum
+	}
+	jsonFileName := task.TaskName + constants.JSON_FILE_NAME_DEAL_AUTO
+	_, err := WriteCarFilesToJsonFile(fileDescs, outputDir, jsonFileName, SUBCOMMAND_AUTO)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return 0, nil, err
+		return 0, 0, nil, err
 	}
-	fileDescs = append(fileDescs, fileDesc)
-	jsonFileName := task.TaskName + constants.JSON_FILE_NAME_DEAL_AUTO
-	_, err = WriteCarFilesToJsonFile(fileDescs, outputDir, jsonFileName, SUBCOMMAND_AUTO)
 
-	return dealSentNum, fileDescs, nil
+	return allDealNum, allDealSentNum, fileDescs, nil
 }
-func SendAutobidDeals4CarFile(confDeal *model.ConfDeal, offlineDeals []*libmodel.OfflineDeal, carFile model.CarFile, task libmodel.Task, outputDir string) (int, *libmodel.FileDesc, error) {
+func SendAutobidDeals4CarFile(confDeal *model.ConfDeal, offlineDeals []*libmodel.OfflineDeal, carFile *model.CarFile, task libmodel.Task, outputDir string) (int, *libmodel.FileDesc, error) {
 	if confDeal == nil {
 		err := fmt.Errorf("parameter confDeal is nil")
 		logs.GetLogger().Error(err)
@@ -195,7 +206,6 @@ func SendAutobidDeals4CarFile(confDeal *model.ConfDeal, offlineDeals []*libmodel
 		PayloadCid:  carFile.PayloadCid,
 		CarFileSize: int64(carFile.FileSize),
 	}
-
 	dealSentNum := 0
 	for _, offlineDeal := range offlineDeals {
 		offlineDeal.DealCid = strings.Trim(offlineDeal.DealCid, " ")
