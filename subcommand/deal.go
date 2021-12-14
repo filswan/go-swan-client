@@ -8,9 +8,10 @@ import (
 
 	"github.com/filswan/go-swan-client/model"
 
+	"github.com/filswan/go-swan-client/common/constants"
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/client/swan"
-	"github.com/filswan/go-swan-lib/constants"
+	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
@@ -31,7 +32,7 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 	}
 
 	metadataJsonFilename := filepath.Base(confDeal.MetadataJsonPath)
-	taskName := strings.TrimSuffix(metadataJsonFilename, constants.JSON_FILE_NAME_BY_TASK)
+	taskName := strings.TrimSuffix(metadataJsonFilename, constants.JSON_FILE_NAME_TASK)
 	carFiles := ReadCarFilesFromJsonFileByFullPath(confDeal.MetadataJsonPath)
 	if len(carFiles) == 0 {
 		err := fmt.Errorf("no car files read from:%s", confDeal.MetadataJsonPath)
@@ -50,13 +51,13 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	if task.Data.Task.IsPublic == nil || *task.Data.Task.IsPublic != constants.TASK_IS_PUBLIC {
+	if task.Data.Task.IsPublic == nil || *task.Data.Task.IsPublic != libconstants.TASK_IS_PUBLIC {
 		err := fmt.Errorf("task:%s is not in public mode,please check", task.Data.Task.TaskName)
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	if task.Data.Task.BidMode == nil || *task.Data.Task.BidMode != constants.TASK_BID_MODE_MANUAL {
+	if task.Data.Task.BidMode == nil || *task.Data.Task.BidMode != libconstants.TASK_BID_MODE_MANUAL {
 		err := fmt.Errorf("auto_bid mode for task:%s is not manual, please check", task.Data.Task.TaskName)
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -111,45 +112,50 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 			logs.GetLogger().Error("File:" + carFile.CarFilePath + " %s is too small")
 			continue
 		}
-		pieceSize, sectorSize := utils.CalculatePieceSize(carFile.CarFileSize)
-		//logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
-		cost := utils.CalculateRealCost(sectorSize, confDeal.MinerPrice)
-		dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, confDeal.Duration, confDeal.MinerFid, confDeal.SenderWallet)
 
-		lotusClient, err := lotus.LotusGetClient(confDeal.LotusClientApiUrl, confDeal.LotusClientAccessToken)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return nil, err
+		if len(carFile.Deals) == 0 {
+			if confDeal.MinerFid != "" {
+				deals := []libmodel.DealInfo{}
+				deal := libmodel.DealInfo{
+					MinerFid: confDeal.MinerFid,
+				}
+				deals = append(deals, deal)
+			}
 		}
 
-		dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig, 0)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			continue
-		}
-		if dealCid == nil {
-			continue
-		}
-		carFile.MinerFid = confDeal.MinerFid
-		carFile.DealCid = *dealCid
-		carFile.StartEpoch = startEpoch
+		for _, deal := range carFile.Deals {
+			pieceSize, sectorSize := utils.CalculatePieceSize(carFile.CarFileSize)
+			//logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
+			cost := utils.CalculateRealCost(sectorSize, confDeal.MinerPrice)
+			dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, confDeal.Duration, deal.MinerFid, confDeal.SenderWallet)
 
-		dealCost, err := lotusClient.LotusClientGetDealInfo(carFile.DealCid)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			continue
+			lotusClient, err := lotus.LotusGetClient(confDeal.LotusClientApiUrl, confDeal.LotusClientAccessToken)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return nil, err
+			}
+
+			dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig, 0)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				continue
+			}
+			if dealCid == nil {
+				continue
+			}
+			deal.MinerFid = confDeal.MinerFid
+			deal.DealCid = *dealCid
+			deal.StartEpoch = *startEpoch
+
+			dealSentNum = dealSentNum + 1
+			logs.GetLogger().Info("task:", taskName, ", deal CID:", deal.DealCid, ", start epoch:", *carFile.StartEpoch, ", deal sent to ", confDeal.MinerFid, " successfully")
 		}
 
-		//logs.GetLogger().Info(*dealCost)
-		carFile.Cost = dealCost.CostComputed
-
-		dealSentNum = dealSentNum + 1
-		logs.GetLogger().Info("task:", taskName, ", deal CID:", carFile.DealCid, ", start epoch:", *carFile.StartEpoch, ", deal sent to ", confDeal.MinerFid, " successfully")
 	}
 
 	logs.GetLogger().Info(dealSentNum, " deal(s) has(ve) been sent for task:", taskName)
 
-	jsonFileName := taskName + constants.JSON_FILE_NAME_BY_DEAL
+	jsonFileName := taskName + constants.JSON_FILE_NAME_DEAL
 	_, err = WriteCarFilesToJsonFile(carFiles, outputDir, jsonFileName, SUBCOMMAND_DEAL)
 	if err != nil {
 		logs.GetLogger().Error(err)

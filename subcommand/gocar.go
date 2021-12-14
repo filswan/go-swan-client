@@ -10,9 +10,9 @@ import (
 
 	"github.com/filswan/go-swan-client/model"
 
-	"github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 
+	"github.com/filswan/go-swan-client/common/constants"
 	"github.com/filswan/go-swan-lib/utils"
 
 	"github.com/codingsince1985/checksum"
@@ -127,8 +127,8 @@ func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, car
 		}
 
 		carFile := libmodel.FileDesc{}
-		carFile.DataCid = fields[0]
-		carFile.CarFileName = carFile.DataCid + ".car"
+		carFile.PayloadCid = fields[0]
+		carFile.CarFileName = carFile.PayloadCid + ".car"
 		carFile.CarFilePath = filepath.Join(carFileDir, carFile.CarFileName)
 		carFile.PieceCid = fields[2]
 		carFile.CarFileSize = utils.GetInt64FromStr(fields[3])
@@ -148,7 +148,7 @@ func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, car
 			return nil, err
 		}
 
-		carFile.DataCid = *dataCid
+		carFile.PayloadCid = *dataCid
 
 		carFileDetail := fields[4]
 		for i := 5; i < len(fields); i++ {
@@ -187,7 +187,7 @@ func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, car
 		carFiles = append(carFiles, &carFile)
 	}
 
-	_, err = WriteCarFilesToJsonFile(carFiles, carFileDir, constants.JSON_FILE_NAME_BY_CAR, SUBCOMMAND_GOCAR)
+	_, err = WriteCarFilesToJsonFile(carFiles, carFileDir, constants.JSON_FILE_NAME_CAR_UPLOAD, SUBCOMMAND_GOCAR)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

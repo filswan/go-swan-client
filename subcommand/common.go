@@ -9,7 +9,7 @@ import (
 	"github.com/shopspring/decimal"
 
 	"github.com/filswan/go-swan-lib/client/lotus"
-	"github.com/filswan/go-swan-lib/constants"
+	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
@@ -59,7 +59,7 @@ func CheckDuration(duration int, startEpoch int, relativeEpochFromMainNetwork in
 func GetDealCost(pricePerEpoch decimal.Decimal, duration int) string {
 	durationDecimal := decimal.NewFromInt(int64(duration))
 	cost := pricePerEpoch.Mul(durationDecimal)
-	cost = cost.Mul(decimal.NewFromFloat(constants.LOTUS_PRICE_MULTIPLE_1E18))
+	cost = cost.Mul(decimal.NewFromFloat(libconstants.LOTUS_PRICE_MULTIPLE_1E18))
 
 	return cost.String()
 }
@@ -155,7 +155,7 @@ func CheckInputDir(inputDir string) error {
 		return err
 	}
 
-	if utils.GetPathType(inputDir) != constants.PATH_TYPE_DIR {
+	if utils.GetPathType(inputDir) != libconstants.PATH_TYPE_DIR {
 		err := fmt.Errorf("%s is not a directory", inputDir)
 		logs.GetLogger().Error(err)
 		return err
@@ -234,15 +234,14 @@ func GetDeals(carFiles []*libmodel.FileDesc) ([]*Deal, error) {
 		deal := Deal{
 			Uuid:           carFile.Uuid,
 			SourceFileName: carFile.SourceFileName,
-			MinerId:        carFile.MinerFid,
-			DealCid:        carFile.DealCid,
-			PayloadCid:     carFile.DataCid,
-			FileSourceUrl:  carFile.CarFileUrl,
-			Md5:            carFile.CarFileMd5,
-			StartEpoch:     carFile.StartEpoch,
-			PieceCid:       carFile.PieceCid,
-			FileSize:       carFile.CarFileSize,
-			Cost:           carFile.Cost,
+			//MinerId:        carFile.MinerFid,
+			//DealCid:        carFile.DealCid,
+			PayloadCid:    carFile.PayloadCid,
+			FileSourceUrl: carFile.CarFileUrl,
+			Md5:           carFile.CarFileMd5,
+			StartEpoch:    carFile.StartEpoch,
+			PieceCid:      carFile.PieceCid,
+			FileSize:      carFile.CarFileSize,
 		}
 		deals = append(deals, &deal)
 	}

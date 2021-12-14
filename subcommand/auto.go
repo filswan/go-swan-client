@@ -9,9 +9,10 @@ import (
 
 	"github.com/filswan/go-swan-lib/logs"
 
+	"github.com/filswan/go-swan-client/common/constants"
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/client/swan"
-	"github.com/filswan/go-swan-lib/constants"
+	libconstants "github.com/filswan/go-swan-lib/constants"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
 )
@@ -56,7 +57,7 @@ func SendAutoBidDeals(confDeal *model.ConfDeal) ([][]*libmodel.FileDesc, error) 
 		return nil, err
 	}
 
-	assignedTasks, err := swanClient.SwanGetAllTasks(constants.TASK_STATUS_ASSIGNED)
+	assignedTasks, err := swanClient.SwanGetAllTasks(libconstants.TASK_STATUS_ASSIGNED)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -115,7 +116,7 @@ func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int,
 	deals := assignedTaskInfo.Data.Deal
 	task := assignedTaskInfo.Data.Task
 
-	if task.Type == constants.TASK_TYPE_VERIFIED {
+	if task.Type == libconstants.TASK_TYPE_VERIFIED {
 		isWalletVerified, err := swanClient.CheckDatacap(confDeal.SenderWallet)
 		if err != nil {
 			logs.GetLogger().Error(err)
@@ -144,9 +145,9 @@ func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int,
 		return 0, nil, err
 	}
 
-	status := constants.TASK_STATUS_DEAL_SENT
+	status := libconstants.TASK_STATUS_DEAL_SENT
 	if dealSentNum != len(deals) {
-		status = constants.TASK_STATUS_PROGRESS_WITH_FAILURE
+		status = libconstants.TASK_STATUS_PROGRESS_WITH_FAILURE
 	}
 
 	logs.GetLogger().Info(status)
@@ -158,8 +159,21 @@ func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int,
 
 	return dealSentNum, carFiles, nil
 }
+func SendAutobidDeals4Task(confDeal *model.ConfDeal, offlineDeals []*libmodel.OfflineDeal, task libmodel.Task, outputDir string) (int, []*libmodel.FileDesc, error) {
+	fileDescs := []*libmodel.FileDesc{}
+	carFile := model.CarFile{}
+	dealSentNum, fileDesc, err := SendAutobidDeals4CarFile(confDeal, offlineDeals, carFile, task, outputDir)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return 0, nil, err
+	}
+	fileDescs = append(fileDescs, fileDesc)
+	jsonFileName := task.TaskName + constants.JSON_FILE_NAME_DEAL_AUTO
+	_, err = WriteCarFilesToJsonFile(fileDescs, outputDir, jsonFileName, SUBCOMMAND_AUTO)
 
-func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []*libmodel.OfflineDeal, task libmodel.Task, outputDir string) (int, []*libmodel.FileDesc, error) {
+	return dealSentNum, fileDescs, nil
+}
+func SendAutobidDeals4CarFile(confDeal *model.ConfDeal, offlineDeals []*libmodel.OfflineDeal, carFile model.CarFile, task libmodel.Task, outputDir string) (int, *libmodel.FileDesc, error) {
 	if confDeal == nil {
 		err := fmt.Errorf("parameter confDeal is nil")
 		logs.GetLogger().Error(err)
@@ -172,17 +186,25 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []*libmodel.OfflineDe
 		return 0, nil, err
 	}
 
-	carFiles := []*libmodel.FileDesc{}
+	fileDesc := libmodel.FileDesc{
+		Uuid:        task.Uuid,
+		Deals:       []libmodel.DealInfo{},
+		CarFileUrl:  carFile.FileUrl,
+		CarFileMd5:  *carFile.FileMd5,
+		PieceCid:    carFile.PieceCid,
+		PayloadCid:  carFile.PayloadCid,
+		CarFileSize: int64(carFile.FileSize),
+	}
 
 	dealSentNum := 0
-	for _, deal := range deals {
-		deal.DealCid = strings.Trim(deal.DealCid, " ")
-		if len(deal.DealCid) != 0 {
+	for _, offlineDeal := range offlineDeals {
+		offlineDeal.DealCid = strings.Trim(offlineDeal.DealCid, " ")
+		if len(offlineDeal.DealCid) != 0 {
 			dealSentNum = dealSentNum + 1
 			continue
 		}
 
-		err := model.SetDealConfig4Autobid(confDeal, task, *deal)
+		err := model.SetDealConfig4Autobid(confDeal, task, *offlineDeal)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
@@ -194,31 +216,15 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []*libmodel.OfflineDe
 			continue
 		}
 
-		fileSizeInt := utils.GetInt64FromStr(deal.FileSize)
+		fileSizeInt := utils.GetInt64FromStr(offlineDeal.FileSize)
 		if fileSizeInt <= 0 {
 			logs.GetLogger().Error("file is too small")
 			continue
 		}
 		pieceSize, sectorSize := utils.CalculatePieceSize(fileSizeInt)
-		logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
 		cost := utils.CalculateRealCost(sectorSize, confDeal.MinerPrice)
-		carFile := libmodel.FileDesc{
-			Uuid:        task.Uuid,
-			MinerFid:    task.MinerFid,
-			CarFileUrl:  deal.FileSourceUrl,
-			CarFileMd5:  deal.Md5Origin,
-			PieceCid:    deal.PieceCid,
-			DataCid:     deal.PayloadCid,
-			CarFileSize: utils.GetInt64FromStr(deal.FileSize),
-		}
-		if carFile.MinerFid != "" {
-			logs.GetLogger().Info("MinerFid:", carFile.MinerFid)
-		}
-
-		logs.GetLogger().Info("FileSourceUrl:", carFile.CarFileUrl)
-		carFiles = append(carFiles, &carFile)
 		for i := 0; i < 60; i++ {
-			msg := fmt.Sprintf("send deal for task:%s, deal:%d", task.TaskName, deal.Id)
+			msg := fmt.Sprintf("send deal for task:%s, deal:%d", task.TaskName, offlineDeal.Id)
 			logs.GetLogger().Info(msg)
 			dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, confDeal.Duration, confDeal.MinerFid, confDeal.SenderWallet)
 
@@ -228,7 +234,7 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []*libmodel.OfflineDe
 				return 0, nil, err
 			}
 
-			dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(carFile, cost, pieceSize, *dealConfig, i)
+			dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(fileDesc, cost, pieceSize, *dealConfig, i)
 			if err != nil {
 				logs.GetLogger().Error("tried ", i, " times,", err)
 
@@ -243,25 +249,17 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, deals []*libmodel.OfflineDe
 				continue
 			}
 
-			carFile.DealCid = *dealCid
-			carFile.StartEpoch = startEpoch
-
-			dealCost, err := lotusClient.LotusClientGetDealInfo(carFile.DealCid)
-			if err != nil {
-				logs.GetLogger().Error(err)
-				continue
+			dealInfo := libmodel.DealInfo{
+				MinerFid:   task.MinerFid,
+				DealCid:    *dealCid,
+				StartEpoch: *startEpoch,
 			}
-
-			carFile.Cost = dealCost.CostComputed
+			fileDesc.Deals = append(fileDesc.Deals, dealInfo)
 			dealSentNum = dealSentNum + 1
 
-			logs.GetLogger().Info("task:", task.TaskName, ", deal CID:", carFile.DealCid, ", start epoch:", *carFile.StartEpoch, ", deal sent to ", confDeal.MinerFid, " successfully")
+			logs.GetLogger().Info("task:", task.TaskName, ", deal CID:", dealInfo.DealCid, ", start epoch:", dealInfo.StartEpoch, ", deal sent to ", confDeal.MinerFid, " successfully")
 			break
 		}
 	}
-
-	jsonFileName := task.TaskName + "-auto" + constants.JSON_FILE_NAME_BY_DEAL
-	_, err := WriteCarFilesToJsonFile(carFiles, outputDir, jsonFileName, SUBCOMMAND_AUTO)
-
-	return dealSentNum, carFiles, err
+	return dealSentNum, &fileDesc, nil
 }

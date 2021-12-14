@@ -6,9 +6,10 @@ import (
 	"github.com/filswan/go-swan-lib/client/ipfs"
 	libmodel "github.com/filswan/go-swan-lib/model"
 
+	"github.com/filswan/go-swan-client/common/constants"
 	"github.com/filswan/go-swan-client/model"
 
-	"github.com/filswan/go-swan-lib/constants"
+	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	"github.com/filswan/go-swan-lib/utils"
 )
@@ -20,12 +21,12 @@ func UploadCarFiles(confUpload *model.ConfUpload) ([]*libmodel.FileDesc, error) 
 		return nil, err
 	}
 
-	if confUpload.StorageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
+	if confUpload.StorageServerType == libconstants.STORAGE_SERVER_TYPE_WEB_SERVER {
 		logs.GetLogger().Info("Please upload car files to web server manually.")
 		return nil, nil
 	}
 
-	carFiles := ReadCarFilesFromJsonFile(confUpload.InputDir, constants.JSON_FILE_NAME_BY_CAR)
+	carFiles := ReadCarFilesFromJsonFile(confUpload.InputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
 	if carFiles == nil {
 		err := fmt.Errorf("failed to read:%s", confUpload.InputDir)
 		logs.GetLogger().Error(err)
@@ -46,7 +47,7 @@ func UploadCarFiles(confUpload *model.ConfUpload) ([]*libmodel.FileDesc, error) 
 		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileUrl)
 	}
 
-	_, err = WriteCarFilesToJsonFile(carFiles, confUpload.InputDir, constants.JSON_FILE_NAME_BY_CAR, SUBCOMMAND_UPLOAD)
+	_, err = WriteCarFilesToJsonFile(carFiles, confUpload.InputDir, constants.JSON_FILE_NAME_CAR_UPLOAD, SUBCOMMAND_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

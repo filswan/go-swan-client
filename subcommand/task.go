@@ -3,13 +3,14 @@ package subcommand
 import (
 	"fmt"
 
+	"github.com/filswan/go-swan-client/common/constants"
 	"github.com/filswan/go-swan-client/model"
 
 	"github.com/codingsince1985/checksum"
 	"github.com/filswan/go-swan-lib/logs"
 
 	"github.com/filswan/go-swan-lib/client/swan"
-	"github.com/filswan/go-swan-lib/constants"
+	libconstants "github.com/filswan/go-swan-lib/constants"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
 
@@ -49,7 +50,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		confTask.TaskName = taskName
 	}
 
-	carFiles := ReadCarFilesFromJsonFile(confTask.InputDir, constants.JSON_FILE_NAME_BY_UPLOAD)
+	carFiles := ReadCarFilesFromJsonFile(confTask.InputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
 	if carFiles == nil {
 		err := fmt.Errorf("failed to read car files from :%s", confTask.InputDir)
 		logs.GetLogger().Error(err)
@@ -61,9 +62,9 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		isPublic = 1
 	}
 
-	taskType := constants.TASK_TYPE_REGULAR
+	taskType := libconstants.TASK_TYPE_REGULAR
 	if confTask.VerifiedDeal {
-		taskType = constants.TASK_TYPE_VERIFIED
+		taskType = libconstants.TASK_TYPE_VERIFIED
 	}
 
 	if confTask.Duration == 0 {
@@ -94,13 +95,11 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 
 	for _, carFile := range carFiles {
 		carFile.Uuid = task.Uuid
-		carFile.MinerFid = task.MinerFid
 		carFile.StartEpoch = &confTask.StartEpoch
 		carFile.SourceId = &confTask.SourceId
 
-		if confTask.StorageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
-			carFileUrl := utils.UrlJoin(confTask.WebServerDownloadUrlPrefix, carFile.CarFileName)
-			carFile.CarFileUrl = carFileUrl
+		if confTask.StorageServerType == libconstants.STORAGE_SERVER_TYPE_WEB_SERVER {
+			carFile.CarFileUrl = utils.UrlJoin(confTask.WebServerDownloadUrlPrefix, carFile.CarFileName)
 		}
 
 		if confTask.GenerateMd5 {
@@ -131,7 +130,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		}
 	}
 
-	jsonFileName := confTask.TaskName + constants.JSON_FILE_NAME_BY_TASK
+	jsonFileName := confTask.TaskName + constants.JSON_FILE_NAME_TASK
 	jsonFilepath, err := WriteCarFilesToJsonFile(carFiles, confTask.OutputDir, jsonFileName, SUBCOMMAND_TASK)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -144,7 +143,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		return nil, nil, nil, err
 	}
 
-	if *task.IsPublic == constants.TASK_IS_PUBLIC && *task.BidMode == constants.TASK_BID_MODE_MANUAL {
+	if *task.IsPublic == libconstants.TASK_IS_PUBLIC && *task.BidMode == libconstants.TASK_BID_MODE_MANUAL {
 		logs.GetLogger().Info("task ", task.TaskName, " has been created, please send its deal(s) later using deal subcommand and ", *jsonFilepath)
 	}
 

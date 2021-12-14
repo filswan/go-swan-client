@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 
 	"github.com/codingsince1985/checksum"
+	"github.com/filswan/go-swan-client/common/constants"
 	"github.com/filswan/go-swan-client/model"
 	"github.com/filswan/go-swan-lib/client/ipfs"
 	"github.com/filswan/go-swan-lib/client/lotus"
-	"github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
@@ -105,7 +105,7 @@ func CreateIpfsCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	carFile.DataCid = *dataCid
+	carFile.PayloadCid = *dataCid
 
 	carFile.CarFileSize = utils.GetFileSize(carFile.CarFilePath)
 
@@ -120,7 +120,7 @@ func CreateIpfsCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 
 	carFiles = append(carFiles, &carFile)
 
-	_, err = WriteCarFilesToJsonFile(carFiles, confCar.OutputDir, constants.JSON_FILE_NAME_BY_CAR, SUBCOMMAND_CAR)
+	_, err = WriteCarFilesToJsonFile(carFiles, confCar.OutputDir, constants.JSON_FILE_NAME_CAR_UPLOAD, SUBCOMMAND_CAR)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
