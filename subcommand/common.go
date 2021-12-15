@@ -186,7 +186,7 @@ func CreateOutputDir(outputDir string) error {
 	return nil
 }
 
-func WriteCarFilesToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFileName, subcommand string) (*string, error) {
+func WriteCarFilesToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFileName string) (*string, error) {
 	jsonFilePath := filepath.Join(outputDir, jsonFileName)
 	content, err := json.MarshalIndent(carFiles, "", " ")
 	if err != nil {
@@ -200,7 +200,7 @@ func WriteCarFilesToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFileN
 		return nil, err
 	}
 
-	logs.GetLogger().Info(subcommand, ": metadata json generated: ", jsonFilePath)
+	logs.GetLogger().Info("Metadata json file generated: ", jsonFilePath)
 	return &jsonFilePath, nil
 }
 

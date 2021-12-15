@@ -156,7 +156,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 	logs.GetLogger().Info(dealSentNum, " deal(s) has(ve) been sent for task:", taskName)
 
 	jsonFileName := taskName + constants.JSON_FILE_NAME_DEAL
-	_, err = WriteCarFilesToJsonFile(carFiles, outputDir, jsonFileName, SUBCOMMAND_DEAL)
+	_, err = WriteCarFilesToJsonFile(carFiles, outputDir, jsonFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

@@ -187,7 +187,7 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, task libmodel.Task, carFile
 		allDealSentNum = allDealSentNum + dealSentNum
 	}
 	jsonFileName := task.TaskName + constants.JSON_FILE_NAME_DEAL_AUTO
-	_, err := WriteCarFilesToJsonFile(fileDescs, outputDir, jsonFileName, SUBCOMMAND_AUTO)
+	_, err := WriteCarFilesToJsonFile(fileDescs, outputDir, jsonFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return 0, 0, nil, err
