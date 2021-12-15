@@ -77,20 +77,23 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		return nil, nil, nil, err
 	}
 
+	fastRetrieval := libconstants.TASK_FAST_RETRIEVAL
+	if 
+
 	uuid := uuid.NewString()
 	task := libmodel.Task{
-		TaskName:          confTask.TaskName,
-		FastRetrievalBool: confTask.FastRetrieval,
-		Type:              taskType,
-		IsPublic:          &isPublic,
-		MaxPrice:          &confTask.MaxPrice,
-		BidMode:           &confTask.BidMode,
-		ExpireDays:        &confTask.ExpireDays,
-		Uuid:              uuid,
-		SourceId:          confTask.SourceId,
-		Duration:          confTask.Duration,
-		CuratedDataset:    confTask.Dataset,
-		Description:       confTask.Description,
+		TaskName:       confTask.TaskName,
+		FastRetrieval:  confTask.FastRetrieval,
+		Type:           taskType,
+		IsPublic:       &isPublic,
+		MaxPrice:       &confTask.MaxPrice,
+		BidMode:        &confTask.BidMode,
+		ExpireDays:     &confTask.ExpireDays,
+		Uuid:           uuid,
+		SourceId:       confTask.SourceId,
+		Duration:       confTask.Duration,
+		CuratedDataset: confTask.Dataset,
+		Description:    confTask.Description,
 	}
 
 	for _, carFile := range carFiles {
