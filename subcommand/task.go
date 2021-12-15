@@ -163,7 +163,7 @@ func SendTask2Swan(confTask *model.ConfTask, task libmodel.Task, carFiles []*lib
 	}
 
 	logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
-	swanClient, err := swan.SwanGetClient(confTask.SwanApiUrl, confTask.SwanApiKey, confTask.SwanAccessToken, confTask.SwanToken)
+	swanClient, err := swan.SwanGetClient(confTask.SwanApiUrlToken, confTask.SwanApiUrl, confTask.SwanApiKey, confTask.SwanAccessToken, confTask.SwanToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return deals, err

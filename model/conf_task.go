@@ -13,6 +13,7 @@ import (
 )
 
 type ConfTask struct {
+	SwanApiUrlToken            string          //required
 	SwanApiUrl                 string          //required when OfflineMode is false
 	SwanApiKey                 string          //required when OfflineMode is false and SwanJwtToken is not provided
 	SwanAccessToken            string          //required when OfflineMode is false and SwanJwtToken is not provided
@@ -43,6 +44,7 @@ func GetConfTask(inputDir string, outputDir *string, taskName, minerFid, dataset
 	startEpoch := utils.GetCurrentEpoch() + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
 
 	confTask := &ConfTask{
+		SwanApiUrlToken:            config.GetConfig().Main.SwanApiUrlToken,
 		SwanApiUrl:                 config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:                 config.GetConfig().Main.SwanApiKey,
 		SwanAccessToken:            config.GetConfig().Main.SwanAccessToken,
