@@ -57,6 +57,7 @@ func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 		carFile.SourceFileSize = srcFile.Size()
 		carFile.CarFileName = carFile.SourceFileName + ".car"
 		carFile.CarFilePath = filepath.Join(confCar.OutputDir, carFile.CarFileName)
+		logs.GetLogger().Info("Creating car file ", carFile.CarFilePath, " for ", carFile.SourceFilePath)
 
 		err := lotusClient.LotusClientGenCar(carFile.SourceFilePath, carFile.CarFilePath, false)
 		if err != nil {
@@ -107,6 +108,7 @@ func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 		}
 
 		carFiles = append(carFiles, &carFile)
+		logs.GetLogger().Info("Car file ", carFile.CarFilePath, " created")
 	}
 
 	_, err = WriteCarFilesToJsonFile(carFiles, confCar.OutputDir, constants.JSON_FILE_NAME_CAR_UPLOAD, SUBCOMMAND_CAR)
