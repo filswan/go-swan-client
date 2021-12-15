@@ -53,5 +53,7 @@ func UploadCarFiles(confUpload *model.ConfUpload) ([]*libmodel.FileDesc, error) 
 		return nil, err
 	}
 
+	logs.GetLogger().Info("Please create a task for your car file(s)")
+
 	return carFiles, nil
 }
