@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-client/test"
 
 	"github.com/filswan/go-swan-client/subcommand"
 
@@ -13,10 +14,10 @@ import (
 )
 
 func main() {
-	execSubCmd()
+	//execSubCmd()
 	//subcommand.GoCar("",)
 	//logs.GetLogger().Info("Hello")
-	//test.Test()
+	test.Test()
 }
 
 func execSubCmd() error {
@@ -206,7 +207,7 @@ func sendDeal() error {
 	}
 
 	if metadataJsonPath == nil || len(*metadataJsonPath) == 0 {
-		err := fmt.Errorf("json is required")
+		err := fmt.Errorf("metadata json file path is required")
 		logs.GetLogger().Error(err)
 		return err
 	}
@@ -214,8 +215,7 @@ func sendDeal() error {
 	logs.GetLogger().Info("Metadata json file:", *metadataJsonPath)
 	logs.GetLogger().Info("Output dir:", *outputDir)
 
-	confDeal := model.GetConfDeal(outputDir, *minerFid, *metadataJsonPath)
-	_, err = subcommand.SendDeals(confDeal)
+	_, err = subcommand.SendDealsByConfig(*outputDir, *minerFid, *metadataJsonPath)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err

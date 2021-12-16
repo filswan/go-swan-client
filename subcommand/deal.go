@@ -17,6 +17,23 @@ import (
 	"github.com/filswan/go-swan-lib/utils"
 )
 
+func SendDealsByConfig(outputDir, minerFid, metadataJsonPath string) ([]*libmodel.FileDesc, error) {
+	if metadataJsonPath == "" {
+		err := fmt.Errorf("metadataJsonPath is nil")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	confDeal := model.GetConfDeal(&outputDir, minerFid, metadataJsonPath)
+	fileDescs, err := SendDeals(confDeal)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return fileDescs, nil
+}
+
 func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 	if confDeal == nil {
 		err := fmt.Errorf("parameter confDeal is nil")
