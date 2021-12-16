@@ -24,7 +24,6 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	logs.GetLogger().Info(confDeal.OutputDir)
 	err := CreateOutputDir(confDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -92,42 +91,46 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 	return carFiles, nil
 }
 
-func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, carFiles []*libmodel.FileDesc) ([]*libmodel.FileDesc, error) {
+func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, fileDescs []*libmodel.FileDesc) ([]*libmodel.FileDesc, error) {
 	if confDeal == nil {
 		err := fmt.Errorf("parameter confDeal is nil")
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	err := CheckDealConfig(confDeal)
-	if err != nil {
-		err := errors.New("failed to pass deal config check")
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
 	dealSentNum := 0
-	for _, carFile := range carFiles {
-		if carFile.CarFileSize <= 0 {
-			logs.GetLogger().Error("File:" + carFile.CarFilePath + " %s is too small")
+	for _, fileDesc := range fileDescs {
+		if fileDesc.CarFileSize <= 0 {
+			logs.GetLogger().Error("File:" + fileDesc.CarFilePath + " %s is too small")
 			continue
 		}
 
-		if len(carFile.Deals) == 0 {
+		if len(fileDesc.Deals) == 0 {
 			if confDeal.MinerFid != "" {
-				deals := []libmodel.DealInfo{}
+				fileDesc.Deals = []libmodel.DealInfo{}
 				deal := libmodel.DealInfo{
 					MinerFid: confDeal.MinerFid,
 				}
-				deals = append(deals, deal)
+				fileDesc.Deals = append(fileDesc.Deals, deal)
+			} else {
+				err := fmt.Errorf("miner is required, you can set in command line or in metadata json file")
+				logs.GetLogger().Error(err)
+				return nil, err
 			}
 		}
+		logs.GetLogger().Info("miner(s):", fileDesc.Deals)
 
-		for _, deal := range carFile.Deals {
-			pieceSize, sectorSize := utils.CalculatePieceSize(carFile.CarFileSize)
-			//logs.GetLogger().Info("dealConfig.MinerPrice:", confDeal.MinerPrice)
+		for _, deal := range fileDesc.Deals {
+			pieceSize, sectorSize := utils.CalculatePieceSize(fileDesc.CarFileSize)
 			cost := utils.CalculateRealCost(sectorSize, confDeal.MinerPrice)
 			dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, confDeal.Duration, deal.MinerFid, confDeal.SenderWallet)
+
+			err := CheckDealConfig(confDeal, dealConfig)
+			if err != nil {
+				err := errors.New("failed to pass deal config check")
+				logs.GetLogger().Error(err)
+				return nil, err
+			}
 
 			lotusClient, err := lotus.LotusGetClient(confDeal.LotusClientApiUrl, confDeal.LotusClientAccessToken)
 			if err != nil {
@@ -135,7 +138,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 				return nil, err
 			}
 
-			dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(*carFile, cost, pieceSize, *dealConfig, 0)
+			dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(*fileDesc, cost, pieceSize, *dealConfig, 0)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				continue
@@ -148,7 +151,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 			deal.StartEpoch = *startEpoch
 
 			dealSentNum = dealSentNum + 1
-			logs.GetLogger().Info("task:", taskName, ", deal CID:", deal.DealCid, ", start epoch:", *carFile.StartEpoch, ", deal sent to ", confDeal.MinerFid, " successfully")
+			logs.GetLogger().Info("task:", taskName, ", deal CID:", deal.DealCid, ", start epoch:", *fileDesc.StartEpoch, ", deal sent to ", confDeal.MinerFid, " successfully")
 		}
 
 	}
@@ -156,11 +159,11 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 	logs.GetLogger().Info(dealSentNum, " deal(s) has(ve) been sent for task:", taskName)
 
 	jsonFileName := taskName + constants.JSON_FILE_NAME_DEAL
-	_, err = WriteCarFilesToJsonFile(carFiles, outputDir, jsonFileName)
+	_, err := WriteFileDescsToJsonFile(fileDescs, outputDir, jsonFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	return carFiles, err
+	return fileDescs, err
 }

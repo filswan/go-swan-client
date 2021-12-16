@@ -26,7 +26,7 @@ func UploadCarFiles(confUpload *model.ConfUpload) ([]*libmodel.FileDesc, error) 
 		return nil, nil
 	}
 
-	carFiles := ReadCarFilesFromJsonFile(confUpload.InputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
+	carFiles := ReadFileDescsFromJsonFile(confUpload.InputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
 	if carFiles == nil {
 		err := fmt.Errorf("failed to read:%s", confUpload.InputDir)
 		logs.GetLogger().Error(err)
@@ -47,7 +47,7 @@ func UploadCarFiles(confUpload *model.ConfUpload) ([]*libmodel.FileDesc, error) 
 		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileUrl)
 	}
 
-	_, err = WriteCarFilesToJsonFile(carFiles, confUpload.InputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteFileDescsToJsonFile(carFiles, confUpload.InputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

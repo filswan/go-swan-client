@@ -111,7 +111,7 @@ func SetDealConfig4Autobid(confDeal *ConfDeal, task libmodel.Task, deal libmodel
 		return err
 	}
 
-	confDeal.FastRetrieval = *task.FastRetrieval == constants.TASK_FAST_RETRIEVAL
+	confDeal.FastRetrieval = *task.FastRetrieval == constants.TASK_FAST_RETRIEVAL_YES
 
 	if task.MaxPrice == nil {
 		err := fmt.Errorf("task MaxPrice missing")

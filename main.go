@@ -211,15 +211,8 @@ func sendDeal() error {
 		return err
 	}
 
-	if minerFid == nil || len(*minerFid) == 0 {
-		err := fmt.Errorf("miner is required")
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	logs.GetLogger().Info("metadata json file:", *metadataJsonPath)
-	logs.GetLogger().Info("output dir:", *outputDir)
-	logs.GetLogger().Info("miner:", *minerFid)
+	logs.GetLogger().Info("Metadata json file:", *metadataJsonPath)
+	logs.GetLogger().Info("Output dir:", *outputDir)
 
 	confDeal := model.GetConfDeal(outputDir, *minerFid, *metadataJsonPath)
 	_, err = subcommand.SendDeals(confDeal)

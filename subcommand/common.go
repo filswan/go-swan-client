@@ -89,9 +89,15 @@ func GetDefaultTaskName() string {
 	return taskName
 }
 
-func CheckDealConfig(confDeal *model.ConfDeal) error {
+func CheckDealConfig(confDeal *model.ConfDeal, dealConfig *libmodel.DealConfig) error {
 	if confDeal == nil {
 		err := fmt.Errorf("parameter confDeal is nil")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if dealConfig == nil {
+		err := fmt.Errorf("parameter dealConfig is nil")
 		logs.GetLogger().Error(err)
 		return err
 	}
@@ -102,7 +108,7 @@ func CheckDealConfig(confDeal *model.ConfDeal) error {
 		return err
 	}
 
-	minerPrice, minerVerifiedPrice, _, _ := lotusClient.LotusGetMinerConfig(confDeal.MinerFid)
+	minerPrice, minerVerifiedPrice, _, _ := lotusClient.LotusGetMinerConfig(dealConfig.MinerFid)
 
 	if confDeal.SenderWallet == "" {
 		err := fmt.Errorf("wallet should be set")
@@ -186,7 +192,7 @@ func CreateOutputDir(outputDir string) error {
 	return nil
 }
 
-func WriteCarFilesToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFileName string) (*string, error) {
+func WriteFileDescsToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFileName string) (*string, error) {
 	jsonFilePath := filepath.Join(outputDir, jsonFileName)
 	content, err := json.MarshalIndent(carFiles, "", " ")
 	if err != nil {
@@ -204,7 +210,7 @@ func WriteCarFilesToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFileN
 	return &jsonFilePath, nil
 }
 
-func ReadCarFilesFromJsonFile(inputDir, jsonFilename string) []*libmodel.FileDesc {
+func ReadFileDescsFromJsonFile(inputDir, jsonFilename string) []*libmodel.FileDesc {
 	jsonFilePath := filepath.Join(inputDir, jsonFilename)
 	result := ReadCarFilesFromJsonFileByFullPath(jsonFilePath)
 	return result

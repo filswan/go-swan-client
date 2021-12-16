@@ -50,8 +50,8 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		confTask.TaskName = taskName
 	}
 
-	carFiles := ReadCarFilesFromJsonFile(confTask.InputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
-	if carFiles == nil {
+	fileDescs := ReadFileDescsFromJsonFile(confTask.InputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
+	if fileDescs == nil {
 		err := fmt.Errorf("failed to read car files from :%s", confTask.InputDir)
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
@@ -77,13 +77,15 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		return nil, nil, nil, err
 	}
 
-	fastRetrieval := libconstants.TASK_FAST_RETRIEVAL
-	if 
+	fastRetrieval := libconstants.TASK_FAST_RETRIEVAL_NO
+	if confTask.FastRetrieval {
+		fastRetrieval = libconstants.TASK_FAST_RETRIEVAL_YES
+	}
 
 	uuid := uuid.NewString()
 	task := libmodel.Task{
 		TaskName:       confTask.TaskName,
-		FastRetrieval:  confTask.FastRetrieval,
+		FastRetrieval:  &fastRetrieval,
 		Type:           taskType,
 		IsPublic:       &isPublic,
 		MaxPrice:       &confTask.MaxPrice,
@@ -96,51 +98,51 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		Description:    confTask.Description,
 	}
 
-	for _, carFile := range carFiles {
-		carFile.Uuid = task.Uuid
-		carFile.StartEpoch = &confTask.StartEpoch
-		carFile.SourceId = &confTask.SourceId
+	for _, fileDesc := range fileDescs {
+		fileDesc.Uuid = task.Uuid
+		fileDesc.StartEpoch = &confTask.StartEpoch
+		fileDesc.SourceId = &confTask.SourceId
 
 		if confTask.StorageServerType == libconstants.STORAGE_SERVER_TYPE_WEB_SERVER {
-			carFile.CarFileUrl = utils.UrlJoin(confTask.WebServerDownloadUrlPrefix, carFile.CarFileName)
+			fileDesc.CarFileUrl = utils.UrlJoin(confTask.WebServerDownloadUrlPrefix, fileDesc.CarFileName)
 		}
 
 		if confTask.GenerateMd5 {
-			if carFile.SourceFileMd5 == "" && utils.IsFileExistsFullPath(carFile.SourceFilePath) {
-				srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
+			if fileDesc.SourceFileMd5 == "" && utils.IsFileExistsFullPath(fileDesc.SourceFilePath) {
+				srcFileMd5, err := checksum.MD5sum(fileDesc.SourceFilePath)
 				if err != nil {
 					logs.GetLogger().Error(err)
 					return nil, nil, nil, err
 				}
-				carFile.SourceFileMd5 = srcFileMd5
+				fileDesc.SourceFileMd5 = srcFileMd5
 			}
 
-			if carFile.CarFileMd5 == "" {
-				carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
+			if fileDesc.CarFileMd5 == "" {
+				carFileMd5, err := checksum.MD5sum(fileDesc.CarFilePath)
 				if err != nil {
 					logs.GetLogger().Error(err)
 					return nil, nil, nil, err
 				}
-				carFile.CarFileMd5 = carFileMd5
+				fileDesc.CarFileMd5 = carFileMd5
 			}
 		}
 	}
 
 	if !confTask.PublicDeal {
-		_, err := SendDeals2Miner(confDeal, confTask.TaskName, confTask.OutputDir, carFiles)
+		_, err := SendDeals2Miner(confDeal, confTask.TaskName, confTask.OutputDir, fileDescs)
 		if err != nil {
 			return nil, nil, nil, err
 		}
 	}
 
 	jsonFileName := confTask.TaskName + constants.JSON_FILE_NAME_TASK
-	jsonFilepath, err := WriteCarFilesToJsonFile(carFiles, confTask.OutputDir, jsonFileName)
+	jsonFilepath, err := WriteFileDescsToJsonFile(fileDescs, confTask.OutputDir, jsonFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
 	}
 
-	deals, err := SendTask2Swan(confTask, task, carFiles)
+	deals, err := SendTask2Swan(confTask, task, fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
@@ -150,11 +152,11 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		logs.GetLogger().Info("task ", task.TaskName, " has been created, please send its deal(s) later using deal subcommand and ", *jsonFilepath)
 	}
 
-	return jsonFilepath, carFiles, deals, nil
+	return jsonFilepath, fileDescs, deals, nil
 }
 
-func SendTask2Swan(confTask *model.ConfTask, task libmodel.Task, carFiles []*libmodel.FileDesc) ([]*Deal, error) {
-	deals, err := GetDeals(carFiles)
+func SendTask2Swan(confTask *model.ConfTask, task libmodel.Task, fileDescs []*libmodel.FileDesc) ([]*Deal, error) {
+	deals, err := GetDeals(fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return deals, err
@@ -172,7 +174,7 @@ func SendTask2Swan(confTask *model.ConfTask, task libmodel.Task, carFiles []*lib
 		return deals, err
 	}
 
-	swanCreateTaskResponse, err := swanClient.SwanCreateTask(task, carFiles)
+	swanCreateTaskResponse, err := swanClient.SwanCreateTask(task, fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return deals, err
