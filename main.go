@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	//execSubCmd()
+	execSubCmd()
 	//subcommand.GoCar("",)
 	//logs.GetLogger().Info("Hello")
 	//test.Test()
