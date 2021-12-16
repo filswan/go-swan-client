@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/filswan/go-swan-client/model"
-	"github.com/filswan/go-swan-client/test"
 
 	"github.com/filswan/go-swan-client/subcommand"
 
@@ -17,7 +16,7 @@ func main() {
 	//execSubCmd()
 	//subcommand.GoCar("",)
 	//logs.GetLogger().Info("Hello")
-	test.Test()
+	//test.Test()
 }
 
 func execSubCmd() error {
