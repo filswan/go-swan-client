@@ -3,7 +3,6 @@ package subcommand
 import (
 	"errors"
 	"fmt"
-	"path/filepath"
 	"strings"
 
 	"github.com/filswan/go-swan-client/model"
@@ -47,10 +46,8 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	metadataJsonFilename := filepath.Base(confDeal.MetadataJsonPath)
-	taskName := strings.TrimSuffix(metadataJsonFilename, constants.JSON_FILE_NAME_TASK)
-	carFiles := ReadCarFilesFromJsonFileByFullPath(confDeal.MetadataJsonPath)
-	if len(carFiles) == 0 {
+	fileDescs := ReadFileDescsFromJsonFileByFullPath(confDeal.MetadataJsonPath)
+	if len(fileDescs) == 0 {
 		err := fmt.Errorf("no car files read from:%s", confDeal.MetadataJsonPath)
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -61,7 +58,7 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
-	task, err := swanClient.SwanGetTaskByUuid(carFiles[0].Uuid)
+	task, err := swanClient.SwanGetTaskByUuid(fileDescs[0].Uuid)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -87,25 +84,25 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		}
 
 		if !isWalletVerified {
-			err := fmt.Errorf("task:%s is verified, but your wallet:%s is not verified", taskName, confDeal.SenderWallet)
+			err := fmt.Errorf("task:%s is verified, but your wallet:%s is not verified", task.Data.Task.TaskName, confDeal.SenderWallet)
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
 	}
 
-	carFiles, err = SendDeals2Miner(confDeal, taskName, confDeal.OutputDir, carFiles)
+	fileDescs, err = SendDeals2Miner(confDeal, task.Data.Task.TaskName, confDeal.OutputDir, fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	_, err = swanClient.SwanUpdateTaskByUuid(task.Data.Task, carFiles)
+	_, err = swanClient.SwanUpdateTaskByUuid(task.Data.Task, fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	return carFiles, nil
+	return fileDescs, nil
 }
 
 func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, fileDescs []*libmodel.FileDesc) ([]*libmodel.FileDesc, error) {
@@ -136,6 +133,30 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 			}
 		}
 		logs.GetLogger().Info("miner(s):", fileDesc.Deals)
+
+		swanClient, err := swan.SwanGetClient(confDeal.SwanApiUrlToken, confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
+
+		offlineDealsResult, err := swanClient.SwanOfflineDeals4CarFile(fileDesc.Uuid, fileDesc.CarFileUrl)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
+
+		OfflineDeals := offlineDealsResult.OfflineDeals
+
+		for _, deal := range fileDesc.Deals {
+			for _, offlineDeal := range OfflineDeals {
+				if strings.EqualFold(deal.MinerFid, offlineDeal.MinerFid) {
+					err := fmt.Errorf("%s,has already been sent to miner:%s,deal CID:%s", fileDesc.CarFileUrl, deal.MinerFid, offlineDeal.DealCid)
+					logs.GetLogger().Error(err)
+					return nil, err
+				}
+			}
+		}
 
 		for _, deal := range fileDesc.Deals {
 			pieceSize, sectorSize := utils.CalculatePieceSize(fileDesc.CarFileSize)

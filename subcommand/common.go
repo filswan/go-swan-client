@@ -208,11 +208,11 @@ func WriteFileDescsToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFile
 
 func ReadFileDescsFromJsonFile(inputDir, jsonFilename string) []*libmodel.FileDesc {
 	jsonFilePath := filepath.Join(inputDir, jsonFilename)
-	result := ReadCarFilesFromJsonFileByFullPath(jsonFilePath)
+	result := ReadFileDescsFromJsonFileByFullPath(jsonFilePath)
 	return result
 }
 
-func ReadCarFilesFromJsonFileByFullPath(jsonFilePath string) []*libmodel.FileDesc {
+func ReadFileDescsFromJsonFileByFullPath(jsonFilePath string) []*libmodel.FileDesc {
 	contents, err := ioutil.ReadFile(jsonFilePath)
 	if err != nil {
 		logs.GetLogger().Error("Failed to read: ", jsonFilePath)
