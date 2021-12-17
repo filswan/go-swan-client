@@ -68,7 +68,7 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 	}
 
 	if task.Data.Task.IsPublic == nil || *task.Data.Task.IsPublic != libconstants.TASK_IS_PUBLIC {
-		err := fmt.Errorf("task:%s is not in public mode,please check", task.Data.Task.TaskName)
+		err := fmt.Errorf("task:%s,uuid::%s is not in public mode,please check", task.Data.Task.TaskName, task.Data.Task.Uuid)
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
@@ -124,8 +124,8 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 
 		if len(fileDesc.Deals) == 0 {
 			if confDeal.MinerFid != "" {
-				fileDesc.Deals = []libmodel.DealInfo{}
-				deal := libmodel.DealInfo{
+				fileDesc.Deals = []*libmodel.DealInfo{}
+				deal := &libmodel.DealInfo{
 					MinerFid: confDeal.MinerFid,
 				}
 				fileDesc.Deals = append(fileDesc.Deals, deal)
@@ -140,7 +140,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 		for _, deal := range fileDesc.Deals {
 			pieceSize, sectorSize := utils.CalculatePieceSize(fileDesc.CarFileSize)
 			cost := utils.CalculateRealCost(sectorSize, confDeal.MinerPrice)
-			dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, confDeal.Duration, deal.MinerFid, confDeal.SenderWallet)
+			dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, int(confDeal.StartEpoch), int(confDeal.Duration), deal.MinerFid, confDeal.SenderWallet)
 
 			err := CheckDealConfig(confDeal, dealConfig)
 			if err != nil {

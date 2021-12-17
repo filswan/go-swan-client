@@ -30,21 +30,21 @@ type ConfDeal struct {
 	SkipConfirmation             bool            //required only for manual-bid deal
 	Duration                     int             //not necessary, when not provided use default value:1512000
 	MinerPrice                   decimal.Decimal //used internally, not need to provide
-	StartEpoch                   int             //required only for manual-bid deal
+	StartEpoch                   int64           //required only for manual-bid deal
 	StartEpochIntervalHours      int             //invalid
 	OutputDir                    string          //required
 	MinerFid                     string          //required only for manual-bid deal
 	MetadataJsonPath             string          //required only for manual-bid deal
 	DealSourceIds                []int           //required
-	RelativeEpochFromMainNetwork int             //required
+	RelativeEpochFromMainNetwork int64           //required
 }
 
 func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string) *ConfDeal {
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
-	startEpoch := utils.GetCurrentEpoch()
+	startEpoch := int64(utils.GetCurrentEpoch())
 	startEpoch = startEpoch + config.GetConfig().Sender.RelativeEpochFromMainNetwork
 	logs.GetLogger().Info("current epoch:", startEpoch)
-	startEpoch = startEpoch + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
+	startEpoch = startEpoch + int64((startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR)
 	logs.GetLogger().Info("start epoch:", startEpoch)
 
 	confDeal := &ConfDeal{
@@ -94,7 +94,7 @@ func SetDealConfig4Autobid(confDeal *ConfDeal, task libmodel.Task, deal libmodel
 		return err
 	}
 
-	confDeal.StartEpoch = deal.StartEpoch + confDeal.RelativeEpochFromMainNetwork
+	confDeal.StartEpoch = int64(deal.StartEpoch) + confDeal.RelativeEpochFromMainNetwork
 
 	confDeal.MinerFid = task.MinerFid
 

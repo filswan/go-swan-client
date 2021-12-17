@@ -210,7 +210,7 @@ func SendAutobidDeals4CarFile(confDeal *model.ConfDeal, offlineDeals []*libmodel
 
 	fileDesc := libmodel.FileDesc{
 		Uuid:        task.Uuid,
-		Deals:       []libmodel.DealInfo{},
+		Deals:       []*libmodel.DealInfo{},
 		CarFileUrl:  carFile.FileUrl,
 		CarFileMd5:  *carFile.FileMd5,
 		PieceCid:    carFile.PieceCid,
@@ -241,7 +241,7 @@ func SendAutobidDeals4CarFile(confDeal *model.ConfDeal, offlineDeals []*libmodel
 		for i := 0; i < 60; i++ {
 			msg := fmt.Sprintf("send deal for task:%s, deal:%d", task.TaskName, offlineDeal.Id)
 			logs.GetLogger().Info(msg)
-			dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, confDeal.StartEpoch, confDeal.Duration, confDeal.MinerFid, confDeal.SenderWallet)
+			dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, int(confDeal.StartEpoch), int(confDeal.Duration), confDeal.MinerFid, confDeal.SenderWallet)
 
 			err = CheckDealConfig(confDeal, dealConfig)
 			if err != nil {
@@ -270,7 +270,7 @@ func SendAutobidDeals4CarFile(confDeal *model.ConfDeal, offlineDeals []*libmodel
 				continue
 			}
 
-			dealInfo := libmodel.DealInfo{
+			dealInfo := &libmodel.DealInfo{
 				MinerFid:   task.MinerFid,
 				DealCid:    *dealCid,
 				StartEpoch: *startEpoch,

@@ -32,7 +32,7 @@ const (
 	SUBCOMMAND_AUTO    = "auto"
 )
 
-func CheckDuration(duration int, startEpoch int, relativeEpochFromMainNetwork int) error {
+func CheckDuration(duration int, startEpoch, relativeEpochFromMainNetwork int64) error {
 	if duration == 0 {
 		return nil
 	}
@@ -43,8 +43,8 @@ func CheckDuration(duration int, startEpoch int, relativeEpochFromMainNetwork in
 		return err
 	}
 
-	currentEpoch := utils.GetCurrentEpoch() + relativeEpochFromMainNetwork
-	endEpoch := startEpoch + duration
+	currentEpoch := int64(utils.GetCurrentEpoch()) + relativeEpochFromMainNetwork
+	endEpoch := startEpoch + (int64)(duration)
 
 	epoch2EndfromNow := endEpoch - currentEpoch
 	if epoch2EndfromNow >= DURATION_MAX {
@@ -102,36 +102,32 @@ func CheckDealConfig(confDeal *model.ConfDeal, dealConfig *libmodel.DealConfig) 
 		return err
 	}
 
-	lotusClient, err := lotus.LotusGetClient(confDeal.LotusClientApiUrl, confDeal.LotusClientAccessToken)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	minerPrice, minerVerifiedPrice, _, _ := lotusClient.LotusGetMinerConfig(dealConfig.MinerFid)
-
 	if confDeal.SenderWallet == "" {
 		err := fmt.Errorf("wallet should be set")
 		logs.GetLogger().Error(err)
 		return err
 	}
 
-	if confDeal.VerifiedDeal {
-		if minerVerifiedPrice == nil {
-			err := fmt.Errorf("miner:%s,cannot get miner verified price for verified deal", confDeal.MinerFid)
-			logs.GetLogger().Error(err)
-			return err
-		}
-		confDeal.MinerPrice = *minerVerifiedPrice
-		logs.GetLogger().Info("miner:", confDeal.MinerFid, ",price is:", *minerVerifiedPrice)
-	} else {
-		if minerPrice == nil {
-			err := fmt.Errorf("miner:%s,cannot get miner price for non-verified deal", confDeal.MinerFid)
-			logs.GetLogger().Error(err)
-			return err
-		}
-		confDeal.MinerPrice = *minerPrice
+	lotusClient, err := lotus.LotusGetClient(confDeal.LotusClientApiUrl, confDeal.LotusClientAccessToken)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
 	}
+
+	minerConfig, err := lotusClient.LotusClientQueryAsk(dealConfig.MinerFid)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	var e18 decimal.Decimal = decimal.NewFromFloat(libconstants.LOTUS_PRICE_MULTIPLE_1E18)
+
+	if confDeal.VerifiedDeal {
+		confDeal.MinerPrice = minerConfig.VerifiedPrice.Div(e18)
+	} else {
+		confDeal.MinerPrice = minerConfig.Price.Div(e18)
+	}
+	logs.GetLogger().Info("miner:", confDeal.MinerFid, ",price is:", confDeal.MinerPrice)
 
 	priceCmp := confDeal.MaxPrice.Cmp(confDeal.MinerPrice)
 	if priceCmp < 0 {
@@ -263,7 +259,7 @@ type Deal struct {
 	PayloadCid     string `json:"payload_cid"`
 	FileSourceUrl  string `json:"file_source_url"`
 	Md5            string `json:"md5"`
-	StartEpoch     *int   `json:"start_epoch"`
+	StartEpoch     *int64 `json:"start_epoch"`
 	PieceCid       string `json:"piece_cid"`
 	FileSize       int64  `json:"file_size"`
 	Cost           string `json:"cost"`

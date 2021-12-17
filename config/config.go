@@ -54,7 +54,7 @@ type sender struct {
 	ExpireDays                   int    `toml:"expire_days"`
 	GocarFileSizeLimit           int64  `toml:"gocar_file_size_limit"`
 	Duration                     int    `toml:"duration"`
-	RelativeEpochFromMainNetwork int    `toml:"relative_epoch_from_main_network"`
+	RelativeEpochFromMainNetwork int64  `toml:"relative_epoch_from_main_network"`
 }
 
 var config *Configuration
