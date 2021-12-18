@@ -15,8 +15,6 @@ import (
 
 func main() {
 	//execSubCmd()
-	//subcommand.GoCar("",)
-	//logs.GetLogger().Info("Hello")
 	test.Test()
 }
 
@@ -51,8 +49,6 @@ func execSubCmd() error {
 	return nil
 }
 
-//python3 swan_cli.py car --input-dir /home/peware/testGoSwanProvider/input --out-dir /home/peware/testGoSwanProvider/output
-//go-swan-client car -input-dir ~/go-workspace/input/ -out-dir ~/go-workspace/output/
 func createCarFile(subCmd string) error {
 	cmd := flag.NewFlagSet(subCmd, flag.ExitOnError)
 
@@ -241,7 +237,6 @@ func sendAutoBidDeal() error {
 		return err
 	}
 
-	confDeal := model.GetConfDeal(outputDir, "", "")
-	subcommand.SendAutoBidDealsLoop(confDeal)
+	subcommand.SendAutoBidDealsLoopByConfig(*outputDir)
 	return nil
 }

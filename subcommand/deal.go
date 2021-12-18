@@ -53,12 +53,12 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	swanClient, err := swan.SwanGetClient(confDeal.SwanApiUrlToken, confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
+	swanClient, err := swan.GetClient(confDeal.SwanApiUrlToken, confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
-	task, err := swanClient.SwanGetTaskByUuid(fileDescs[0].Uuid)
+	task, err := swanClient.GetTaskByUuid(fileDescs[0].Uuid)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -96,7 +96,7 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	_, err = swanClient.SwanUpdateTaskByUuid(task.Data.Task, fileDescs)
+	_, err = swanClient.UpdateTaskAfterSendDealByUuid(task.Data.Task, fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -134,19 +134,19 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 		}
 		logs.GetLogger().Info("miner(s):", fileDesc.Deals)
 
-		swanClient, err := swan.SwanGetClient(confDeal.SwanApiUrlToken, confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
+		swanClient, err := swan.GetClient(confDeal.SwanApiUrlToken, confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
 
-		offlineDealsResult, err := swanClient.SwanOfflineDeals4CarFile(fileDesc.Uuid, fileDesc.CarFileUrl)
+		carFileResult, err := swanClient.GetCarFileByUuidUrl(fileDesc.Uuid, fileDesc.CarFileUrl)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
 
-		OfflineDeals := offlineDealsResult.OfflineDeals
+		OfflineDeals := carFileResult.OfflineDeals
 
 		for _, deal := range fileDesc.Deals {
 			for _, offlineDeal := range OfflineDeals {

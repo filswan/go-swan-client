@@ -17,6 +17,17 @@ import (
 	"github.com/filswan/go-swan-lib/utils"
 )
 
+func SendAutoBidDealsLoopByConfig(outputDir string) error {
+	confDeal := model.GetConfDeal(&outputDir, "", "")
+	err := SendAutoBidDealsLoop(confDeal)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	return nil
+}
+
 func SendAutoBidDealsLoop(confDeal *model.ConfDeal) error {
 	err := CreateOutputDir(confDeal.OutputDir)
 	if err != nil {
@@ -51,13 +62,13 @@ func SendAutoBidDeals(confDeal *model.ConfDeal) ([][]*libmodel.FileDesc, error) 
 
 	logs.GetLogger().Info("output dir is:", confDeal.OutputDir)
 
-	swanClient, err := swan.SwanGetClient(confDeal.SwanApiUrlToken, confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
+	swanClient, err := swan.GetClient(confDeal.SwanApiUrlToken, confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	assignedTasks, err := swanClient.SwanGetAllTasks(libconstants.TASK_STATUS_ASSIGNED)
+	assignedTasks, err := swanClient.GetAllTasks(libconstants.TASK_STATUS_ASSIGNED)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -101,13 +112,13 @@ func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int,
 
 	logs.GetLogger().Info("output dir is:", confDeal.OutputDir)
 
-	swanClient, err := swan.SwanGetClient(confDeal.SwanApiUrlToken, confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
+	swanClient, err := swan.GetClient(confDeal.SwanApiUrlToken, confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return 0, nil, err
 	}
 
-	assignedTaskInfo, err := swanClient.SwanGetTaskByUuid(taskUuid)
+	assignedTaskInfo, err := swanClient.GetTaskByUuid(taskUuid)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return 0, nil, err
@@ -151,7 +162,7 @@ func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int,
 	}
 
 	logs.GetLogger().Info(status)
-	_, err = swanClient.SwanUpdateTaskByUuid(task, fileDescs)
+	_, err = swanClient.UpdateTaskAfterSendDealByUuid(task, fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return 0, nil, err
@@ -164,18 +175,18 @@ func SendAutobidDeals4Task(confDeal *model.ConfDeal, task libmodel.Task, carFile
 	allDealNum := 0
 	allDealSentNum := 0
 	for _, carFile := range carFiles {
-		swanClient, err := swan.SwanGetClient(confDeal.SwanApiUrlToken, confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
+		swanClient, err := swan.GetClient(confDeal.SwanApiUrlToken, confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return 0, 0, nil, err
 		}
 
-		offlineDealsResult, err := swanClient.SwanOfflineDeals4CarFile(task.Uuid, carFile.FileUrl)
+		carFileResult, err := swanClient.GetCarFileByUuidUrl(task.Uuid, carFile.FileUrl)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return 0, 0, nil, err
 		}
-		offlineDeals := offlineDealsResult.OfflineDeals
+		offlineDeals := carFileResult.OfflineDeals
 		allDealNum = allDealNum + len(offlineDeals)
 		dealSentNum, fileDesc, err := SendAutobidDeals4CarFile(confDeal, offlineDeals, carFile, task, outputDir)
 		if err != nil {
