@@ -77,13 +77,19 @@ func SendAutoBidDeals(confDeal *model.ConfDeal) ([][]*libmodel.FileDesc, error) 
 	}
 
 	if len(assignedOfflineDeals) == 0 {
-		logs.GetLogger().Info("no autobid offline deals to be sent")
+		logs.GetLogger().Info("no offline deals to be sent")
 		return nil, nil
 	}
 
 	var tasksDeals [][]*libmodel.FileDesc
 	for _, assignedOfflineDeal := range assignedOfflineDeals {
-		_, _, err := SendAutobidDeal(confDeal, &assignedOfflineDeal)
+		updateOfflineDealParams, err := SendAutobidDeal(confDeal, &assignedOfflineDeal)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			continue
+		}
+
+		err = swanClient.UpdateOfflineDeal(*updateOfflineDealParams)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
@@ -93,32 +99,29 @@ func SendAutoBidDeals(confDeal *model.ConfDeal) ([][]*libmodel.FileDesc, error) 
 	return tasksDeals, nil
 }
 
-func SendAutobidDeal(confDeal *model.ConfDeal, offlineDeal *libmodel.OfflineDeal) (int, *libmodel.FileDesc, error) {
+func SendAutobidDeal(confDeal *model.ConfDeal, offlineDeal *libmodel.OfflineDeal) (*swan.UpdateOfflineDealParams, error) {
 	if confDeal == nil {
 		err := fmt.Errorf("parameter confDeal is nil")
 		logs.GetLogger().Error(err)
-		return 0, nil, err
+		return nil, err
 	}
 
-	fileDesc := libmodel.FileDesc{
-		Deals: []*libmodel.DealInfo{},
-	}
-	dealSentNum := 0
 	offlineDeal.DealCid = strings.Trim(offlineDeal.DealCid, " ")
 	if len(offlineDeal.DealCid) != 0 {
-		return 0, nil, nil
+		return nil, nil
 	}
 
 	err := model.SetDealConfig4Autobid(confDeal, *offlineDeal)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return 0, nil, nil
+		return nil, err
 	}
 
 	fileSizeInt := utils.GetInt64FromStr(offlineDeal.FileSize)
 	if fileSizeInt <= 0 {
-		logs.GetLogger().Error("file is too small")
-		return 0, nil, nil
+		err := fmt.Errorf("invalid file size")
+		logs.GetLogger().Error(err)
+		return nil, err
 	}
 	pieceSize, sectorSize := utils.CalculatePieceSize(fileSizeInt)
 	cost := utils.CalculateRealCost(sectorSize, confDeal.MinerPrice)
@@ -136,10 +139,10 @@ func SendAutobidDeal(confDeal *model.ConfDeal, offlineDeal *libmodel.OfflineDeal
 		lotusClient, err := lotus.LotusGetClient(confDeal.LotusClientApiUrl, confDeal.LotusClientAccessToken)
 		if err != nil {
 			logs.GetLogger().Error(err)
-			return 0, nil, err
+			return nil, err
 		}
 
-		dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(fileDesc, cost, pieceSize, *dealConfig, i)
+		dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(offlineDeal.PayloadCid, offlineDeal.PieceCid, cost, pieceSize, *dealConfig, i)
 		if err != nil {
 			logs.GetLogger().Error("tried ", i, " times,", err)
 
@@ -159,11 +162,20 @@ func SendAutobidDeal(confDeal *model.ConfDeal, offlineDeal *libmodel.OfflineDeal
 			DealCid:    *dealCid,
 			StartEpoch: *startEpoch,
 		}
-		fileDesc.Deals = append(fileDesc.Deals, dealInfo)
-		dealSentNum = dealSentNum + 1
+
+		updateOfflineDealParams := swan.UpdateOfflineDealParams{
+			DealId:     offlineDeal.Id,
+			DealCid:    dealCid,
+			Status:     libconstants.OFFLINE_DEAL_STATUS_CREATED,
+			StartEpoch: startEpoch,
+		}
 
 		logs.GetLogger().Info("task:", offlineDeal.TaskUuid, ", deal CID:", dealInfo.DealCid, ", start epoch:", dealInfo.StartEpoch, ", deal sent to ", confDeal.MinerFid, " successfully")
-		break
+
+		return &updateOfflineDealParams, nil
 	}
-	return dealSentNum, &fileDesc, nil
+
+	err = fmt.Errorf("failed to send deal")
+	logs.GetLogger().Error(err)
+	return nil, err
 }
