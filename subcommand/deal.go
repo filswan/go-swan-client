@@ -132,7 +132,6 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 				return nil, err
 			}
 		}
-		logs.GetLogger().Info("miner(s):", fileDesc.Deals)
 
 		swanClient, err := swan.GetClient(confDeal.SwanApiUrlToken, confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
 		if err != nil {

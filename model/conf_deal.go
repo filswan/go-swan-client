@@ -39,7 +39,7 @@ type ConfDeal struct {
 	RelativeEpochFromMainNetwork int64           //required
 }
 
-func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string) *ConfDeal {
+func GetConfDeal(outputDir *string, minerFid string, metadataJsonPath string) *ConfDeal {
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
 	startEpoch := int64(utils.GetCurrentEpoch())
 	startEpoch = startEpoch + config.GetConfig().Sender.RelativeEpochFromMainNetwork
