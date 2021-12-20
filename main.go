@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-client/test"
 
 	"github.com/filswan/go-swan-client/subcommand"
 
@@ -13,8 +14,8 @@ import (
 )
 
 func main() {
-	execSubCmd()
-	//test.Test()
+	//execSubCmd()
+	test.Test()
 }
 
 func execSubCmd() error {
@@ -170,14 +171,11 @@ func createTask() error {
 
 	logs.GetLogger().Info("your input dir: ", *inputDir)
 
-	confTask := model.GetConfTask(*inputDir, outputDir, *taskName, *minerFid, *dataset, *description)
-	confDeal := model.GetConfDeal(outputDir, *minerFid, "")
-	jsonFileName, _, _, err := subcommand.CreateTask(confTask, confDeal)
+	_, _, _, err = subcommand.CreateTaskByConfig(*inputDir, outputDir, *taskName, *minerFid, *dataset, *description)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
 	}
-	logs.GetLogger().Info("Task information is in:", *jsonFileName)
 
 	return nil
 }

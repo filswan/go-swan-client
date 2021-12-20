@@ -3,7 +3,6 @@ package subcommand
 import (
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/filswan/go-swan-client/model"
 
@@ -130,30 +129,6 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 				err := fmt.Errorf("miner is required, you can set in command line or in metadata json file")
 				logs.GetLogger().Error(err)
 				return nil, err
-			}
-		}
-
-		swanClient, err := swan.GetClient(confDeal.SwanApiUrlToken, confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return nil, err
-		}
-
-		carFileResult, err := swanClient.GetCarFileByUuidUrl(fileDesc.Uuid, fileDesc.CarFileUrl)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return nil, err
-		}
-
-		OfflineDeals := carFileResult.OfflineDeals
-
-		for _, deal := range fileDesc.Deals {
-			for _, offlineDeal := range OfflineDeals {
-				if strings.EqualFold(deal.MinerFid, offlineDeal.MinerFid) {
-					err := fmt.Errorf("%s,has already been sent to miner:%s,deal CID:%s", fileDesc.CarFileUrl, deal.MinerFid, offlineDeal.DealCid)
-					logs.GetLogger().Error(err)
-					return nil, err
-				}
 			}
 		}
 
