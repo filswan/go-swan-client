@@ -73,6 +73,9 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	isPublic := 0
 	if confTask.PublicDeal {
 		isPublic = 1
+		if confDeal.MinerFid != "" {
+			logs.GetLogger().Warn("miner fid is unnecessary for public task")
+		}
 	}
 
 	taskType := libconstants.TASK_TYPE_REGULAR
