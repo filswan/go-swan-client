@@ -18,7 +18,7 @@ import (
 )
 
 func CreateTaskByConfig(inputDir string, outputDir *string, taskName, minerFid, dataset, description string) (*string, []*libmodel.FileDesc, []*Deal, error) {
-	confTask := model.GetConfTask(inputDir, outputDir, taskName, minerFid, dataset, description)
+	confTask := model.GetConfTask(inputDir, outputDir, taskName, dataset, description)
 	confDeal := model.GetConfDeal(outputDir, minerFid, "")
 	jsonFileName, fileDescs, deals, err := CreateTask(confTask, confDeal)
 	if err != nil {
