@@ -3,6 +3,7 @@ client_api_url = "http://[ip]:[port]/rpc/v0"   # Url of lotus client web api, ge
 client_access_token = ""   # Access token of lotus client web api, it should have admin access right
 
 [main]
+api_url_token = "https://api.filswan.com"
 api_url = "https://api.filswan.com"
 api_key = ""
 access_token = ""

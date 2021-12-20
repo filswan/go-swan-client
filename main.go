@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-client/test"
 
 	"github.com/filswan/go-swan-client/subcommand"
 
@@ -13,10 +14,8 @@ import (
 )
 
 func main() {
-	execSubCmd()
-	//subcommand.GoCar("",)
-	//logs.GetLogger().Info("Hello")
-	//test.Test()
+	//execSubCmd()
+	test.Test()
 }
 
 func execSubCmd() error {
@@ -50,8 +49,6 @@ func execSubCmd() error {
 	return nil
 }
 
-//python3 swan_cli.py car --input-dir /home/peware/testGoSwanProvider/input --out-dir /home/peware/testGoSwanProvider/output
-//go-swan-client car -input-dir ~/go-workspace/input/ -out-dir ~/go-workspace/output/
 func createCarFile(subCmd string) error {
 	cmd := flag.NewFlagSet(subCmd, flag.ExitOnError)
 
@@ -206,23 +203,15 @@ func sendDeal() error {
 	}
 
 	if metadataJsonPath == nil || len(*metadataJsonPath) == 0 {
-		err := fmt.Errorf("json is required")
+		err := fmt.Errorf("metadata json file path is required")
 		logs.GetLogger().Error(err)
 		return err
 	}
 
-	if minerFid == nil || len(*minerFid) == 0 {
-		err := fmt.Errorf("miner is required")
-		logs.GetLogger().Error(err)
-		return err
-	}
+	logs.GetLogger().Info("Metadata json file:", *metadataJsonPath)
+	logs.GetLogger().Info("Output dir:", *outputDir)
 
-	logs.GetLogger().Info("metadata json file:", *metadataJsonPath)
-	logs.GetLogger().Info("output dir:", *outputDir)
-	logs.GetLogger().Info("miner:", *minerFid)
-
-	confDeal := model.GetConfDeal(outputDir, *minerFid, *metadataJsonPath)
-	_, err = subcommand.SendDeals(confDeal)
+	_, err = subcommand.SendDealsByConfig(*outputDir, *minerFid, *metadataJsonPath)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -248,7 +237,6 @@ func sendAutoBidDeal() error {
 		return err
 	}
 
-	confDeal := model.GetConfDeal(outputDir, "", "")
-	subcommand.SendAutoBidDealsLoop(confDeal)
+	subcommand.SendAutoBidDealsLoopByConfig(*outputDir)
 	return nil
 }

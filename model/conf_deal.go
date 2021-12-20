@@ -16,6 +16,7 @@ import (
 )
 
 type ConfDeal struct {
+	SwanApiUrlToken              string          //required
 	SwanApiUrl                   string          //required
 	SwanApiKey                   string          //required when SwanJwtToken is not provided
 	SwanAccessToken              string          //required when SwanJwtToken is not provided
@@ -29,24 +30,25 @@ type ConfDeal struct {
 	SkipConfirmation             bool            //required only for manual-bid deal
 	Duration                     int             //not necessary, when not provided use default value:1512000
 	MinerPrice                   decimal.Decimal //used internally, not need to provide
-	StartEpoch                   int             //required only for manual-bid deal
+	StartEpoch                   int64           //required only for manual-bid deal
 	StartEpochIntervalHours      int             //invalid
 	OutputDir                    string          //required
 	MinerFid                     string          //required only for manual-bid deal
 	MetadataJsonPath             string          //required only for manual-bid deal
 	DealSourceIds                []int           //required
-	RelativeEpochFromMainNetwork int             //required
+	RelativeEpochFromMainNetwork int64           //required
 }
 
-func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string) *ConfDeal {
+func GetConfDeal(outputDir *string, minerFid string, metadataJsonPath string) *ConfDeal {
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
-	startEpoch := utils.GetCurrentEpoch()
+	startEpoch := int64(utils.GetCurrentEpoch())
 	startEpoch = startEpoch + config.GetConfig().Sender.RelativeEpochFromMainNetwork
 	logs.GetLogger().Info("current epoch:", startEpoch)
-	startEpoch = startEpoch + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
+	startEpoch = startEpoch + int64((startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR)
 	logs.GetLogger().Info("start epoch:", startEpoch)
 
 	confDeal := &ConfDeal{
+		SwanApiUrlToken:              config.GetConfig().Main.SwanApiUrlToken,
 		SwanApiUrl:                   config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:                   config.GetConfig().Main.SwanApiKey,
 		SwanAccessToken:              config.GetConfig().Main.SwanAccessToken,
@@ -85,45 +87,45 @@ func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string) *ConfDeal
 	return confDeal
 }
 
-func SetDealConfig4Autobid(confDeal *ConfDeal, task libmodel.Task, deal libmodel.OfflineDeal) error {
+func SetDealConfig4Autobid(confDeal *ConfDeal, deal libmodel.OfflineDeal) error {
 	if confDeal == nil {
 		err := fmt.Errorf("parameter confDeal is nil")
 		logs.GetLogger().Error(err)
 		return err
 	}
 
-	confDeal.StartEpoch = deal.StartEpoch + confDeal.RelativeEpochFromMainNetwork
+	confDeal.StartEpoch = int64(deal.StartEpoch) + confDeal.RelativeEpochFromMainNetwork
 
-	if task.MinerFid == "" {
-		err := fmt.Errorf("no miner allocated to task")
-		logs.GetLogger().Error(err)
-		return err
-	}
-	confDeal.MinerFid = task.MinerFid
+	confDeal.MinerFid = deal.MinerFid
 
-	if task.Type == "" {
+	if deal.TaskType == nil {
 		err := fmt.Errorf("task type missing")
 		logs.GetLogger().Error(err)
 		return err
 	}
-	confDeal.VerifiedDeal = task.Type == constants.TASK_TYPE_VERIFIED
+	confDeal.VerifiedDeal = *deal.TaskType == constants.TASK_TYPE_VERIFIED
 
-	if task.FastRetrieval == nil {
+	if deal.FastRetrieval == nil {
 		err := fmt.Errorf("task FastRetrieval missing")
 		logs.GetLogger().Error(err)
 		return err
 	}
 
-	confDeal.FastRetrieval = *task.FastRetrieval == constants.TASK_FAST_RETRIEVAL
+	confDeal.FastRetrieval = *deal.FastRetrieval == constants.TASK_FAST_RETRIEVAL_YES
 
-	if task.MaxPrice == nil {
+	if deal.MaxPrice == nil {
 		err := fmt.Errorf("task MaxPrice missing")
 		logs.GetLogger().Error(err)
 		return err
 	}
-	confDeal.MaxPrice = *task.MaxPrice
+	confDeal.MaxPrice = *deal.MaxPrice
 
-	confDeal.Duration = task.Duration
+	if deal.Duration == nil {
+		err := fmt.Errorf("task Duration missing")
+		logs.GetLogger().Error(err)
+		return err
+	}
+	confDeal.Duration = *deal.Duration
 
 	confDeal.SkipConfirmation = true
 

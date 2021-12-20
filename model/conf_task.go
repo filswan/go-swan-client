@@ -13,6 +13,7 @@ import (
 )
 
 type ConfTask struct {
+	SwanApiUrlToken            string          //required
 	SwanApiUrl                 string          //required when OfflineMode is false
 	SwanApiKey                 string          //required when OfflineMode is false and SwanJwtToken is not provided
 	SwanAccessToken            string          //required when OfflineMode is false and SwanJwtToken is not provided
@@ -31,19 +32,19 @@ type ConfTask struct {
 	OutputDir                  string          //required
 	InputDir                   string          //required
 	TaskName                   string          //not necessary, when not provided use default value:swan_task_xxxxxx
-	MinerFid                   string          //required only when PublicDeal=false
 	Dataset                    string          //not necessary
 	Description                string          //not necessary
-	StartEpoch                 int             //required
+	StartEpoch                 int64           //required
 	StartEpochIntervalHours    int             //invalid
 	SourceId                   int             //required
 }
 
 func GetConfTask(inputDir string, outputDir *string, taskName, minerFid, dataset, description string) *ConfTask {
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
-	startEpoch := utils.GetCurrentEpoch() + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR
+	startEpoch := int64(utils.GetCurrentEpoch() + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR)
 
 	confTask := &ConfTask{
+		SwanApiUrlToken:            config.GetConfig().Main.SwanApiUrlToken,
 		SwanApiUrl:                 config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:                 config.GetConfig().Main.SwanApiKey,
 		SwanAccessToken:            config.GetConfig().Main.SwanAccessToken,
@@ -60,7 +61,6 @@ func GetConfTask(inputDir string, outputDir *string, taskName, minerFid, dataset
 		OutputDir:                  filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
 		InputDir:                   inputDir,
 		TaskName:                   taskName,
-		MinerFid:                   minerFid,
 		Dataset:                    dataset,
 		Description:                description,
 		StartEpochIntervalHours:    startEpochIntervalHours,

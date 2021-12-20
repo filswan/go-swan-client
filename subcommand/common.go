@@ -1,7 +1,6 @@
 package subcommand
 
 import (
-	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"path/filepath"
@@ -10,14 +9,13 @@ import (
 	"github.com/shopspring/decimal"
 
 	"github.com/filswan/go-swan-lib/client/lotus"
-	"github.com/filswan/go-swan-lib/constants"
+	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
 
 	"io/ioutil"
 	"os"
-	"strconv"
 )
 
 const (
@@ -34,7 +32,7 @@ const (
 	SUBCOMMAND_AUTO    = "auto"
 )
 
-func CheckDuration(duration int, startEpoch int, relativeEpochFromMainNetwork int) error {
+func CheckDuration(duration int, startEpoch, relativeEpochFromMainNetwork int64) error {
 	if duration == 0 {
 		return nil
 	}
@@ -45,8 +43,8 @@ func CheckDuration(duration int, startEpoch int, relativeEpochFromMainNetwork in
 		return err
 	}
 
-	currentEpoch := utils.GetCurrentEpoch() + relativeEpochFromMainNetwork
-	endEpoch := startEpoch + duration
+	currentEpoch := int64(utils.GetCurrentEpoch()) + relativeEpochFromMainNetwork
+	endEpoch := startEpoch + (int64)(duration)
 
 	epoch2EndfromNow := endEpoch - currentEpoch
 	if epoch2EndfromNow >= DURATION_MAX {
@@ -61,7 +59,7 @@ func CheckDuration(duration int, startEpoch int, relativeEpochFromMainNetwork in
 func GetDealCost(pricePerEpoch decimal.Decimal, duration int) string {
 	durationDecimal := decimal.NewFromInt(int64(duration))
 	cost := pricePerEpoch.Mul(durationDecimal)
-	cost = cost.Mul(decimal.NewFromFloat(constants.LOTUS_PRICE_MULTIPLE_1E18))
+	cost = cost.Mul(decimal.NewFromFloat(libconstants.LOTUS_PRICE_MULTIPLE_1E18))
 
 	return cost.String()
 }
@@ -91,9 +89,21 @@ func GetDefaultTaskName() string {
 	return taskName
 }
 
-func CheckDealConfig(confDeal *model.ConfDeal) error {
+func CheckDealConfig(confDeal *model.ConfDeal, dealConfig *libmodel.DealConfig) error {
 	if confDeal == nil {
 		err := fmt.Errorf("parameter confDeal is nil")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if dealConfig == nil {
+		err := fmt.Errorf("parameter dealConfig is nil")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if confDeal.SenderWallet == "" {
+		err := fmt.Errorf("wallet should be set")
 		logs.GetLogger().Error(err)
 		return err
 	}
@@ -104,42 +114,28 @@ func CheckDealConfig(confDeal *model.ConfDeal) error {
 		return err
 	}
 
-	minerPrice, minerVerifiedPrice, _, _ := lotusClient.LotusGetMinerConfig(confDeal.MinerFid)
-
-	if confDeal.SenderWallet == "" {
-		err := fmt.Errorf("wallet should be set")
+	minerConfig, err := lotusClient.LotusClientQueryAsk(dealConfig.MinerFid)
+	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
 	}
 
+	var e18 decimal.Decimal = decimal.NewFromFloat(libconstants.LOTUS_PRICE_MULTIPLE_1E18)
+
 	if confDeal.VerifiedDeal {
-		if minerVerifiedPrice == nil {
-			err := fmt.Errorf("miner:%s,cannot get miner verified price for verified deal", confDeal.MinerFid)
-			logs.GetLogger().Error(err)
-			return err
-		}
-		confDeal.MinerPrice = *minerVerifiedPrice
-		logs.GetLogger().Info("miner:", confDeal.MinerFid, ",price is:", *minerVerifiedPrice)
+		confDeal.MinerPrice = minerConfig.VerifiedPrice.Div(e18)
 	} else {
-		if minerPrice == nil {
-			err := fmt.Errorf("miner:%s,cannot get miner price for non-verified deal", confDeal.MinerFid)
-			logs.GetLogger().Error(err)
-			return err
-		}
-		confDeal.MinerPrice = *minerPrice
-		//logs.GetLogger().Info("miner:", confDeal.MinerFid, ",price is:", *minerPrice)
+		confDeal.MinerPrice = minerConfig.Price.Div(e18)
 	}
+	logs.GetLogger().Info("miner:", confDeal.MinerFid, ",price is:", confDeal.MinerPrice)
 
 	priceCmp := confDeal.MaxPrice.Cmp(confDeal.MinerPrice)
-	//logs.GetLogger().Info("priceCmp:", priceCmp)
 	if priceCmp < 0 {
 		logs.GetLogger().Info("Miner price is:", confDeal.MinerPrice, " MaxPrice:", confDeal.MaxPrice, " VerifiedDeal:", confDeal.VerifiedDeal)
 		err := fmt.Errorf("miner price is higher than deal max price")
 		logs.GetLogger().Error(err)
 		return err
 	}
-
-	//logs.GetLogger().Info("Deal check passed.")
 
 	if confDeal.Duration == 0 {
 		confDeal.Duration = DURATION
@@ -161,7 +157,7 @@ func CheckInputDir(inputDir string) error {
 		return err
 	}
 
-	if utils.GetPathType(inputDir) != constants.PATH_TYPE_DIR {
+	if utils.GetPathType(inputDir) != libconstants.PATH_TYPE_DIR {
 		err := fmt.Errorf("%s is not a directory", inputDir)
 		logs.GetLogger().Error(err)
 		return err
@@ -192,30 +188,8 @@ func CreateOutputDir(outputDir string) error {
 	return nil
 }
 
-func WriteCarFilesToFiles(carFiles []*libmodel.FileDesc, outputDir, jsonFilename, csvFileName, subcommand string) (*string, error) {
-	err := os.MkdirAll(outputDir, os.ModePerm)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	jsonFilePath, err := WriteCarFilesToJsonFile(carFiles, outputDir, jsonFilename, subcommand)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	err = WriteCarFilesToCsvFile(carFiles, outputDir, csvFileName, subcommand)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	return jsonFilePath, nil
-}
-
-func WriteCarFilesToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFilename, subcommand string) (*string, error) {
-	jsonFilePath := filepath.Join(outputDir, jsonFilename)
+func WriteFileDescsToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFileName string) (*string, error) {
+	jsonFilePath := filepath.Join(outputDir, jsonFileName)
 	content, err := json.MarshalIndent(carFiles, "", " ")
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -228,17 +202,17 @@ func WriteCarFilesToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFilen
 		return nil, err
 	}
 
-	logs.GetLogger().Info(subcommand, ": metadata json generated: ", jsonFilePath)
+	logs.GetLogger().Info("Metadata json file generated: ", jsonFilePath)
 	return &jsonFilePath, nil
 }
 
-func ReadCarFilesFromJsonFile(inputDir, jsonFilename string) []*libmodel.FileDesc {
+func ReadFileDescsFromJsonFile(inputDir, jsonFilename string) []*libmodel.FileDesc {
 	jsonFilePath := filepath.Join(inputDir, jsonFilename)
-	result := ReadCarFilesFromJsonFileByFullPath(jsonFilePath)
+	result := ReadFileDescsFromJsonFileByFullPath(jsonFilePath)
 	return result
 }
 
-func ReadCarFilesFromJsonFileByFullPath(jsonFilePath string) []*libmodel.FileDesc {
+func ReadFileDescsFromJsonFileByFullPath(jsonFilePath string) []*libmodel.FileDesc {
 	contents, err := ioutil.ReadFile(jsonFilePath)
 	if err != nil {
 		logs.GetLogger().Error("Failed to read: ", jsonFilePath)
@@ -256,165 +230,25 @@ func ReadCarFilesFromJsonFileByFullPath(jsonFilePath string) []*libmodel.FileDes
 	return carFiles
 }
 
-func WriteCarFilesToCsvFile(carFiles []*libmodel.FileDesc, outDir, csvFileName, subcommand string) error {
-	csvFilePath := filepath.Join(outDir, csvFileName)
-	var headers []string
-	headers = append(headers, "uuid")
-	headers = append(headers, "source_file_name")
-	headers = append(headers, "source_file_path")
-	headers = append(headers, "source_file_md5")
-	headers = append(headers, "source_file_size")
-	headers = append(headers, "car_file_name")
-	headers = append(headers, "car_file_path")
-	headers = append(headers, "car_file_md5")
-	headers = append(headers, "car_file_url")
-	headers = append(headers, "car_file_size")
-	headers = append(headers, "deal_cid")
-	headers = append(headers, "data_cid")
-	headers = append(headers, "piece_cid")
-	headers = append(headers, "miner_id")
-	headers = append(headers, "start_epoch")
-	headers = append(headers, "source_id")
-	headers = append(headers, "cost")
-
-	file, err := os.Create(csvFilePath)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
-	}
-	defer file.Close()
-
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
-
-	err = writer.Write(headers)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	for _, carFile := range carFiles {
-		var columns []string
-		columns = append(columns, carFile.Uuid)
-		columns = append(columns, carFile.SourceFileName)
-		columns = append(columns, carFile.SourceFilePath)
-		columns = append(columns, carFile.SourceFileMd5)
-		columns = append(columns, strconv.FormatInt(carFile.SourceFileSize, 10))
-		columns = append(columns, carFile.CarFileName)
-		columns = append(columns, carFile.CarFilePath)
-		columns = append(columns, carFile.CarFileMd5)
-		columns = append(columns, carFile.CarFileUrl)
-		columns = append(columns, strconv.FormatInt(carFile.CarFileSize, 10))
-		columns = append(columns, carFile.DealCid)
-		columns = append(columns, carFile.DataCid)
-		columns = append(columns, carFile.PieceCid)
-		columns = append(columns, carFile.MinerFid)
-
-		if carFile.StartEpoch != nil {
-			columns = append(columns, strconv.Itoa(*carFile.StartEpoch))
-		} else {
-			columns = append(columns, "")
-		}
-
-		if carFile.SourceId != nil {
-			columns = append(columns, strconv.Itoa(*carFile.SourceId))
-		} else {
-			columns = append(columns, "")
-		}
-		columns = append(columns, carFile.Cost)
-
-		err = writer.Write(columns)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return err
-		}
-	}
-
-	logs.GetLogger().Info(subcommand, ": metadata csv generated: ", csvFilePath)
-
-	return nil
-}
-
-func CreateCsv4TaskDeal(carFiles []*libmodel.FileDesc, outDir, csvFileName string) (string, []*Deal, error) {
-	csvFilePath := filepath.Join(outDir, csvFileName)
-
-	logs.GetLogger().Info("Swan task CSV Generated: ", csvFilePath)
-
-	headers := []string{
-		"uuid",
-		"source_file_name",
-		"miner_id",
-		"deal_cid",
-		"payload_cid",
-		"file_source_url",
-		"md5",
-		"start_epoch",
-		"piece_cid",
-		"file_size",
-		"cost",
-	}
-
-	file, err := os.Create(csvFilePath)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return "", nil, err
-	}
-	defer file.Close()
-
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
-
-	err = writer.Write(headers)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return "", nil, err
-	}
-
+func GetDeals(carFiles []*libmodel.FileDesc) ([]*Deal, error) {
 	deals := []*Deal{}
-
 	for _, carFile := range carFiles {
-		var columns []string
-		columns = append(columns, carFile.Uuid)
-		columns = append(columns, carFile.SourceFileName)
-		columns = append(columns, carFile.MinerFid)
-		columns = append(columns, carFile.DealCid)
-		columns = append(columns, carFile.DataCid)
-		columns = append(columns, carFile.CarFileUrl)
-		columns = append(columns, carFile.CarFileMd5)
-
-		if carFile.StartEpoch != nil {
-			columns = append(columns, strconv.Itoa(*carFile.StartEpoch))
-		} else {
-			columns = append(columns, "")
-		}
-
-		columns = append(columns, carFile.PieceCid)
-		columns = append(columns, strconv.FormatInt(carFile.CarFileSize, 10))
-		columns = append(columns, carFile.Cost)
-
-		err = writer.Write(columns)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return "", nil, err
-		}
-
 		deal := Deal{
 			Uuid:           carFile.Uuid,
 			SourceFileName: carFile.SourceFileName,
-			MinerId:        carFile.MinerFid,
-			DealCid:        carFile.DealCid,
-			PayloadCid:     carFile.DataCid,
-			FileSourceUrl:  carFile.CarFileUrl,
-			Md5:            carFile.CarFileMd5,
-			StartEpoch:     carFile.StartEpoch,
-			PieceCid:       carFile.PieceCid,
-			FileSize:       carFile.CarFileSize,
-			Cost:           carFile.Cost,
+			//MinerId:        carFile.MinerFid,
+			//DealCid:        carFile.DealCid,
+			PayloadCid:    carFile.PayloadCid,
+			FileSourceUrl: carFile.CarFileUrl,
+			Md5:           carFile.CarFileMd5,
+			StartEpoch:    carFile.StartEpoch,
+			PieceCid:      carFile.PieceCid,
+			FileSize:      carFile.CarFileSize,
 		}
 		deals = append(deals, &deal)
 	}
 
-	return csvFilePath, deals, nil
+	return deals, nil
 }
 
 type Deal struct {
@@ -425,7 +259,7 @@ type Deal struct {
 	PayloadCid     string `json:"payload_cid"`
 	FileSourceUrl  string `json:"file_source_url"`
 	Md5            string `json:"md5"`
-	StartEpoch     *int   `json:"start_epoch"`
+	StartEpoch     *int64 `json:"start_epoch"`
 	PieceCid       string `json:"piece_cid"`
 	FileSize       int64  `json:"file_size"`
 	Cost           string `json:"cost"`

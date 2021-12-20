@@ -23,6 +23,7 @@ type lotus struct {
 }
 
 type main struct {
+	SwanApiUrlToken   string `toml:"api_url_token"`
 	SwanApiUrl        string `toml:"api_url"`
 	SwanApiKey        string `toml:"api_key"`
 	SwanAccessToken   string `toml:"access_token"`
@@ -54,7 +55,7 @@ type sender struct {
 	GocarFileSizeLimit           int64  `toml:"gocar_file_size_limit"`
 	GocarFolderBased             bool   `toml:"gocar_folder_based"`
 	Duration                     int    `toml:"duration"`
-	RelativeEpochFromMainNetwork int    `toml:"relative_epoch_from_main_network"`
+	RelativeEpochFromMainNetwork int64  `toml:"relative_epoch_from_main_network"`
 }
 
 var config *Configuration
@@ -93,6 +94,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"lotus", "client_api_url"},
 		{"lotus", "client_access_token"},
 
+		{"main", "api_url_token"},
 		{"main", "api_url"},
 		{"main", "api_key"},
 		{"main", "access_token"},

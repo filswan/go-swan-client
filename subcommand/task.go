@@ -3,13 +3,14 @@ package subcommand
 import (
 	"fmt"
 
+	"github.com/filswan/go-swan-client/common/constants"
 	"github.com/filswan/go-swan-client/model"
 
 	"github.com/codingsince1985/checksum"
 	"github.com/filswan/go-swan-lib/logs"
 
 	"github.com/filswan/go-swan-lib/client/swan"
-	"github.com/filswan/go-swan-lib/constants"
+	libconstants "github.com/filswan/go-swan-lib/constants"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
 
@@ -44,30 +45,13 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	}
 
 	logs.GetLogger().Info("you output dir: ", confTask.OutputDir)
-
-	if !confTask.PublicDeal && len(confTask.MinerFid) == 0 {
-		err := fmt.Errorf("please provide -miner for private deal")
-		logs.GetLogger().Error(err)
-		return nil, nil, nil, err
-	}
-	if confTask.PublicDeal && len(confTask.MinerFid) != 0 {
-		logs.GetLogger().Warn("miner is unnecessary for public task, it will be ignored")
-	}
-
 	if len(confTask.TaskName) == 0 {
 		taskName := GetDefaultTaskName()
 		confTask.TaskName = taskName
 	}
 
-	//logs.GetLogger().Info("task settings:")
-	//logs.GetLogger().Info("public task: ", confTask.PublicDeal)
-	//logs.GetLogger().Info("auto-bid: ", confTask.BidMode == constants.TASK_BID_MODE_AUTO)
-	//logs.GetLogger().Info("verified deals: ", confTask.VerifiedDeal)
-	//logs.GetLogger().Info("fastRetrieval: ", confTask.FastRetrieval)
-	//logs.GetLogger().Info("connected to swan: ", !confTask.OfflineMode)
-
-	carFiles := ReadCarFilesFromJsonFile(confTask.InputDir, constants.JSON_FILE_NAME_BY_UPLOAD)
-	if carFiles == nil {
+	fileDescs := ReadFileDescsFromJsonFile(confTask.InputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
+	if fileDescs == nil {
 		err := fmt.Errorf("failed to read car files from :%s", confTask.InputDir)
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
@@ -78,9 +62,9 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		isPublic = 1
 	}
 
-	taskType := constants.TASK_TYPE_REGULAR
+	taskType := libconstants.TASK_TYPE_REGULAR
 	if confTask.VerifiedDeal {
-		taskType = constants.TASK_TYPE_VERIFIED
+		taskType = libconstants.TASK_TYPE_VERIFIED
 	}
 
 	if confTask.Duration == 0 {
@@ -93,86 +77,86 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		return nil, nil, nil, err
 	}
 
-	uuid := uuid.NewString()
-	task := libmodel.Task{
-		TaskName:          confTask.TaskName,
-		FastRetrievalBool: confTask.FastRetrieval,
-		Type:              taskType,
-		IsPublic:          &isPublic,
-		MaxPrice:          &confTask.MaxPrice,
-		BidMode:           &confTask.BidMode,
-		ExpireDays:        &confTask.ExpireDays,
-		Uuid:              uuid,
-		SourceId:          confTask.SourceId,
-		Duration:          confTask.Duration,
-		MinerFid:          confTask.MinerFid,
-		CuratedDataset:    confTask.Dataset,
-		Description:       confTask.Description,
+	fastRetrieval := libconstants.TASK_FAST_RETRIEVAL_NO
+	if confTask.FastRetrieval {
+		fastRetrieval = libconstants.TASK_FAST_RETRIEVAL_YES
 	}
 
-	for _, carFile := range carFiles {
-		carFile.Uuid = task.Uuid
-		carFile.MinerFid = task.MinerFid
-		carFile.StartEpoch = &confTask.StartEpoch
-		carFile.SourceId = &confTask.SourceId
+	uuid := uuid.NewString()
+	task := libmodel.Task{
+		TaskName:       confTask.TaskName,
+		FastRetrieval:  &fastRetrieval,
+		Type:           taskType,
+		IsPublic:       &isPublic,
+		MaxPrice:       &confTask.MaxPrice,
+		BidMode:        &confTask.BidMode,
+		ExpireDays:     &confTask.ExpireDays,
+		Uuid:           uuid,
+		SourceId:       confTask.SourceId,
+		Duration:       confTask.Duration,
+		CuratedDataset: confTask.Dataset,
+		Description:    confTask.Description,
+	}
 
-		if confTask.StorageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
-			carFileUrl := utils.UrlJoin(confTask.WebServerDownloadUrlPrefix, carFile.CarFileName)
-			carFile.CarFileUrl = carFileUrl
+	for _, fileDesc := range fileDescs {
+		fileDesc.Uuid = task.Uuid
+		fileDesc.StartEpoch = &confTask.StartEpoch
+		fileDesc.SourceId = &confTask.SourceId
+
+		if confTask.StorageServerType == libconstants.STORAGE_SERVER_TYPE_WEB_SERVER {
+			fileDesc.CarFileUrl = utils.UrlJoin(confTask.WebServerDownloadUrlPrefix, fileDesc.CarFileName)
 		}
 
 		if confTask.GenerateMd5 {
-			if carFile.SourceFileMd5 == "" && utils.IsFileExistsFullPath(carFile.SourceFilePath) {
-				srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
+			if fileDesc.SourceFileMd5 == "" && utils.IsFileExistsFullPath(fileDesc.SourceFilePath) {
+				srcFileMd5, err := checksum.MD5sum(fileDesc.SourceFilePath)
 				if err != nil {
 					logs.GetLogger().Error(err)
 					return nil, nil, nil, err
 				}
-				carFile.SourceFileMd5 = srcFileMd5
+				fileDesc.SourceFileMd5 = srcFileMd5
 			}
 
-			if carFile.CarFileMd5 == "" {
-				carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
+			if fileDesc.CarFileMd5 == "" {
+				carFileMd5, err := checksum.MD5sum(fileDesc.CarFilePath)
 				if err != nil {
 					logs.GetLogger().Error(err)
 					return nil, nil, nil, err
 				}
-				carFile.CarFileMd5 = carFileMd5
+				fileDesc.CarFileMd5 = carFileMd5
 			}
 		}
 	}
 
 	if !confTask.PublicDeal {
-		_, _, err := SendDeals2Miner(confDeal, confTask.TaskName, confTask.OutputDir, carFiles)
+		_, err := SendDeals2Miner(confDeal, confTask.TaskName, confTask.OutputDir, fileDescs)
 		if err != nil {
 			return nil, nil, nil, err
 		}
 	}
 
-	jsonFileName := confTask.TaskName + constants.JSON_FILE_NAME_BY_TASK
-	csvFileName := confTask.TaskName + constants.CSV_FILE_NAME_BY_TASK
-	jsonFilepath, err := WriteCarFilesToFiles(carFiles, confTask.OutputDir, jsonFileName, csvFileName, SUBCOMMAND_TASK)
+	jsonFileName := confTask.TaskName + constants.JSON_FILE_NAME_TASK
+	jsonFilepath, err := WriteFileDescsToJsonFile(fileDescs, confTask.OutputDir, jsonFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
 	}
 
-	deals, err := SendTask2Swan(confTask, task, carFiles)
+	deals, err := SendTask2Swan(confTask, task, fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
 	}
 
-	if *task.IsPublic == constants.TASK_IS_PUBLIC && *task.BidMode == constants.TASK_BID_MODE_MANUAL {
+	if *task.IsPublic == libconstants.TASK_IS_PUBLIC && *task.BidMode == libconstants.TASK_BID_MODE_MANUAL {
 		logs.GetLogger().Info("task ", task.TaskName, " has been created, please send its deal(s) later using deal subcommand and ", *jsonFilepath)
 	}
 
-	return jsonFilepath, carFiles, deals, nil
+	return jsonFilepath, fileDescs, deals, nil
 }
 
-func SendTask2Swan(confTask *model.ConfTask, task libmodel.Task, carFiles []*libmodel.FileDesc) ([]*Deal, error) {
-	csvFilename := task.TaskName + ".csv"
-	csvFilePath, deals, err := CreateCsv4TaskDeal(carFiles, confTask.OutputDir, csvFilename)
+func SendTask2Swan(confTask *model.ConfTask, task libmodel.Task, fileDescs []*libmodel.FileDesc) ([]*Deal, error) {
+	deals, err := GetDeals(fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return deals, err
@@ -184,13 +168,13 @@ func SendTask2Swan(confTask *model.ConfTask, task libmodel.Task, carFiles []*lib
 	}
 
 	logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
-	swanClient, err := swan.SwanGetClient(confTask.SwanApiUrl, confTask.SwanApiKey, confTask.SwanAccessToken, confTask.SwanToken)
+	swanClient, err := swan.GetClient(confTask.SwanApiUrlToken, confTask.SwanApiUrl, confTask.SwanApiKey, confTask.SwanAccessToken, confTask.SwanToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return deals, err
 	}
 
-	swanCreateTaskResponse, err := swanClient.SwanCreateTask(task, csvFilePath)
+	swanCreateTaskResponse, err := swanClient.CreateTask(task, fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return deals, err

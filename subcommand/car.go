@@ -10,10 +10,10 @@ import (
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/logs"
 
-	"github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/utils"
 
 	"github.com/codingsince1985/checksum"
+	"github.com/filswan/go-swan-client/common/constants"
 	libmodel "github.com/filswan/go-swan-lib/model"
 )
 
@@ -57,6 +57,7 @@ func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 		carFile.SourceFileSize = srcFile.Size()
 		carFile.CarFileName = carFile.SourceFileName + ".car"
 		carFile.CarFilePath = filepath.Join(confCar.OutputDir, carFile.CarFileName)
+		logs.GetLogger().Info("Creating car file ", carFile.CarFilePath, " for ", carFile.SourceFilePath)
 
 		err := lotusClient.LotusClientGenCar(carFile.SourceFilePath, carFile.CarFilePath, false)
 		if err != nil {
@@ -86,7 +87,7 @@ func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 			return nil, err
 		}
 
-		carFile.DataCid = *dataCid
+		carFile.PayloadCid = *dataCid
 
 		carFile.CarFileSize = utils.GetFileSize(carFile.CarFilePath)
 
@@ -107,15 +108,17 @@ func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 		}
 
 		carFiles = append(carFiles, &carFile)
+		logs.GetLogger().Info("Car file ", carFile.CarFilePath, " created")
 	}
 
-	_, err = WriteCarFilesToFiles(carFiles, confCar.OutputDir, constants.JSON_FILE_NAME_BY_CAR, constants.CSV_FILE_NAME_BY_CAR, SUBCOMMAND_CAR)
+	logs.GetLogger().Info(len(carFiles), " car files have been created to directory:", confCar.OutputDir)
+
+	_, err = WriteFileDescsToJsonFile(carFiles, confCar.OutputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	logs.GetLogger().Info(len(carFiles), " car files have been created to directory:", confCar.OutputDir)
 	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
 
 	return carFiles, nil
