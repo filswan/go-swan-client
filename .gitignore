@@ -28,6 +28,7 @@ config/config.toml
 build/config/config.toml
 build/swan-client
 build/*
+build
 graphsplit
 go-swan-client
 test/car.csv
