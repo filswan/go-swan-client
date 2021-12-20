@@ -17,6 +17,19 @@ import (
 	"github.com/google/uuid"
 )
 
+func CreateTaskByConfig(inputDir string, outputDir *string, taskName, minerFid, dataset, description string) (*string, []*libmodel.FileDesc, []*Deal, error) {
+	confTask := model.GetConfTask(inputDir, outputDir, taskName, dataset, description)
+	confDeal := model.GetConfDeal(outputDir, minerFid, "")
+	jsonFileName, fileDescs, deals, err := CreateTask(confTask, confDeal)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, nil, nil, err
+	}
+	logs.GetLogger().Info("Task information is in:", *jsonFileName)
+
+	return jsonFileName, fileDescs, deals, nil
+}
+
 func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []*libmodel.FileDesc, []*Deal, error) {
 	if confTask == nil {
 		err := fmt.Errorf("parameter confTask is nil")
@@ -60,6 +73,9 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	isPublic := 0
 	if confTask.PublicDeal {
 		isPublic = 1
+		if confDeal.MinerFid != "" {
+			logs.GetLogger().Warn("miner fid is unnecessary for public task")
+		}
 	}
 
 	taskType := libconstants.TASK_TYPE_REGULAR
