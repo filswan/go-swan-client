@@ -26,9 +26,12 @@
 config/config.toml
 .vscode/launch.json
 build/config/config.toml
-build/go-swan-client
+build/swan-client
+build/*
+build
 graphsplit
 go-swan-client
 test/car.csv
 .DS_Store
 test/test.go
+build/swan-client
