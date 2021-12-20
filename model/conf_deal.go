@@ -87,7 +87,7 @@ func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string) *ConfDeal
 	return confDeal
 }
 
-func SetDealConfig4Autobid(confDeal *ConfDeal, task libmodel.Task, deal libmodel.OfflineDeal) error {
+func SetDealConfig4Autobid(confDeal *ConfDeal, deal libmodel.OfflineDeal) error {
 	if confDeal == nil {
 		err := fmt.Errorf("parameter confDeal is nil")
 		logs.GetLogger().Error(err)
@@ -96,31 +96,36 @@ func SetDealConfig4Autobid(confDeal *ConfDeal, task libmodel.Task, deal libmodel
 
 	confDeal.StartEpoch = int64(deal.StartEpoch) + confDeal.RelativeEpochFromMainNetwork
 
-	confDeal.MinerFid = task.MinerFid
+	confDeal.MinerFid = deal.MinerFid
 
-	if task.Type == "" {
+	if deal.TaskType == nil {
 		err := fmt.Errorf("task type missing")
 		logs.GetLogger().Error(err)
 		return err
 	}
-	confDeal.VerifiedDeal = task.Type == constants.TASK_TYPE_VERIFIED
+	confDeal.VerifiedDeal = *deal.TaskType == constants.TASK_TYPE_VERIFIED
 
-	if task.FastRetrieval == nil {
+	if deal.FastRetrieval == nil {
 		err := fmt.Errorf("task FastRetrieval missing")
 		logs.GetLogger().Error(err)
 		return err
 	}
 
-	confDeal.FastRetrieval = *task.FastRetrieval == constants.TASK_FAST_RETRIEVAL_YES
+	confDeal.FastRetrieval = *deal.FastRetrieval == constants.TASK_FAST_RETRIEVAL_YES
 
-	if task.MaxPrice == nil {
+	if deal.MaxPrice == nil {
 		err := fmt.Errorf("task MaxPrice missing")
 		logs.GetLogger().Error(err)
 		return err
 	}
-	confDeal.MaxPrice = *task.MaxPrice
+	confDeal.MaxPrice = *deal.MaxPrice
 
-	confDeal.Duration = task.Duration
+	if deal.Duration == nil {
+		err := fmt.Errorf("task Duration missing")
+		logs.GetLogger().Error(err)
+		return err
+	}
+	confDeal.Duration = *deal.Duration
 
 	confDeal.SkipConfirmation = true
 
