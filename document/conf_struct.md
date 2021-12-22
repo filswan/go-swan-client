@@ -84,6 +84,7 @@ type ConfDeal struct {
 	MetadataJsonPath             string          //required only for manual-bid deal
 	DealSourceIds                []int           //required
 	RelativeEpochFromMainNetwork int             //required
+	TransferType                 string          //required, offline deal:"manual"
 }
 ```
 
