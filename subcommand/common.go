@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/filswan/go-swan-client/model"
 	"github.com/shopspring/decimal"
@@ -94,6 +95,12 @@ func GetDefaultTaskName() string {
 func CheckDealConfig(confDeal *model.ConfDeal) error {
 	if confDeal == nil {
 		err := fmt.Errorf("parameter confDeal is nil")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if strings.Trim(confDeal.TransferType, " ") == "" {
+		err := fmt.Errorf("transfer type should be set")
 		logs.GetLogger().Error(err)
 		return err
 	}

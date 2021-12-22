@@ -36,6 +36,7 @@ type ConfDeal struct {
 	MetadataJsonPath             string          //required only for manual-bid deal
 	DealSourceIds                []int           //required
 	RelativeEpochFromMainNetwork int             //required
+	TransferType                 string          //required, offline deal:"manual"
 }
 
 func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string) *ConfDeal {
@@ -63,6 +64,7 @@ func GetConfDeal(outputDir *string, minerFid, metadataJsonPath string) *ConfDeal
 		MinerFid:                     minerFid,
 		MetadataJsonPath:             metadataJsonPath,
 		RelativeEpochFromMainNetwork: config.GetConfig().Sender.RelativeEpochFromMainNetwork,
+		TransferType:                 constants.LOTUS_TRANSFER_TYPE_MANUAL,
 	}
 
 	confDeal.DealSourceIds = append(confDeal.DealSourceIds, constants.TASK_SOURCE_ID_SWAN)
