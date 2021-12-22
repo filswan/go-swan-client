@@ -83,7 +83,7 @@ func SendAutoBidDeals(confDeal *model.ConfDeal) ([][]*libmodel.FileDesc, error) 
 
 	var tasksDeals [][]*libmodel.FileDesc
 	for _, assignedOfflineDeal := range assignedOfflineDeals {
-		updateOfflineDealParams, err := SendAutobidDeal(confDeal, &assignedOfflineDeal)
+		updateOfflineDealParams, err := SendAutobidDeal(confDeal, assignedOfflineDeal)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
