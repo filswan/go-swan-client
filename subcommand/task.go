@@ -59,7 +59,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 
 	logs.GetLogger().Info("you output dir: ", confTask.OutputDir)
 	if len(confTask.TaskName) == 0 {
-		taskName := GetDefaultTaskName()
+		taskName := utils.GetDefaultTaskName()
 		confTask.TaskName = taskName
 	}
 
@@ -73,8 +73,8 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	isPublic := 0
 	if confTask.PublicDeal {
 		isPublic = 1
-		if confDeal.MinerFid != "" {
-			logs.GetLogger().Warn("miner fid is unnecessary for public task")
+		if len(confDeal.MinerFids) > 0 {
+			logs.GetLogger().Warn("miner fids is unnecessary for public task")
 		}
 	}
 

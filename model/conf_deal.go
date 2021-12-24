@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/filswan/go-swan-client/config"
@@ -29,23 +30,20 @@ type ConfDeal struct {
 	FastRetrieval                bool            //required only for manual-bid deal
 	SkipConfirmation             bool            //required only for manual-bid deal
 	Duration                     int             //not necessary, when not provided use default value:1512000
-	MinerPrice                   decimal.Decimal //used internally, not need to provide
 	StartEpoch                   int64           //required only for manual-bid deal
-	StartEpochIntervalHours      int             //invalid
 	OutputDir                    string          //required
-	MinerFid                     string          //required only for manual-bid deal
+	MinerFids                    []string        //required only for manual-bid deal
 	MetadataJsonPath             string          //required only for manual-bid deal
 	DealSourceIds                []int           //required
 	RelativeEpochFromMainNetwork int64           //required
 }
 
-func GetConfDeal(outputDir *string, minerFid string, metadataJsonPath string) *ConfDeal {
+func GetConfDeal(outputDir *string, minerFids string, metadataJsonPath string) *ConfDeal {
 	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
 	startEpoch := int64(utils.GetCurrentEpoch())
 	startEpoch = startEpoch + config.GetConfig().Sender.RelativeEpochFromMainNetwork
-	logs.GetLogger().Info("current epoch:", startEpoch)
 	startEpoch = startEpoch + int64((startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR)
-	logs.GetLogger().Info("start epoch:", startEpoch)
+	logs.GetLogger().Info("current epoch:", startEpoch, ", start epoch:", startEpoch)
 
 	confDeal := &ConfDeal{
 		SwanApiUrlToken:              config.GetConfig().Main.SwanApiUrlToken,
@@ -59,10 +57,9 @@ func GetConfDeal(outputDir *string, minerFid string, metadataJsonPath string) *C
 		FastRetrieval:                config.GetConfig().Sender.FastRetrieval,
 		SkipConfirmation:             config.GetConfig().Sender.SkipConfirmation,
 		Duration:                     config.GetConfig().Sender.Duration,
-		StartEpochIntervalHours:      startEpochIntervalHours,
 		StartEpoch:                   startEpoch,
 		OutputDir:                    filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
-		MinerFid:                     minerFid,
+		MinerFids:                    strings.Split(minerFids, ","),
 		MetadataJsonPath:             metadataJsonPath,
 		RelativeEpochFromMainNetwork: config.GetConfig().Sender.RelativeEpochFromMainNetwork,
 	}
@@ -73,8 +70,6 @@ func GetConfDeal(outputDir *string, minerFid string, metadataJsonPath string) *C
 	if outputDir != nil && len(*outputDir) != 0 {
 		confDeal.OutputDir = *outputDir
 	}
-
-	//logs.GetLogger().Info(confDeal.OutputDir)
 
 	maxPriceStr := config.GetConfig().Sender.MaxPrice
 	maxPrice, err := decimal.NewFromString(maxPriceStr)
@@ -96,7 +91,7 @@ func SetDealConfig4Autobid(confDeal *ConfDeal, deal libmodel.OfflineDeal) error 
 
 	confDeal.StartEpoch = int64(deal.StartEpoch) + confDeal.RelativeEpochFromMainNetwork
 
-	confDeal.MinerFid = deal.MinerFid
+	confDeal.MinerFids = []string{deal.MinerFid}
 
 	if deal.TaskType == nil {
 		err := fmt.Errorf("task type missing")

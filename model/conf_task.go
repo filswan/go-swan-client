@@ -35,7 +35,6 @@ type ConfTask struct {
 	Dataset                    string          //not necessary
 	Description                string          //not necessary
 	StartEpoch                 int64           //required
-	StartEpochIntervalHours    int             //invalid
 	SourceId                   int             //required
 }
 
@@ -63,7 +62,6 @@ func GetConfTask(inputDir string, outputDir *string, taskName, dataset, descript
 		TaskName:                   taskName,
 		Dataset:                    dataset,
 		Description:                description,
-		StartEpochIntervalHours:    startEpochIntervalHours,
 		StartEpoch:                 startEpoch,
 		SourceId:                   constants.TASK_SOURCE_ID_SWAN_CLIENT,
 	}

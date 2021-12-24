@@ -6,9 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/filswan/go-swan-client/model"
-	"github.com/shopspring/decimal"
 
-	"github.com/filswan/go-swan-lib/client/lotus"
 	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
@@ -33,10 +31,6 @@ const (
 )
 
 func CheckDuration(duration int, startEpoch, relativeEpochFromMainNetwork int64) error {
-	if duration == 0 {
-		return nil
-	}
-
 	if duration < DURATION_MIN || duration > DURATION_MAX {
 		err := fmt.Errorf("deal duration out of bounds (min, max, provided): %d, %d, %d", DURATION_MIN, DURATION_MAX, duration)
 		logs.GetLogger().Error(err)
@@ -56,14 +50,6 @@ func CheckDuration(duration int, startEpoch, relativeEpochFromMainNetwork int64)
 	return nil
 }
 
-func GetDealCost(pricePerEpoch decimal.Decimal, duration int) string {
-	durationDecimal := decimal.NewFromInt(int64(duration))
-	cost := pricePerEpoch.Mul(durationDecimal)
-	cost = cost.Mul(decimal.NewFromFloat(libconstants.LOTUS_PRICE_MULTIPLE_1E18))
-
-	return cost.String()
-}
-
 func IsTaskSourceRight(confDeal *model.ConfDeal, task libmodel.Task) bool {
 	if confDeal == nil {
 		return false
@@ -80,74 +66,6 @@ func IsTaskSourceRight(confDeal *model.ConfDeal, task libmodel.Task) bool {
 	}
 
 	return false
-}
-
-func GetDefaultTaskName() string {
-	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz0123456789")
-	randStr := utils.RandStringRunes(letterRunes, 6)
-	taskName := "swan-task-" + randStr
-	return taskName
-}
-
-func CheckDealConfig(confDeal *model.ConfDeal, dealConfig *libmodel.DealConfig) error {
-	if confDeal == nil {
-		err := fmt.Errorf("parameter confDeal is nil")
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	if dealConfig == nil {
-		err := fmt.Errorf("parameter dealConfig is nil")
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	if confDeal.SenderWallet == "" {
-		err := fmt.Errorf("wallet should be set")
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	lotusClient, err := lotus.LotusGetClient(confDeal.LotusClientApiUrl, confDeal.LotusClientAccessToken)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	minerConfig, err := lotusClient.LotusClientQueryAsk(dealConfig.MinerFid)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	var e18 decimal.Decimal = decimal.NewFromFloat(libconstants.LOTUS_PRICE_MULTIPLE_1E18)
-
-	if confDeal.VerifiedDeal {
-		confDeal.MinerPrice = minerConfig.VerifiedPrice.Div(e18)
-	} else {
-		confDeal.MinerPrice = minerConfig.Price.Div(e18)
-	}
-	logs.GetLogger().Info("miner:", confDeal.MinerFid, ",price is:", confDeal.MinerPrice)
-
-	priceCmp := confDeal.MaxPrice.Cmp(confDeal.MinerPrice)
-	if priceCmp < 0 {
-		logs.GetLogger().Info("Miner price is:", confDeal.MinerPrice, " MaxPrice:", confDeal.MaxPrice, " VerifiedDeal:", confDeal.VerifiedDeal)
-		err := fmt.Errorf("miner price is higher than deal max price")
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	if confDeal.Duration == 0 {
-		confDeal.Duration = DURATION
-	}
-
-	err = CheckDuration(confDeal.Duration, confDeal.StartEpoch, confDeal.RelativeEpochFromMainNetwork)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	return nil
 }
 
 func CheckInputDir(inputDir string) error {

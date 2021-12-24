@@ -1,7 +1,6 @@
 package subcommand
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/filswan/go-swan-client/model"
@@ -110,57 +109,51 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 		return nil, err
 	}
 
+	lotusClient, err := lotus.LotusGetClient(confDeal.LotusClientApiUrl, confDeal.LotusClientAccessToken)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	dealSentNum := 0
 	for _, fileDesc := range fileDescs {
 		if fileDesc.CarFileSize <= 0 {
 			logs.GetLogger().Error("File:" + fileDesc.CarFilePath + " %s is too small")
 			continue
 		}
+		dealConfig := libmodel.DealConfig{
+			VerifiedDeal:     confDeal.VerifiedDeal,
+			FastRetrieval:    confDeal.FastRetrieval,
+			SkipConfirmation: confDeal.SkipConfirmation,
+			MaxPrice:         confDeal.MaxPrice,
+			StartEpoch:       confDeal.StartEpoch,
+			//MinerFid:         confDeal.MinerFid,
+			SenderWallet: confDeal.SenderWallet,
+			Duration:     int(confDeal.Duration),
+			TransferType: libconstants.LOTUS_TRANSFER_TYPE_MANUAL,
+			PayloadCid:   fileDesc.PayloadCid,
+			PieceCid:     fileDesc.PieceCid,
+			FileSize:     fileDesc.CarFileSize,
+		}
 
-		if len(fileDesc.Deals) == 0 {
-			if confDeal.MinerFid != "" {
-				fileDesc.Deals = []*libmodel.DealInfo{}
-				deal := &libmodel.DealInfo{
-					MinerFid: confDeal.MinerFid,
-				}
-				fileDesc.Deals = append(fileDesc.Deals, deal)
-			} else {
-				err := fmt.Errorf("miner is required, you can set in command line or in metadata json file")
-				logs.GetLogger().Error(err)
-				return nil, err
+		if len(confDeal.MinerFids) == 0 {
+			confDeal.MinerFids = []string{}
+			for _, deal := range fileDesc.Deals {
+				confDeal.MinerFids = append(confDeal.MinerFids, deal.MinerFid)
 			}
 		}
 
-		for _, deal := range fileDesc.Deals {
-			dealConfig := libmodel.DealConfig{
-				VerifiedDeal:     confDeal.VerifiedDeal,
-				FastRetrieval:    confDeal.FastRetrieval,
-				SkipConfirmation: confDeal.SkipConfirmation,
-				MinerPrice:       confDeal.MinerPrice,
-				StartEpoch:       int(confDeal.StartEpoch),
-				MinerFid:         confDeal.MinerFid,
-				SenderWallet:     confDeal.SenderWallet,
-				Duration:         int(confDeal.Duration),
-				TransferType:     libconstants.LOTUS_TRANSFER_TYPE_MANUAL,
-				PayloadCid:       fileDesc.PayloadCid,
-				PieceCid:         fileDesc.PieceCid,
-				FileSize:         fileDesc.CarFileSize,
-			}
+		if len(confDeal.MinerFids) == 0 {
+			err := fmt.Errorf("miner is required, you can set in command line or in metadata json file")
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
 
-			err := CheckDealConfig(confDeal, &dealConfig)
-			if err != nil {
-				err := errors.New("failed to pass deal config check")
-				logs.GetLogger().Error(err)
-				return nil, err
-			}
+		deals := []*libmodel.DealInfo{}
+		for _, minerFid := range confDeal.MinerFids {
+			dealConfig.MinerFid = minerFid
 
-			lotusClient, err := lotus.LotusGetClient(confDeal.LotusClientApiUrl, confDeal.LotusClientAccessToken)
-			if err != nil {
-				logs.GetLogger().Error(err)
-				return nil, err
-			}
-
-			dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(dealConfig, 0)
+			dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(&dealConfig, 0)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				continue
@@ -168,20 +161,24 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 			if dealCid == nil {
 				continue
 			}
-			deal.MinerFid = confDeal.MinerFid
-			deal.DealCid = *dealCid
-			deal.StartEpoch = *startEpoch
 
+			deal := &libmodel.DealInfo{
+				MinerFid:   dealConfig.MinerFid,
+				DealCid:    *dealCid,
+				StartEpoch: int(*startEpoch),
+			}
+			deals = append(deals, deal)
 			dealSentNum = dealSentNum + 1
-			logs.GetLogger().Info("task:", taskName, ", deal CID:", deal.DealCid, ", start epoch:", *fileDesc.StartEpoch, ", deal sent to ", confDeal.MinerFid, " successfully")
+			logs.GetLogger().Info("deal sent successfully, task:", taskName, ", car file:", fileDesc.CarFilePath, ", deal CID:", deal.DealCid, ", start epoch:", deal.StartEpoch, ", miner:", deal.MinerFid)
 		}
 
+		fileDesc.Deals = deals
 	}
 
 	logs.GetLogger().Info(dealSentNum, " deal(s) has(ve) been sent for task:", taskName)
 
 	jsonFileName := taskName + constants.JSON_FILE_NAME_DEAL
-	_, err := WriteFileDescsToJsonFile(fileDescs, outputDir, jsonFileName)
+	_, err = WriteFileDescsToJsonFile(fileDescs, outputDir, jsonFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
