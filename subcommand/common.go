@@ -30,26 +30,6 @@ const (
 	SUBCOMMAND_AUTO    = "auto"
 )
 
-func CheckDuration(duration int, startEpoch, relativeEpochFromMainNetwork int64) error {
-	if duration < DURATION_MIN || duration > DURATION_MAX {
-		err := fmt.Errorf("deal duration out of bounds (min, max, provided): %d, %d, %d", DURATION_MIN, DURATION_MAX, duration)
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	currentEpoch := int64(utils.GetCurrentEpoch()) + relativeEpochFromMainNetwork
-	endEpoch := startEpoch + (int64)(duration)
-
-	epoch2EndfromNow := endEpoch - currentEpoch
-	if epoch2EndfromNow >= DURATION_MAX {
-		err := fmt.Errorf("invalid deal end epoch %d: cannot be more than %d past current epoch %d", endEpoch, DURATION_MAX, currentEpoch)
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	return nil
-}
-
 func IsTaskSourceRight(confDeal *model.ConfDeal, task libmodel.Task) bool {
 	if confDeal == nil {
 		return false

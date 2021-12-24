@@ -18,6 +18,7 @@ type ConfTask struct {
 	SwanApiKey                 string          //required when OfflineMode is false and SwanJwtToken is not provided
 	SwanAccessToken            string          //required when OfflineMode is false and SwanJwtToken is not provided
 	SwanToken                  string          //required when OfflineMode is false and SwanApiKey & SwanAccessToken are not provided
+	LotusClientApiUrl          string          //required
 	PublicDeal                 bool            //required
 	BidMode                    int             //required
 	VerifiedDeal               bool            //required
@@ -47,6 +48,7 @@ func GetConfTask(inputDir string, outputDir *string, taskName, dataset, descript
 		SwanApiUrl:                 config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:                 config.GetConfig().Main.SwanApiKey,
 		SwanAccessToken:            config.GetConfig().Main.SwanAccessToken,
+		LotusClientApiUrl:          config.GetConfig().Lotus.ClientApiUrl,
 		PublicDeal:                 config.GetConfig().Sender.PublicDeal,
 		BidMode:                    config.GetConfig().Sender.BidMode,
 		VerifiedDeal:               config.GetConfig().Sender.VerifiedDeal,

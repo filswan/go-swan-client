@@ -9,6 +9,7 @@ import (
 	"github.com/codingsince1985/checksum"
 	"github.com/filswan/go-swan-lib/logs"
 
+	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/client/swan"
 	libconstants "github.com/filswan/go-swan-lib/constants"
 	libmodel "github.com/filswan/go-swan-lib/model"
@@ -45,7 +46,13 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		}
 	}
 
-	err := CheckInputDir(confTask.InputDir)
+	lotusClient, err := lotus.LotusGetClient(confDeal.LotusClientApiUrl, confDeal.LotusClientAccessToken)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, nil, nil, err
+	}
+
+	err = CheckInputDir(confTask.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
@@ -87,7 +94,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		confTask.Duration = DURATION
 	}
 
-	err = CheckDuration(confTask.Duration, confTask.StartEpoch, 0)
+	err = lotusClient.CheckDuration(confTask.Duration, confTask.StartEpoch)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
