@@ -23,7 +23,6 @@ type lotus struct {
 }
 
 type main struct {
-	SwanApiUrlToken   string `toml:"api_url_token"`
 	SwanApiUrl        string `toml:"api_url"`
 	SwanApiKey        string `toml:"api_key"`
 	SwanAccessToken   string `toml:"access_token"`
@@ -92,7 +91,6 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"lotus", "client_api_url"},
 		{"lotus", "client_access_token"},
 
-		{"main", "api_url_token"},
 		{"main", "api_url"},
 		{"main", "api_key"},
 		{"main", "access_token"},

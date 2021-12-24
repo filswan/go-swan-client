@@ -12,7 +12,6 @@ import (
 )
 
 type ConfTask struct {
-	SwanApiUrlToken            string          //required
 	SwanApiUrl                 string          //required when OfflineMode is false
 	SwanApiKey                 string          //required when OfflineMode is false and SwanJwtToken is not provided
 	SwanAccessToken            string          //required when OfflineMode is false and SwanJwtToken is not provided
@@ -40,7 +39,6 @@ type ConfTask struct {
 
 func GetConfTask(inputDir string, outputDir *string, taskName, dataset, description string) *ConfTask {
 	confTask := &ConfTask{
-		SwanApiUrlToken:            config.GetConfig().Main.SwanApiUrlToken,
 		SwanApiUrl:                 config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:                 config.GetConfig().Main.SwanApiKey,
 		SwanAccessToken:            config.GetConfig().Main.SwanAccessToken,

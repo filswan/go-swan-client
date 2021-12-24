@@ -14,7 +14,6 @@ import (
 )
 
 type ConfDeal struct {
-	SwanApiUrlToken        string          //required
 	SwanApiUrl             string          //required
 	SwanApiKey             string          //required when SwanJwtToken is not provided
 	SwanAccessToken        string          //required when SwanJwtToken is not provided
@@ -36,7 +35,6 @@ type ConfDeal struct {
 
 func GetConfDeal(outputDir *string, minerFids string, metadataJsonPath string) *ConfDeal {
 	confDeal := &ConfDeal{
-		SwanApiUrlToken:        config.GetConfig().Main.SwanApiUrlToken,
 		SwanApiUrl:             config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:             config.GetConfig().Main.SwanApiKey,
 		SwanAccessToken:        config.GetConfig().Main.SwanAccessToken,
