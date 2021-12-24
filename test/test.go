@@ -18,7 +18,7 @@ func TestCreateTask() {
 		logs.GetLogger().Error(err)
 		return
 	}
-	inputDir := filepath.Join(homeDir, "work/carFiles")
+	inputDir := filepath.Join(homeDir, "work/srcFiles")
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
 	subcommand.CreateTaskByConfig(inputDir, &outDir, "", "", "", "")
