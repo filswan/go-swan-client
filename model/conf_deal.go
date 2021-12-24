@@ -49,8 +49,13 @@ func GetConfDeal(outputDir *string, minerFids string, metadataJsonPath string) *
 		Duration:               config.GetConfig().Sender.Duration,
 		StartEpochHours:        config.GetConfig().Sender.StartEpochHours,
 		OutputDir:              filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
-		MinerFids:              strings.Split(minerFids, ","),
+		MinerFids:              []string{},
 		MetadataJsonPath:       metadataJsonPath,
+	}
+
+	minerFids = strings.Trim(minerFids, " ")
+	if minerFids != "" {
+		confDeal.MinerFids = strings.Split(minerFids, ",")
 	}
 
 	confDeal.DealSourceIds = append(confDeal.DealSourceIds, constants.TASK_SOURCE_ID_SWAN)
