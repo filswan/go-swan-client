@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-client/test"
 
 	"github.com/filswan/go-swan-client/subcommand"
 
@@ -13,8 +13,8 @@ import (
 )
 
 func main() {
-	execSubCmd()
-	//test.Test()
+	//execSubCmd()
+	test.Test()
 }
 
 func execSubCmd() error {
@@ -72,31 +72,18 @@ func createCarFile(subCmd string) error {
 		return err
 	}
 
-	confCar := model.GetConfCar(*inputDir, outputDir)
-
 	switch subCmd {
 	case subcommand.SUBCOMMAND_CAR:
-		_, err := subcommand.CreateCarFiles(confCar)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return err
-		}
-		//logs.GetLogger().Info(len(carFiles), " car files generated to directory:", *outputDir)
+		_, err = subcommand.CreateCarFilesByConfig(*inputDir, outputDir)
 	case subcommand.SUBCOMMAND_GOCAR:
-		_, err := subcommand.CreateGoCarFiles(confCar)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return err
-		}
+		_, err = subcommand.CreateGoCarFilesByConfig(*inputDir, outputDir)
 	case subcommand.SUBCOMMAND_IPFSCAR:
-		_, err := subcommand.CreateIpfsCarFiles(confCar)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return err
-		}
-		//logs.GetLogger().Info(len(carFiles), " gocar files generated to directory:", *outputDir)
+		_, err = subcommand.CreateIpfsCarFilesByConfig(*inputDir, outputDir)
 	default:
-		err := fmt.Errorf("unknown sub command:%s", subCmd)
+		err = fmt.Errorf("unknown sub command:%s", subCmd)
+	}
+
+	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
 	}
@@ -104,7 +91,6 @@ func createCarFile(subCmd string) error {
 	return nil
 }
 
-//python3 swan_cli.py upload --input-dir /home/peware/testGoSwanProvider/output
 func uploadFile() error {
 	cmd := flag.NewFlagSet(subcommand.SUBCOMMAND_UPLOAD, flag.ExitOnError)
 
@@ -128,9 +114,7 @@ func uploadFile() error {
 		return err
 	}
 
-	confUpload := model.GetConfUpload(*inputDir)
-
-	_, err = subcommand.UploadCarFiles(confUpload)
+	_, err = subcommand.UploadCarFilesByConfig(*inputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -139,7 +123,6 @@ func uploadFile() error {
 	return nil
 }
 
-//python3 swan_cli.py task --input-dir /home/peware/testGoSwanProvider/output --out-dir /home/peware/testGoSwanProvider/task --miner t03354 --dataset test --description test
 func createTask() error {
 	cmd := flag.NewFlagSet(subcommand.SUBCOMMAND_TASK, flag.ExitOnError)
 

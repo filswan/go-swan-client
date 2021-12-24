@@ -14,6 +14,18 @@ import (
 	"github.com/filswan/go-swan-lib/utils"
 )
 
+func UploadCarFilesByConfig(inputDir string) ([]*libmodel.FileDesc, error) {
+	confUpload := model.GetConfUpload(inputDir)
+
+	fileDescs, err := UploadCarFiles(confUpload)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return fileDescs, nil
+}
+
 func UploadCarFiles(confUpload *model.ConfUpload) ([]*libmodel.FileDesc, error) {
 	err := CheckInputDir(confUpload.InputDir)
 	if err != nil {

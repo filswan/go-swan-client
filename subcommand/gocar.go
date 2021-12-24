@@ -21,6 +21,17 @@ import (
 	libmodel "github.com/filswan/go-swan-lib/model"
 )
 
+func CreateGoCarFilesByConfig(inputDir string, outputDir *string) ([]*libmodel.FileDesc, error) {
+	confCar := model.GetConfCar(inputDir, outputDir)
+	fileDescs, err := CreateGoCarFiles(confCar)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return fileDescs, nil
+}
+
 func CreateGoCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 	if confCar == nil {
 		err := fmt.Errorf("parameter confCar is nil")
