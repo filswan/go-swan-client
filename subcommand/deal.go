@@ -93,7 +93,7 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	_, err = swanClient.UpdateTaskAfterSendDealByUuid(task.Data.Task, fileDescs)
+	_, err = swanClient.CreateOfflineDeals(fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
