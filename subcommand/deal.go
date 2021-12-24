@@ -12,7 +12,6 @@ import (
 	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
-	"github.com/filswan/go-swan-lib/utils"
 )
 
 func SendDealsByConfig(outputDir, minerFid, metadataJsonPath string) ([]*libmodel.FileDesc, error) {
@@ -52,7 +51,7 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	swanClient, err := swan.GetClient(confDeal.SwanApiUrlToken, confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
+	swanClient, err := swan.GetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -133,11 +132,22 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 		}
 
 		for _, deal := range fileDesc.Deals {
-			pieceSize, sectorSize := utils.CalculatePieceSize(fileDesc.CarFileSize)
-			cost := utils.CalculateRealCost(sectorSize, confDeal.MinerPrice)
-			dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, int(confDeal.StartEpoch), int(confDeal.Duration), deal.MinerFid, confDeal.SenderWallet)
+			dealConfig := libmodel.DealConfig{
+				VerifiedDeal:     confDeal.VerifiedDeal,
+				FastRetrieval:    confDeal.FastRetrieval,
+				SkipConfirmation: confDeal.SkipConfirmation,
+				MinerPrice:       confDeal.MinerPrice,
+				StartEpoch:       int(confDeal.StartEpoch),
+				MinerFid:         confDeal.MinerFid,
+				SenderWallet:     confDeal.SenderWallet,
+				Duration:         int(confDeal.Duration),
+				TransferType:     libconstants.LOTUS_TRANSFER_TYPE_MANUAL,
+				PayloadCid:       fileDesc.PayloadCid,
+				PieceCid:         fileDesc.PieceCid,
+				FileSize:         fileDesc.CarFileSize,
+			}
 
-			err := CheckDealConfig(confDeal, dealConfig)
+			err := CheckDealConfig(confDeal, &dealConfig)
 			if err != nil {
 				err := errors.New("failed to pass deal config check")
 				logs.GetLogger().Error(err)
@@ -150,7 +160,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 				return nil, err
 			}
 
-			dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(fileDesc.PayloadCid, fileDesc.PieceCid, cost, pieceSize, *dealConfig, 0)
+			dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(dealConfig, 0)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				continue

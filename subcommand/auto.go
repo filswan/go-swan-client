@@ -13,7 +13,6 @@ import (
 	"github.com/filswan/go-swan-lib/client/swan"
 	libconstants "github.com/filswan/go-swan-lib/constants"
 	libmodel "github.com/filswan/go-swan-lib/model"
-	"github.com/filswan/go-swan-lib/utils"
 )
 
 func SendAutoBidDealsLoopByConfig(outputDir string) error {
@@ -61,16 +60,15 @@ func SendAutoBidDeals(confDeal *model.ConfDeal) ([][]*libmodel.FileDesc, error) 
 
 	logs.GetLogger().Info("output dir is:", confDeal.OutputDir)
 
-	swanClient, err := swan.GetClient(confDeal.SwanApiUrlToken, confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
+	swanClient, err := swan.GetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	params := swan.GetOfflineDealsByStatusParams{
-		DealStatus: libconstants.OFFLINE_DEAL_STATUS_ASSIGNED,
-	}
-	assignedOfflineDeals, err := swanClient.GetOfflineDealsByStatus(params)
+	sourceId := libconstants.TASK_SOURCE_ID_SWAN_CLIENT
+	dealStatus := libconstants.OFFLINE_DEAL_STATUS_ASSIGNED
+	assignedOfflineDeals, err := swanClient.GetOfflineDealsByStatus(dealStatus, nil, &sourceId, nil, nil)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -117,20 +115,25 @@ func SendAutobidDeal(confDeal *model.ConfDeal, offlineDeal *libmodel.OfflineDeal
 		return nil, err
 	}
 
-	fileSizeInt := utils.GetInt64FromStr(offlineDeal.FileSize)
-	if fileSizeInt <= 0 {
-		err := fmt.Errorf("invalid file size")
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-	pieceSize, sectorSize := utils.CalculatePieceSize(fileSizeInt)
-	cost := utils.CalculateRealCost(sectorSize, confDeal.MinerPrice)
 	for i := 0; i < 60; i++ {
 		msg := fmt.Sprintf("send deal for task:%s, deal:%d", *offlineDeal.TaskUuid, offlineDeal.Id)
 		logs.GetLogger().Info(msg)
-		dealConfig := libmodel.GetDealConfig(confDeal.VerifiedDeal, confDeal.FastRetrieval, confDeal.SkipConfirmation, confDeal.MinerPrice, int(confDeal.StartEpoch), int(confDeal.Duration), confDeal.MinerFid, confDeal.SenderWallet)
+		dealConfig := libmodel.DealConfig{
+			VerifiedDeal:     confDeal.VerifiedDeal,
+			FastRetrieval:    confDeal.FastRetrieval,
+			SkipConfirmation: confDeal.SkipConfirmation,
+			MinerPrice:       confDeal.MinerPrice,
+			StartEpoch:       int(confDeal.StartEpoch),
+			MinerFid:         confDeal.MinerFid,
+			SenderWallet:     confDeal.SenderWallet,
+			Duration:         int(confDeal.Duration),
+			TransferType:     libconstants.LOTUS_TRANSFER_TYPE_MANUAL,
+			PayloadCid:       offlineDeal.PayloadCid,
+			PieceCid:         offlineDeal.PieceCid,
+			FileSize:         offlineDeal.CarFileSize,
+		}
 
-		err = CheckDealConfig(confDeal, dealConfig)
+		err = CheckDealConfig(confDeal, &dealConfig)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
@@ -142,7 +145,7 @@ func SendAutobidDeal(confDeal *model.ConfDeal, offlineDeal *libmodel.OfflineDeal
 			return nil, err
 		}
 
-		dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(offlineDeal.PayloadCid, offlineDeal.PieceCid, cost, pieceSize, *dealConfig, i)
+		dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(dealConfig, i)
 		if err != nil {
 			logs.GetLogger().Error("tried ", i, " times,", err)
 
