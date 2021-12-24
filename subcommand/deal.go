@@ -121,20 +121,23 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 			logs.GetLogger().Error("File:" + fileDesc.CarFilePath + " %s is too small")
 			continue
 		}
+
+		currentEpoch := lotusClient.LotusGetCurrentEpoch()
 		dealConfig := libmodel.DealConfig{
 			VerifiedDeal:     confDeal.VerifiedDeal,
 			FastRetrieval:    confDeal.FastRetrieval,
 			SkipConfirmation: confDeal.SkipConfirmation,
 			MaxPrice:         confDeal.MaxPrice,
-			StartEpoch:       confDeal.StartEpoch,
-			//MinerFid:         confDeal.MinerFid,
-			SenderWallet: confDeal.SenderWallet,
-			Duration:     int(confDeal.Duration),
-			TransferType: libconstants.LOTUS_TRANSFER_TYPE_MANUAL,
-			PayloadCid:   fileDesc.PayloadCid,
-			PieceCid:     fileDesc.PieceCid,
-			FileSize:     fileDesc.CarFileSize,
+			StartEpoch:       currentEpoch + int64(confDeal.StartEpochHours+libconstants.EPOCH_PER_HOUR),
+			SenderWallet:     confDeal.SenderWallet,
+			Duration:         int(confDeal.Duration),
+			TransferType:     libconstants.LOTUS_TRANSFER_TYPE_MANUAL,
+			PayloadCid:       fileDesc.PayloadCid,
+			PieceCid:         fileDesc.PieceCid,
+			FileSize:         fileDesc.CarFileSize,
 		}
+
+		logs.GetLogger().Info("File:", fileDesc.CarFilePath, ",current epoch:", currentEpoch, ", start epoch:", dealConfig.StartEpoch)
 
 		if len(confDeal.MinerFids) == 0 {
 			confDeal.MinerFids = []string{}

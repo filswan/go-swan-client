@@ -8,7 +8,6 @@ import (
 
 	"github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
-	"github.com/filswan/go-swan-lib/utils"
 	"github.com/shopspring/decimal"
 )
 
@@ -35,14 +34,11 @@ type ConfTask struct {
 	TaskName                   string          //not necessary, when not provided use default value:swan_task_xxxxxx
 	Dataset                    string          //not necessary
 	Description                string          //not necessary
-	StartEpoch                 int64           //required
+	StartEpochHours            int             //required
 	SourceId                   int             //required
 }
 
 func GetConfTask(inputDir string, outputDir *string, taskName, dataset, description string) *ConfTask {
-	startEpochIntervalHours := config.GetConfig().Sender.StartEpochHours
-	startEpoch := int64(utils.GetCurrentEpoch() + (startEpochIntervalHours+1)*constants.EPOCH_PER_HOUR)
-
 	confTask := &ConfTask{
 		SwanApiUrlToken:            config.GetConfig().Main.SwanApiUrlToken,
 		SwanApiUrl:                 config.GetConfig().Main.SwanApiUrl,
@@ -64,7 +60,7 @@ func GetConfTask(inputDir string, outputDir *string, taskName, dataset, descript
 		TaskName:                   taskName,
 		Dataset:                    dataset,
 		Description:                description,
-		StartEpoch:                 startEpoch,
+		StartEpochHours:            config.GetConfig().Sender.StartEpochHours,
 		SourceId:                   constants.TASK_SOURCE_ID_SWAN_CLIENT,
 	}
 

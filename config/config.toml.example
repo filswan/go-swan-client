@@ -31,4 +31,3 @@ start_epoch_hours = 96
 expire_days = 4
 gocar_file_size_limit=8589934592
 duration = 1051200    # Duration is expressed in blocks (1 block is equivalent to 30s).
-relative_epoch_from_main_network = 0 # Your network current epoch - main network current epoch

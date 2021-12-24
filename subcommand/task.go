@@ -94,7 +94,10 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		confTask.Duration = DURATION
 	}
 
-	err = lotusClient.CheckDuration(confTask.Duration, confTask.StartEpoch)
+	currentEpoch := lotusClient.LotusGetCurrentEpoch()
+	startEpoch := currentEpoch + int64(confDeal.StartEpochHours+libconstants.EPOCH_PER_HOUR)
+
+	err = lotusClient.CheckDuration(confTask.Duration, startEpoch)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
@@ -123,7 +126,7 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 
 	for _, fileDesc := range fileDescs {
 		fileDesc.Uuid = task.Uuid
-		fileDesc.StartEpoch = &confTask.StartEpoch
+		fileDesc.StartEpoch = &startEpoch
 		fileDesc.SourceId = &confTask.SourceId
 
 		if confTask.StorageServerType == libconstants.STORAGE_SERVER_TYPE_WEB_SERVER {

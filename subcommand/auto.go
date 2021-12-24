@@ -112,21 +112,39 @@ func sendAutobidDeal(confDeal *model.ConfDeal, offlineDeal *libmodel.OfflineDeal
 		return nil, nil
 	}
 
-	err := model.SetDealConfig4Autobid(confDeal, *offlineDeal)
-	if err != nil {
+	if offlineDeal.TaskType == nil {
+		err := fmt.Errorf("task type is nil")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if offlineDeal.FastRetrieval == nil {
+		err := fmt.Errorf("FastRetrieval is nil")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if offlineDeal.MaxPrice == nil {
+		err := fmt.Errorf("MaxPrice is nil")
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	if offlineDeal.Duration == nil {
+		err := fmt.Errorf("duration is nil")
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
 	dealConfig := libmodel.DealConfig{
-		VerifiedDeal:     confDeal.VerifiedDeal,
-		FastRetrieval:    confDeal.FastRetrieval,
-		SkipConfirmation: confDeal.SkipConfirmation,
-		MaxPrice:         confDeal.MaxPrice,
-		StartEpoch:       confDeal.StartEpoch,
+		VerifiedDeal:     *offlineDeal.TaskType == libconstants.TASK_TYPE_VERIFIED,
+		FastRetrieval:    *offlineDeal.FastRetrieval == libconstants.TASK_FAST_RETRIEVAL_YES,
+		SkipConfirmation: true,
+		MaxPrice:         *offlineDeal.MaxPrice,
+		StartEpoch:       int64(offlineDeal.StartEpoch),
 		MinerFid:         offlineDeal.MinerFid,
 		SenderWallet:     confDeal.SenderWallet,
-		Duration:         int(confDeal.Duration),
+		Duration:         int(*offlineDeal.Duration),
 		TransferType:     libconstants.LOTUS_TRANSFER_TYPE_MANUAL,
 		PayloadCid:       offlineDeal.PayloadCid,
 		PieceCid:         offlineDeal.PieceCid,
