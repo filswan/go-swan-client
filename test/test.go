@@ -9,7 +9,8 @@ import (
 )
 
 func Test() {
-	TestCreateTask()
+	TestCreateCarFiles()
+	//TestCreateTask()
 }
 
 func TestCreateCarFiles() {
@@ -46,6 +47,17 @@ func TestCreateIpfsCarFiles() {
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
 	subcommand.CreateCarFilesByConfig(inputDir, &outDir)
+}
+
+func TestUpload() {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
+	inputDir := filepath.Join(homeDir, "work/carFiles")
+
+	subcommand.UploadCarFilesByConfig(inputDir)
 }
 
 func TestCreateTask() {
