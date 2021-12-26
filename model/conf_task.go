@@ -35,6 +35,7 @@ type ConfTask struct {
 	Description                string          //not necessary
 	StartEpochHours            int             //required
 	SourceId                   int             //required
+	MaxAutoBidCopyNumber       int             //required only for public autobid deal
 }
 
 func GetConfTask(inputDir string, outputDir *string, taskName, dataset, description string) *ConfTask {
@@ -60,6 +61,7 @@ func GetConfTask(inputDir string, outputDir *string, taskName, dataset, descript
 		Description:                description,
 		StartEpochHours:            config.GetConfig().Sender.StartEpochHours,
 		SourceId:                   constants.TASK_SOURCE_ID_SWAN_CLIENT,
+		MaxAutoBidCopyNumber:       config.GetConfig().Sender.MaxAutoBidCopyNumber,
 	}
 
 	if outputDir != nil && len(*outputDir) != 0 {

@@ -110,18 +110,19 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 
 	uuid := uuid.NewString()
 	task := libmodel.Task{
-		TaskName:       confTask.TaskName,
-		FastRetrieval:  &fastRetrieval,
-		Type:           taskType,
-		IsPublic:       &isPublic,
-		MaxPrice:       &confTask.MaxPrice,
-		BidMode:        &confTask.BidMode,
-		ExpireDays:     &confTask.ExpireDays,
-		Uuid:           uuid,
-		SourceId:       confTask.SourceId,
-		Duration:       confTask.Duration,
-		CuratedDataset: confTask.Dataset,
-		Description:    confTask.Description,
+		TaskName:             confTask.TaskName,
+		FastRetrieval:        &fastRetrieval,
+		Type:                 taskType,
+		IsPublic:             &isPublic,
+		MaxPrice:             &confTask.MaxPrice,
+		BidMode:              &confTask.BidMode,
+		ExpireDays:           &confTask.ExpireDays,
+		Uuid:                 uuid,
+		SourceId:             confTask.SourceId,
+		Duration:             confTask.Duration,
+		CuratedDataset:       confTask.Dataset,
+		Description:          confTask.Description,
+		MaxAutoBidCopyNumber: confTask.MaxAutoBidCopyNumber,
 	}
 
 	for _, fileDesc := range fileDescs {
