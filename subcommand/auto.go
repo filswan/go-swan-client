@@ -161,7 +161,10 @@ func sendAutobidDeal(confDeal *model.ConfDeal, offlineDeal *libmodel.OfflineDeal
 	}
 
 	for i := 0; i < 60; i++ {
-		dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(&dealConfig, i)
+		//change start epoch to ensure that the deal cid is different
+		dealConfig.StartEpoch = dealConfig.StartEpoch - (int64)(i)
+
+		dealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
 		if err != nil {
 			logs.GetLogger().Error("tried ", i+1, " times,", err)
 
@@ -179,7 +182,7 @@ func sendAutobidDeal(confDeal *model.ConfDeal, offlineDeal *libmodel.OfflineDeal
 		dealInfo := &libmodel.DealInfo{
 			MinerFid:   offlineDeal.MinerFid,
 			DealCid:    *dealCid,
-			StartEpoch: int(*startEpoch),
+			StartEpoch: int(dealConfig.StartEpoch),
 		}
 
 		updateOfflineDealParams := swan.UpdateOfflineDealParams{

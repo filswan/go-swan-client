@@ -156,7 +156,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 		for _, minerFid := range confDeal.MinerFids {
 			dealConfig.MinerFid = minerFid
 
-			dealCid, startEpoch, err := lotusClient.LotusClientStartDeal(&dealConfig, 0)
+			dealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				continue
@@ -168,7 +168,7 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 			deal := &libmodel.DealInfo{
 				MinerFid:   dealConfig.MinerFid,
 				DealCid:    *dealCid,
-				StartEpoch: int(*startEpoch),
+				StartEpoch: int(dealConfig.StartEpoch),
 			}
 			deals = append(deals, deal)
 			dealSentNum = dealSentNum + 1
