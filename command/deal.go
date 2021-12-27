@@ -14,6 +14,7 @@ import (
 	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
+	"github.com/filswan/go-swan-lib/utils"
 )
 
 type CmdDeal struct {
@@ -62,7 +63,7 @@ func GetCmdDeal(outputDir *string, minerFids string, metadataJsonPath string) *C
 	cmdDeal.DealSourceIds = append(cmdDeal.DealSourceIds, libconstants.TASK_SOURCE_ID_SWAN)
 	cmdDeal.DealSourceIds = append(cmdDeal.DealSourceIds, libconstants.TASK_SOURCE_ID_SWAN_CLIENT)
 
-	if outputDir != nil && len(*outputDir) != 0 {
+	if !utils.IsStrEmpty(outputDir) {
 		cmdDeal.OutputDir = *outputDir
 	}
 

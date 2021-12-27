@@ -73,7 +73,7 @@ func GetCmdTask(inputDir string, outputDir *string, taskName, dataset, descripti
 		MaxAutoBidCopyNumber:       config.GetConfig().Sender.MaxAutoBidCopyNumber,
 	}
 
-	if outputDir != nil && len(*outputDir) != 0 {
+	if !utils.IsStrEmpty(outputDir) {
 		cmdTask.OutputDir = *outputDir
 	}
 

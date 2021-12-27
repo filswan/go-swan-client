@@ -9,6 +9,7 @@ import (
 	"github.com/filswan/go-swan-client/config"
 
 	"github.com/filswan/go-swan-lib/logs"
+	"github.com/filswan/go-swan-lib/utils"
 
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/client/swan"
@@ -42,7 +43,7 @@ func GetCmdAutoDeal(outputDir *string, minerFids string, metadataJsonPath string
 	cmdAutoBidDeal.DealSourceIds = append(cmdAutoBidDeal.DealSourceIds, libconstants.TASK_SOURCE_ID_SWAN)
 	cmdAutoBidDeal.DealSourceIds = append(cmdAutoBidDeal.DealSourceIds, libconstants.TASK_SOURCE_ID_SWAN_CLIENT)
 
-	if outputDir != nil && len(*outputDir) != 0 {
+	if !utils.IsStrEmpty(outputDir) {
 		cmdAutoBidDeal.OutputDir = *outputDir
 	}
 

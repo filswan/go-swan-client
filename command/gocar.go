@@ -42,7 +42,7 @@ func GetCmdGoCar(inputDir string, outputDir *string) *CmdGoCar {
 		GocarFolderBased:       config.GetConfig().Sender.GocarFolderBased,
 	}
 
-	if outputDir != nil && len(*outputDir) != 0 {
+	if !utils.IsStrEmpty(outputDir)  {
 		cmdGoCar.OutputDir = *outputDir
 	}
 

@@ -34,7 +34,7 @@ func GetCmdIpfsCar(inputDir string, outputDir *string) *CmdIpfsCar {
 		IpfsServerUploadUrlPrefix: config.GetConfig().IpfsServer.UploadUrlPrefix,
 	}
 
-	if outputDir != nil && len(*outputDir) != 0 {
+	if !utils.IsStrEmpty(outputDir) {
 		cmdIpfsCar.OutputDir = *outputDir
 	}
 

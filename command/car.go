@@ -33,7 +33,7 @@ func GetCmdCar(inputDir string, outputDir *string) *CmdCar {
 		GenerateMd5:            config.GetConfig().Sender.GenerateMd5,
 	}
 
-	if outputDir != nil && len(*outputDir) != 0 {
+	if !utils.IsStrEmpty(outputDir) {
 		cmdCar.OutputDir = *outputDir
 	}
 
