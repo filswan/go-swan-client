@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/filswan/go-swan-client/common/constants"
 	"github.com/filswan/go-swan-client/config"
 	"github.com/shopspring/decimal"
 
@@ -135,7 +134,7 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		cmdTask.TaskName = taskName
 	}
 
-	fileDescs := ReadFileDescsFromJsonFile(cmdTask.InputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
+	fileDescs := ReadFileDescsFromJsonFile(cmdTask.InputDir, JSON_FILE_NAME_CAR_UPLOAD)
 	if fileDescs == nil {
 		err := fmt.Errorf("failed to read car files from :%s", cmdTask.InputDir)
 		logs.GetLogger().Error(err)
@@ -227,7 +226,7 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		}
 	}
 
-	jsonFileName := cmdTask.TaskName + constants.JSON_FILE_NAME_TASK
+	jsonFileName := cmdTask.TaskName + JSON_FILE_NAME_TASK
 	jsonFilepath, err := WriteFileDescsToJsonFile(fileDescs, cmdTask.OutputDir, jsonFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/codingsince1985/checksum"
-	"github.com/filswan/go-swan-client/common/constants"
 	"github.com/filswan/go-swan-client/config"
 	"github.com/filswan/go-swan-lib/client/ipfs"
 	"github.com/filswan/go-swan-lib/client/lotus"
@@ -152,7 +151,7 @@ func (cmdIpfsCar *CmdIpfsCar) CreateIpfsCarFiles() ([]*libmodel.FileDesc, error)
 
 	carFiles = append(carFiles, &carFile)
 
-	_, err = WriteFileDescsToJsonFile(carFiles, cmdIpfsCar.OutputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteFileDescsToJsonFile(carFiles, cmdIpfsCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

@@ -6,7 +6,6 @@ import (
 	"github.com/filswan/go-swan-lib/client/ipfs"
 	libmodel "github.com/filswan/go-swan-lib/model"
 
-	"github.com/filswan/go-swan-client/common/constants"
 	"github.com/filswan/go-swan-client/config"
 
 	libconstants "github.com/filswan/go-swan-lib/constants"
@@ -58,7 +57,7 @@ func (cmdUpload *CmdUpload) UploadCarFiles() ([]*libmodel.FileDesc, error) {
 		return nil, nil
 	}
 
-	carFiles := ReadFileDescsFromJsonFile(cmdUpload.InputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
+	carFiles := ReadFileDescsFromJsonFile(cmdUpload.InputDir, JSON_FILE_NAME_CAR_UPLOAD)
 	if carFiles == nil {
 		err := fmt.Errorf("failed to read:%s", cmdUpload.InputDir)
 		logs.GetLogger().Error(err)
@@ -79,7 +78,7 @@ func (cmdUpload *CmdUpload) UploadCarFiles() ([]*libmodel.FileDesc, error) {
 		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileUrl)
 	}
 
-	_, err = WriteFileDescsToJsonFile(carFiles, cmdUpload.InputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteFileDescsToJsonFile(carFiles, cmdUpload.InputDir, JSON_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

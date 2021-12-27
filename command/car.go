@@ -14,7 +14,6 @@ import (
 	"github.com/filswan/go-swan-lib/utils"
 
 	"github.com/codingsince1985/checksum"
-	"github.com/filswan/go-swan-client/common/constants"
 	libmodel "github.com/filswan/go-swan-lib/model"
 )
 
@@ -143,7 +142,7 @@ func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error) {
 
 	logs.GetLogger().Info(len(carFiles), " car files have been created to directory:", cmdCar.OutputDir)
 
-	_, err = WriteFileDescsToJsonFile(carFiles, cmdCar.OutputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteFileDescsToJsonFile(carFiles, cmdCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

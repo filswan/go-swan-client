@@ -9,7 +9,6 @@ import (
 	"github.com/filswan/go-swan-client/config"
 	"github.com/shopspring/decimal"
 
-	"github.com/filswan/go-swan-client/common/constants"
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/client/swan"
 	libconstants "github.com/filswan/go-swan-lib/constants"
@@ -233,7 +232,7 @@ func (cmdDeal *CmdDeal) SendDeals2Miner(taskName string, outputDir string, fileD
 
 	logs.GetLogger().Info(dealSentNum, " deal(s) has(ve) been sent for task:", taskName)
 
-	jsonFileName := taskName + constants.JSON_FILE_NAME_DEAL
+	jsonFileName := taskName + JSON_FILE_NAME_DEAL
 	_, err = WriteFileDescsToJsonFile(fileDescs, outputDir, jsonFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)

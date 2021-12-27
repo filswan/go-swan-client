@@ -13,7 +13,6 @@ import (
 
 	"github.com/filswan/go-swan-lib/logs"
 
-	"github.com/filswan/go-swan-client/common/constants"
 	"github.com/filswan/go-swan-lib/utils"
 
 	"github.com/codingsince1985/checksum"
@@ -215,7 +214,7 @@ func (cmdGoCar *CmdGoCar) CreateCarFilesDescFromGoCarManifest(srcFileDir, carFil
 		carFiles = append(carFiles, &carFile)
 	}
 
-	_, err = WriteFileDescsToJsonFile(carFiles, carFileDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteFileDescsToJsonFile(carFiles, carFileDir, JSON_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

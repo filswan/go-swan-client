@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/filswan/go-swan-client/subcommand"
+	"github.com/filswan/go-swan-client/command"
 	"github.com/filswan/go-swan-lib/logs"
 )
 
@@ -22,7 +22,7 @@ func TestCreateCarFiles() {
 	inputDir := filepath.Join(homeDir, "work/srcFiles")
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
-	subcommand.CreateCarFilesByConfig(inputDir, &outDir)
+	command.CreateCarFilesByConfig(inputDir, &outDir)
 }
 
 func TestCreateGoCarFiles() {
@@ -34,7 +34,7 @@ func TestCreateGoCarFiles() {
 	inputDir := filepath.Join(homeDir, "work/srcFiles")
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
-	subcommand.CreateCarFilesByConfig(inputDir, &outDir)
+	command.CreateCarFilesByConfig(inputDir, &outDir)
 }
 
 func TestCreateIpfsCarFiles() {
@@ -46,7 +46,7 @@ func TestCreateIpfsCarFiles() {
 	inputDir := filepath.Join(homeDir, "work/srcFiles")
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
-	subcommand.CreateCarFilesByConfig(inputDir, &outDir)
+	command.CreateCarFilesByConfig(inputDir, &outDir)
 }
 
 func TestUpload() {
@@ -57,7 +57,7 @@ func TestUpload() {
 	}
 	inputDir := filepath.Join(homeDir, "work/carFiles")
 
-	subcommand.UploadCarFilesByConfig(inputDir)
+	command.UploadCarFilesByConfig(inputDir)
 }
 
 func TestCreateTask() {
@@ -69,5 +69,5 @@ func TestCreateTask() {
 	inputDir := filepath.Join(homeDir, "work/carFiles")
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
-	subcommand.CreateTaskByConfig(inputDir, &outDir, "", "", "", "")
+	command.CreateTaskByConfig(inputDir, &outDir, "", "", "", "")
 }
