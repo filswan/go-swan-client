@@ -52,13 +52,13 @@ func CreateCarFilesByConfig(inputDir string, outputDir *string) ([]*libmodel.Fil
 }
 
 func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error) {
-	err := checkInputDir(cmdCar.InputDir)
+	err := utils.CheckDirExists(cmdCar.InputDir, DIR_NAME_INPUT)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	err = createOutputDir(cmdCar.OutputDir)
+	err = utils.CreateDirIfNotExists(cmdCar.OutputDir, DIR_NAME_OUTPUT)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -93,9 +93,8 @@ func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error) {
 			return nil, err
 		}
 
-		pieceCid := lotusClient.LotusClientCalcCommP(carFile.CarFilePath)
-		if pieceCid == nil {
-			err := fmt.Errorf("failed to generate piece cid")
+		pieceCid, err := lotusClient.LotusClientCalcCommP(carFile.CarFilePath)
+		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, err
 		}

@@ -116,13 +116,13 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		return nil, nil, nil, err
 	}
 
-	err = checkInputDir(cmdTask.InputDir)
+	err = utils.CheckDirExists(cmdTask.InputDir, DIR_NAME_INPUT)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
 	}
 
-	err = createOutputDir(cmdTask.OutputDir)
+	err = utils.CreateDirIfNotExists(cmdTask.OutputDir, DIR_NAME_OUTPUT)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
@@ -158,8 +158,13 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		cmdTask.Duration = libconstants.DURATION_DEFAULT
 	}
 
-	currentEpoch := lotusClient.LotusGetCurrentEpoch()
-	startEpoch := currentEpoch + int64(cmdTask.StartEpochHours+libconstants.EPOCH_PER_HOUR)
+	currentEpoch, err := lotusClient.LotusGetCurrentEpoch()
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, nil, nil, err
+	}
+
+	startEpoch := *currentEpoch + int64(cmdTask.StartEpochHours+libconstants.EPOCH_PER_HOUR)
 
 	err = lotusClient.CheckDuration(cmdTask.Duration, startEpoch)
 	if err != nil {

@@ -96,7 +96,7 @@ func SendDealsByConfig(outputDir, minerFid, metadataJsonPath string) ([]*libmode
 }
 
 func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
-	err := createOutputDir(cmdDeal.OutputDir)
+	err := utils.CreateDirIfNotExists(cmdDeal.OutputDir, DIR_NAME_OUTPUT)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -175,13 +175,18 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 			continue
 		}
 
-		currentEpoch := lotusClient.LotusGetCurrentEpoch()
+		currentEpoch, err := lotusClient.LotusGetCurrentEpoch()
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
+
 		dealConfig := libmodel.DealConfig{
 			VerifiedDeal:     cmdDeal.VerifiedDeal,
 			FastRetrieval:    cmdDeal.FastRetrieval,
 			SkipConfirmation: cmdDeal.SkipConfirmation,
 			MaxPrice:         cmdDeal.MaxPrice,
-			StartEpoch:       currentEpoch + int64(cmdDeal.StartEpochHours+libconstants.EPOCH_PER_HOUR),
+			StartEpoch:       *currentEpoch + int64(cmdDeal.StartEpochHours+libconstants.EPOCH_PER_HOUR),
 			SenderWallet:     cmdDeal.SenderWallet,
 			Duration:         int(cmdDeal.Duration),
 			TransferType:     libconstants.LOTUS_TRANSFER_TYPE_MANUAL,

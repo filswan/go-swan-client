@@ -2,15 +2,12 @@ package command
 
 import (
 	"encoding/json"
-	"fmt"
 	"path/filepath"
 
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
-	"github.com/filswan/go-swan-lib/utils"
 
 	"io/ioutil"
-	"os"
 )
 
 const (
@@ -26,45 +23,10 @@ const (
 	JSON_FILE_NAME_TASK       = "-metadata.json"
 	JSON_FILE_NAME_DEAL       = "-deals.json"
 	JSON_FILE_NAME_DEAL_AUTO  = "-auto-deals.json"
+
+	DIR_NAME_INPUT  = "input"
+	DIR_NAME_OUTPUT = "output"
 )
-
-func checkInputDir(inputDir string) error {
-	if utils.IsStrEmpty(&inputDir) {
-		err := fmt.Errorf("input directory is required")
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	if !utils.IsDirExists(inputDir) {
-		err := fmt.Errorf("input directory:%s not exists", inputDir)
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	return nil
-}
-
-func createOutputDir(outputDir string) error {
-	if utils.IsStrEmpty(&outputDir) {
-		err := fmt.Errorf("output directory path is required")
-		logs.GetLogger().Info(err)
-		return err
-	}
-
-	if utils.IsDirExists(outputDir) {
-		return nil
-	}
-
-	err := os.MkdirAll(outputDir, os.ModePerm)
-	if err != nil {
-		err := fmt.Errorf("failed to create output dir:%s,%s", outputDir, err.Error())
-		logs.GetLogger().Error(err)
-		return err
-	}
-
-	logs.GetLogger().Info("output directory ", outputDir, " created")
-	return nil
-}
 
 func WriteFileDescsToJsonFile(fileDescs []*libmodel.FileDesc, outputDir, jsonFileName string) (*string, error) {
 	jsonFilePath := filepath.Join(outputDir, jsonFileName)

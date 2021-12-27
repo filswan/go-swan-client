@@ -42,7 +42,7 @@ func GetCmdGoCar(inputDir string, outputDir *string) *CmdGoCar {
 		GocarFolderBased:       config.GetConfig().Sender.GocarFolderBased,
 	}
 
-	if !utils.IsStrEmpty(outputDir)  {
+	if !utils.IsStrEmpty(outputDir) {
 		cmdGoCar.OutputDir = *outputDir
 	}
 
@@ -61,13 +61,13 @@ func CreateGoCarFilesByConfig(inputDir string, outputDir *string) ([]*libmodel.F
 }
 
 func (cmdGoCar *CmdGoCar) CreateGoCarFiles() ([]*libmodel.FileDesc, error) {
-	err := checkInputDir(cmdGoCar.InputDir)
+	err := utils.CheckDirExists(cmdGoCar.InputDir, DIR_NAME_INPUT)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	err = createOutputDir(cmdGoCar.OutputDir)
+	err = utils.CreateDirIfNotExists(cmdGoCar.OutputDir, DIR_NAME_OUTPUT)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -181,9 +181,8 @@ func (cmdGoCar *CmdGoCar) createFilesDescFromManifest(srcFileDir, carFileDir str
 		carFile.PieceCid = fields[2]
 		carFile.CarFileSize = utils.GetInt64FromStr(fields[3])
 
-		pieceCid := lotusClient.LotusClientCalcCommP(carFile.CarFilePath)
-		if pieceCid == nil {
-			err := fmt.Errorf("failed to generate piece cid")
+		pieceCid, err := lotusClient.LotusClientCalcCommP(carFile.CarFilePath)
+		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
@@ -191,7 +190,6 @@ func (cmdGoCar *CmdGoCar) createFilesDescFromManifest(srcFileDir, carFileDir str
 		carFile.PieceCid = *pieceCid
 		dataCid, err := lotusClient.LotusClientImport(carFile.CarFilePath, true)
 		if err != nil {
-			err := fmt.Errorf("failed to import car file")
 			logs.GetLogger().Error(err)
 			return nil, err
 		}

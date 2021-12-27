@@ -59,13 +59,13 @@ func (cmdIpfsCar *CmdIpfsCar) CreateIpfsCarFiles() ([]*libmodel.FileDesc, error)
 		return nil, err
 	}
 
-	err := checkInputDir(cmdIpfsCar.InputDir)
+	err := utils.CheckDirExists(cmdIpfsCar.InputDir, DIR_NAME_INPUT)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	err = createOutputDir(cmdIpfsCar.OutputDir)
+	err = utils.CreateDirIfNotExists(cmdIpfsCar.OutputDir, DIR_NAME_OUTPUT)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -120,9 +120,8 @@ func (cmdIpfsCar *CmdIpfsCar) CreateIpfsCarFiles() ([]*libmodel.FileDesc, error)
 	carFile.CarFileName = carFileName
 	carFile.CarFilePath = carFilePath
 
-	pieceCid := lotusClient.LotusClientCalcCommP(carFile.CarFilePath)
-	if pieceCid == nil {
-		err := fmt.Errorf("failed to generate piece cid from lotus client")
+	pieceCid, err := lotusClient.LotusClientCalcCommP(carFile.CarFilePath)
+	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
