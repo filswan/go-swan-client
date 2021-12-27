@@ -2,8 +2,12 @@ package subcommand
 
 import (
 	"fmt"
+	"path/filepath"
+	"strings"
+	"time"
 
-	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-client/config"
+	"github.com/shopspring/decimal"
 
 	"github.com/filswan/go-swan-client/common/constants"
 	"github.com/filswan/go-swan-lib/client/lotus"
@@ -13,6 +17,67 @@ import (
 	libmodel "github.com/filswan/go-swan-lib/model"
 )
 
+type CmdDeal struct {
+	SwanApiUrl             string          //required
+	SwanApiKey             string          //required when SwanJwtToken is not provided
+	SwanAccessToken        string          //required when SwanJwtToken is not provided
+	SwanToken              string          //required when SwanApiKey and SwanAccessToken are not provided
+	LotusClientApiUrl      string          //required
+	LotusClientAccessToken string          //required
+	SenderWallet           string          //required
+	MaxPrice               decimal.Decimal //required
+	VerifiedDeal           bool            //required
+	FastRetrieval          bool            //required
+	SkipConfirmation       bool            //required
+	Duration               int             //not necessary, when not provided use default value:1512000
+	StartEpochHours        int             //required
+	OutputDir              string          //required
+	MinerFids              []string        //required
+	MetadataJsonPath       string          //required
+	DealSourceIds          []int           //required
+}
+
+func GetCmdDeal(outputDir *string, minerFids string, metadataJsonPath string) *CmdDeal {
+	cmdDeal := &CmdDeal{
+		SwanApiUrl:             config.GetConfig().Main.SwanApiUrl,
+		SwanApiKey:             config.GetConfig().Main.SwanApiKey,
+		SwanAccessToken:        config.GetConfig().Main.SwanAccessToken,
+		LotusClientApiUrl:      config.GetConfig().Lotus.ClientApiUrl,
+		LotusClientAccessToken: config.GetConfig().Lotus.ClientAccessToken,
+		SenderWallet:           config.GetConfig().Sender.Wallet,
+		VerifiedDeal:           config.GetConfig().Sender.VerifiedDeal,
+		FastRetrieval:          config.GetConfig().Sender.FastRetrieval,
+		SkipConfirmation:       config.GetConfig().Sender.SkipConfirmation,
+		Duration:               config.GetConfig().Sender.Duration,
+		StartEpochHours:        config.GetConfig().Sender.StartEpochHours,
+		OutputDir:              filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
+		MinerFids:              []string{},
+		MetadataJsonPath:       metadataJsonPath,
+	}
+
+	minerFids = strings.Trim(minerFids, " ")
+	if minerFids != "" {
+		cmdDeal.MinerFids = strings.Split(minerFids, ",")
+	}
+
+	cmdDeal.DealSourceIds = append(cmdDeal.DealSourceIds, libconstants.TASK_SOURCE_ID_SWAN)
+	cmdDeal.DealSourceIds = append(cmdDeal.DealSourceIds, libconstants.TASK_SOURCE_ID_SWAN_CLIENT)
+
+	if outputDir != nil && len(*outputDir) != 0 {
+		cmdDeal.OutputDir = *outputDir
+	}
+
+	maxPriceStr := config.GetConfig().Sender.MaxPrice
+	maxPrice, err := decimal.NewFromString(maxPriceStr)
+	if err != nil {
+		logs.GetLogger().Error("Failed to convert maxPrice(" + maxPriceStr + ") to decimal, MaxPrice:")
+		return nil
+	}
+	cmdDeal.MaxPrice = maxPrice
+
+	return cmdDeal
+}
+
 func SendDealsByConfig(outputDir, minerFid, metadataJsonPath string) ([]*libmodel.FileDesc, error) {
 	if metadataJsonPath == "" {
 		err := fmt.Errorf("metadataJsonPath is nil")
@@ -20,8 +85,8 @@ func SendDealsByConfig(outputDir, minerFid, metadataJsonPath string) ([]*libmode
 		return nil, err
 	}
 
-	confDeal := model.GetConfDeal(&outputDir, minerFid, metadataJsonPath)
-	fileDescs, err := SendDeals(confDeal)
+	cmdDeal := GetCmdDeal(&outputDir, minerFid, metadataJsonPath)
+	fileDescs, err := cmdDeal.SendDeals()
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -30,27 +95,21 @@ func SendDealsByConfig(outputDir, minerFid, metadataJsonPath string) ([]*libmode
 	return fileDescs, nil
 }
 
-func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
-	if confDeal == nil {
-		err := fmt.Errorf("parameter confDeal is nil")
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	err := CreateOutputDir(confDeal.OutputDir)
+func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
+	err := CreateOutputDir(cmdDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	fileDescs := ReadFileDescsFromJsonFileByFullPath(confDeal.MetadataJsonPath)
+	fileDescs := ReadFileDescsFromJsonFileByFullPath(cmdDeal.MetadataJsonPath)
 	if len(fileDescs) == 0 {
-		err := fmt.Errorf("no car files read from:%s", confDeal.MetadataJsonPath)
+		err := fmt.Errorf("no car files read from:%s", cmdDeal.MetadataJsonPath)
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	swanClient, err := swan.GetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
+	swanClient, err := swan.GetClient(cmdDeal.SwanApiUrl, cmdDeal.SwanApiKey, cmdDeal.SwanAccessToken, cmdDeal.SwanToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -73,21 +132,21 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	if confDeal.VerifiedDeal {
-		isWalletVerified, err := swanClient.CheckDatacap(confDeal.SenderWallet)
+	if cmdDeal.VerifiedDeal {
+		isWalletVerified, err := swanClient.CheckDatacap(cmdDeal.SenderWallet)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
 
 		if !isWalletVerified {
-			err := fmt.Errorf("task:%s is verified, but your wallet:%s is not verified", task.Data.Task.TaskName, confDeal.SenderWallet)
+			err := fmt.Errorf("task:%s is verified, but your wallet:%s is not verified", task.Data.Task.TaskName, cmdDeal.SenderWallet)
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
 	}
 
-	fileDescs, err = SendDeals2Miner(confDeal, task.Data.Task.TaskName, confDeal.OutputDir, fileDescs)
+	fileDescs, err = cmdDeal.SendDeals2Miner(task.Data.Task.TaskName, cmdDeal.OutputDir, fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -102,14 +161,8 @@ func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error) {
 	return fileDescs, nil
 }
 
-func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string, fileDescs []*libmodel.FileDesc) ([]*libmodel.FileDesc, error) {
-	if confDeal == nil {
-		err := fmt.Errorf("parameter confDeal is nil")
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	lotusClient, err := lotus.LotusGetClient(confDeal.LotusClientApiUrl, confDeal.LotusClientAccessToken)
+func (cmdDeal *CmdDeal) SendDeals2Miner(taskName string, outputDir string, fileDescs []*libmodel.FileDesc) ([]*libmodel.FileDesc, error) {
+	lotusClient, err := lotus.LotusGetClient(cmdDeal.LotusClientApiUrl, cmdDeal.LotusClientAccessToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -124,13 +177,13 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 
 		currentEpoch := lotusClient.LotusGetCurrentEpoch()
 		dealConfig := libmodel.DealConfig{
-			VerifiedDeal:     confDeal.VerifiedDeal,
-			FastRetrieval:    confDeal.FastRetrieval,
-			SkipConfirmation: confDeal.SkipConfirmation,
-			MaxPrice:         confDeal.MaxPrice,
-			StartEpoch:       currentEpoch + int64(confDeal.StartEpochHours+libconstants.EPOCH_PER_HOUR),
-			SenderWallet:     confDeal.SenderWallet,
-			Duration:         int(confDeal.Duration),
+			VerifiedDeal:     cmdDeal.VerifiedDeal,
+			FastRetrieval:    cmdDeal.FastRetrieval,
+			SkipConfirmation: cmdDeal.SkipConfirmation,
+			MaxPrice:         cmdDeal.MaxPrice,
+			StartEpoch:       currentEpoch + int64(cmdDeal.StartEpochHours+libconstants.EPOCH_PER_HOUR),
+			SenderWallet:     cmdDeal.SenderWallet,
+			Duration:         int(cmdDeal.Duration),
 			TransferType:     libconstants.LOTUS_TRANSFER_TYPE_MANUAL,
 			PayloadCid:       fileDesc.PayloadCid,
 			PieceCid:         fileDesc.PieceCid,
@@ -139,21 +192,21 @@ func SendDeals2Miner(confDeal *model.ConfDeal, taskName string, outputDir string
 
 		logs.GetLogger().Info("File:", fileDesc.CarFilePath, ",current epoch:", currentEpoch, ", start epoch:", dealConfig.StartEpoch)
 
-		if len(confDeal.MinerFids) == 0 {
-			confDeal.MinerFids = []string{}
+		if len(cmdDeal.MinerFids) == 0 {
+			cmdDeal.MinerFids = []string{}
 			for _, deal := range fileDesc.Deals {
-				confDeal.MinerFids = append(confDeal.MinerFids, deal.MinerFid)
+				cmdDeal.MinerFids = append(cmdDeal.MinerFids, deal.MinerFid)
 			}
 		}
 
-		if len(confDeal.MinerFids) == 0 {
+		if len(cmdDeal.MinerFids) == 0 {
 			err := fmt.Errorf("miner is required, you can set in command line or in metadata json file")
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
 
 		deals := []*libmodel.DealInfo{}
-		for _, minerFid := range confDeal.MinerFids {
+		for _, minerFid := range cmdDeal.MinerFids {
 			dealConfig.MinerFid = minerFid
 
 			dealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)

@@ -7,7 +7,6 @@ import (
 
 	"github.com/filswan/go-swan-client/common/constants"
 	"github.com/filswan/go-swan-client/config"
-	"github.com/filswan/go-swan-client/model"
 	"github.com/shopspring/decimal"
 
 	"github.com/codingsince1985/checksum"
@@ -92,8 +91,8 @@ func GetCmdTask(inputDir string, outputDir *string, taskName, dataset, descripti
 
 func CreateTaskByConfig(inputDir string, outputDir *string, taskName, minerFid, dataset, description string) (*string, []*libmodel.FileDesc, []*Deal, error) {
 	cmdTask := GetCmdTask(inputDir, outputDir, taskName, dataset, description)
-	confDeal := model.GetConfDeal(outputDir, minerFid, "")
-	jsonFileName, fileDescs, deals, err := cmdTask.CreateTask(confDeal)
+	cmdDeal := GetCmdDeal(outputDir, minerFid, "")
+	jsonFileName, fileDescs, deals, err := cmdTask.CreateTask(cmdDeal)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
@@ -103,16 +102,16 @@ func CreateTaskByConfig(inputDir string, outputDir *string, taskName, minerFid, 
 	return jsonFileName, fileDescs, deals, nil
 }
 
-func (cmdTask *CmdTask) CreateTask(confDeal *model.ConfDeal) (*string, []*libmodel.FileDesc, []*Deal, error) {
+func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileDesc, []*Deal, error) {
 	if !cmdTask.PublicDeal {
-		if confDeal == nil {
+		if cmdDeal == nil {
 			err := fmt.Errorf("parameter confDeal is nil")
 			logs.GetLogger().Error(err)
 			return nil, nil, nil, err
 		}
 	}
 
-	lotusClient, err := lotus.LotusGetClient(confDeal.LotusClientApiUrl, confDeal.LotusClientAccessToken)
+	lotusClient, err := lotus.LotusGetClient(cmdTask.LotusClientApiUrl, "")
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
@@ -146,7 +145,7 @@ func (cmdTask *CmdTask) CreateTask(confDeal *model.ConfDeal) (*string, []*libmod
 	isPublic := 0
 	if cmdTask.PublicDeal {
 		isPublic = 1
-		if len(confDeal.MinerFids) > 0 {
+		if len(cmdDeal.MinerFids) > 0 {
 			logs.GetLogger().Warn("miner fids is unnecessary for public task")
 		}
 	}
@@ -161,7 +160,7 @@ func (cmdTask *CmdTask) CreateTask(confDeal *model.ConfDeal) (*string, []*libmod
 	}
 
 	currentEpoch := lotusClient.LotusGetCurrentEpoch()
-	startEpoch := currentEpoch + int64(confDeal.StartEpochHours+libconstants.EPOCH_PER_HOUR)
+	startEpoch := currentEpoch + int64(cmdTask.StartEpochHours+libconstants.EPOCH_PER_HOUR)
 
 	err = lotusClient.CheckDuration(cmdTask.Duration, startEpoch)
 	if err != nil {
@@ -222,7 +221,7 @@ func (cmdTask *CmdTask) CreateTask(confDeal *model.ConfDeal) (*string, []*libmod
 	}
 
 	if !cmdTask.PublicDeal {
-		_, err := SendDeals2Miner(confDeal, cmdTask.TaskName, cmdTask.OutputDir, fileDescs)
+		_, err := cmdDeal.SendDeals2Miner(cmdTask.TaskName, cmdTask.OutputDir, fileDescs)
 		if err != nil {
 			return nil, nil, nil, err
 		}
