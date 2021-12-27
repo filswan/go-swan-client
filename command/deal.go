@@ -102,7 +102,12 @@ func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	fileDescs := ReadFileDescsFromJsonFileByFullPath(cmdDeal.MetadataJsonPath)
+	fileDescs, err := ReadFileDescsFromJsonFileByFullPath(cmdDeal.MetadataJsonPath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	if len(fileDescs) == 0 {
 		err := fmt.Errorf("no car files read from:%s", cmdDeal.MetadataJsonPath)
 		logs.GetLogger().Error(err)

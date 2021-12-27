@@ -10,9 +10,10 @@ import (
 
 func Test() {
 	//TestCreateCarFiles()
-	TestCreateGoCarFiles()
+	//TestCreateGoCarFiles()
 	//TestCreateIpfsCarFiles()
-	//TestCreateTask()
+	//TestUpload()
+	TestCreateTask()
 }
 
 func TestCreateCarFiles() {

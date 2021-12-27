@@ -128,13 +128,18 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		return nil, nil, nil, err
 	}
 
-	logs.GetLogger().Info("you output dir: ", cmdTask.OutputDir)
+	logs.GetLogger().Info("Your output dir: ", cmdTask.OutputDir)
 	if len(cmdTask.TaskName) == 0 {
 		taskName := utils.GetDefaultTaskName()
 		cmdTask.TaskName = taskName
 	}
 
-	fileDescs := ReadFileDescsFromJsonFile(cmdTask.InputDir, JSON_FILE_NAME_CAR_UPLOAD)
+	fileDescs, err := ReadFileDescsFromJsonFile(cmdTask.InputDir, JSON_FILE_NAME_CAR_UPLOAD)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, nil, nil, err
+	}
+
 	if fileDescs == nil {
 		err := fmt.Errorf("failed to read car files from :%s", cmdTask.InputDir)
 		logs.GetLogger().Error(err)

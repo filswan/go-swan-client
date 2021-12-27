@@ -46,28 +46,32 @@ func WriteFileDescsToJsonFile(fileDescs []*libmodel.FileDesc, outputDir, jsonFil
 	return &jsonFilePath, nil
 }
 
-func ReadFileDescsFromJsonFile(inputDir, jsonFilename string) []*libmodel.FileDesc {
+func ReadFileDescsFromJsonFile(inputDir, jsonFilename string) ([]*libmodel.FileDesc, error) {
 	jsonFilePath := filepath.Join(inputDir, jsonFilename)
-	result := ReadFileDescsFromJsonFileByFullPath(jsonFilePath)
-	return result
+	fileDescs, err := ReadFileDescsFromJsonFileByFullPath(jsonFilePath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return fileDescs, nil
 }
 
-func ReadFileDescsFromJsonFileByFullPath(jsonFilePath string) []*libmodel.FileDesc {
+func ReadFileDescsFromJsonFileByFullPath(jsonFilePath string) ([]*libmodel.FileDesc, error) {
 	contents, err := ioutil.ReadFile(jsonFilePath)
 	if err != nil {
-		logs.GetLogger().Error("Failed to read: ", jsonFilePath)
-		return nil
+		logs.GetLogger().Error(err)
+		return nil, err
 	}
 
 	fileDescs := []*libmodel.FileDesc{}
-
 	err = json.Unmarshal(contents, &fileDescs)
 	if err != nil {
-		logs.GetLogger().Error("Failed to read: ", jsonFilePath)
-		return nil
+		logs.GetLogger().Error(err)
+		return nil, err
 	}
 
-	return fileDescs
+	return fileDescs, nil
 }
 
 func GetDeals(carFiles []*libmodel.FileDesc) ([]*Deal, error) {

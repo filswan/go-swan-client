@@ -57,7 +57,12 @@ func (cmdUpload *CmdUpload) UploadCarFiles() ([]*libmodel.FileDesc, error) {
 		return nil, nil
 	}
 
-	carFiles := ReadFileDescsFromJsonFile(cmdUpload.InputDir, JSON_FILE_NAME_CAR_UPLOAD)
+	carFiles, err := ReadFileDescsFromJsonFile(cmdUpload.InputDir, JSON_FILE_NAME_CAR_UPLOAD)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	if carFiles == nil {
 		err := fmt.Errorf("failed to read:%s", cmdUpload.InputDir)
 		logs.GetLogger().Error(err)
