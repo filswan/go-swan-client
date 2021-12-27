@@ -46,7 +46,7 @@ func checkInputDir(inputDir string) error {
 
 func createOutputDir(outputDir string) error {
 	if utils.IsStrEmpty(&outputDir) {
-		err := fmt.Errorf("out directory is required")
+		err := fmt.Errorf("directory path is required")
 		logs.GetLogger().Info(err)
 		return err
 	}
@@ -57,7 +57,7 @@ func createOutputDir(outputDir string) error {
 
 	err := os.MkdirAll(outputDir, os.ModePerm)
 	if err != nil {
-		err := fmt.Errorf("failed to create output dir:%s,%s", outputDir, err.Error())
+		err := fmt.Errorf("failed to create dir:%s,%s", outputDir, err.Error())
 		logs.GetLogger().Error(err)
 		return err
 	}
