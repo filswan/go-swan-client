@@ -21,7 +21,7 @@ type CmdIpfsCar struct {
 	OutputDir                 string //required
 	InputDir                  string //required
 	GenerateMd5               bool   //required
-	IpfsServerUploadUrlPrefix string //required only when creating ipfs car file
+	IpfsServerUploadUrlPrefix string //required
 }
 
 func GetCmdIpfsCar(inputDir string, outputDir *string) *CmdIpfsCar {
