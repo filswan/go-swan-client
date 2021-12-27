@@ -26,8 +26,9 @@ type CmdGoCar struct {
 	LotusClientAccessToken string //required
 	OutputDir              string //required
 	InputDir               string //required
-	GocarFileSizeLimit     int64  //required
 	GenerateMd5            bool   //required
+	GocarFileSizeLimit     int64  //required
+	GocarFolderBased       bool   //required
 }
 
 func GetCmdGoCar(inputDir string, outputDir *string) *CmdGoCar {
@@ -38,6 +39,7 @@ func GetCmdGoCar(inputDir string, outputDir *string) *CmdGoCar {
 		InputDir:               inputDir,
 		GocarFileSizeLimit:     config.GetConfig().Sender.GocarFileSizeLimit,
 		GenerateMd5:            config.GetConfig().Sender.GenerateMd5,
+		GocarFolderBased:       config.GetConfig().Sender.GocarFolderBased,
 	}
 
 	if outputDir != nil && len(*outputDir) != 0 {
