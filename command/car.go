@@ -85,7 +85,7 @@ func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error) {
 		fileDesc.SourceFileSize = srcFile.Size()
 		fileDesc.CarFileName = fileDesc.SourceFileName + ".car"
 		fileDesc.CarFilePath = filepath.Join(cmdCar.OutputDir, fileDesc.CarFileName)
-		logs.GetLogger().Info("Creating car file ", fileDesc.CarFilePath, " for ", fileDesc.SourceFilePath)
+		logs.GetLogger().Info("Creating car file ", fileDesc.CarFilePath, " from ", fileDesc.SourceFilePath)
 
 		err := lotusClient.LotusClientGenCar(fileDesc.SourceFilePath, fileDesc.CarFilePath, false)
 		if err != nil {
