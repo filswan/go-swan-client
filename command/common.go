@@ -36,7 +36,7 @@ func checkInputDir(inputDir string) error {
 	}
 
 	if !utils.IsDirExists(inputDir) {
-		err := fmt.Errorf("directory:%s not exists", inputDir)
+		err := fmt.Errorf("input directory:%s not exists", inputDir)
 		logs.GetLogger().Error(err)
 		return err
 	}
@@ -46,7 +46,7 @@ func checkInputDir(inputDir string) error {
 
 func createOutputDir(outputDir string) error {
 	if utils.IsStrEmpty(&outputDir) {
-		err := fmt.Errorf("directory path is required")
+		err := fmt.Errorf("output directory path is required")
 		logs.GetLogger().Info(err)
 		return err
 	}
@@ -57,18 +57,18 @@ func createOutputDir(outputDir string) error {
 
 	err := os.MkdirAll(outputDir, os.ModePerm)
 	if err != nil {
-		err := fmt.Errorf("failed to create dir:%s,%s", outputDir, err.Error())
+		err := fmt.Errorf("failed to create output dir:%s,%s", outputDir, err.Error())
 		logs.GetLogger().Error(err)
 		return err
 	}
 
-	logs.GetLogger().Info(outputDir, " created")
+	logs.GetLogger().Info("output directory ", outputDir, " created")
 	return nil
 }
 
-func WriteFileDescsToJsonFile(carFiles []*libmodel.FileDesc, outputDir, jsonFileName string) (*string, error) {
+func WriteFileDescsToJsonFile(fileDescs []*libmodel.FileDesc, outputDir, jsonFileName string) (*string, error) {
 	jsonFilePath := filepath.Join(outputDir, jsonFileName)
-	content, err := json.MarshalIndent(carFiles, "", " ")
+	content, err := json.MarshalIndent(fileDescs, "", " ")
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -97,15 +97,15 @@ func ReadFileDescsFromJsonFileByFullPath(jsonFilePath string) []*libmodel.FileDe
 		return nil
 	}
 
-	carFiles := []*libmodel.FileDesc{}
+	fileDescs := []*libmodel.FileDesc{}
 
-	err = json.Unmarshal(contents, &carFiles)
+	err = json.Unmarshal(contents, &fileDescs)
 	if err != nil {
 		logs.GetLogger().Error("Failed to read: ", jsonFilePath)
 		return nil
 	}
 
-	return carFiles
+	return fileDescs
 }
 
 func GetDeals(carFiles []*libmodel.FileDesc) ([]*Deal, error) {
