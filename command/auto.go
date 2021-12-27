@@ -1,11 +1,12 @@
-package subcommand
+package command
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-client/config"
 
 	"github.com/filswan/go-swan-lib/logs"
 
@@ -15,9 +16,42 @@ import (
 	libmodel "github.com/filswan/go-swan-lib/model"
 )
 
+type CmdAutoBidDeal struct {
+	SwanApiUrl             string //required
+	SwanApiKey             string //required when SwanJwtToken is not provided
+	SwanAccessToken        string //required when SwanJwtToken is not provided
+	SwanToken              string //required when SwanApiKey and SwanAccessToken are not provided
+	LotusClientApiUrl      string //required
+	LotusClientAccessToken string //required
+	SenderWallet           string //required
+	OutputDir              string //required
+	DealSourceIds          []int  //required
+}
+
+func GetCmdAutoDeal(outputDir *string, minerFids string, metadataJsonPath string) *CmdAutoBidDeal {
+	cmdAutoBidDeal := &CmdAutoBidDeal{
+		SwanApiUrl:             config.GetConfig().Main.SwanApiUrl,
+		SwanApiKey:             config.GetConfig().Main.SwanApiKey,
+		SwanAccessToken:        config.GetConfig().Main.SwanAccessToken,
+		LotusClientApiUrl:      config.GetConfig().Lotus.ClientApiUrl,
+		LotusClientAccessToken: config.GetConfig().Lotus.ClientAccessToken,
+		SenderWallet:           config.GetConfig().Sender.Wallet,
+		OutputDir:              filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
+	}
+
+	cmdAutoBidDeal.DealSourceIds = append(cmdAutoBidDeal.DealSourceIds, libconstants.TASK_SOURCE_ID_SWAN)
+	cmdAutoBidDeal.DealSourceIds = append(cmdAutoBidDeal.DealSourceIds, libconstants.TASK_SOURCE_ID_SWAN_CLIENT)
+
+	if outputDir != nil && len(*outputDir) != 0 {
+		cmdAutoBidDeal.OutputDir = *outputDir
+	}
+
+	return cmdAutoBidDeal
+}
+
 func SendAutoBidDealsLoopByConfig(outputDir string) error {
-	confDeal := model.GetConfDeal(&outputDir, "", "")
-	err := SendAutoBidDealsLoop(confDeal)
+	cmdAutoBidDeal := GetCmdAutoDeal(&outputDir, "", "")
+	err := cmdAutoBidDeal.SendAutoBidDealsLoop()
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -26,15 +60,15 @@ func SendAutoBidDealsLoopByConfig(outputDir string) error {
 	return nil
 }
 
-func SendAutoBidDealsLoop(confDeal *model.ConfDeal) error {
-	err := CreateOutputDir(confDeal.OutputDir)
+func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsLoop() error {
+	err := CreateOutputDir(cmdAutoBidDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
 	}
 
 	for {
-		_, err := SendAutoBidDeals(confDeal)
+		_, err := cmdAutoBidDeal.SendAutoBidDeals()
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
@@ -44,22 +78,16 @@ func SendAutoBidDealsLoop(confDeal *model.ConfDeal) error {
 	}
 }
 
-func SendAutoBidDeals(confDeal *model.ConfDeal) ([][]*libmodel.FileDesc, error) {
-	if confDeal == nil {
-		err := fmt.Errorf("parameter confDeal is nil")
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	err := CreateOutputDir(confDeal.OutputDir)
+func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDeals() ([][]*libmodel.FileDesc, error) {
+	err := CreateOutputDir(cmdAutoBidDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	logs.GetLogger().Info("output dir is:", confDeal.OutputDir)
+	logs.GetLogger().Info("output dir is:", cmdAutoBidDeal.OutputDir)
 
-	swanClient, err := swan.GetClient(confDeal.SwanApiUrl, confDeal.SwanApiKey, confDeal.SwanAccessToken, confDeal.SwanToken)
+	swanClient, err := swan.GetClient(cmdAutoBidDeal.SwanApiUrl, cmdAutoBidDeal.SwanApiKey, cmdAutoBidDeal.SwanAccessToken, cmdAutoBidDeal.SwanToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -80,7 +108,7 @@ func SendAutoBidDeals(confDeal *model.ConfDeal) ([][]*libmodel.FileDesc, error) 
 
 	var tasksDeals [][]*libmodel.FileDesc
 	for _, assignedOfflineDeal := range assignedOfflineDeals {
-		updateOfflineDealParams, err := sendAutobidDeal(confDeal, assignedOfflineDeal)
+		updateOfflineDealParams, err := cmdAutoBidDeal.sendAutobidDeal(assignedOfflineDeal)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
@@ -99,13 +127,7 @@ func SendAutoBidDeals(confDeal *model.ConfDeal) ([][]*libmodel.FileDesc, error) 
 	return tasksDeals, nil
 }
 
-func sendAutobidDeal(confDeal *model.ConfDeal, offlineDeal *libmodel.OfflineDeal) (*swan.UpdateOfflineDealParams, error) {
-	if confDeal == nil {
-		err := fmt.Errorf("parameter confDeal is nil")
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
+func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.OfflineDeal) (*swan.UpdateOfflineDealParams, error) {
 	offlineDeal.DealCid = strings.Trim(offlineDeal.DealCid, " ")
 	if len(offlineDeal.DealCid) != 0 {
 		logs.GetLogger().Info("deal already be sent, task:%s, deal:%d", *offlineDeal.TaskUuid, offlineDeal.Id)
@@ -143,7 +165,7 @@ func sendAutobidDeal(confDeal *model.ConfDeal, offlineDeal *libmodel.OfflineDeal
 		MaxPrice:         *offlineDeal.MaxPrice,
 		StartEpoch:       int64(offlineDeal.StartEpoch),
 		MinerFid:         offlineDeal.MinerFid,
-		SenderWallet:     confDeal.SenderWallet,
+		SenderWallet:     cmdAutoBidDeal.SenderWallet,
 		Duration:         int(*offlineDeal.Duration),
 		TransferType:     libconstants.LOTUS_TRANSFER_TYPE_MANUAL,
 		PayloadCid:       offlineDeal.PayloadCid,
@@ -154,7 +176,7 @@ func sendAutobidDeal(confDeal *model.ConfDeal, offlineDeal *libmodel.OfflineDeal
 	msg := fmt.Sprintf("send deal for task:%s, deal:%d", *offlineDeal.TaskUuid, offlineDeal.Id)
 	logs.GetLogger().Info(msg)
 
-	lotusClient, err := lotus.LotusGetClient(confDeal.LotusClientApiUrl, confDeal.LotusClientAccessToken)
+	lotusClient, err := lotus.LotusGetClient(cmdAutoBidDeal.LotusClientApiUrl, cmdAutoBidDeal.LotusClientAccessToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

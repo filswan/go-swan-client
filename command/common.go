@@ -1,11 +1,9 @@
-package subcommand
+package command
 
 import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
-
-	"github.com/filswan/go-swan-client/model"
 
 	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
@@ -21,32 +19,14 @@ const (
 	DURATION_MIN = 518400
 	DURATION_MAX = 1540000
 
-	SUBCOMMAND_CAR     = "car"
-	SUBCOMMAND_GOCAR   = "gocar"
-	SUBCOMMAND_IPFSCAR = "ipfscar"
-	SUBCOMMAND_UPLOAD  = "upload"
-	SUBCOMMAND_TASK    = "task"
-	SUBCOMMAND_DEAL    = "deal"
-	SUBCOMMAND_AUTO    = "auto"
+	CMD_CAR     = "car"
+	CMD_GOCAR   = "gocar"
+	CMD_IPFSCAR = "ipfscar"
+	CMD_UPLOAD  = "upload"
+	CMD_TASK    = "task"
+	CMD_DEAL    = "deal"
+	CMD_AUTO    = "auto"
 )
-
-func IsTaskSourceRight(confDeal *model.ConfDeal, task libmodel.Task) bool {
-	if confDeal == nil {
-		return false
-	}
-
-	if confDeal.DealSourceIds == nil || len(confDeal.DealSourceIds) == 0 {
-		return false
-	}
-
-	for _, sourceId := range confDeal.DealSourceIds {
-		if task.SourceId == sourceId {
-			return true
-		}
-	}
-
-	return false
-}
 
 func CheckInputDir(inputDir string) error {
 	if len(inputDir) == 0 {
