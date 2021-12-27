@@ -91,6 +91,7 @@ func (cmdIpfsCar *CmdIpfsCar) CreateIpfsCarFiles() ([]*libmodel.FileDesc, error)
 
 	logs.GetLogger().Info("Creating car file for ", cmdIpfsCar.InputDir)
 	srcFileCids := []string{}
+	var srcFileSize int64 = int64(0)
 	for _, srcFile := range srcFiles {
 		srcFilePath := filepath.Join(cmdIpfsCar.InputDir, srcFile.Name())
 		srcFileCid, err := ipfs.IpfsUploadFileByWebApi(utils.UrlJoin(cmdIpfsCar.IpfsServerUploadUrlPrefix, "api/v0/add?stream-channels=true&pin=true"), srcFilePath)
@@ -100,6 +101,7 @@ func (cmdIpfsCar *CmdIpfsCar) CreateIpfsCarFiles() ([]*libmodel.FileDesc, error)
 		}
 
 		srcFileCids = append(srcFileCids, *srcFileCid)
+		srcFileSize = srcFileSize + srcFile.Size()
 	}
 	carFileDataCid, err := ipfs.MergeFiles2CarFile(cmdIpfsCar.IpfsServerUploadUrlPrefix, srcFileCids)
 	if err != nil {
@@ -115,49 +117,60 @@ func (cmdIpfsCar *CmdIpfsCar) CreateIpfsCarFiles() ([]*libmodel.FileDesc, error)
 		return nil, err
 	}
 
-	carFiles := []*libmodel.FileDesc{}
-	carFile := libmodel.FileDesc{}
-	carFile.CarFileName = carFileName
-	carFile.CarFilePath = carFilePath
+	fileDesc := libmodel.FileDesc{}
+	fileDesc.SourceFileName = filepath.Base(cmdIpfsCar.InputDir)
+	fileDesc.SourceFilePath = cmdIpfsCar.InputDir
+	fileDesc.SourceFileSize = srcFileSize
+	fileDesc.CarFileName = carFileName
+	fileDesc.CarFilePath = carFilePath
 
-	pieceCid, err := lotusClient.LotusClientCalcCommP(carFile.CarFilePath)
+	pieceCid, err := lotusClient.LotusClientCalcCommP(fileDesc.CarFilePath)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	carFile.PieceCid = *pieceCid
+	fileDesc.PieceCid = *pieceCid
 
-	dataCid, err := lotusClient.LotusClientImport(carFile.CarFilePath, true)
+	dataCid, err := lotusClient.LotusClientImport(fileDesc.CarFilePath, true)
 	if err != nil {
 		err := fmt.Errorf("failed to import car file to lotus client")
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	carFile.PayloadCid = *dataCid
+	fileDesc.PayloadCid = *dataCid
 
-	carFile.CarFileSize = utils.GetFileSize(carFile.CarFilePath)
+	fileDesc.CarFileSize = utils.GetFileSize(fileDesc.CarFilePath)
 
 	if cmdIpfsCar.GenerateMd5 {
-		carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
+		srcFileMd5, err := checksum.MD5sum(fileDesc.SourceFilePath)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
-		carFile.CarFileMd5 = carFileMd5
+		fileDesc.SourceFileMd5 = srcFileMd5
+
+		carFileMd5, err := checksum.MD5sum(fileDesc.CarFilePath)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
+		fileDesc.CarFileMd5 = carFileMd5
 	}
 
-	carFiles = append(carFiles, &carFile)
+	fileDescs := []*libmodel.FileDesc{
+		&fileDesc,
+	}
 
-	_, err = WriteFileDescsToJsonFile(carFiles, cmdIpfsCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteFileDescsToJsonFile(fileDescs, cmdIpfsCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	logs.GetLogger().Info(len(carFiles), " car files have been created to directory:", cmdIpfsCar.OutputDir)
+	logs.GetLogger().Info(len(fileDescs), " car files have been created to directory:", cmdIpfsCar.OutputDir)
 	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
 
-	return carFiles, nil
+	return fileDescs, nil
 }

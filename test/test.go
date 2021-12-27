@@ -9,7 +9,9 @@ import (
 )
 
 func Test() {
-	TestCreateCarFiles()
+	//TestCreateCarFiles()
+	//TestCreateGoCarFiles()
+	TestCreateIpfsCarFiles()
 	//TestCreateTask()
 }
 
@@ -34,7 +36,7 @@ func TestCreateGoCarFiles() {
 	inputDir := filepath.Join(homeDir, "work/srcFiles")
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
-	command.CreateCarFilesByConfig(inputDir, &outDir)
+	command.CreateGoCarFilesByConfig(inputDir, &outDir)
 }
 
 func TestCreateIpfsCarFiles() {
@@ -46,7 +48,7 @@ func TestCreateIpfsCarFiles() {
 	inputDir := filepath.Join(homeDir, "work/srcFiles")
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
-	command.CreateCarFilesByConfig(inputDir, &outDir)
+	command.CreateIpfsCarFilesByConfig(inputDir, &outDir)
 }
 
 func TestUpload() {

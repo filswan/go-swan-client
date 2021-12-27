@@ -87,14 +87,14 @@ func (cmdGoCar *CmdGoCar) CreateGoCarFiles() ([]*libmodel.FileDesc, error) {
 	}
 
 	carDir := cmdGoCar.OutputDir
+	Emptyctx := context.Background()
+	parallel := 4
+	cb := graphsplit.CommPCallback(carDir)
 
 	if cmdGoCar.GocarFolderBased {
 		parentPath := cmdGoCar.InputDir
 		targetPath := parentPath
 		graphName := filepath.Base(parentPath)
-		parallel := 4
-		Emptyctx := context.Background()
-		cb := graphsplit.CommPCallback(carDir)
 
 		logs.GetLogger().Info("Creating car file for ", parentPath)
 		err = graphsplit.Chunk(Emptyctx, sliceSize, parentPath, targetPath, carDir, graphName, parallel, cb)
@@ -108,9 +108,6 @@ func (cmdGoCar *CmdGoCar) CreateGoCarFiles() ([]*libmodel.FileDesc, error) {
 			parentPath := filepath.Join(cmdGoCar.InputDir, srcFile.Name())
 			targetPath := parentPath
 			graphName := srcFile.Name()
-			parallel := 4
-			Emptyctx := context.Background()
-			cb := graphsplit.CommPCallback(carDir)
 
 			logs.GetLogger().Info("Creating car file for ", parentPath)
 			err = graphsplit.Chunk(Emptyctx, sliceSize, parentPath, targetPath, carDir, graphName, parallel, cb)
@@ -121,16 +118,16 @@ func (cmdGoCar *CmdGoCar) CreateGoCarFiles() ([]*libmodel.FileDesc, error) {
 			logs.GetLogger().Info("Car file for ", parentPath, " created")
 		}
 	}
-	carFiles, err := cmdGoCar.createFilesDescFromManifest(cmdGoCar.InputDir, carDir)
+	fileDescs, err := cmdGoCar.createFilesDescFromManifest(cmdGoCar.InputDir, carDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	logs.GetLogger().Info(len(carFiles), " car files have been created to directory:", carDir)
+	logs.GetLogger().Info(len(fileDescs), " car files have been created to directory:", carDir)
 	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
 
-	return carFiles, nil
+	return fileDescs, nil
 }
 
 type ManifestDetail struct {
@@ -154,14 +151,13 @@ func (cmdGoCar *CmdGoCar) createFilesDescFromManifest(srcFileDir, carFileDir str
 		return nil, err
 	}
 
-	carFiles := []*libmodel.FileDesc{}
-
 	lotusClient, err := lotus.LotusGetClient(cmdGoCar.LotusClientApiUrl, cmdGoCar.LotusClientAccessToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
+	fileDescs := []*libmodel.FileDesc{}
 	for i, line := range lines {
 		if i == 0 {
 			continue
@@ -174,27 +170,27 @@ func (cmdGoCar *CmdGoCar) createFilesDescFromManifest(srcFileDir, carFileDir str
 			return nil, err
 		}
 
-		carFile := libmodel.FileDesc{}
-		carFile.PayloadCid = fields[0]
-		carFile.CarFileName = carFile.PayloadCid + ".car"
-		carFile.CarFilePath = filepath.Join(carFileDir, carFile.CarFileName)
-		carFile.PieceCid = fields[2]
-		carFile.CarFileSize = utils.GetInt64FromStr(fields[3])
+		fileDesc := libmodel.FileDesc{}
+		fileDesc.PayloadCid = fields[0]
+		fileDesc.CarFileName = fileDesc.PayloadCid + ".car"
+		fileDesc.CarFilePath = filepath.Join(carFileDir, fileDesc.CarFileName)
+		fileDesc.PieceCid = fields[2]
+		fileDesc.CarFileSize = utils.GetInt64FromStr(fields[3])
 
-		pieceCid, err := lotusClient.LotusClientCalcCommP(carFile.CarFilePath)
+		pieceCid, err := lotusClient.LotusClientCalcCommP(fileDesc.CarFilePath)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
 
-		carFile.PieceCid = *pieceCid
-		dataCid, err := lotusClient.LotusClientImport(carFile.CarFilePath, true)
+		fileDesc.PieceCid = *pieceCid
+		dataCid, err := lotusClient.LotusClientImport(fileDesc.CarFilePath, true)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
 
-		carFile.PayloadCid = *dataCid
+		fileDesc.PayloadCid = *dataCid
 
 		carFileDetail := fields[4]
 		for i := 5; i < len(fields); i++ {
@@ -208,36 +204,36 @@ func (cmdGoCar *CmdGoCar) createFilesDescFromManifest(srcFileDir, carFileDir str
 			return nil, err
 		}
 
-		carFile.SourceFileName = manifestDetail.Link[0].Name
-		carFile.SourceFilePath = filepath.Join(srcFileDir, carFile.SourceFileName)
-		carFile.SourceFileSize = int64(manifestDetail.Link[0].Size)
+		fileDesc.SourceFileName = manifestDetail.Link[0].Name
+		fileDesc.SourceFilePath = filepath.Join(srcFileDir, fileDesc.SourceFileName)
+		fileDesc.SourceFileSize = int64(manifestDetail.Link[0].Size)
 
 		if cmdGoCar.GenerateMd5 {
-			if utils.IsFileExistsFullPath(carFile.SourceFilePath) {
-				srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
+			if utils.IsFileExistsFullPath(fileDesc.SourceFilePath) {
+				srcFileMd5, err := checksum.MD5sum(fileDesc.SourceFilePath)
 				if err != nil {
 					logs.GetLogger().Error(err)
 					return nil, err
 				}
-				carFile.SourceFileMd5 = srcFileMd5
+				fileDesc.SourceFileMd5 = srcFileMd5
 			}
 
-			carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
+			carFileMd5, err := checksum.MD5sum(fileDesc.CarFilePath)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				return nil, err
 			}
-			carFile.CarFileMd5 = carFileMd5
+			fileDesc.CarFileMd5 = carFileMd5
 		}
 
-		carFiles = append(carFiles, &carFile)
+		fileDescs = append(fileDescs, &fileDesc)
 	}
 
-	_, err = WriteFileDescsToJsonFile(carFiles, carFileDir, JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteFileDescsToJsonFile(fileDescs, carFileDir, JSON_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	return carFiles, nil
+	return fileDescs, nil
 }
