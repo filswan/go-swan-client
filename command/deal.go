@@ -95,7 +95,7 @@ func SendDealsByConfig(outputDir, minerFid, metadataJsonPath string) ([]*libmode
 }
 
 func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
-	err := CreateOutputDir(cmdDeal.OutputDir)
+	err := createOutputDir(cmdDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

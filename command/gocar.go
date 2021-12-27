@@ -61,13 +61,13 @@ func CreateGoCarFilesByConfig(inputDir string, outputDir *string) ([]*libmodel.F
 }
 
 func (cmdGoCar *CmdGoCar) CreateGoCarFiles() ([]*libmodel.FileDesc, error) {
-	err := CheckInputDir(cmdGoCar.InputDir)
+	err := checkInputDir(cmdGoCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	err = CreateOutputDir(cmdGoCar.OutputDir)
+	err = createOutputDir(cmdGoCar.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

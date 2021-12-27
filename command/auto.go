@@ -61,7 +61,7 @@ func SendAutoBidDealsLoopByConfig(outputDir string) error {
 }
 
 func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsLoop() error {
-	err := CreateOutputDir(cmdAutoBidDeal.OutputDir)
+	err := createOutputDir(cmdAutoBidDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -79,7 +79,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsLoop() error {
 }
 
 func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDeals() ([][]*libmodel.FileDesc, error) {
-	err := CreateOutputDir(cmdAutoBidDeal.OutputDir)
+	err := createOutputDir(cmdAutoBidDeal.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

@@ -46,7 +46,7 @@ func UploadCarFilesByConfig(inputDir string) ([]*libmodel.FileDesc, error) {
 }
 
 func (cmdUpload *CmdUpload) UploadCarFiles() ([]*libmodel.FileDesc, error) {
-	err := CheckInputDir(cmdUpload.InputDir)
+	err := checkInputDir(cmdUpload.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

@@ -10,11 +10,10 @@ import (
 
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/logs"
-
+	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
 
 	"github.com/codingsince1985/checksum"
-	libmodel "github.com/filswan/go-swan-lib/model"
 )
 
 type CmdCar struct {
@@ -53,13 +52,13 @@ func CreateCarFilesByConfig(inputDir string, outputDir *string) ([]*libmodel.Fil
 }
 
 func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error) {
-	err := CheckInputDir(cmdCar.InputDir)
+	err := checkInputDir(cmdCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	err = CreateOutputDir(cmdCar.OutputDir)
+	err = createOutputDir(cmdCar.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

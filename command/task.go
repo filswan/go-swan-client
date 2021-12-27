@@ -116,13 +116,13 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		return nil, nil, nil, err
 	}
 
-	err = CheckInputDir(cmdTask.InputDir)
+	err = checkInputDir(cmdTask.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
 	}
 
-	err = CreateOutputDir(cmdTask.OutputDir)
+	err = createOutputDir(cmdTask.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err

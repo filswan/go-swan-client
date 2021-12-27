@@ -59,13 +59,13 @@ func (cmdIpfsCar *CmdIpfsCar) CreateIpfsCarFiles() ([]*libmodel.FileDesc, error)
 		return nil, err
 	}
 
-	err := CheckInputDir(cmdIpfsCar.InputDir)
+	err := checkInputDir(cmdIpfsCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	err = CreateOutputDir(cmdIpfsCar.OutputDir)
+	err = createOutputDir(cmdIpfsCar.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

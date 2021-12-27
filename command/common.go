@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"path/filepath"
 
-	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
@@ -29,15 +28,15 @@ const (
 	JSON_FILE_NAME_DEAL_AUTO  = "-auto-deals.json"
 )
 
-func CheckInputDir(inputDir string) error {
-	if len(inputDir) == 0 {
-		err := fmt.Errorf("please provide -input-dir")
+func checkInputDir(inputDir string) error {
+	if utils.IsStrEmpty(&inputDir) {
+		err := fmt.Errorf("input directory is required")
 		logs.GetLogger().Error(err)
 		return err
 	}
 
-	if utils.GetPathType(inputDir) != libconstants.PATH_TYPE_DIR {
-		err := fmt.Errorf("%s is not a directory", inputDir)
+	if !utils.IsDirExists(inputDir) {
+		err := fmt.Errorf("directory:%s not exists", inputDir)
 		logs.GetLogger().Error(err)
 		return err
 	}
@@ -45,9 +44,9 @@ func CheckInputDir(inputDir string) error {
 	return nil
 }
 
-func CreateOutputDir(outputDir string) error {
-	if len(outputDir) == 0 {
-		err := fmt.Errorf("output dir is not provided")
+func createOutputDir(outputDir string) error {
+	if utils.IsStrEmpty(&outputDir) {
+		err := fmt.Errorf("out directory is required")
 		logs.GetLogger().Info(err)
 		return err
 	}
@@ -58,7 +57,7 @@ func CreateOutputDir(outputDir string) error {
 
 	err := os.MkdirAll(outputDir, os.ModePerm)
 	if err != nil {
-		err := fmt.Errorf("%s, failed to create output dir:%s", err.Error(), outputDir)
+		err := fmt.Errorf("failed to create output dir:%s,%s", outputDir, err.Error())
 		logs.GetLogger().Error(err)
 		return err
 	}
