@@ -7,8 +7,9 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"strings"
+	"time"
 
-	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-client/config"
 
 	"github.com/filswan/go-swan-lib/logs"
 
@@ -21,9 +22,37 @@ import (
 	libmodel "github.com/filswan/go-swan-lib/model"
 )
 
+type CmdGoCar struct {
+	LotusClientApiUrl         string //required
+	LotusClientAccessToken    string //required
+	OutputDir                 string //required
+	InputDir                  string //required
+	GocarFileSizeLimit        int64  //required only when creating gocar file(s)
+	GenerateMd5               bool   //required
+	IpfsServerUploadUrlPrefix string //required only when creating ipfs car file
+}
+
+func GetCmdGoCar(inputDir string, outputDir *string) *CmdGoCar {
+	cmdGoCar := &CmdGoCar{
+		LotusClientApiUrl:         config.GetConfig().Lotus.ClientApiUrl,
+		LotusClientAccessToken:    config.GetConfig().Lotus.ClientAccessToken,
+		OutputDir:                 filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
+		InputDir:                  inputDir,
+		GocarFileSizeLimit:        config.GetConfig().Sender.GocarFileSizeLimit,
+		GenerateMd5:               config.GetConfig().Sender.GenerateMd5,
+		IpfsServerUploadUrlPrefix: config.GetConfig().IpfsServer.UploadUrlPrefix,
+	}
+
+	if outputDir != nil && len(*outputDir) != 0 {
+		cmdGoCar.OutputDir = *outputDir
+	}
+
+	return cmdGoCar
+}
+
 func CreateGoCarFilesByConfig(inputDir string, outputDir *string) ([]*libmodel.FileDesc, error) {
-	confCar := model.GetConfCar(inputDir, outputDir)
-	fileDescs, err := CreateGoCarFiles(confCar)
+	cmdGoCar := GetCmdGoCar(inputDir, outputDir)
+	fileDescs, err := cmdGoCar.CreateGoCarFiles()
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -32,41 +61,35 @@ func CreateGoCarFilesByConfig(inputDir string, outputDir *string) ([]*libmodel.F
 	return fileDescs, nil
 }
 
-func CreateGoCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
-	if confCar == nil {
-		err := fmt.Errorf("parameter confCar is nil")
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	err := CheckInputDir(confCar.InputDir)
+func (cmdGoCar *CmdGoCar) CreateGoCarFiles() ([]*libmodel.FileDesc, error) {
+	err := CheckInputDir(cmdGoCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	err = CreateOutputDir(confCar.OutputDir)
+	err = CreateOutputDir(cmdGoCar.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	sliceSize := confCar.GocarFileSizeLimit
+	sliceSize := cmdGoCar.GocarFileSizeLimit
 	if sliceSize <= 0 {
 		err := fmt.Errorf("gocar file size limit is too smal")
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	srcFiles, err := ioutil.ReadDir(confCar.InputDir)
+	srcFiles, err := ioutil.ReadDir(cmdGoCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	carDir := confCar.OutputDir
+	carDir := cmdGoCar.OutputDir
 	for _, srcFile := range srcFiles {
-		parentPath := filepath.Join(confCar.InputDir, srcFile.Name())
+		parentPath := filepath.Join(cmdGoCar.InputDir, srcFile.Name())
 		targetPath := parentPath
 		graphName := srcFile.Name()
 		parallel := 4
@@ -78,7 +101,7 @@ func CreateGoCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 			logs.GetLogger().Error(err)
 		}
 	}
-	carFiles, err := CreateCarFilesDescFromGoCarManifest(confCar, confCar.InputDir, carDir)
+	carFiles, err := cmdGoCar.CreateCarFilesDescFromGoCarManifest(cmdGoCar.InputDir, carDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -103,13 +126,7 @@ type ManifestDetailLinkItem struct {
 	Size int
 }
 
-func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, carFileDir string) ([]*libmodel.FileDesc, error) {
-	if confCar == nil {
-		err := fmt.Errorf("parameter confCar is nil")
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
+func (cmdGoCar *CmdGoCar) CreateCarFilesDescFromGoCarManifest(srcFileDir, carFileDir string) ([]*libmodel.FileDesc, error) {
 	manifestFilename := "manifest.csv"
 	lines, err := utils.ReadAllLines(carFileDir, manifestFilename)
 	if err != nil {
@@ -119,7 +136,7 @@ func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, car
 
 	carFiles := []*libmodel.FileDesc{}
 
-	lotusClient, err := lotus.LotusGetClient(confCar.LotusClientApiUrl, confCar.LotusClientAccessToken)
+	lotusClient, err := lotus.LotusGetClient(cmdGoCar.LotusClientApiUrl, cmdGoCar.LotusClientAccessToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -177,7 +194,7 @@ func CreateCarFilesDescFromGoCarManifest(confCar *model.ConfCar, srcFileDir, car
 		carFile.SourceFilePath = filepath.Join(srcFileDir, carFile.SourceFileName)
 		carFile.SourceFileSize = int64(manifestDetail.Link[0].Size)
 
-		if confCar.GenerateMd5 {
+		if cmdGoCar.GenerateMd5 {
 			if utils.IsFileExistsFullPath(carFile.SourceFilePath) {
 				srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
 				if err != nil {

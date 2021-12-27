@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"time"
 
-	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-client/config"
 
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/logs"
@@ -17,9 +18,33 @@ import (
 	libmodel "github.com/filswan/go-swan-lib/model"
 )
 
+type CmdCar struct {
+	LotusClientApiUrl      string //required
+	LotusClientAccessToken string //required
+	OutputDir              string //required
+	InputDir               string //required
+	GenerateMd5            bool   //required
+}
+
+func GetCmdCar(inputDir string, outputDir *string) *CmdCar {
+	cmdCar := &CmdCar{
+		LotusClientApiUrl:      config.GetConfig().Lotus.ClientApiUrl,
+		LotusClientAccessToken: config.GetConfig().Lotus.ClientAccessToken,
+		OutputDir:              filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
+		InputDir:               inputDir,
+		GenerateMd5:            config.GetConfig().Sender.GenerateMd5,
+	}
+
+	if outputDir != nil && len(*outputDir) != 0 {
+		cmdCar.OutputDir = *outputDir
+	}
+
+	return cmdCar
+}
+
 func CreateCarFilesByConfig(inputDir string, outputDir *string) ([]*libmodel.FileDesc, error) {
-	confCar := model.GetConfCar(inputDir, outputDir)
-	fileDescs, err := CreateCarFiles(confCar)
+	cmdCar := GetCmdCar(inputDir, outputDir)
+	fileDescs, err := cmdCar.CreateCarFiles()
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -28,26 +53,20 @@ func CreateCarFilesByConfig(inputDir string, outputDir *string) ([]*libmodel.Fil
 	return fileDescs, nil
 }
 
-func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
-	if confCar == nil {
-		err := fmt.Errorf("parameter confCar is nil")
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	err := CheckInputDir(confCar.InputDir)
+func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error) {
+	err := CheckInputDir(cmdCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	err = CreateOutputDir(confCar.OutputDir)
+	err = CreateOutputDir(cmdCar.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	srcFiles, err := ioutil.ReadDir(confCar.InputDir)
+	srcFiles, err := ioutil.ReadDir(cmdCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -55,7 +74,7 @@ func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 
 	carFiles := []*libmodel.FileDesc{}
 
-	lotusClient, err := lotus.LotusGetClient(confCar.LotusClientApiUrl, confCar.LotusClientAccessToken)
+	lotusClient, err := lotus.LotusGetClient(cmdCar.LotusClientApiUrl, cmdCar.LotusClientAccessToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -64,10 +83,10 @@ func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 	for _, srcFile := range srcFiles {
 		carFile := libmodel.FileDesc{}
 		carFile.SourceFileName = srcFile.Name()
-		carFile.SourceFilePath = filepath.Join(confCar.InputDir, carFile.SourceFileName)
+		carFile.SourceFilePath = filepath.Join(cmdCar.InputDir, carFile.SourceFileName)
 		carFile.SourceFileSize = srcFile.Size()
 		carFile.CarFileName = carFile.SourceFileName + ".car"
-		carFile.CarFilePath = filepath.Join(confCar.OutputDir, carFile.CarFileName)
+		carFile.CarFilePath = filepath.Join(cmdCar.OutputDir, carFile.CarFileName)
 		logs.GetLogger().Info("Creating car file ", carFile.CarFilePath, " for ", carFile.SourceFilePath)
 
 		err := lotusClient.LotusClientGenCar(carFile.SourceFilePath, carFile.CarFilePath, false)
@@ -102,7 +121,7 @@ func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 
 		carFile.CarFileSize = utils.GetFileSize(carFile.CarFilePath)
 
-		if confCar.GenerateMd5 {
+		if cmdCar.GenerateMd5 {
 			srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
 			if err != nil {
 				logs.GetLogger().Error(err)
@@ -122,9 +141,9 @@ func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 		logs.GetLogger().Info("Car file ", carFile.CarFilePath, " created")
 	}
 
-	logs.GetLogger().Info(len(carFiles), " car files have been created to directory:", confCar.OutputDir)
+	logs.GetLogger().Info(len(carFiles), " car files have been created to directory:", cmdCar.OutputDir)
 
-	_, err = WriteFileDescsToJsonFile(carFiles, confCar.OutputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteFileDescsToJsonFile(carFiles, cmdCar.OutputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

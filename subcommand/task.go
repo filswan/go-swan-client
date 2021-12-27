@@ -2,9 +2,13 @@ package subcommand
 
 import (
 	"fmt"
+	"path/filepath"
+	"time"
 
 	"github.com/filswan/go-swan-client/common/constants"
+	"github.com/filswan/go-swan-client/config"
 	"github.com/filswan/go-swan-client/model"
+	"github.com/shopspring/decimal"
 
 	"github.com/codingsince1985/checksum"
 	"github.com/filswan/go-swan-lib/logs"
@@ -18,10 +22,78 @@ import (
 	"github.com/google/uuid"
 )
 
+type CmdTask struct {
+	SwanApiUrl                 string          //required when OfflineMode is false
+	SwanApiKey                 string          //required when OfflineMode is false and SwanJwtToken is not provided
+	SwanAccessToken            string          //required when OfflineMode is false and SwanJwtToken is not provided
+	SwanToken                  string          //required when OfflineMode is false and SwanApiKey & SwanAccessToken are not provided
+	LotusClientApiUrl          string          //required
+	PublicDeal                 bool            //required
+	BidMode                    int             //required
+	VerifiedDeal               bool            //required
+	OfflineMode                bool            //required
+	FastRetrieval              bool            //required
+	MaxPrice                   decimal.Decimal //required
+	StorageServerType          string          //required
+	WebServerDownloadUrlPrefix string          //required only when StorageServerType is web server
+	ExpireDays                 int             //required
+	GenerateMd5                bool            //required
+	Duration                   int             //not necessary, when not provided use default value:1512000
+	OutputDir                  string          //required
+	InputDir                   string          //required
+	TaskName                   string          //not necessary, when not provided use default value:swan_task_xxxxxx
+	Dataset                    string          //not necessary
+	Description                string          //not necessary
+	StartEpochHours            int             //required
+	SourceId                   int             //required
+	MaxAutoBidCopyNumber       int             //required only for public autobid deal
+}
+
+func GetCmdTask(inputDir string, outputDir *string, taskName, dataset, description string) *CmdTask {
+	cmdTask := &CmdTask{
+		SwanApiUrl:                 config.GetConfig().Main.SwanApiUrl,
+		SwanApiKey:                 config.GetConfig().Main.SwanApiKey,
+		SwanAccessToken:            config.GetConfig().Main.SwanAccessToken,
+		LotusClientApiUrl:          config.GetConfig().Lotus.ClientApiUrl,
+		PublicDeal:                 config.GetConfig().Sender.PublicDeal,
+		BidMode:                    config.GetConfig().Sender.BidMode,
+		VerifiedDeal:               config.GetConfig().Sender.VerifiedDeal,
+		OfflineMode:                config.GetConfig().Sender.OfflineMode,
+		FastRetrieval:              config.GetConfig().Sender.FastRetrieval,
+		StorageServerType:          config.GetConfig().Main.StorageServerType,
+		WebServerDownloadUrlPrefix: config.GetConfig().WebServer.DownloadUrlPrefix,
+		ExpireDays:                 config.GetConfig().Sender.ExpireDays,
+		GenerateMd5:                config.GetConfig().Sender.GenerateMd5,
+		Duration:                   config.GetConfig().Sender.Duration,
+		OutputDir:                  filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
+		InputDir:                   inputDir,
+		TaskName:                   taskName,
+		Dataset:                    dataset,
+		Description:                description,
+		StartEpochHours:            config.GetConfig().Sender.StartEpochHours,
+		SourceId:                   libconstants.TASK_SOURCE_ID_SWAN_CLIENT,
+		MaxAutoBidCopyNumber:       config.GetConfig().Sender.MaxAutoBidCopyNumber,
+	}
+
+	if outputDir != nil && len(*outputDir) != 0 {
+		cmdTask.OutputDir = *outputDir
+	}
+
+	var err error
+	maxPrice := config.GetConfig().Sender.MaxPrice
+	cmdTask.MaxPrice, err = decimal.NewFromString(maxPrice)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil
+	}
+
+	return cmdTask
+}
+
 func CreateTaskByConfig(inputDir string, outputDir *string, taskName, minerFid, dataset, description string) (*string, []*libmodel.FileDesc, []*Deal, error) {
-	confTask := model.GetConfTask(inputDir, outputDir, taskName, dataset, description)
+	cmdTask := GetCmdTask(inputDir, outputDir, taskName, dataset, description)
 	confDeal := model.GetConfDeal(outputDir, minerFid, "")
-	jsonFileName, fileDescs, deals, err := CreateTask(confTask, confDeal)
+	jsonFileName, fileDescs, deals, err := cmdTask.CreateTask(confDeal)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
@@ -31,14 +103,8 @@ func CreateTaskByConfig(inputDir string, outputDir *string, taskName, minerFid, 
 	return jsonFileName, fileDescs, deals, nil
 }
 
-func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []*libmodel.FileDesc, []*Deal, error) {
-	if confTask == nil {
-		err := fmt.Errorf("parameter confTask is nil")
-		logs.GetLogger().Error(err)
-		return nil, nil, nil, err
-	}
-
-	if !confTask.PublicDeal {
+func (cmdTask *CmdTask) CreateTask(confDeal *model.ConfDeal) (*string, []*libmodel.FileDesc, []*Deal, error) {
+	if !cmdTask.PublicDeal {
 		if confDeal == nil {
 			err := fmt.Errorf("parameter confDeal is nil")
 			logs.GetLogger().Error(err)
@@ -52,33 +118,33 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		return nil, nil, nil, err
 	}
 
-	err = CheckInputDir(confTask.InputDir)
+	err = CheckInputDir(cmdTask.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
 	}
 
-	err = CreateOutputDir(confTask.OutputDir)
+	err = CreateOutputDir(cmdTask.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
 	}
 
-	logs.GetLogger().Info("you output dir: ", confTask.OutputDir)
-	if len(confTask.TaskName) == 0 {
+	logs.GetLogger().Info("you output dir: ", cmdTask.OutputDir)
+	if len(cmdTask.TaskName) == 0 {
 		taskName := utils.GetDefaultTaskName()
-		confTask.TaskName = taskName
+		cmdTask.TaskName = taskName
 	}
 
-	fileDescs := ReadFileDescsFromJsonFile(confTask.InputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
+	fileDescs := ReadFileDescsFromJsonFile(cmdTask.InputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
 	if fileDescs == nil {
-		err := fmt.Errorf("failed to read car files from :%s", confTask.InputDir)
+		err := fmt.Errorf("failed to read car files from :%s", cmdTask.InputDir)
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
 	}
 
 	isPublic := 0
-	if confTask.PublicDeal {
+	if cmdTask.PublicDeal {
 		isPublic = 1
 		if len(confDeal.MinerFids) > 0 {
 			logs.GetLogger().Warn("miner fids is unnecessary for public task")
@@ -86,55 +152,55 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	}
 
 	taskType := libconstants.TASK_TYPE_REGULAR
-	if confTask.VerifiedDeal {
+	if cmdTask.VerifiedDeal {
 		taskType = libconstants.TASK_TYPE_VERIFIED
 	}
 
-	if confTask.Duration == 0 {
-		confTask.Duration = DURATION
+	if cmdTask.Duration == 0 {
+		cmdTask.Duration = DURATION
 	}
 
 	currentEpoch := lotusClient.LotusGetCurrentEpoch()
 	startEpoch := currentEpoch + int64(confDeal.StartEpochHours+libconstants.EPOCH_PER_HOUR)
 
-	err = lotusClient.CheckDuration(confTask.Duration, startEpoch)
+	err = lotusClient.CheckDuration(cmdTask.Duration, startEpoch)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
 	}
 
 	fastRetrieval := libconstants.TASK_FAST_RETRIEVAL_NO
-	if confTask.FastRetrieval {
+	if cmdTask.FastRetrieval {
 		fastRetrieval = libconstants.TASK_FAST_RETRIEVAL_YES
 	}
 
 	uuid := uuid.NewString()
 	task := libmodel.Task{
-		TaskName:             confTask.TaskName,
+		TaskName:             cmdTask.TaskName,
 		FastRetrieval:        &fastRetrieval,
 		Type:                 taskType,
 		IsPublic:             &isPublic,
-		MaxPrice:             &confTask.MaxPrice,
-		BidMode:              &confTask.BidMode,
-		ExpireDays:           &confTask.ExpireDays,
+		MaxPrice:             &cmdTask.MaxPrice,
+		BidMode:              &cmdTask.BidMode,
+		ExpireDays:           &cmdTask.ExpireDays,
 		Uuid:                 uuid,
-		SourceId:             confTask.SourceId,
-		Duration:             confTask.Duration,
-		CuratedDataset:       confTask.Dataset,
-		Description:          confTask.Description,
-		MaxAutoBidCopyNumber: confTask.MaxAutoBidCopyNumber,
+		SourceId:             cmdTask.SourceId,
+		Duration:             cmdTask.Duration,
+		CuratedDataset:       cmdTask.Dataset,
+		Description:          cmdTask.Description,
+		MaxAutoBidCopyNumber: cmdTask.MaxAutoBidCopyNumber,
 	}
 
 	for _, fileDesc := range fileDescs {
 		fileDesc.Uuid = task.Uuid
 		fileDesc.StartEpoch = &startEpoch
-		fileDesc.SourceId = &confTask.SourceId
+		fileDesc.SourceId = &cmdTask.SourceId
 
-		if confTask.StorageServerType == libconstants.STORAGE_SERVER_TYPE_WEB_SERVER {
-			fileDesc.CarFileUrl = utils.UrlJoin(confTask.WebServerDownloadUrlPrefix, fileDesc.CarFileName)
+		if cmdTask.StorageServerType == libconstants.STORAGE_SERVER_TYPE_WEB_SERVER {
+			fileDesc.CarFileUrl = utils.UrlJoin(cmdTask.WebServerDownloadUrlPrefix, fileDesc.CarFileName)
 		}
 
-		if confTask.GenerateMd5 {
+		if cmdTask.GenerateMd5 {
 			if fileDesc.SourceFileMd5 == "" && utils.IsFileExistsFullPath(fileDesc.SourceFilePath) {
 				srcFileMd5, err := checksum.MD5sum(fileDesc.SourceFilePath)
 				if err != nil {
@@ -155,21 +221,21 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		}
 	}
 
-	if !confTask.PublicDeal {
-		_, err := SendDeals2Miner(confDeal, confTask.TaskName, confTask.OutputDir, fileDescs)
+	if !cmdTask.PublicDeal {
+		_, err := SendDeals2Miner(confDeal, cmdTask.TaskName, cmdTask.OutputDir, fileDescs)
 		if err != nil {
 			return nil, nil, nil, err
 		}
 	}
 
-	jsonFileName := confTask.TaskName + constants.JSON_FILE_NAME_TASK
-	jsonFilepath, err := WriteFileDescsToJsonFile(fileDescs, confTask.OutputDir, jsonFileName)
+	jsonFileName := cmdTask.TaskName + constants.JSON_FILE_NAME_TASK
+	jsonFilepath, err := WriteFileDescsToJsonFile(fileDescs, cmdTask.OutputDir, jsonFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
 	}
 
-	deals, err := SendTask2Swan(confTask, task, fileDescs)
+	deals, err := cmdTask.SendTask2Swan(task, fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
@@ -182,20 +248,20 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	return jsonFilepath, fileDescs, deals, nil
 }
 
-func SendTask2Swan(confTask *model.ConfTask, task libmodel.Task, fileDescs []*libmodel.FileDesc) ([]*Deal, error) {
+func (cmdTask *CmdTask) SendTask2Swan(task libmodel.Task, fileDescs []*libmodel.FileDesc) ([]*Deal, error) {
 	deals, err := GetDeals(fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return deals, err
 	}
 
-	if confTask.OfflineMode {
+	if cmdTask.OfflineMode {
 		logs.GetLogger().Info("Working in Offline Mode. You need to manually send out task on filwan.com.")
 		return deals, nil
 	}
 
 	logs.GetLogger().Info("Working in Online Mode. A swan task will be created on the filwan.com after process done. ")
-	swanClient, err := swan.GetClient(confTask.SwanApiUrl, confTask.SwanApiKey, confTask.SwanAccessToken, confTask.SwanToken)
+	swanClient, err := swan.GetClient(cmdTask.SwanApiUrl, cmdTask.SwanApiKey, cmdTask.SwanAccessToken, cmdTask.SwanToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return deals, err

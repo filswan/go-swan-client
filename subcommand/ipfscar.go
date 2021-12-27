@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"time"
 
 	"github.com/codingsince1985/checksum"
 	"github.com/filswan/go-swan-client/common/constants"
-	"github.com/filswan/go-swan-client/model"
+	"github.com/filswan/go-swan-client/config"
 	"github.com/filswan/go-swan-lib/client/ipfs"
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/logs"
@@ -15,9 +16,35 @@ import (
 	"github.com/filswan/go-swan-lib/utils"
 )
 
+type CmdIpfsCar struct {
+	LotusClientApiUrl         string //required
+	LotusClientAccessToken    string //required
+	OutputDir                 string //required
+	InputDir                  string //required
+	GenerateMd5               bool   //required
+	IpfsServerUploadUrlPrefix string //required only when creating ipfs car file
+}
+
+func GetCmdIpfsCar(inputDir string, outputDir *string) *CmdIpfsCar {
+	cmdIpfsCar := &CmdIpfsCar{
+		LotusClientApiUrl:         config.GetConfig().Lotus.ClientApiUrl,
+		LotusClientAccessToken:    config.GetConfig().Lotus.ClientAccessToken,
+		OutputDir:                 filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
+		InputDir:                  inputDir,
+		GenerateMd5:               config.GetConfig().Sender.GenerateMd5,
+		IpfsServerUploadUrlPrefix: config.GetConfig().IpfsServer.UploadUrlPrefix,
+	}
+
+	if outputDir != nil && len(*outputDir) != 0 {
+		cmdIpfsCar.OutputDir = *outputDir
+	}
+
+	return cmdIpfsCar
+}
+
 func CreateIpfsCarFilesByConfig(inputDir string, outputDir *string) ([]*libmodel.FileDesc, error) {
-	confCar := model.GetConfCar(inputDir, outputDir)
-	fileDescs, err := CreateIpfsCarFiles(confCar)
+	cmdIpfsCar := GetCmdIpfsCar(inputDir, outputDir)
+	fileDescs, err := cmdIpfsCar.CreateIpfsCarFiles()
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -26,44 +53,38 @@ func CreateIpfsCarFilesByConfig(inputDir string, outputDir *string) ([]*libmodel
 	return fileDescs, nil
 }
 
-func CreateIpfsCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
-	if confCar == nil {
-		err := fmt.Errorf("parameter confCar is nil")
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	if confCar.IpfsServerUploadUrlPrefix == "" {
+func (cmdIpfsCar *CmdIpfsCar) CreateIpfsCarFiles() ([]*libmodel.FileDesc, error) {
+	if cmdIpfsCar.IpfsServerUploadUrlPrefix == "" {
 		err := fmt.Errorf("IpfsServerUploadUrlPrefix is required")
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	err := CheckInputDir(confCar.InputDir)
+	err := CheckInputDir(cmdIpfsCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	err = CreateOutputDir(confCar.OutputDir)
+	err = CreateOutputDir(cmdIpfsCar.OutputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	srcFiles, err := ioutil.ReadDir(confCar.InputDir)
+	srcFiles, err := ioutil.ReadDir(cmdIpfsCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
 	if len(srcFiles) == 0 {
-		err := fmt.Errorf("no files under directory:%s", confCar.InputDir)
+		err := fmt.Errorf("no files under directory:%s", cmdIpfsCar.InputDir)
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	lotusClient, err := lotus.LotusGetClient(confCar.LotusClientApiUrl, confCar.LotusClientAccessToken)
+	lotusClient, err := lotus.LotusGetClient(cmdIpfsCar.LotusClientApiUrl, cmdIpfsCar.LotusClientAccessToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -71,8 +92,8 @@ func CreateIpfsCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 
 	srcFileCids := []string{}
 	for _, srcFile := range srcFiles {
-		srcFilePath := filepath.Join(confCar.InputDir, srcFile.Name())
-		srcFileCid, err := ipfs.IpfsUploadFileByWebApi(utils.UrlJoin(confCar.IpfsServerUploadUrlPrefix, "api/v0/add?stream-channels=true&pin=true"), srcFilePath)
+		srcFilePath := filepath.Join(cmdIpfsCar.InputDir, srcFile.Name())
+		srcFileCid, err := ipfs.IpfsUploadFileByWebApi(utils.UrlJoin(cmdIpfsCar.IpfsServerUploadUrlPrefix, "api/v0/add?stream-channels=true&pin=true"), srcFilePath)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, err
@@ -80,7 +101,7 @@ func CreateIpfsCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 
 		srcFileCids = append(srcFileCids, *srcFileCid)
 	}
-	carFileDataCid, err := ipfs.MergeFiles2CarFile(confCar.IpfsServerUploadUrlPrefix, srcFileCids)
+	carFileDataCid, err := ipfs.MergeFiles2CarFile(cmdIpfsCar.IpfsServerUploadUrlPrefix, srcFileCids)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -88,8 +109,8 @@ func CreateIpfsCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 
 	//logs.GetLogger().Info("data CID:", *carFileDataCid)
 	carFileName := *carFileDataCid + ".car"
-	carFilePath := filepath.Join(confCar.OutputDir, carFileName)
-	err = ipfs.Export2CarFile(confCar.IpfsServerUploadUrlPrefix, *carFileDataCid, carFilePath)
+	carFilePath := filepath.Join(cmdIpfsCar.OutputDir, carFileName)
+	err = ipfs.Export2CarFile(cmdIpfsCar.IpfsServerUploadUrlPrefix, *carFileDataCid, carFilePath)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -120,7 +141,7 @@ func CreateIpfsCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 
 	carFile.CarFileSize = utils.GetFileSize(carFile.CarFilePath)
 
-	if confCar.GenerateMd5 {
+	if cmdIpfsCar.GenerateMd5 {
 		carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
 		if err != nil {
 			logs.GetLogger().Error(err)
@@ -131,13 +152,13 @@ func CreateIpfsCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 
 	carFiles = append(carFiles, &carFile)
 
-	_, err = WriteFileDescsToJsonFile(carFiles, confCar.OutputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteFileDescsToJsonFile(carFiles, cmdIpfsCar.OutputDir, constants.JSON_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	logs.GetLogger().Info(len(carFiles), " car files have been created to directory:", confCar.OutputDir)
+	logs.GetLogger().Info(len(carFiles), " car files have been created to directory:", cmdIpfsCar.OutputDir)
 	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
 
 	return carFiles, nil
