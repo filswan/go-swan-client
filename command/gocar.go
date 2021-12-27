@@ -118,7 +118,7 @@ func (cmdGoCar *CmdGoCar) CreateGoCarFiles() ([]*libmodel.FileDesc, error) {
 			logs.GetLogger().Info("Car file for ", parentPath, " created")
 		}
 	}
-	fileDescs, err := cmdGoCar.createFilesDescFromManifest(cmdGoCar.InputDir, carDir)
+	fileDescs, err := cmdGoCar.createFilesDescFromManifest()
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -134,18 +134,16 @@ type ManifestDetail struct {
 	Name string
 	Hash string
 	Size int
-	Link []ManifestDetailLinkItem
+	Link []struct {
+		Name string
+		Hash string
+		Size int64
+	}
 }
 
-type ManifestDetailLinkItem struct {
-	Name string
-	Hash string
-	Size int
-}
-
-func (cmdGoCar *CmdGoCar) createFilesDescFromManifest(srcFileDir, carFileDir string) ([]*libmodel.FileDesc, error) {
+func (cmdGoCar *CmdGoCar) createFilesDescFromManifest() ([]*libmodel.FileDesc, error) {
 	manifestFilename := "manifest.csv"
-	lines, err := utils.ReadAllLines(carFileDir, manifestFilename)
+	lines, err := utils.ReadAllLines(cmdGoCar.OutputDir, manifestFilename)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -173,7 +171,7 @@ func (cmdGoCar *CmdGoCar) createFilesDescFromManifest(srcFileDir, carFileDir str
 		fileDesc := libmodel.FileDesc{}
 		fileDesc.PayloadCid = fields[0]
 		fileDesc.CarFileName = fileDesc.PayloadCid + ".car"
-		fileDesc.CarFilePath = filepath.Join(carFileDir, fileDesc.CarFileName)
+		fileDesc.CarFilePath = filepath.Join(cmdGoCar.OutputDir, fileDesc.CarFileName)
 		fileDesc.PieceCid = fields[2]
 		fileDesc.CarFileSize = utils.GetInt64FromStr(fields[3])
 
@@ -204,9 +202,17 @@ func (cmdGoCar *CmdGoCar) createFilesDescFromManifest(srcFileDir, carFileDir str
 			return nil, err
 		}
 
-		fileDesc.SourceFileName = manifestDetail.Link[0].Name
-		fileDesc.SourceFilePath = filepath.Join(srcFileDir, fileDesc.SourceFileName)
-		fileDesc.SourceFileSize = int64(manifestDetail.Link[0].Size)
+		if cmdGoCar.GocarFolderBased {
+			fileDesc.SourceFileName = filepath.Base(cmdGoCar.InputDir)
+			fileDesc.SourceFilePath = cmdGoCar.InputDir
+			for _, link := range manifestDetail.Link {
+				fileDesc.SourceFileSize = fileDesc.SourceFileSize + link.Size
+			}
+		} else {
+			fileDesc.SourceFileName = manifestDetail.Link[0].Name
+			fileDesc.SourceFilePath = filepath.Join(cmdGoCar.InputDir, fileDesc.SourceFileName)
+			fileDesc.SourceFileSize = int64(manifestDetail.Link[0].Size)
+		}
 
 		if cmdGoCar.GenerateMd5 {
 			if utils.IsFileExistsFullPath(fileDesc.SourceFilePath) {
@@ -229,7 +235,7 @@ func (cmdGoCar *CmdGoCar) createFilesDescFromManifest(srcFileDir, carFileDir str
 		fileDescs = append(fileDescs, &fileDesc)
 	}
 
-	_, err = WriteFileDescsToJsonFile(fileDescs, carFileDir, JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteFileDescsToJsonFile(fileDescs, cmdGoCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
