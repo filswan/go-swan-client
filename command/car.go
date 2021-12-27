@@ -70,7 +70,7 @@ func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	carFiles := []*libmodel.FileDesc{}
+	fileDescs := []*libmodel.FileDesc{}
 
 	lotusClient, err := lotus.LotusGetClient(cmdCar.LotusClientApiUrl, cmdCar.LotusClientAccessToken)
 	if err != nil {
@@ -79,29 +79,29 @@ func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error) {
 	}
 
 	for _, srcFile := range srcFiles {
-		carFile := libmodel.FileDesc{}
-		carFile.SourceFileName = srcFile.Name()
-		carFile.SourceFilePath = filepath.Join(cmdCar.InputDir, carFile.SourceFileName)
-		carFile.SourceFileSize = srcFile.Size()
-		carFile.CarFileName = carFile.SourceFileName + ".car"
-		carFile.CarFilePath = filepath.Join(cmdCar.OutputDir, carFile.CarFileName)
-		logs.GetLogger().Info("Creating car file ", carFile.CarFilePath, " for ", carFile.SourceFilePath)
+		fileDesc := libmodel.FileDesc{}
+		fileDesc.SourceFileName = srcFile.Name()
+		fileDesc.SourceFilePath = filepath.Join(cmdCar.InputDir, fileDesc.SourceFileName)
+		fileDesc.SourceFileSize = srcFile.Size()
+		fileDesc.CarFileName = fileDesc.SourceFileName + ".car"
+		fileDesc.CarFilePath = filepath.Join(cmdCar.OutputDir, fileDesc.CarFileName)
+		logs.GetLogger().Info("Creating car file ", fileDesc.CarFilePath, " for ", fileDesc.SourceFilePath)
 
-		err := lotusClient.LotusClientGenCar(carFile.SourceFilePath, carFile.CarFilePath, false)
+		err := lotusClient.LotusClientGenCar(fileDesc.SourceFilePath, fileDesc.CarFilePath, false)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
 
-		pieceCid, err := lotusClient.LotusClientCalcCommP(carFile.CarFilePath)
+		pieceCid, err := lotusClient.LotusClientCalcCommP(fileDesc.CarFilePath)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
 
-		carFile.PieceCid = *pieceCid
+		fileDesc.PieceCid = *pieceCid
 
-		dataCid, err := lotusClient.LotusClientImport(carFile.CarFilePath, true)
+		dataCid, err := lotusClient.LotusClientImport(fileDesc.CarFilePath, true)
 		if err != nil {
 			err := fmt.Errorf("failed to import car file")
 			logs.GetLogger().Error(err)
@@ -109,38 +109,38 @@ func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error) {
 		}
 
 		if dataCid == nil {
-			err := fmt.Errorf("failed to generate data cid for: %s", carFile.CarFilePath)
+			err := fmt.Errorf("failed to generate data cid for: %s", fileDesc.CarFilePath)
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
 
-		carFile.PayloadCid = *dataCid
+		fileDesc.PayloadCid = *dataCid
 
-		carFile.CarFileSize = utils.GetFileSize(carFile.CarFilePath)
+		fileDesc.CarFileSize = utils.GetFileSize(fileDesc.CarFilePath)
 
 		if cmdCar.GenerateMd5 {
-			srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
+			srcFileMd5, err := checksum.MD5sum(fileDesc.SourceFilePath)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				return nil, err
 			}
-			carFile.SourceFileMd5 = srcFileMd5
+			fileDesc.SourceFileMd5 = srcFileMd5
 
-			carFileMd5, err := checksum.MD5sum(carFile.CarFilePath)
+			carFileMd5, err := checksum.MD5sum(fileDesc.CarFilePath)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				return nil, err
 			}
-			carFile.CarFileMd5 = carFileMd5
+			fileDesc.CarFileMd5 = carFileMd5
 		}
 
-		carFiles = append(carFiles, &carFile)
-		logs.GetLogger().Info("Car file ", carFile.CarFilePath, " created")
+		fileDescs = append(fileDescs, &fileDesc)
+		logs.GetLogger().Info("Car file ", fileDesc.CarFilePath, " created")
 	}
 
-	logs.GetLogger().Info(len(carFiles), " car files have been created to directory:", cmdCar.OutputDir)
+	logs.GetLogger().Info(len(fileDescs), " car files have been created to directory:", cmdCar.OutputDir)
 
-	_, err = WriteFileDescsToJsonFile(carFiles, cmdCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteFileDescsToJsonFile(fileDescs, cmdCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -148,5 +148,5 @@ func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error) {
 
 	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
 
-	return carFiles, nil
+	return fileDescs, nil
 }
