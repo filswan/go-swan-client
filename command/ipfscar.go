@@ -89,6 +89,7 @@ func (cmdIpfsCar *CmdIpfsCar) CreateIpfsCarFiles() ([]*libmodel.FileDesc, error)
 		return nil, err
 	}
 
+	logs.GetLogger().Info("Creating car file for ", cmdIpfsCar.InputDir)
 	srcFileCids := []string{}
 	for _, srcFile := range srcFiles {
 		srcFilePath := filepath.Join(cmdIpfsCar.InputDir, srcFile.Name())
@@ -106,7 +107,6 @@ func (cmdIpfsCar *CmdIpfsCar) CreateIpfsCarFiles() ([]*libmodel.FileDesc, error)
 		return nil, err
 	}
 
-	//logs.GetLogger().Info("data CID:", *carFileDataCid)
 	carFileName := *carFileDataCid + ".car"
 	carFilePath := filepath.Join(cmdIpfsCar.OutputDir, carFileName)
 	err = ipfs.Export2CarFile(cmdIpfsCar.IpfsServerUploadUrlPrefix, *carFileDataCid, carFilePath)

@@ -104,7 +104,7 @@ func CreateTaskByConfig(inputDir string, outputDir *string, taskName, minerFid, 
 func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileDesc, []*Deal, error) {
 	if !cmdTask.PublicDeal {
 		if cmdDeal == nil {
-			err := fmt.Errorf("parameter confDeal is nil")
+			err := fmt.Errorf("parameter PublicDeal is nil")
 			logs.GetLogger().Error(err)
 			return nil, nil, nil, err
 		}
@@ -220,7 +220,7 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 	}
 
 	if !cmdTask.PublicDeal {
-		_, err := cmdDeal.SendDeals2Miner(cmdTask.TaskName, cmdTask.OutputDir, fileDescs)
+		_, err := cmdDeal.sendDeals2Miner(cmdTask.TaskName, cmdTask.OutputDir, fileDescs)
 		if err != nil {
 			return nil, nil, nil, err
 		}
@@ -233,7 +233,7 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		return nil, nil, nil, err
 	}
 
-	deals, err := cmdTask.SendTask2Swan(task, fileDescs)
+	deals, err := cmdTask.sendTask2Swan(task, fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
@@ -246,7 +246,7 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 	return jsonFilepath, fileDescs, deals, nil
 }
 
-func (cmdTask *CmdTask) SendTask2Swan(task libmodel.Task, fileDescs []*libmodel.FileDesc) ([]*Deal, error) {
+func (cmdTask *CmdTask) sendTask2Swan(task libmodel.Task, fileDescs []*libmodel.FileDesc) ([]*Deal, error) {
 	deals, err := GetDeals(fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)

@@ -145,7 +145,7 @@ func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
 		}
 	}
 
-	fileDescs, err = cmdDeal.SendDeals2Miner(task.Data.Task.TaskName, cmdDeal.OutputDir, fileDescs)
+	fileDescs, err = cmdDeal.sendDeals2Miner(task.Data.Task.TaskName, cmdDeal.OutputDir, fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -160,7 +160,7 @@ func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
 	return fileDescs, nil
 }
 
-func (cmdDeal *CmdDeal) SendDeals2Miner(taskName string, outputDir string, fileDescs []*libmodel.FileDesc) ([]*libmodel.FileDesc, error) {
+func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileDescs []*libmodel.FileDesc) ([]*libmodel.FileDesc, error) {
 	lotusClient, err := lotus.LotusGetClient(cmdDeal.LotusClientApiUrl, cmdDeal.LotusClientAccessToken)
 	if err != nil {
 		logs.GetLogger().Error(err)

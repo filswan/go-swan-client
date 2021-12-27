@@ -93,30 +93,35 @@ func (cmdGoCar *CmdGoCar) CreateGoCarFiles() ([]*libmodel.FileDesc, error) {
 		targetPath := parentPath
 		graphName := filepath.Base(parentPath)
 		parallel := 4
-
 		Emptyctx := context.Background()
 		cb := graphsplit.CommPCallback(carDir)
+
+		logs.GetLogger().Info("Creating car file for ", parentPath)
 		err = graphsplit.Chunk(Emptyctx, sliceSize, parentPath, targetPath, carDir, graphName, parallel, cb)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
+		logs.GetLogger().Info("Car file for ", parentPath, " created")
 	} else {
 		for _, srcFile := range srcFiles {
 			parentPath := filepath.Join(cmdGoCar.InputDir, srcFile.Name())
 			targetPath := parentPath
 			graphName := srcFile.Name()
 			parallel := 4
-
 			Emptyctx := context.Background()
 			cb := graphsplit.CommPCallback(carDir)
+
+			logs.GetLogger().Info("Creating car file for ", parentPath)
 			err = graphsplit.Chunk(Emptyctx, sliceSize, parentPath, targetPath, carDir, graphName, parallel, cb)
 			if err != nil {
 				logs.GetLogger().Error(err)
+				return nil, err
 			}
+			logs.GetLogger().Info("Car file for ", parentPath, " created")
 		}
 	}
-	carFiles, err := cmdGoCar.CreateCarFilesDescFromGoCarManifest(cmdGoCar.InputDir, carDir)
+	carFiles, err := cmdGoCar.createFilesDescFromManifest(cmdGoCar.InputDir, carDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -141,7 +146,7 @@ type ManifestDetailLinkItem struct {
 	Size int
 }
 
-func (cmdGoCar *CmdGoCar) CreateCarFilesDescFromGoCarManifest(srcFileDir, carFileDir string) ([]*libmodel.FileDesc, error) {
+func (cmdGoCar *CmdGoCar) createFilesDescFromManifest(srcFileDir, carFileDir string) ([]*libmodel.FileDesc, error) {
 	manifestFilename := "manifest.csv"
 	lines, err := utils.ReadAllLines(carFileDir, manifestFilename)
 	if err != nil {
