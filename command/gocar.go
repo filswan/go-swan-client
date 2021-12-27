@@ -87,10 +87,11 @@ func (cmdGoCar *CmdGoCar) CreateGoCarFiles() ([]*libmodel.FileDesc, error) {
 	}
 
 	carDir := cmdGoCar.OutputDir
-	for _, srcFile := range srcFiles {
-		parentPath := filepath.Join(cmdGoCar.InputDir, srcFile.Name())
+
+	if cmdGoCar.GocarFolderBased {
+		parentPath := cmdGoCar.InputDir
 		targetPath := parentPath
-		graphName := srcFile.Name()
+		graphName := filepath.Base(parentPath)
 		parallel := 4
 
 		Emptyctx := context.Background()
@@ -98,6 +99,21 @@ func (cmdGoCar *CmdGoCar) CreateGoCarFiles() ([]*libmodel.FileDesc, error) {
 		err = graphsplit.Chunk(Emptyctx, sliceSize, parentPath, targetPath, carDir, graphName, parallel, cb)
 		if err != nil {
 			logs.GetLogger().Error(err)
+			return nil, err
+		}
+	} else {
+		for _, srcFile := range srcFiles {
+			parentPath := filepath.Join(cmdGoCar.InputDir, srcFile.Name())
+			targetPath := parentPath
+			graphName := srcFile.Name()
+			parallel := 4
+
+			Emptyctx := context.Background()
+			cb := graphsplit.CommPCallback(carDir)
+			err = graphsplit.Chunk(Emptyctx, sliceSize, parentPath, targetPath, carDir, graphName, parallel, cb)
+			if err != nil {
+				logs.GetLogger().Error(err)
+			}
 		}
 	}
 	carFiles, err := cmdGoCar.CreateCarFilesDescFromGoCarManifest(cmdGoCar.InputDir, carDir)
