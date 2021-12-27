@@ -155,7 +155,7 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 	}
 
 	if cmdTask.Duration == 0 {
-		cmdTask.Duration = DURATION
+		cmdTask.Duration = libconstants.DURATION_DEFAULT
 	}
 
 	currentEpoch := lotusClient.LotusGetCurrentEpoch()

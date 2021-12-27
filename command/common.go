@@ -15,10 +15,6 @@ import (
 )
 
 const (
-	DURATION     = 1512000
-	DURATION_MIN = 518400
-	DURATION_MAX = 1540000
-
 	CMD_CAR     = "car"
 	CMD_GOCAR   = "gocar"
 	CMD_IPFSCAR = "ipfscar"
