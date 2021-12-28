@@ -1,6 +1,6 @@
 # Groups
 
-* [GenerateCarFiles](#GenerateCarFiles)
+* [CreateCarFiles](#CreateCarFiles)
 * [CreateGoCarFiles](#CreateGoCarFiles)
 * [CreateIpfsCarFiles](#CreateIpfsCarFiles)
 * [UploadCarFiles](#UploadCarFiles)
@@ -15,13 +15,13 @@
 Definition:
 
 ```shell
-func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error)
+func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error)
 ```
 
 Outputs:
 
 ```shell
-[]*libmodel.FileDesc  # car files info
+[]*libmodel.FileDesc  # files description
 error                 # error or nil
 ```
 
@@ -30,13 +30,13 @@ error                 # error or nil
 Definition:
 
 ```shell
-func CreateGoCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error)
+func (cmdGoCar *CmdGoCar) CreateGoCarFiles() ([]*libmodel.FileDesc, error)
 ```
 
 Outputs:
 
 ```shell
-[]*libmodel.FileDesc   # car files info
+[]*libmodel.FileDesc   # files description
 error                  # error or nil
 ```
 
@@ -45,13 +45,13 @@ error                  # error or nil
 Definition:
 
 ```shell
-func CreateIpfsCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) 
+func (cmdIpfsCar *CmdIpfsCar) CreateIpfsCarFiles() ([]*libmodel.FileDesc, error)
 ```
 
 Outputs:
 
 ```shell
-[]*libmodel.FileDesc   # car files info
+[]*libmodel.FileDesc   # files description
 error                  # error or nil
 ```
 
@@ -60,13 +60,13 @@ error                  # error or nil
 Definition:
 
 ```shell
-func UploadCarFiles(confUpload *model.ConfUpload) ([]*libmodel.FileDesc, error)
+func UploadCarFilesByConfig(inputDir string) ([]*libmodel.FileDesc, error)
 ```
 
 Outputs:
 
 ```shell
-[]*libmodel.FileDesc  # car files info
+[]*libmodel.FileDesc  # files description
 error                 # error or nil
 ```
 
@@ -75,21 +75,20 @@ error                 # error or nil
 Definition:
 
 ```shell
-func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []*libmodel.FileDesc, []*Deal, error)
+func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileDesc, []*Deal, error)
 ```
 
 Inputs:
 
 ```shell
-confTask
-confDeal   # if you don't need to send deal, this can be nil
+cmdDeal   # if you don't need to send deal, this can be nil
 ```
 
 Outputs:
 
 ```shell
 *string               # json file full path
-[]*libmodel.FileDesc  # car files info
+[]*libmodel.FileDesc  # files description
 error                 # error or nil
 ```
 
@@ -98,13 +97,13 @@ error                 # error or nil
 Definition:
 
 ```shell
-func SendDeals(confDeal *model.ConfDeal) ([]*libmodel.FileDesc, error)
+func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error)
 ```
 
 Outputs:
 
 ```shell
-[]*libmodel.FileDesc  # car files info
+[]*libmodel.FileDesc  # files description
 error                 # error or nil
 ```
 
@@ -113,15 +112,14 @@ error                 # error or nil
 Definition:
 
 ```shell
-func SendAutoBidDeals(confDeal *model.ConfDeal) ([]string, [][]*libmodel.FileDesc, error)
+func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDeals() ([][]*libmodel.FileDesc, error)
 ```
 
 Outputs:
 
 ```shell
-[]string  #csvFilepaths
-[][]*libmodel.FileDesc  # car files info
-error                 # error or nil
+[][]*libmodel.FileDesc  # files description
+error                   # error or nil
 ```
 
 ## SendAutoBidDealsByTaskUuid
@@ -146,12 +144,11 @@ error                 # error or nil
 Definition:
 
 ```shell
-func SendAutoBidDealsLoop(confDeal *model.ConfDeal)
+func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsLoop() error
 ```
 
 Outputs:
 
 ```shell
-no outputs
-print logs about error and csv filepaths
+error                   # error or nil
 ```
