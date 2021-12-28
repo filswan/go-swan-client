@@ -34,7 +34,6 @@ type CmdDeal struct {
 	OutputDir              string          //required
 	MinerFids              []string        //required
 	MetadataJsonPath       string          //required
-	DealSourceIds          []int           //required
 }
 
 func GetCmdDeal(outputDir *string, minerFids string, metadataJsonPath string) *CmdDeal {
@@ -59,9 +58,6 @@ func GetCmdDeal(outputDir *string, minerFids string, metadataJsonPath string) *C
 	if minerFids != "" {
 		cmdDeal.MinerFids = strings.Split(minerFids, ",")
 	}
-
-	cmdDeal.DealSourceIds = append(cmdDeal.DealSourceIds, libconstants.TASK_SOURCE_ID_SWAN)
-	cmdDeal.DealSourceIds = append(cmdDeal.DealSourceIds, libconstants.TASK_SOURCE_ID_SWAN_CLIENT)
 
 	if !utils.IsStrEmpty(outputDir) {
 		cmdDeal.OutputDir = *outputDir
