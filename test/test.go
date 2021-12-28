@@ -9,10 +9,10 @@ import (
 )
 
 func Test() {
-	//TestCreateCarFiles()
+	TestCreateCarFiles()
 	//TestCreateGoCarFiles()
 	//TestCreateIpfsCarFiles()
-	//TestUpload()
+	TestUpload()
 	TestCreateTask()
 }
 

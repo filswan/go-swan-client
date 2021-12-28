@@ -169,7 +169,7 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		return nil, nil, nil, err
 	}
 
-	startEpoch := *currentEpoch + int64(cmdTask.StartEpochHours+libconstants.EPOCH_PER_HOUR)
+	startEpoch := *currentEpoch + int64((cmdTask.StartEpochHours+1)*libconstants.EPOCH_PER_HOUR)
 
 	err = lotusClient.CheckDuration(cmdTask.Duration, startEpoch)
 	if err != nil {

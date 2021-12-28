@@ -191,7 +191,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 			FastRetrieval:    cmdDeal.FastRetrieval,
 			SkipConfirmation: cmdDeal.SkipConfirmation,
 			MaxPrice:         cmdDeal.MaxPrice,
-			StartEpoch:       *currentEpoch + int64(cmdDeal.StartEpochHours+libconstants.EPOCH_PER_HOUR),
+			StartEpoch:       *currentEpoch + int64((cmdDeal.StartEpochHours+1)*libconstants.EPOCH_PER_HOUR),
 			SenderWallet:     cmdDeal.SenderWallet,
 			Duration:         int(cmdDeal.Duration),
 			TransferType:     libconstants.LOTUS_TRANSFER_TYPE_MANUAL,
