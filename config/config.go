@@ -23,7 +23,6 @@ type lotus struct {
 }
 
 type main struct {
-	SwanApiUrlToken   string `toml:"api_url_token"`
 	SwanApiUrl        string `toml:"api_url"`
 	SwanApiKey        string `toml:"api_key"`
 	SwanAccessToken   string `toml:"access_token"`
@@ -40,22 +39,22 @@ type ipfsServer struct {
 }
 
 type sender struct {
-	BidMode                      int    `toml:"bid_mode"`
-	OfflineMode                  bool   `toml:"offline_mode"`
-	OutputDir                    string `toml:"output_dir"`
-	PublicDeal                   bool   `toml:"public_deal"`
-	VerifiedDeal                 bool   `toml:"verified_deal"`
-	FastRetrieval                bool   `toml:"fast_retrieval"`
-	SkipConfirmation             bool   `toml:"skip_confirmation"`
-	GenerateMd5                  bool   `toml:"generate_md5"`
-	Wallet                       string `toml:"wallet"`
-	MaxPrice                     string `toml:"max_price"`
-	StartEpochHours              int    `toml:"start_epoch_hours"`
-	ExpireDays                   int    `toml:"expire_days"`
-	GocarFileSizeLimit           int64  `toml:"gocar_file_size_limit"`
-	GocarFolderBased             bool   `toml:"gocar_folder_based"`
-	Duration                     int    `toml:"duration"`
-	RelativeEpochFromMainNetwork int64  `toml:"relative_epoch_from_main_network"`
+	BidMode              int    `toml:"bid_mode"`
+	OfflineMode          bool   `toml:"offline_mode"`
+	OutputDir            string `toml:"output_dir"`
+	PublicDeal           bool   `toml:"public_deal"`
+	VerifiedDeal         bool   `toml:"verified_deal"`
+	FastRetrieval        bool   `toml:"fast_retrieval"`
+	SkipConfirmation     bool   `toml:"skip_confirmation"`
+	GenerateMd5          bool   `toml:"generate_md5"`
+	Wallet               string `toml:"wallet"`
+	MaxPrice             string `toml:"max_price"`
+	StartEpochHours      int    `toml:"start_epoch_hours"`
+	ExpireDays           int    `toml:"expire_days"`
+	GocarFileSizeLimit   int64  `toml:"gocar_file_size_limit"`
+	GocarFolderBased     bool   `toml:"gocar_folder_based"`
+	Duration             int    `toml:"duration"`
+	MaxAutoBidCopyNumber int    `toml:"max_auto_bid_copy_number"`
 }
 
 var config *Configuration
@@ -68,10 +67,10 @@ func initConfig() {
 
 	configFile := filepath.Join(homedir, ".swan/client/config.toml")
 	if metaData, err := toml.DecodeFile(configFile, &config); err != nil {
-		log.Fatal("error:", err)
+		log.Fatal("Error:", err)
 	} else {
 		if !requiredFieldsAreGiven(metaData) {
-			log.Fatal("required fields not given")
+			log.Fatal("Required fields not given")
 		}
 	}
 }
@@ -94,7 +93,6 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"lotus", "client_api_url"},
 		{"lotus", "client_access_token"},
 
-		{"main", "api_url_token"},
 		{"main", "api_url"},
 		{"main", "api_key"},
 		{"main", "access_token"},
@@ -120,12 +118,12 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"sender", "gocar_file_size_limit"},
 		{"sender", "gocar_folder_based"},
 		{"sender", "duration"},
-		{"sender", "relative_epoch_from_main_network"},
+		{"sender", "max_auto_bid_copy_number"},
 	}
 
 	for _, v := range requiredFields {
 		if !metaData.IsDefined(v...) {
-			log.Fatal("required fields ", v)
+			log.Fatal("Required fields ", v)
 		}
 	}
 

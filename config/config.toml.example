@@ -3,7 +3,6 @@ client_api_url = "http://[ip]:[port]/rpc/v0"   # Url of lotus client web api, ge
 client_access_token = ""   # Access token of lotus client web api, it should have admin access right
 
 [main]
-api_url_token = "https://api.filswan.com"
 api_url = "https://api.filswan.com"
 api_key = ""
 access_token = ""
@@ -29,7 +28,7 @@ wallet = ""
 max_price = "0"
 start_epoch_hours = 96
 expire_days = 4
-gocar_file_size_limit = 8589934592
+gocar_file_size_limit=8589934592
 gocar_folder_based = false
 duration = 1051200    # Duration is expressed in blocks (1 block is equivalent to 30s).
-relative_epoch_from_main_network = 0 # Your network current epoch - main network current epoch
+max_auto_bid_copy_number = 8 # max copy number you want to send
