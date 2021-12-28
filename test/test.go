@@ -12,18 +12,20 @@ func Test() {
 	//TestCreateCarFiles()
 	//TestCreateGoCarFiles()
 	//TestCreateIpfsCarFiles()
-	TestUpload()
+	//TestUpload()
 	//TestCreateTask()
 	//TestSendDeals()
 	//TestSendAutoBidDeals()
+	TestSendAutoBidDealsByTaskUuid()
 }
 
-func TestCreateCarFiles() {
+func estCreateCarFiles() {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return
 	}
+
 	inputDir := filepath.Join(homeDir, "work/srcFiles")
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
@@ -36,6 +38,7 @@ func TestCreateGoCarFiles() {
 		logs.GetLogger().Error(err)
 		return
 	}
+
 	inputDir := filepath.Join(homeDir, "work/srcFiles")
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
@@ -48,6 +51,7 @@ func TestCreateIpfsCarFiles() {
 		logs.GetLogger().Error(err)
 		return
 	}
+
 	inputDir := filepath.Join(homeDir, "work/srcFiles")
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
@@ -60,6 +64,7 @@ func TestUpload() {
 		logs.GetLogger().Error(err)
 		return
 	}
+
 	inputDir := filepath.Join(homeDir, "work/carFiles")
 
 	command.UploadCarFilesByConfig(inputDir)
@@ -71,6 +76,7 @@ func TestCreateTask() {
 		logs.GetLogger().Error(err)
 		return
 	}
+
 	inputDir := filepath.Join(homeDir, "work/carFiles")
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
@@ -99,4 +105,17 @@ func TestSendAutoBidDeals() {
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
 	command.SendAutoBidDealsLoopByConfig(outDir)
+}
+
+func TestSendAutoBidDealsByTaskUuid() {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
+
+	outDir := filepath.Join(homeDir, "work/carFiles")
+
+	cmdAutoBidDeal := command.GetCmdAutoDeal(&outDir)
+	cmdAutoBidDeal.SendAutoBidDealsByTaskUuid("a6068405-2cc0-40d1-bf22-8dffbcb17060")
 }

@@ -29,7 +29,7 @@ type CmdAutoBidDeal struct {
 	DealSourceIds          []int  //required
 }
 
-func GetCmdAutoDeal(outputDir *string, minerFids string, metadataJsonPath string) *CmdAutoBidDeal {
+func GetCmdAutoDeal(outputDir *string) *CmdAutoBidDeal {
 	cmdAutoBidDeal := &CmdAutoBidDeal{
 		SwanApiUrl:             config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:             config.GetConfig().Main.SwanApiKey,
@@ -51,7 +51,7 @@ func GetCmdAutoDeal(outputDir *string, minerFids string, metadataJsonPath string
 }
 
 func SendAutoBidDealsLoopByConfig(outputDir string) error {
-	cmdAutoBidDeal := GetCmdAutoDeal(&outputDir, "", "")
+	cmdAutoBidDeal := GetCmdAutoDeal(&outputDir)
 	err := cmdAutoBidDeal.SendAutoBidDealsLoop()
 	if err != nil {
 		logs.GetLogger().Error(err)
