@@ -9,11 +9,12 @@ import (
 )
 
 func Test() {
-	TestCreateCarFiles()
+	//TestCreateCarFiles()
 	//TestCreateGoCarFiles()
 	//TestCreateIpfsCarFiles()
-	TestUpload()
+	//TestUpload()
 	TestCreateTask()
+	TestSendAutoBidDeals()
 }
 
 func TestCreateCarFiles() {
@@ -73,4 +74,16 @@ func TestCreateTask() {
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
 	command.CreateTaskByConfig(inputDir, &outDir, "", "", "", "")
+}
+
+func TestSendAutoBidDeals() {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
+
+	outDir := filepath.Join(homeDir, "work/carFiles")
+
+	command.SendAutoBidDealsLoopByConfig(outDir)
 }
