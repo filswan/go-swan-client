@@ -200,7 +200,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 			FileSize:         fileDesc.CarFileSize,
 		}
 
-		logs.GetLogger().Info("File:", fileDesc.CarFilePath, ",current epoch:", currentEpoch, ", start epoch:", dealConfig.StartEpoch)
+		logs.GetLogger().Info("File:", fileDesc.CarFilePath, ",current epoch:", *currentEpoch, ", start epoch:", dealConfig.StartEpoch)
 
 		if len(cmdDeal.MinerFids) == 0 {
 			cmdDeal.MinerFids = []string{}

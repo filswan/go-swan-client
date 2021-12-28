@@ -13,8 +13,9 @@ func Test() {
 	//TestCreateGoCarFiles()
 	//TestCreateIpfsCarFiles()
 	//TestUpload()
-	TestCreateTask()
-	TestSendAutoBidDeals()
+	//TestCreateTask()
+	TestSendDeals()
+	//TestSendAutoBidDeals()
 }
 
 func TestCreateCarFiles() {
@@ -73,7 +74,19 @@ func TestCreateTask() {
 	inputDir := filepath.Join(homeDir, "work/carFiles")
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
-	command.CreateTaskByConfig(inputDir, &outDir, "", "", "", "")
+	command.CreateTaskByConfig(inputDir, &outDir, "", "t03354", "", "")
+}
+
+func TestSendDeals() {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
+
+	outDir := filepath.Join(homeDir, "work/carFiles")
+
+	command.SendDealsByConfig(outDir, "t03354", "/Users/dorachen/work/carFiles/swan-task-eqzgmt-metadata.json")
 }
 
 func TestSendAutoBidDeals() {
