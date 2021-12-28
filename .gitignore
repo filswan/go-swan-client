@@ -31,7 +31,5 @@ build/*
 build
 graphsplit
 go-swan-client
-test/car.csv
 .DS_Store
-test/test.go
 build/swan-client
