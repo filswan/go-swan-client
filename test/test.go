@@ -13,7 +13,7 @@ func Test() {
 	//TestCreateGoCarFiles()
 	//TestCreateIpfsCarFiles()
 	//TestUpload()
-	//TestCreateTask()
+	//TestCreateTasks(1)
 	//TestSendDeals()
 	//TestSendAutoBidDeals()
 	TestSendAutoBidDealsByTaskUuid()
@@ -70,6 +70,11 @@ func TestUpload() {
 	command.UploadCarFilesByConfig(inputDir)
 }
 
+func TestCreateTasks(taskCnt int) {
+	for i := 0; i < taskCnt; i++ {
+		TestCreateTask()
+	}
+}
 func TestCreateTask() {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -117,5 +122,5 @@ func TestSendAutoBidDealsByTaskUuid() {
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
 	cmdAutoBidDeal := command.GetCmdAutoDeal(&outDir)
-	cmdAutoBidDeal.SendAutoBidDealsByTaskUuid("a6068405-2cc0-40d1-bf22-8dffbcb17060")
+	cmdAutoBidDeal.SendAutoBidDealsByTaskUuid("70bc3f50-cdb6-4ae8-a924-b0fa78f65b09")
 }
