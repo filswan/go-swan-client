@@ -106,7 +106,6 @@ type CmdDeal struct {
 	OutputDir              string          //required
 	MinerFids              []string        //required
 	MetadataJsonPath       string          //required
-	DealSourceIds          []int           //required
 }
 ```
 
