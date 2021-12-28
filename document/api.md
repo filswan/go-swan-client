@@ -127,7 +127,7 @@ error                   # error or nil
 Definition:
 
 ```shell
-func SendAutoBidDealsByTaskUuid(confDeal *model.ConfDeal, taskUuid string) (int, string, []*libmodel.FileDesc, error)
+func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsByTaskUuid(taskUuid string) error
 ```
 
 Outputs:

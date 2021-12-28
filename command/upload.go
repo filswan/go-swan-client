@@ -57,33 +57,35 @@ func (cmdUpload *CmdUpload) UploadCarFiles() ([]*libmodel.FileDesc, error) {
 		return nil, nil
 	}
 
-	carFiles, err := ReadFileDescsFromJsonFile(cmdUpload.InputDir, JSON_FILE_NAME_CAR_UPLOAD)
+	fileDescs, err := ReadFileDescsFromJsonFile(cmdUpload.InputDir, JSON_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	if carFiles == nil {
+	if fileDescs == nil {
 		err := fmt.Errorf("failed to read:%s", cmdUpload.InputDir)
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	for _, carFile := range carFiles {
-		uploadUrl := utils.UrlJoin(cmdUpload.IpfsServerUploadUrlPrefix, "api/v0/add?stream-channels=true&pin=true")
-		logs.GetLogger().Info("Uploading car file:", carFile.CarFilePath, " to:", uploadUrl)
-		carFileHash, err := ipfs.IpfsUploadFileByWebApi(uploadUrl, carFile.CarFilePath)
+	uploadUrl := utils.UrlJoin(cmdUpload.IpfsServerUploadUrlPrefix, "api/v0/add?stream-channels=true&pin=true")
+	for _, fileDesc := range fileDescs {
+		logs.GetLogger().Info("Uploading car file:", fileDesc.CarFilePath, " to:", uploadUrl)
+		carFileHash, err := ipfs.IpfsUploadFileByWebApi(uploadUrl, fileDesc.CarFilePath)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
 
 		carFileUrl := utils.UrlJoin(cmdUpload.IpfsServerDownloadUrlPrefix, "ipfs", *carFileHash)
-		carFile.CarFileUrl = carFileUrl
-		logs.GetLogger().Info("Car file: ", carFile.CarFileName, " uploaded to: ", carFile.CarFileUrl)
+		fileDesc.CarFileUrl = carFileUrl
+		logs.GetLogger().Info("Car file: ", fileDesc.CarFileName, " uploaded to: ", fileDesc.CarFileUrl)
 	}
 
-	_, err = WriteFileDescsToJsonFile(carFiles, cmdUpload.InputDir, JSON_FILE_NAME_CAR_UPLOAD)
+	logs.GetLogger().Info(len(fileDescs), " car files have been uploaded to:", uploadUrl)
+
+	_, err = WriteFileDescsToJsonFile(fileDescs, cmdUpload.InputDir, JSON_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -91,5 +93,5 @@ func (cmdUpload *CmdUpload) UploadCarFiles() ([]*libmodel.FileDesc, error) {
 
 	logs.GetLogger().Info("Please create a task for your car file(s)")
 
-	return carFiles, nil
+	return fileDescs, nil
 }
