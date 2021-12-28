@@ -19,7 +19,7 @@ func Test() {
 	TestSendAutoBidDealsByTaskUuid()
 }
 
-func estCreateCarFiles() {
+func TestCreateCarFiles() {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		logs.GetLogger().Error(err)
