@@ -35,3 +35,7 @@ test/car.csv
 .DS_Store
 build/swan-client
 logs
+.idea/codeStyles/codeStyleConfig.xml
+.idea/codeStyles/Project.xml
+.idea/go-swan-client_DoraNebula.iml
+.idea/
