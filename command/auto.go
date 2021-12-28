@@ -69,7 +69,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsLoop() error {
 	}
 
 	for {
-		_, err := cmdAutoBidDeal.SendAutoBidDeals()
+		err := cmdAutoBidDeal.SendAutoBidDeals()
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
@@ -79,35 +79,82 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsLoop() error {
 	}
 }
 
-func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDeals() ([][]*libmodel.FileDesc, error) {
-	err := utils.CreateDirIfNotExists(cmdAutoBidDeal.OutputDir, DIR_NAME_OUTPUT)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, err
+func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDeals() error {
+	for _, sourceId := range cmdAutoBidDeal.DealSourceIds {
+		err := cmdAutoBidDeal.sendAutoBidDealsBySourceId(sourceId)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
 	}
 
-	logs.GetLogger().Info("output dir is:", cmdAutoBidDeal.OutputDir)
+	return nil
+}
+
+func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsByTaskUuid(taskUuid string) error {
+	swanClient, err := swan.GetClient(cmdAutoBidDeal.SwanApiUrl, cmdAutoBidDeal.SwanApiKey, cmdAutoBidDeal.SwanAccessToken, cmdAutoBidDeal.SwanToken)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	params := swan.GetOfflineDealsByStatusParams{
+		DealStatus: libconstants.OFFLINE_DEAL_STATUS_ASSIGNED,
+		TaskUuid:   &taskUuid,
+	}
+	assignedOfflineDeals, err := swanClient.GetOfflineDealsByStatus(params)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	err = cmdAutoBidDeal.sendAutoBidDealsInArray(assignedOfflineDeals)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	return nil
+}
+
+func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDealsBySourceId(sourceId int) error {
+	swanClient, err := swan.GetClient(cmdAutoBidDeal.SwanApiUrl, cmdAutoBidDeal.SwanApiKey, cmdAutoBidDeal.SwanAccessToken, cmdAutoBidDeal.SwanToken)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	params := swan.GetOfflineDealsByStatusParams{
+		DealStatus: libconstants.OFFLINE_DEAL_STATUS_ASSIGNED,
+		SourceId:   &sourceId,
+	}
+	assignedOfflineDeals, err := swanClient.GetOfflineDealsByStatus(params)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	err = cmdAutoBidDeal.sendAutoBidDealsInArray(assignedOfflineDeals)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	return nil
+}
+
+func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDealsInArray(assignedOfflineDeals []*libmodel.OfflineDeal) error {
+	if len(assignedOfflineDeals) == 0 {
+		logs.GetLogger().Info("no offline deals to be sent")
+		return nil
+	}
 
 	swanClient, err := swan.GetClient(cmdAutoBidDeal.SwanApiUrl, cmdAutoBidDeal.SwanApiKey, cmdAutoBidDeal.SwanAccessToken, cmdAutoBidDeal.SwanToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, err
+		return err
 	}
 
-	sourceId := libconstants.TASK_SOURCE_ID_SWAN_CLIENT
-	dealStatus := libconstants.OFFLINE_DEAL_STATUS_ASSIGNED
-	assignedOfflineDeals, err := swanClient.GetOfflineDealsByStatus(dealStatus, nil, &sourceId, nil, nil)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	if len(assignedOfflineDeals) == 0 {
-		logs.GetLogger().Info("no offline deals to be sent")
-		return nil, nil
-	}
-
-	var tasksDeals [][]*libmodel.FileDesc
 	for _, assignedOfflineDeal := range assignedOfflineDeals {
 		updateOfflineDealParams, err := cmdAutoBidDeal.sendAutobidDeal(assignedOfflineDeal)
 		if err != nil {
@@ -125,7 +172,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDeals() ([][]*libmodel.FileDesc
 		}
 	}
 
-	return tasksDeals, nil
+	return nil
 }
 
 func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.OfflineDeal) (*swan.UpdateOfflineDealParams, error) {
