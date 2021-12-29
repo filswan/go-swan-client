@@ -16,8 +16,8 @@ func Test() {
 	//TestCreateTask()
 	//TestCreateTasks(1)
 	//TestSendDeals()
-	TestSendAutoBidDeals()
-	//TestSendAutoBidDealsByTaskUuid()
+	//TestSendAutoBidDeals()
+	TestSendAutoBidDealsByTaskUuid()
 }
 
 func TestCreateCarFiles() {
@@ -123,5 +123,10 @@ func TestSendAutoBidDealsByTaskUuid() {
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
 	cmdAutoBidDeal := command.GetCmdAutoDeal(&outDir)
-	cmdAutoBidDeal.SendAutoBidDealsByTaskUuid("70bc3f50-cdb6-4ae8-a924-b0fa78f65b09")
+	jsonFilepath, fileDescs, err := cmdAutoBidDeal.SendAutoBidDealsByTaskUuid("e04bd920-bab4-498a-afb9-8f9a4222c895")
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
+	logs.GetLogger().Info(*jsonFilepath, *fileDescs[0])
 }
