@@ -121,12 +121,6 @@ func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	if task.Data.Task.IsPublic == nil || *task.Data.Task.IsPublic != libconstants.TASK_IS_PUBLIC {
-		err := fmt.Errorf("task:%s,uuid::%s is not in public mode,please check", task.Data.Task.TaskName, task.Data.Task.Uuid)
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
 	if task.Data.Task.BidMode == nil || *task.Data.Task.BidMode != libconstants.TASK_BID_MODE_MANUAL {
 		err := fmt.Errorf("auto_bid mode for task:%s is not manual, please check", task.Data.Task.TaskName)
 		logs.GetLogger().Error(err)

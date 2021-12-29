@@ -26,7 +26,6 @@ type CmdTask struct {
 	SwanAccessToken            string          //required when OfflineMode is false and SwanJwtToken is not provided
 	SwanToken                  string          //required when OfflineMode is false and SwanApiKey & SwanAccessToken are not provided
 	LotusClientApiUrl          string          //required
-	PublicDeal                 bool            //required
 	BidMode                    int             //required
 	VerifiedDeal               bool            //required
 	OfflineMode                bool            //required
@@ -53,7 +52,6 @@ func GetCmdTask(inputDir string, outputDir *string, taskName, dataset, descripti
 		SwanApiKey:                 config.GetConfig().Main.SwanApiKey,
 		SwanAccessToken:            config.GetConfig().Main.SwanAccessToken,
 		LotusClientApiUrl:          config.GetConfig().Lotus.ClientApiUrl,
-		PublicDeal:                 config.GetConfig().Sender.PublicDeal,
 		BidMode:                    config.GetConfig().Sender.BidMode,
 		VerifiedDeal:               config.GetConfig().Sender.VerifiedDeal,
 		OfflineMode:                config.GetConfig().Sender.OfflineMode,
@@ -102,7 +100,7 @@ func CreateTaskByConfig(inputDir string, outputDir *string, taskName, minerFid, 
 }
 
 func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileDesc, []*Deal, error) {
-	if !cmdTask.PublicDeal {
+	if cmdTask.BidMode == libconstants.TASK_BID_MODE_NONE {
 		if cmdDeal == nil {
 			err := fmt.Errorf("parameter PublicDeal is nil")
 			logs.GetLogger().Error(err)
@@ -146,11 +144,11 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		return nil, nil, nil, err
 	}
 
-	isPublic := 0
-	if cmdTask.PublicDeal {
-		isPublic = 1
-		if len(cmdDeal.MinerFids) > 0 {
-			logs.GetLogger().Warn("miner fids is unnecessary for public task")
+	if len(cmdDeal.MinerFids) > 0 {
+		if cmdTask.BidMode == libconstants.TASK_BID_MODE_AUTO {
+			logs.GetLogger().Warn("miner fids is unnecessary for auto-bid task")
+		} else if cmdTask.BidMode == libconstants.TASK_BID_MODE_MANUAL {
+			logs.GetLogger().Warn("miner fids is unnecessary for manual-bid task")
 		}
 	}
 
@@ -187,7 +185,6 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		TaskName:             cmdTask.TaskName,
 		FastRetrieval:        &fastRetrieval,
 		Type:                 taskType,
-		IsPublic:             &isPublic,
 		MaxPrice:             &cmdTask.MaxPrice,
 		BidMode:              &cmdTask.BidMode,
 		ExpireDays:           &cmdTask.ExpireDays,
@@ -229,7 +226,7 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		}
 	}
 
-	if !cmdTask.PublicDeal {
+	if cmdTask.BidMode == libconstants.TASK_BID_MODE_NONE {
 		_, err := cmdDeal.sendDeals2Miner(cmdTask.TaskName, cmdTask.OutputDir, fileDescs)
 		if err != nil {
 			return nil, nil, nil, err
@@ -249,7 +246,7 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		return nil, nil, nil, err
 	}
 
-	if *task.IsPublic == libconstants.TASK_IS_PUBLIC && *task.BidMode == libconstants.TASK_BID_MODE_MANUAL {
+	if *task.BidMode == libconstants.TASK_BID_MODE_MANUAL {
 		logs.GetLogger().Info("task ", task.TaskName, " has been created, please send its deal(s) later using deal subcommand and ", *jsonFilepath)
 	}
 
