@@ -13,10 +13,11 @@ func Test() {
 	//TestCreateGoCarFiles()
 	//TestCreateIpfsCarFiles()
 	//TestUpload()
+	//TestCreateTask()
 	//TestCreateTasks(1)
 	//TestSendDeals()
-	//TestSendAutoBidDeals()
-	TestSendAutoBidDealsByTaskUuid()
+	TestSendAutoBidDeals()
+	//TestSendAutoBidDealsByTaskUuid()
 }
 
 func TestCreateCarFiles() {
@@ -97,7 +98,7 @@ func TestSendDeals() {
 
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
-	command.SendDealsByConfig(outDir, "t03354", "/Users/dorachen/work/carFiles/swan-task-eqzgmt-metadata.json")
+	command.SendDealsByConfig(outDir, "t03354", "/Users/dorachen/work/carFiles/swan-task-q79yx3-metadata.json")
 }
 
 func TestSendAutoBidDeals() {
