@@ -100,12 +100,25 @@ func CreateTaskByConfig(inputDir string, outputDir *string, taskName, minerFid, 
 }
 
 func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileDesc, []*Deal, error) {
-	if cmdTask.BidMode == libconstants.TASK_BID_MODE_NONE {
+	switch cmdTask.BidMode {
+	case libconstants.TASK_BID_MODE_NONE:
 		if cmdDeal == nil {
-			err := fmt.Errorf("parameter PublicDeal is nil")
+			err := fmt.Errorf("parameter PublicDeal is required")
 			logs.GetLogger().Error(err)
 			return nil, nil, nil, err
 		}
+	case libconstants.TASK_BID_MODE_AUTO:
+		if len(cmdDeal.MinerFids) > 0 {
+			logs.GetLogger().Warn("miner fids is unnecessary for auto-bid task")
+		}
+	case libconstants.TASK_BID_MODE_MANUAL:
+		if len(cmdDeal.MinerFids) > 0 {
+			logs.GetLogger().Warn("miner fids is unnecessary for manual-bid task")
+		}
+	default:
+		err := fmt.Errorf("invalid bid mode:%d", cmdTask.BidMode)
+		logs.GetLogger().Error(err)
+		return nil, nil, nil, err
 	}
 
 	lotusClient, err := lotus.LotusGetClient(cmdTask.LotusClientApiUrl, "")
@@ -142,14 +155,6 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		err := fmt.Errorf("failed to read car files from :%s", cmdTask.InputDir)
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
-	}
-
-	if len(cmdDeal.MinerFids) > 0 {
-		if cmdTask.BidMode == libconstants.TASK_BID_MODE_AUTO {
-			logs.GetLogger().Warn("miner fids is unnecessary for auto-bid task")
-		} else if cmdTask.BidMode == libconstants.TASK_BID_MODE_MANUAL {
-			logs.GetLogger().Warn("miner fids is unnecessary for manual-bid task")
-		}
 	}
 
 	taskType := libconstants.TASK_TYPE_REGULAR
