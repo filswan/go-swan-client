@@ -65,7 +65,6 @@ type CmdTask struct {
 	SwanAccessToken            string          //required when OfflineMode is false and SwanJwtToken is not provided
 	SwanToken                  string          //required when OfflineMode is false and SwanApiKey & SwanAccessToken are not provided
 	LotusClientApiUrl          string          //required
-	PublicDeal                 bool            //required
 	BidMode                    int             //required
 	VerifiedDeal               bool            //required
 	OfflineMode                bool            //required
