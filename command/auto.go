@@ -100,6 +100,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDealsBySourceId(sourceId int) (
 
 	params := swan.GetOfflineDealsByStatusParams{
 		DealStatus: libconstants.OFFLINE_DEAL_STATUS_ASSIGNED,
+		ForMiner:   false,
 		SourceId:   &sourceId,
 	}
 	assignedOfflineDeals, err := swanClient.GetOfflineDealsByStatus(params)
@@ -155,6 +156,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsByTaskUuid(taskUuid string
 
 	params := swan.GetOfflineDealsByStatusParams{
 		DealStatus: libconstants.OFFLINE_DEAL_STATUS_ASSIGNED,
+		ForMiner:   false,
 		TaskUuid:   &taskUuid,
 	}
 	assignedOfflineDeals, err := swanClient.GetOfflineDealsByStatus(params)
