@@ -75,12 +75,14 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsLoop() error {
 			continue
 		}
 
+		logs.GetLogger().Info("sleeping...")
 		time.Sleep(time.Second * 30)
 	}
 }
 
 func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDeals() error {
 	for _, sourceId := range cmdAutoBidDeal.DealSourceIds {
+		logs.GetLogger().Info("send auto bid deals for souce:", sourceId)
 		_, _, err := cmdAutoBidDeal.sendAutoBidDealsBySourceId(sourceId)
 		if err != nil {
 			logs.GetLogger().Error(err)
