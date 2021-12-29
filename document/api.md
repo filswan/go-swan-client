@@ -127,14 +127,13 @@ error                   # error or nil
 Definition:
 
 ```shell
-func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsByTaskUuid(taskUuid string) error
+func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsByTaskUuid(taskUuid string) (*string, []*libmodel.FileDesc, error)
 ```
 
 Outputs:
 
 ```shell
-int       # deal sent
-string    # csvFilepath
+*string               # json file path
 []*libmodel.FileDesc  # car files info
 error                 # error or nil
 ```
