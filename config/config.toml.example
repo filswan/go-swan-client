@@ -16,10 +16,9 @@ download_url_prefix = "http://[ip]:[port]"
 upload_url_prefix = "http://[ip]:[port]"
 
 [sender]
-bid_mode = 1
+bid_mode = 1     # 1: auto bid, 0: manual bid, 2: not use bid, when creating task, set miners and sending deals
 offline_mode = false
 output_dir = "/tmp/tasks"
-public_deal = true
 verified_deal = true
 fast_retrieval = true
 skip_confirmation = false

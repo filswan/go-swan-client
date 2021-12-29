@@ -42,7 +42,6 @@ type sender struct {
 	BidMode              int    `toml:"bid_mode"`
 	OfflineMode          bool   `toml:"offline_mode"`
 	OutputDir            string `toml:"output_dir"`
-	PublicDeal           bool   `toml:"public_deal"`
 	VerifiedDeal         bool   `toml:"verified_deal"`
 	FastRetrieval        bool   `toml:"fast_retrieval"`
 	SkipConfirmation     bool   `toml:"skip_confirmation"`
@@ -106,7 +105,6 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"sender", "bid_mode"},
 		{"sender", "offline_mode"},
 		{"sender", "output_dir"},
-		{"sender", "public_deal"},
 		{"sender", "verified_deal"},
 		{"sender", "fast_retrieval"},
 		{"sender", "skip_confirmation"},
