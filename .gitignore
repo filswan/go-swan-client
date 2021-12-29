@@ -33,3 +33,4 @@ graphsplit
 go-swan-client
 .DS_Store
 build/swan-client
+.idea/workspace.xml
