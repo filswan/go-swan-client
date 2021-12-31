@@ -103,13 +103,13 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 	switch cmdTask.BidMode {
 	case libconstants.TASK_BID_MODE_NONE:
 		if cmdDeal == nil {
-			err := fmt.Errorf("parameter PublicDeal is required for none-bid task")
+			err := fmt.Errorf("parameter PublicDeal is required for non-bid task")
 			logs.GetLogger().Error(err)
 			return nil, nil, nil, err
 		}
 
 		if len(cmdDeal.MinerFids) == 0 {
-			err := fmt.Errorf("miner fids are required for none-bid task")
+			err := fmt.Errorf("miner fids are required for non-bid task")
 			logs.GetLogger().Error(err)
 			return nil, nil, nil, err
 		}
