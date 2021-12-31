@@ -6,14 +6,13 @@ import (
 	"os"
 
 	"github.com/filswan/go-swan-client/command"
-	"github.com/filswan/go-swan-client/test"
 
 	"github.com/filswan/go-swan-lib/logs"
 )
 
 func main() {
-	//execSubCmd()
-	test.Test()
+	execSubCmd()
+	//test.Test()
 }
 
 func execSubCmd() error {
