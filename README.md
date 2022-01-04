@@ -188,14 +188,14 @@ vi ~/.swan/client/config.toml
 
 ## Flowcharts
 
-### Manual-bid Mode:
+### Option:one: Manual-bid Mode:
 - **Conditions:** `[sender].bid_mode=0`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Manual-Bid Task)->(Send Deals)->(end)" >
 
 - Only `Created` status exists for both task and car file
 
 
-### Auto-bid Mode:
+### Option:two: Auto-bid Mode:
 - **Conditions:** `[sender].bid_mode=1`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Auto-Bid Task)->(Send Auto-Bid Deals)->(end)" >
 
@@ -207,7 +207,7 @@ vi ~/.swan/client/config.toml
   - if there are miners allocated to a car file, its status will be changed to `Assigned` and task's status remains at `Created`
   - if there is no miner meet the task and car file requirements, then their status remain at `Created`
 
-### None-bid Mode:
+### Option:three: None-bid Mode:
 - **Conditions:** `[sender].bid_mode=2`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create None-bid Task)->(end)" >
 
