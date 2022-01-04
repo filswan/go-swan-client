@@ -167,13 +167,12 @@ vi ~/.swan/client/config.toml
 - **download_url_prefix**: Web server url prefix, such as: `https://[ip]:[port]/download`. Store car files for downloading by storage provider. Car file url will be `[download_url_prefix]/[filename]`
 ### [ipfs-server]
 - **download_url_prefix**: Ipfs server url prefix, such as: `http://[ip]:[port]`. Store car files for downloading by storage provider. Car file url will be `[download_url_prefix]/ipfs/[filename]`
-- **upload_url**: Ipfs server url for uploading files, such as `http://[ip]:[port]`
+- **upload_url_prefix**: Ipfs server url for uploading files, such as `http://[ip]:[port]`
 
 ### [sender]
-- **bid_mode**: [0/1] Default 1, which is auto-bid mod and it means swan will automatically allocate storage provider for it, while 0 is manual-bid mode and it needs to be bidded manually by storage providers.
+- **bid_mode**: [0/1/2] Default 1, which is auto-bid mod and it means swan will automatically allocate storage provider for it, while 0 is manual-bid mode and it needs to be bidded manually by storage providers, and 2 means not need bid, but set miners when creating a task.
 - **offline_mode**: [true/false] Default false. When set to true, you will not be able to create a Swan task on filswan.com, but you can still generate Car Files, CSV and JSON files for sending deals.
 - **output_dir**: When you do not set -out-dir option in your command, it is used as the default output directory for saving generated car files, CSV and JSON files. You need have access right to this folder or to create it.
-- **public_deal**: [true/false] Whether deals in this task are public or not.
 - **verified_deal**: [true/false] Whether deals in this task are going to be sent as verified or not.
 - **fast_retrieval**: [true/false] Indicates that data should be available for fast retrieval or not.
 - **generate_md5**: [true/false] Whether to generate md5 for each car file and source file, note: this is a resource consuming action.
@@ -185,7 +184,7 @@ vi ~/.swan/client/config.toml
 - **gocar_file_size_limit**: Go car file size limit in bytes
 - **gocar_folder_based**: Generate car file based on whole folder, or on each file separately
 - **duration**: Expressed in blocks (1 block is equivalent to 30s). Default value is 1512000, that is 525 days. Valid value range:[518400, 1540000]. See [Make the Deal](https://docs.filecoin.io/store/lotus/store-data/#make-the-deal)
-- **relative_epoch_from_main_network**: # Your network current epoch - main network current epoch
+- **max_auto_bid_copy_number**: # When in auto-bid mode, that is `bid_mode=1`, max miners a car file can be allocated by Market Matcher
 
 ## Flowcharts
 
