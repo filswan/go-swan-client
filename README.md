@@ -118,7 +118,10 @@
 - install missing packages as required
 ### Mac
 - install missing packages as required
-- hwloc
+- hwloc, such as
+```shell
+brew install hwloc
+```
 - set path LIBRARY_PATH to point to hwloc, such as
 ```shell
 export LIBRARY_PATH=/opt/homebrew/Cellar/hwloc/2.6.0/lib
