@@ -114,6 +114,12 @@
 ## Prerequisites
 - Lotus node
 
+### On Mac
+- hwloc
+- set path LIBRARY_PATH to point to hwloc, such as
+```shell
+export LIBRARY_PATH=/opt/homebrew/Cellar/hwloc/2.6.0/lib
+```
 ## Installation
 ### Option:one:  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-client/releases)
 ```shell
