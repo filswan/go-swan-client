@@ -47,6 +47,7 @@
 - A car file is an independent unit to be sent to miners
 - Each car file can be sent to one or multiple miners
 - A car file is generated from source file(s) by Lotus, Graph-split, or Ipfs
+- The size of a car file can be up to 64GB.
 - Car File Status:
   * **Created**: After a task is created, all its car files are in this status
   * **ActionRequired**: An autobid task, that is, `task.bid_mode=1`, its car file has something missing or invalid:
@@ -58,7 +59,6 @@
   * **Assigned**: When its task is in auto-bid mode, that is, `task.bid_mode=1`, a car file has been assigned to a list of miners automatically by Market Matcher.
 ### Offline Deal
 - An offline Deal means the transaction that a car file is sent to a miner
-- The size of a car file can be up to 64GB.
 - Every step of this tool will generate a JSON file which contains file(s) description like one of below:
 ```json
 [
