@@ -411,7 +411,6 @@ no swan-client subcommand should be executed
 - [sender].skip_confirmation, see [Configuration](#Configuration)
 - [sender].max_price, see [Configuration](#Configuration)
 - [sender].duration, see [Configuration](#Configuration)
-- [sender].relative_epoch_to_main_network, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
@@ -437,7 +436,6 @@ no swan-client subcommand should be executed
 
 **Configurations used in this step:**
 - [sender].wallet, see [Configuration](#Configuration)
-- [sender].relative_epoch_to_main_network, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
