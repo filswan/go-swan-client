@@ -290,7 +290,7 @@ Credits should be given to filedrive-team. More information can be found in http
 We do not create source file MD5 in the metadata files.
 
 ## Upload Car Files
-:bell: It is required to upload car files to file server, either to web server or to ipfs server.
+:bell: It is required to upload car files to file server(s), either to web server or to ipfs server.
 
 ### Option:one: To a web-server manually
 ```shell
@@ -309,7 +309,7 @@ no swan-client subcommand should be executed
 **Configurations used in this step:**
 - [main].storage_server_type, it should be set to `ipfs server`. See [Configuration](#Configuration)
 - [ipfs_server].download_url_prefix, see [Configuration](#Configuration)
-- [ipfs_server].upload_url, see [Configuration](#Configuration)
+- [ipfs_server].upload_url_prefix, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 
 **Files updated after this step:**
