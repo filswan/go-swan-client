@@ -59,6 +59,10 @@
   * **Assigned**: When its task is in auto-bid mode, that is, `task.bid_mode=1`, a car file has been assigned to a list of miners automatically by Market Matcher.
 ### Offline Deal
 - An offline Deal means the transaction that a car file is sent to a miner
+- Offline Deal Status:
+  * **Assigned**: Only in auto-bid mode, that is `task.bid_mode=1`, when a miner is assigned to a car file, an offline deal record is created, and its status is `Assigned`
+  * **Created**: For all the bid modes, after a car file is send to a miner, the related deal status is `Created`
+  * **...**: There are several other statuses, which are generated and used by Swan Provider and Swan Platform
 - Every step of this tool will generate a JSON file which contains file(s) description like one of below:
 ```json
 [
