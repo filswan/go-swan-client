@@ -32,7 +32,7 @@
 - A task can contain one or multiple car files
 - Each car file can be sent to one or multiple miners
 - Methods to set miners for each car file in a task
-  * **Auto-bid**: `task.bid_mode=1`, Market Matcher will automatically allocate miners for each car file based on reputation system.
+  * **Auto-bid**: `task.bid_mode=1`, Market Matcher will automatically allocate miners for each car file based on reputation system and the max copy number the task set.
   * **Manual-bid**: `task.bid_mode=0`, After bidders winning the bid, the task holder needs to propose the task to the winners.
   * **None-bid**: `task.bid_mode=2`, It is required to propose each car file of a task to a list of specified miners.
 - Task Status:
