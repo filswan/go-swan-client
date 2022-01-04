@@ -316,22 +316,21 @@ no swan-client subcommand should be executed
 - car.json: car file url will be updated on the original one, see [Offline Deal](#Offline-Deal)
 
 ## Create A Task
-:bell: This step is necessary for both public and private tasks. You can choose one of the following 3 options.
+:bell: This step is necessary for tasks in all bid modes. You can choose one of the following 3 options.
 
-### Option:one: Private Task
-- **Conditions:** `[sender].public_deal=false`, see [Configuration](#Configuration)
+### None-bid Mode
+- **Conditions:** `[sender].bid_mode=2`, see [Configuration](#Configuration)
 ```shell
-./swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_id] -dataset [curated_dataset] -description [description]
+./swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_ids] -dataset [curated_dataset] -description [description]
 ```
 **Command parameters used in this step:**
 - -input-dir(Required): Input directory where the generated car files and metadata files reside in.
 - -out-dir(optional): Metadata files and swan task file will be generated to this directory. When ommitted, use default `[send].output_dir`, see [Configuration](#Configuration)
-- -miner(Required): Storage provider Id you want to send deal to, e.g f01276
+- -miner(Required): Storage provider Ids you want to send deal to, miners separated by comma if there are more than one, e.g `f01276` or `t03354,f01276`
 - -dataset(optional): The curated dataset from which the car files are generated
 - -description(optional): Details to better describe the data and confine the task or anything the storage provider needs to be informed.
 
 **Configurations used in this step:**
-- [sender].public_deal, see [Configuration](#Configuration)
 - [sender].bid_mode, see [Configuration](#Configuration)
 - [sender].verified_deal, see [Configuration](#Configuration)
 - [sender].offline_mode, see [Configuration](#Configuration)
@@ -355,40 +354,8 @@ no swan-client subcommand should be executed
 **Files generated after this step:**
 - [task-name]-metadata.json: Contains more content for creating proposal in the next step. Uuid will be updated based upon car.json generated in last step. See [Offline Deal](#Offline-Deal)
 
-### Option:two: Public and Auto-Bid Task
+### Option:two: Manual-bid or Auto-Bid mode
 - **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=1`, see [Configuration](#Configuration)
-```shell
-./swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -dataset [curated_dataset] -description [description]
-```
-**Command parameters used in this step:**
-- -input-dir(Required): Input directory where the generated car files and metadata files reside in.
-- -out-dir(optional): Metadata files and swan task file will be generated to this directory. When ommitted, use default `[send].output_dir`, see [Configuration](#Configuration)
-- -dataset(optional): The curated dataset from which the car files are generated
-- -description(optional): Details to better describe the data and confine the task or anything the storage provider needs to be informed.
-
-**Configurations used in this step:**
-- [sender].public_deal, see [Configuration](#Configuration)
-- [sender].bid_mode, see [Configuration](#Configuration)
-- [sender].verified_deal, see [Configuration](#Configuration)
-- [sender].offline_mode, see [Configuration](#Configuration)
-- [sender].fast_retrieval, see [Configuration](#Configuration)
-- [sender].max_price, see [Configuration](#Configuration)
-- [sender].start_epoch_hours, see [Configuration](#Configuration)
-- [sender].expire_days, see [Configuration](#Configuration)
-- [sender].generate_md5, when it is true and there is no md5 in car.json, then generate md5 for source files and car files, see [Configuration](#Configuration)
-- [sender].duration, see [Configuration](#Configuration)
-- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
-- [main].storage_server_type, see [Configuration](#Configuration)
-- [main].api_url, see [Configuration](#Configuration)
-- [main].api_key, see [Configuration](#Configuration)
-- [main].access_token, see [Configuration](#Configuration)
-- [web_server].download_url_prefix, used only when `[main].storage_server_type="web server"`, see [Configuration](#Configuration)
-
-**Files generated after this step:**
-- [task-name]-metadata.json: Contains more content for creating proposal in the next step. Uuid will be updated based upon car.json generated in last step. See [Offline Deal](#Offline-Deal)
-
-### Option:three: Public and Manual-Bid Task
-- **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
 ```shell
 ./swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -dataset [curated_dataset] -description [description]
 ```
