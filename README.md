@@ -154,14 +154,14 @@ vi ~/.swan/client/config.toml
 
 ## Configuration
 ### [lotus]
-- **client_api_url**:  Url of lotus client web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**. See [Lotus API](https://docs.filecoin.io/reference/lotus-api/#features)
+- **client_api_url**:  Url of lotus client web api, such as: `http://[ip]:[port]/rpc/v0`, generally the `[port]` is `1234`. See [Lotus API](https://docs.filecoin.io/reference/lotus-api/#features)
 - **client_access_token**:  Access token of lotus client web api. It should have admin access right. You can get it from your lotus node machine using command `lotus auth create-token --perm admin`. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
 
 ### [main]
-- **api_url**: Swan API address. For Swan production, it is "https://api.filswan.com". It can be ignored if `[sender].offline_mode=true`.
+- **api_url**: Swan API address. For Swan production, it is `...`. It can be ignored if `[sender].offline_mode=true`.
 - :bangbang:**api_key**: Your Swan API key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_mode=true`.
 - :bangbang:**access_token**: Your Swan API access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_mode=true`.
-- :bangbang:**storage_server_type**: "ipfs server" or "web server"
+- :bangbang:**storage_server_type**: `ipfs server` or `web server`
 
 ### [web-server]
 - **download_url_prefix**: Web server url prefix, such as: `https://[ip]:[port]/download`. Store car files for downloading by storage provider. Car file url will be `[download_url_prefix]/[filename]`
