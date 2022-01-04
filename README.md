@@ -46,7 +46,7 @@
 ### Car File
 - A car file is an independent unit to be sent to miners
 - Each car file can be sent to one or multiple miners
-- A car file is generated from source file(s) by lotus, graph-split, or ipfs
+- A car file is generated from source file(s) by Lotus, Graph-split, or Ipfs
 - Car File Status:
   * **Created**: After a task is created, all its car files are in this status
   * **ActionRequired**: An autobid task, that is, `task.bid_mode=1`, its car file has something missing or invalid:
