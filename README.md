@@ -239,7 +239,7 @@ vi ~/.swan/client/config.toml
 - car.json: contains information for both source files and car files, see [Offline Deal](#Offline-Deal)
 - [source-file-name].car: each source file has a related car file
 
-### Option:two: By graphsplit api
+### Option:two: By Graphsplit
 :bell: This option can split a file under source directory or the files in a whole directory to one or more car file(s) in output directory.
 ```shell
 ./swan-client gocar -input-dir [input_files_dir] -out-dir [car_files_output_dir]
@@ -266,7 +266,7 @@ vi ~/.swan/client/config.toml
 
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
 
-### Option:three: By ipfs api
+### Option:three: By Ipfs
 :bell: This option will merge files under source directory to one car file in output directory.
 ```shell
 ./swan-client ipfscar -input-dir [input_files_dir] -out-dir [car_file_output_dir]
