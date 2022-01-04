@@ -115,9 +115,9 @@
 - Lotus node
 
 ### Ubuntu
-- install missing packets as required
+- install missing packages as required
 ### Mac
-- install missing packets as required
+- install missing packages as required
 - hwloc
 - set path LIBRARY_PATH to point to hwloc, such as
 ```shell
