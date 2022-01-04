@@ -220,7 +220,7 @@ vi ~/.swan/client/config.toml
 
 :bell: This step is necessary for tasks in all of the bid modes. You can choose one of the following 3 options.
 
-### Option:one: By lotus web json rpc api
+### Option:one: By Lotus
 :bell: This option will generate a car file for each file in source directory.
 ```shell
 ./swan-client car -input-dir [input_files_dir] -out-dir [car_files_output_dir]
