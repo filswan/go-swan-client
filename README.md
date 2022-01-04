@@ -20,7 +20,7 @@
 - [Send Deals](#Send-Deals)
 
 ## Functions
-* Generate Car files from your source files with or without Lotus.
+* Generate Car files from your source files by Lotus, Graph-split or Ipfs.
 * Generate metadata e.g. Car file URI, start epoch, etc. and save them to a metadata JSON file.
 * Propose deals based on the metadata JSON file.
 * Generate a final JSON file containing deal CIDs and storage provider id for storage provider to import deals.
