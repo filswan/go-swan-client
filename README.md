@@ -212,7 +212,7 @@ vi ~/.swan/client/config.toml
 
 ### None-bid Mode:
 - **Conditions:** `[sender].bid_mode=2`, see [Configuration](#Configuration)
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Private Task)->(end)" >
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create None-bid Task)->(end)" >
 
 - In this option, deal(s) will be sent when creating a task.
 
