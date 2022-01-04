@@ -200,7 +200,7 @@ vi ~/.swan/client/config.toml
 
 ### Auto-bid Mode:
 - **Conditions:** `[sender].bid_mode=1`, see [Configuration](#Configuration)
-<img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Auto-Bid Task)->(Send Auto-Bid Deals)->(end)" >
+<img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Auto-Bid Task)->(Send Auto-Bid Deals)->(end)" >
 
 
 - Partial task status change process in this option. Below are some possibilities:
