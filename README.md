@@ -32,12 +32,12 @@
 - A task can contain one or multiple car files
 - Each car file can be sent to one or multiple miners
 - Methods to set miners for each car file in a task
-  * **Auto-bid**: Market Matcher will automatically allocate miners for each car file based on reputation system.
-  * **Manual-bid**: After bidders winning the bid, the task holder needs to propose the task to the winners.
-  * **None-bid**: It is required to propose each car file of a task to a list of specified miners.
+  * **Auto-bid**: `task.bid_mode=1`, Market Matcher will automatically allocate miners for each car file based on reputation system.
+  * **Manual-bid**: `task.bid_mode=0`, After bidders winning the bid, the task holder needs to propose the task to the winners.
+  * **None-bid**: `task.bid_mode=2`, It is required to propose each car file of a task to a list of specified miners.
 - Task Status:
-  * **Created**: A task is created successfully first time on Swan platform, regardless of its type.
-  * **ActionRequired**: An autobid task, that is, `bid_mode=1`, has some information missing or invalid:
+  * **Created**: After a task is created, its initial status is `Created` regardless of its type.
+  * **ActionRequired**: An autobid task, that is, `task.bid_mode=1`, has some information missing or invalid:
     - MaxPrice: missing, or is not a valid number
     - FastRetrieval: missing
     - Type: missing, or not have valid value
@@ -49,13 +49,13 @@
 - A car file is generated from source file(s) by lotus, graph-split, or ipfs
 - Car File Status:
   * **Created**: After a task is created, all its car files are in this status
-  * **ActionRequired**: An autobid task, that is, `bid_mode=1`, its car file has something missing or invalid:
+  * **ActionRequired**: An autobid task, that is, `task.bid_mode=1`, its car file has something missing or invalid:
     - FileSize: missing, or is not a valid number
     - FileUrl: missing
     - StartEpoch: missing, or not have valid value, less than 0, or current epoch
     - PayloadCid: missing
     - PieceCid: missing
-  * **Assigned**: When its task is in auto-bid mode, that is, `bid_mode=1`, a car file has been assigned to a list of miners automatically by Market Matcher.
+  * **Assigned**: When its task is in auto-bid mode, that is, `task.bid_mode=1`, a car file has been assigned to a list of miners automatically by Market Matcher.
 ### Offline Deal
 - An offline Deal means the transaction that a car file is sent to a miner
 - The size of a car file can be up to 64GB.
