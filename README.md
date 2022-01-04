@@ -188,8 +188,8 @@ vi ~/.swan/client/config.toml
 
 ## Flowcharts
 
-### Option:one:
-- **Conditions:** `[sender].public_deal=true` and `[sender].bid_mode=0`, see [Configuration](#Configuration)
+### Manual-bid Mode:
+- **Conditions:** `[sender].bid_mode=0`, see [Configuration](#Configuration)
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Create Car Files)->(Upload Car Files)->(Create Public Manual-Bid Task)->(Send Deals)->(end)" >
 
 
