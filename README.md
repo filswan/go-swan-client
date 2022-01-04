@@ -206,10 +206,10 @@ vi ~/.swan/client/config.toml
 - If a task does not match auto-bid conditions, its status will be changed from `Created` to `Action Required`
 - If a car file does not match auto-bid conditions, its status will be changed from `Created` to `Action Required`
 - If both a car file and its task match auto-bid conditions
-  - miners that match the task and car file requirements will be assigned to car files
-  - the max number of allocated miners depend on `max_auto_bid_copy_number`, see [Configuration](#Configuration)
-  - if there are miners allocated to a car file, its status will be changed to `Assigned` and task's status remains at `Created`
-  - if there is no miner meet the the car file's and its task's requirements, then their status remain at `Created`
+  - Miners that match the task and car file requirements will be assigned to car files
+  - The max number of allocated miners depend on `max_auto_bid_copy_number`, see [Configuration](#Configuration)
+  - If there are miners allocated to a car file, its status will be changed to `Assigned` and task's status remains at `Created`
+  - If there is no miner meet the the car file's and its task's requirements, then their status remain at `Created`
 
 ### Option:three: None-bid Mode
 - **Conditions:** `[sender].bid_mode=2`, see [Configuration](#Configuration)
