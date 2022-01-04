@@ -318,7 +318,7 @@ no swan-client subcommand should be executed
 ## Create A Task
 :bell: This step is necessary for tasks in all bid modes. You can choose one of the following 3 options.
 
-### None-bid Mode
+### Option:one: None-bid Mode
 - **Conditions:** `[sender].bid_mode=2`, see [Configuration](#Configuration)
 ```shell
 ./swan-client task -input-dir [car_files_dir] -out-dir [output_files_dir] -miner [Storage_provider_ids] -dataset [curated_dataset] -description [description]
