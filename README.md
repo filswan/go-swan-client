@@ -59,6 +59,10 @@
   * **Assigned**: When its task is in auto-bid mode, that is, `task.bid_mode=1`, a car file has been assigned to a list of miners automatically by Market Matcher.
 ### Offline Deal
 - An offline Deal means the transaction that a car file is sent to a miner
+- Offline Deal Status:
+  * **Assigned**: Only in auto-bid mode, that is `task.bid_mode=1`, when a miner is assigned to a car file, an offline deal record is created, and its status is `Assigned`.
+  * **Created**: For all the bid modes, after a car file is sent to a miner, the related deal status is `Created`.
+  * **...**: There are several other statuses, which are generated and used by Swan Provider and Swan Platform and they have the same meaning for tasks of all bid modes.
 - Every step of this tool will generate a JSON file which contains file(s) description like one of below:
 ```json
 [
@@ -202,10 +206,10 @@ vi ~/.swan/client/config.toml
 - If a task does not match auto-bid conditions, its status will be changed from `Created` to `Action Required`
 - If a car file does not match auto-bid conditions, its status will be changed from `Created` to `Action Required`
 - If both a car file and its task match auto-bid conditions
-  - miners that match the task and car file requirements will be assigned to car files
-  - the max number of allocated miners depend on `max_auto_bid_copy_number`, see [Configuration](#Configuration)
-  - if there are miners allocated to a car file, its status will be changed to `Assigned` and task's status remains at `Created`
-  - if there is no miner meet the the car file's and its task's requirements, then their status remain at `Created`
+  - Miners that match the task and car file requirements will be assigned to car files
+  - The max number of allocated miners depend on `max_auto_bid_copy_number`, see [Configuration](#Configuration)
+  - If there are miners allocated to a car file, its status will be changed to `Assigned` and task's status remains at `Created`
+  - If there is no miner meet the the car file's and its task's requirements, then their status remain at `Created`
 
 ### Option:three: None-bid Mode
 - **Conditions:** `[sender].bid_mode=2`, see [Configuration](#Configuration)
@@ -411,7 +415,6 @@ no swan-client subcommand should be executed
 - [sender].skip_confirmation, see [Configuration](#Configuration)
 - [sender].max_price, see [Configuration](#Configuration)
 - [sender].duration, see [Configuration](#Configuration)
-- [sender].relative_epoch_to_main_network, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
@@ -437,7 +440,6 @@ no swan-client subcommand should be executed
 
 **Configurations used in this step:**
 - [sender].wallet, see [Configuration](#Configuration)
-- [sender].relative_epoch_to_main_network, see [Configuration](#Configuration)
 - [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
 - [main].api_url, see [Configuration](#Configuration)
 - [main].api_key, see [Configuration](#Configuration)
