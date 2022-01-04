@@ -421,15 +421,13 @@ no swan-client subcommand should be executed
 - [task-name]-deals.json: Deal CID updated based on [task-name]-metadata.json generated on previous step, see [Offline Deal](#Offline-Deal)
 
 ### Option:two: Auto-bid deal
-- After a miner has been allocated to a task by Market Matcher, the client needs to send auto-bid deals using the information submitted to swan in step [Create A Task](#Create-A-Task).
+- After a miner is allocated to a car file by Market Matcher, the client needs to send auto-bid deals using the information submitted to swan in step [Create A Task](#Create-A-Task).
 - This step is executed in infinite loop mode, it will send auto-bid deals contiuously when there are deals that can meet below conditions.
 
 **Conditions:**
 - `your tasks in swan`
-- `task.is_public=true`
 - `task.bid_mode=1`
-- `status=Assigned`
-- `miner is not null`
+- `offline_deals.status=Assigned`
 
 ```shell
 ./swan-client auto -out-dir [output_files_dir]
