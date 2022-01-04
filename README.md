@@ -389,7 +389,7 @@ no swan-client subcommand should be executed
 ## Send Deals
 :bell: The input dir and out dir should only be absolute one.
 
-:bell: This step is only necessary for public tasks, since for private deals, the step [Create A Task](#Create-A-Task) includes sending deals. You can choose one of the following 2 options according to your task bid_mode.
+:bell: This step is only necessary for Manual-bid or Auto-bid tasks, since for None-bid tasks, the step [Create A Task](#Create-A-Task) includes sending deals. You can choose one of the following 2 options according to your task bid_mode.
 ### Option:one: Manual deal
 **Conditions:**
 - `task can be found by uuid in JSON file from swan platform`
