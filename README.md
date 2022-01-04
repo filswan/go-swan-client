@@ -114,7 +114,10 @@
 ## Prerequisites
 - Lotus node
 
-### On Mac
+### Ubuntu
+- install missing packets while installing
+### Mac
+- install missing packets while installing
 - hwloc
 - set path LIBRARY_PATH to point to hwloc, such as
 ```shell
