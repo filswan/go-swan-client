@@ -326,7 +326,7 @@ no swan-client subcommand should be executed
 **Command parameters used in this step:**
 - -input-dir(Required): Input directory where the generated car files and metadata files reside in.
 - -out-dir(optional): Metadata files and swan task file will be generated to this directory. When ommitted, use default `[send].output_dir`, see [Configuration](#Configuration)
-- -miner(Required): Storage provider Ids you want to send deal to, miners separated by comma if there are more than one, e.g `f01276` or `t03354,f01276`
+- -miner(Required): Storage provider Ids you want to send car files to, miners separated by comma if there are more than one, e.g `f01276` or `t03354,f01276`
 - -dataset(optional): The curated dataset from which the car files are generated
 - -description(optional): Details to better describe the data and confine the task or anything the storage provider needs to be informed.
 
@@ -393,16 +393,15 @@ no swan-client subcommand should be executed
 ### Option:one: Manual deal
 **Conditions:**
 - `task can be found by uuid in JSON file from swan platform`
-- `task.is_public=true`
 - `task.bid_mode=0`
 
 ```shell
-./swan-client deal -json [path]/[task-name]-metadata.json -out-dir [output_files_dir] -miner [storage_provider_id]
+./swan-client deal -json [path]/[task-name]-metadata.json -out-dir [output_files_dir] -miner [storage_provider_ids]
 ```
 **Command parameters used in this step:**
 - -json(Required): Full file path to the metadata JSON file, see [Offline Deal](#Offline-Deal)
 - -out-dir(optional): Swan deal final metadata files will be generated to the given directory. When ommitted, use default: `[sender].output_dir`. See [Configuration](#Configuration)
-- -miner(Required): Target storage provider id, e.g f01276
+- -miner(Required): Storage provider Ids you want to send car files to, miners separated by comma if there are more than one, e.g `f01276` or `t03354,f01276`
 
 **Configurations used in this step:**
 - [sender].wallet, see [Configuration](#Configuration)
