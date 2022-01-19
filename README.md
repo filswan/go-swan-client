@@ -170,7 +170,7 @@ vi ~/.swan/client/config.toml
 ### [web-server]
 - **download_url_prefix**: Web server url prefix, such as: `https://[ip]:[port]/download`. Store car files for downloading by storage provider. Car file url will be `[download_url_prefix]/[filename]`
 ### [ipfs-server]
-- **download_url_prefix**: Ipfs server url prefix, such as: `http://[ip]:[port]`. Store car files for downloading by storage provider. Car file url will be `[download_url_prefix]/ipfs/[filename]`
+- **download_url_prefix**: Ipfs server url prefix, such as: `http://[ip]:[port]`. Store car files for downloading by storage provider. Car file url will be `[download_url_prefix]/ipfs/[file_hash]`
 - **upload_url_prefix**: Ipfs server url for uploading files, such as `http://[ip]:[port]`
 
 ### [sender]

@@ -17,7 +17,6 @@ type CmdUpload struct {
 	StorageServerType           string //required
 	IpfsServerDownloadUrlPrefix string //required only when upload to ipfs server
 	IpfsServerUploadUrlPrefix   string //required only when upload to ipfs server
-	OutputDir                   string //invalid
 	InputDir                    string //required
 }
 
@@ -26,7 +25,6 @@ func GetCmdUpload(inputDir string) *CmdUpload {
 		StorageServerType:           config.GetConfig().Main.StorageServerType,
 		IpfsServerDownloadUrlPrefix: config.GetConfig().IpfsServer.DownloadUrlPrefix,
 		IpfsServerUploadUrlPrefix:   config.GetConfig().IpfsServer.UploadUrlPrefix,
-		OutputDir:                   inputDir,
 		InputDir:                    inputDir,
 	}
 
