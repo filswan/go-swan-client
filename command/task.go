@@ -113,13 +113,12 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 			logs.GetLogger().Error(err)
 			return nil, nil, nil, err
 		}
-	case libconstants.TASK_BID_MODE_AUTO:
-		if len(cmdDeal.MinerFids) > 0 {
-			logs.GetLogger().Warn("miner fids is unnecessary for auto-bid task")
+	case libconstants.TASK_BID_MODE_AUTO, libconstants.TASK_BID_MODE_MANUAL:
+		if cmdDeal != nil {
+			logs.GetLogger().Warn("cmdDeal is unnecessary for auto-bid or manual-bid task")
 		}
-	case libconstants.TASK_BID_MODE_MANUAL:
-		if len(cmdDeal.MinerFids) > 0 {
-			logs.GetLogger().Warn("miner fids is unnecessary for manual-bid task")
+		if cmdDeal != nil && len(cmdDeal.MinerFids) != 0 {
+			logs.GetLogger().Warn("miner fids is unnecessary for auto-bid or manual-bid task")
 		}
 	default:
 		err := fmt.Errorf("invalid bid mode:%d", cmdTask.BidMode)
