@@ -18,6 +18,7 @@ import (
 )
 
 func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
+	logs.GetLogger().Info("Create ", confCar.InputDir, " to car file ", confCar.OutputDir, " start")
 	if confCar == nil {
 		err := fmt.Errorf("parameter confCar is nil")
 		logs.GetLogger().Error(err)
@@ -117,6 +118,8 @@ func CreateCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 
 	logs.GetLogger().Info(len(carFiles), " car files have been created to directory:", confCar.OutputDir)
 	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
+
+	logs.GetLogger().Info("Create ", confCar.InputDir, " to car file ", confCar.OutputDir, " created")
 
 	return carFiles, nil
 }
