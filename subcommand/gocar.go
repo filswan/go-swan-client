@@ -53,10 +53,12 @@ func CreateGoCarFiles(confCar *model.ConfCar) ([]*libmodel.FileDesc, error) {
 	carDir := confCar.OutputDir
 
 	fileFullPath := filepath.Join(carDir, GRAPHSPLIT_METADATA_CSV_FILE_NAME)
-	err = os.Remove(fileFullPath)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, err
+	if utils.IsFileExistsFullPath(fileFullPath) {
+		err = os.Remove(fileFullPath)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
 	}
 
 	if confCar.GocarFolderBased {
