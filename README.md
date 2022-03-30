@@ -1,9 +1,9 @@
 # Swan Client Tool Guide
 [![Made by FilSwan](https://img.shields.io/badge/made%20by-FilSwan-green.svg)](https://www.filswan.com/)
-[![Chat on Slack](https://img.shields.io/badge/slack-filswan.slack.com-green.svg)](https://filswan.slack.com)
+[![Chat on discord](https://img.shields.io/badge/join%20-discord-brightgreen.svg)](https://discord.com/invite/KKGhy8ZqzK)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
 
-- Join us on our [public Slack channel](https://www.filswan.com/) for news, discussions, and status updates.
+- Join us on our [public discord channel](https://discord.com/invite/KKGhy8ZqzK) for news, discussions, and status updates. 
 - [Check out our medium](https://filswan.medium.com) for the latest posts and announcements.
 
 ## Table of Contents
