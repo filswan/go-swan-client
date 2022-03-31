@@ -435,8 +435,8 @@ no swan-client subcommand should be executed
 - `your tasks in swan`
 - `task.is_public=true`
 - `task.bid_mode=1`
-- `status=Assigned`
-- `miner is not null`
+- `task.status=Assigned`
+- `task.miner is not null`
 
 ```shell
 ./swan-client auto -out-dir [output_files_dir]
