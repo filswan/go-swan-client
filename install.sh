@@ -1,5 +1,13 @@
 #!/bin/bash
 
+
+CODE_URL=https://github.com/filswan/go-swan-client
+BINARY_NAME=swan-client
+TAG_NAME=v0.1.0
+
+wget ${CODE_URL}/releases/download/${TAG_NAME}/${BINARY_NAME}
+wget ${CODE_URL}/releases/download/${TAG_NAME}/config.toml
+
 CONF_FILE_DIR=${HOME}/.swan/client
 mkdir -p ${CONF_FILE_DIR}
 
