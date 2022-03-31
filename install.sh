@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 CODE_URL=https://github.com/filswan/go-swan-client
 BINARY_NAME=swan-client
 TAG_NAME=v0.1.0
