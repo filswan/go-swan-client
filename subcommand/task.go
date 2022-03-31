@@ -111,6 +111,12 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	}
 
 	for _, carFile := range carFiles {
+		if utils.IsStrEmpty(&carFile.CarFileUrl) {
+			err := fmt.Errorf("CarFileUrl should not be empty, file:%s", carFile.CarFilePath)
+			logs.GetLogger().Error(err)
+			return nil, nil, nil, err
+		}
+
 		carFile.Uuid = task.Uuid
 		carFile.MinerFid = task.MinerFid
 		carFile.StartEpoch = &confTask.StartEpoch
