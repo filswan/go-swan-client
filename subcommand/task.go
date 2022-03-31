@@ -111,12 +111,6 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 	}
 
 	for _, carFile := range carFiles {
-		if utils.IsStrEmpty(&carFile.CarFileUrl) {
-			err := fmt.Errorf("CarFileUrl should not be empty, file:%s", carFile.CarFilePath)
-			logs.GetLogger().Error(err)
-			return nil, nil, nil, err
-		}
-
 		carFile.Uuid = task.Uuid
 		carFile.MinerFid = task.MinerFid
 		carFile.StartEpoch = &confTask.StartEpoch
@@ -125,6 +119,12 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 		if confTask.StorageServerType == constants.STORAGE_SERVER_TYPE_WEB_SERVER {
 			carFileUrl := utils.UrlJoin(confTask.WebServerDownloadUrlPrefix, carFile.CarFileName)
 			carFile.CarFileUrl = carFileUrl
+		}
+
+		if utils.IsStrEmpty(&carFile.CarFileUrl) {
+			err := fmt.Errorf("CarFileUrl should not be empty, file:%s", carFile.CarFilePath)
+			logs.GetLogger().Error(err)
+			return nil, nil, nil, err
 		}
 
 		if confTask.GenerateMd5 {
