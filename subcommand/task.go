@@ -121,6 +121,12 @@ func CreateTask(confTask *model.ConfTask, confDeal *model.ConfDeal) (*string, []
 			carFile.CarFileUrl = carFileUrl
 		}
 
+		if utils.IsStrEmpty(&carFile.CarFileUrl) {
+			err := fmt.Errorf("CarFileUrl should not be empty, file:%s", carFile.CarFilePath)
+			logs.GetLogger().Error(err)
+			return nil, nil, nil, err
+		}
+
 		if confTask.GenerateMd5 {
 			if carFile.SourceFileMd5 == "" && utils.IsFileExistsFullPath(carFile.SourceFilePath) {
 				srcFileMd5, err := checksum.MD5sum(carFile.SourceFilePath)
