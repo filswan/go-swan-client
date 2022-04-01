@@ -84,7 +84,9 @@ In swan project, a task can contain one or multiple offline deal(s).
 ## Installation
 ### Option:one:  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-client/releases)
 ```shell
-wget https://github.com/filswan/go-swan-client/releases/download/v0.1.0-rc1/install.sh
+mkdir swan-client
+cd swan-client
+wget https://github.com/filswan/go-swan-client/releases/download/v0.1.0-rc1/install.sh --no-check-certificate
 chmod +x ./install.sh
 ./install.sh
 ```
