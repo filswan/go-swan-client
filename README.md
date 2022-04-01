@@ -99,7 +99,7 @@ git checkout <release_branch>
 ```
 
 ## After Installation
-- The binary file `swan-client` is under `./build` directory, you need to switch to it.
+- The binary file `swan-client` for Option:two: is under `./build` directory, you need to switch to it.
 ```shell
 cd build
 ```
