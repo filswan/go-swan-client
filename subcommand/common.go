@@ -111,9 +111,8 @@ func CheckDealConfig(confDeal *model.ConfDeal) error {
 		return err
 	}
 
-	logs.GetLogger().Info("get price for miner:", confDeal.MinerFid)
+	logs.GetLogger().Info("getting price for miner:", confDeal.MinerFid)
 	minerPrice, minerVerifiedPrice, _, _ := lotusClient.LotusGetMinerConfig(confDeal.MinerFid)
-	logs.GetLogger().Info("got price for miner:", confDeal.MinerFid)
 
 	if confDeal.SenderWallet == "" {
 		err := fmt.Errorf("wallet should be set")
@@ -136,7 +135,7 @@ func CheckDealConfig(confDeal *model.ConfDeal) error {
 			return err
 		}
 		confDeal.MinerPrice = *minerPrice
-		//logs.GetLogger().Info("miner:", confDeal.MinerFid, ",price is:", *minerPrice)
+		logs.GetLogger().Info("miner:", confDeal.MinerFid, ",price is:", *minerPrice)
 	}
 
 	priceCmp := confDeal.MaxPrice.Cmp(confDeal.MinerPrice)
