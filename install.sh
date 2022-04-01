@@ -19,8 +19,3 @@ else
     cp ./config.toml.example $CONF_FILE_PATH
     echo "${CONF_FILE_PATH} created"
 fi
-
-git submodule update --init --recursive
-make ffi
-make
-
