@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/filswan/go-swan-client/config"
@@ -76,7 +77,7 @@ func GetCmdTask(inputDir string, outputDir *string, taskName, dataset, descripti
 	}
 
 	var err error
-	maxPrice := config.GetConfig().Sender.MaxPrice
+	maxPrice := strings.Trim(config.GetConfig().Sender.MaxPrice, " ")
 	cmdTask.MaxPrice, err = decimal.NewFromString(maxPrice)
 	if err != nil {
 		logs.GetLogger().Error(err)
