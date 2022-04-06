@@ -63,7 +63,7 @@ func GetCmdDeal(outputDir *string, minerFids string, metadataJsonPath string) *C
 		cmdDeal.OutputDir = *outputDir
 	}
 
-	maxPriceStr := config.GetConfig().Sender.MaxPrice
+	maxPriceStr := strings.Trim(config.GetConfig().Sender.MaxPrice, " ")
 	maxPrice, err := decimal.NewFromString(maxPriceStr)
 	if err != nil {
 		logs.GetLogger().Error("Failed to convert maxPrice(" + maxPriceStr + ") to decimal, MaxPrice:")
