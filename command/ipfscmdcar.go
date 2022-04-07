@@ -85,7 +85,7 @@ func (cmdIpfsCmdCar *CmdIpfsCmdCar) CreateIpfsCmdCarFiles() ([]*libmodel.FileDes
 	carFileName := filepath.Base(cmdIpfsCmdCar.InputDir) + ".car"
 	carFilePath := filepath.Join(cmdIpfsCmdCar.OutputDir, carFileName)
 	ipfsCmdCarCmd := fmt.Sprintf("ipfs-car --pack %s --output %s", cmdIpfsCmdCar.InputDir, carFilePath)
-	result, err := client.ExecOsCmd(ipfsCmdCarCmd, true)
+	result, err := client.ExecOsCmd2Screen(ipfsCmdCarCmd, true)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
