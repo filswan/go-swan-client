@@ -11,13 +11,14 @@ import (
 )
 
 const (
-	CMD_CAR     = "car"
-	CMD_GOCAR   = "gocar"
-	CMD_IPFSCAR = "ipfscar"
-	CMD_UPLOAD  = "upload"
-	CMD_TASK    = "task"
-	CMD_DEAL    = "deal"
-	CMD_AUTO    = "auto"
+	CMD_CAR        = "car"
+	CMD_GOCAR      = "gocar"
+	CMD_IPFSCAR    = "ipfscar"
+	CMD_IPFSCMDCAR = "ipfscmdcar"
+	CMD_UPLOAD     = "upload"
+	CMD_TASK       = "task"
+	CMD_DEAL       = "deal"
+	CMD_AUTO       = "auto"
 
 	JSON_FILE_NAME_CAR_UPLOAD = "car.json"
 	JSON_FILE_NAME_TASK       = "-metadata.json"

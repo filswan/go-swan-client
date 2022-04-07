@@ -82,7 +82,6 @@ func (cmdIpfsCmdCar *CmdIpfsCmdCar) CreateIpfsCmdCarFiles() ([]*libmodel.FileDes
 	}
 
 	logs.GetLogger().Info("Creating car file for ", cmdIpfsCmdCar.InputDir)
-
 	carFileName := filepath.Base(cmdIpfsCmdCar.InputDir) + ".car"
 	carFilePath := filepath.Join(cmdIpfsCmdCar.OutputDir, carFileName)
 	ipfsCmdCarCmd := fmt.Sprintf("ipfs-car --pack %s --output %s", cmdIpfsCmdCar.InputDir, carFilePath)
@@ -92,7 +91,7 @@ func (cmdIpfsCmdCar *CmdIpfsCmdCar) CreateIpfsCmdCarFiles() ([]*libmodel.FileDes
 		return nil, err
 	}
 
-	if !strings.Contains(result, "Error") {
+	if strings.Contains(result, "Error") {
 		err := fmt.Errorf(result)
 		logs.GetLogger().Error(err)
 		return nil, err
