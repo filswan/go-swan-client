@@ -3,6 +3,7 @@
 * [CreateCarFiles](#CreateCarFiles)
 * [CreateGoCarFiles](#CreateGoCarFiles)
 * [CreateIpfsCarFiles](#CreateIpfsCarFiles)
+* [CreateIpfsCmdCarFiles](#CreateIpfsCmdCarFiles)
 * [UploadCarFiles](#UploadCarFiles)
 * [CreateTask](#CreateTask)
 * [SendDeals](#SendDeals)
@@ -46,6 +47,21 @@ Definition:
 
 ```shell
 func (cmdIpfsCar *CmdIpfsCar) CreateIpfsCarFiles() ([]*libmodel.FileDesc, error)
+```
+
+Outputs:
+
+```shell
+[]*libmodel.FileDesc   # files description
+error                  # error or nil
+```
+
+## CreateIpfsCmdCarFiles
+
+Definition:
+
+```shell
+func (cmdIpfsCmdCar *CmdIpfsCmdCar) CreateIpfsCmdCarFiles() ([]*libmodel.FileDesc, error)
 ```
 
 Outputs:
