@@ -271,7 +271,7 @@ vi ~/.swan/client/config.toml
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
 
 ### Option:three: By Ipfs
-:bell: This option will merge files under source directory to one car file in output directory.
+:bell: This option will merge files under source directory to one car file in output directory using ipfs web api.
 ```shell
 ./swan-client ipfscar -input-dir [input_files_dir] -out-dir [car_file_output_dir]
 ```
@@ -288,10 +288,26 @@ Credits should be given to filedrive-team. More information can be found in http
 
 **Files generated after this step:**
 - car.json: contains information for car file, see [Offline Deal](#Offline-Deal)
-- [car-file-cid].car: the file(s) will be merged into a car file
+- [car-file-cid].car: the source file(s) will be merged into this car file
 
-**Note:**
-We do not create source file MD5 in the metadata files.
+### Option:four: By ipfs-car command
+:bell: This option will merge files under source directory to one car file in output directory using ipfs-car command.
+```shell
+./swan-client ipfscmdcar -input-dir [input_files_dir] -out-dir [car_file_output_dir]
+```
+**Command parameters used in this step:**
+- -input-dir(Required): The directory where the source files reside in.
+- -out-dir(optional): Car file and metadata files will be generated into this directory. When omitted, use `[sender].output_dir` in [Configuration](#Configuration)
+
+**Configurations used in this step:**
+- [lotus].client_api_url, see [Configuration](#Configuration)
+- [lotus].client_access_token, see [Configuration](#Configuration)
+- [sender].output_dir, only used when -out-dir is omitted in command, see [Configuration](#Configuration)
+- [sender].generate_md5, when it is true, then generate md5 for source files and car files, see [Configuration](#Configuration)
+
+**Files generated after this step:**
+- car.json: contains information for car file, see [Offline Deal](#Offline-Deal)
+- [source-files-dir-name].car: the source file(s) will be merged into this car file
 
 ## Upload Car Files
 :bell: It is required to upload car files to file server(s), either to web server or to ipfs server.
