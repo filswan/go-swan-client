@@ -23,7 +23,7 @@ func execSubCmd() error {
 	var err error = nil
 	subCmd := os.Args[1]
 	switch subCmd {
-	case command.CMD_CAR, command.CMD_GOCAR, command.CMD_IPFSCAR:
+	case command.CMD_CAR, command.CMD_GOCAR, command.CMD_IPFSCAR, command.CMD_IPFSCMDCAR:
 		err = createCarFile(subCmd)
 	case command.CMD_UPLOAD:
 		err = uploadFile()
@@ -77,6 +77,8 @@ func createCarFile(subCmd string) error {
 		_, err = command.CreateGoCarFilesByConfig(*inputDir, outputDir)
 	case command.CMD_IPFSCAR:
 		_, err = command.CreateIpfsCarFilesByConfig(*inputDir, outputDir)
+	case command.CMD_IPFSCMDCAR:
+		_, err = command.CreateIpfsCmdCarFilesByConfig(*inputDir, outputDir)
 	default:
 		err = fmt.Errorf("unknown sub command:%s", subCmd)
 	}
