@@ -270,7 +270,7 @@ vi ~/.swan/client/config.toml
 
 Credits should be given to filedrive-team. More information can be found in https://github.com/filedrive-team/go-graphsplit.
 
-### Option:three: By Ipfs
+### Option:three: By ipfs web api
 :bell: This option will merge files under source directory to one car file in output directory using ipfs web api.
 ```shell
 ./swan-client ipfscar -input-dir [input_files_dir] -out-dir [car_file_output_dir]
