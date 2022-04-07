@@ -76,7 +76,7 @@ error                  # error or nil
 Definition:
 
 ```shell
-func UploadCarFilesByConfig(inputDir string) ([]*libmodel.FileDesc, error)
+(cmdUpload *CmdUpload) UploadCarFiles() ([]*libmodel.FileDesc, error)
 ```
 
 Outputs:
