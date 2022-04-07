@@ -291,6 +291,10 @@ Credits should be given to filedrive-team. More information can be found in http
 - [car-file-cid].car: the source file(s) will be merged into this car file
 
 ### Option:four: By ipfs-car Command
+:bell: ipfs-car command should be installed first using
+```shell
+sudo npm install -g ipfs-car
+```
 :bell: This option will merge files under source directory to one car file in output directory using ipfs-car command.
 ```shell
 ./swan-client ipfscmdcar -input-dir [input_files_dir] -out-dir [car_file_output_dir]
