@@ -3,6 +3,7 @@
 * [CmdCar](#CmdCar)
 * [CmdGoCar](#CmdGoCar)
 * [CmdIpfsCar](#CmdIpfsCar)
+* [CmdIpfsCmdCar](#CmdIpfsCmdCar)
 * [CmdUpload](#CmdUpload)
 * [CmdTask](#CmdTask)
 * [CmdDeal](#CmdDeal)
@@ -43,7 +44,18 @@ type CmdIpfsCar struct {
 	GenerateMd5               bool   //required
 	IpfsServerUploadUrlPrefix string //required
 }
+```
 
+
+## CmdIpfsCmdCar
+```shell
+type CmdIpfsCmdCar struct {
+	LotusClientApiUrl      string //required
+	LotusClientAccessToken string //required
+	OutputDir              string //required
+	InputDir               string //required
+	GenerateMd5            bool   //required
+}
 ```
 
 ## CmdUpload
