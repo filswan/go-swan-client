@@ -62,7 +62,6 @@ func GetCmdTask(inputDir string, outputDir *string, taskName, dataset, descripti
 		ExpireDays:                 config.GetConfig().Sender.ExpireDays,
 		GenerateMd5:                config.GetConfig().Sender.GenerateMd5,
 		Duration:                   config.GetConfig().Sender.Duration,
-		OutputDir:                  filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
 		InputDir:                   inputDir,
 		TaskName:                   taskName,
 		Dataset:                    dataset,
@@ -74,6 +73,8 @@ func GetCmdTask(inputDir string, outputDir *string, taskName, dataset, descripti
 
 	if !utils.IsStrEmpty(outputDir) {
 		cmdTask.OutputDir = *outputDir
+	} else {
+		cmdTask.OutputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
 	}
 
 	var err error
