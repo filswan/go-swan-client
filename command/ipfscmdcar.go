@@ -13,6 +13,7 @@ import (
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
+	"github.com/google/uuid"
 )
 
 type CmdIpfsCmdCar struct {
@@ -27,13 +28,14 @@ func GetCmdIpfsCmdCar(inputDir string, outputDir *string) *CmdIpfsCmdCar {
 	cmdIpfsCmdCar := &CmdIpfsCmdCar{
 		LotusClientApiUrl:      config.GetConfig().Lotus.ClientApiUrl,
 		LotusClientAccessToken: config.GetConfig().Lotus.ClientAccessToken,
-		OutputDir:              filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
 		InputDir:               inputDir,
 		GenerateMd5:            config.GetConfig().Sender.GenerateMd5,
 	}
 
 	if !utils.IsStrEmpty(outputDir) {
 		cmdIpfsCmdCar.OutputDir = *outputDir
+	} else {
+		cmdIpfsCmdCar.OutputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
 	}
 
 	return cmdIpfsCmdCar

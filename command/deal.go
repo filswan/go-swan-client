@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/filswan/go-swan-client/config"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
 	"github.com/filswan/go-swan-lib/client/lotus"
@@ -49,7 +50,6 @@ func GetCmdDeal(outputDir *string, minerFids string, metadataJsonPath string) *C
 		SkipConfirmation:       config.GetConfig().Sender.SkipConfirmation,
 		Duration:               config.GetConfig().Sender.Duration,
 		StartEpochHours:        config.GetConfig().Sender.StartEpochHours,
-		OutputDir:              filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
 		MinerFids:              []string{},
 		MetadataJsonPath:       metadataJsonPath,
 	}
@@ -61,6 +61,8 @@ func GetCmdDeal(outputDir *string, minerFids string, metadataJsonPath string) *C
 
 	if !utils.IsStrEmpty(outputDir) {
 		cmdDeal.OutputDir = *outputDir
+	} else {
+		cmdDeal.OutputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
 	}
 
 	maxPriceStr := strings.Trim(config.GetConfig().Sender.MaxPrice, " ")

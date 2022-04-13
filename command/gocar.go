@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/filswan/go-swan-client/config"
+	"github.com/google/uuid"
 
 	"github.com/filswan/go-swan-lib/logs"
 
@@ -35,7 +36,6 @@ func GetCmdGoCar(inputDir string, outputDir *string) *CmdGoCar {
 	cmdGoCar := &CmdGoCar{
 		LotusClientApiUrl:      config.GetConfig().Lotus.ClientApiUrl,
 		LotusClientAccessToken: config.GetConfig().Lotus.ClientAccessToken,
-		OutputDir:              filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")),
 		InputDir:               inputDir,
 		GocarFileSizeLimit:     config.GetConfig().Sender.GocarFileSizeLimit,
 		GenerateMd5:            config.GetConfig().Sender.GenerateMd5,
@@ -44,6 +44,8 @@ func GetCmdGoCar(inputDir string, outputDir *string) *CmdGoCar {
 
 	if !utils.IsStrEmpty(outputDir) {
 		cmdGoCar.OutputDir = *outputDir
+	} else {
+		cmdGoCar.OutputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
 	}
 
 	return cmdGoCar
