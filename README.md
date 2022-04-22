@@ -81,6 +81,10 @@ In swan project, a task can contain one or multiple offline deal(s).
 ## Prerequisites
 - Lotus node
 
+**Note:** 
+ - To ensure the source files can be imported into Lotus correctly and tasks can be sent successfully, go-swan-client and Lotus node need to be installed on the same machine. 
+
+
 ## Installation
 ### Option:one:  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-client/releases)
 ```shell
@@ -462,10 +466,7 @@ no swan-client subcommand should be executed
 
 **Note:**
 - Logs are in directory ./logs
-- You can add `nohup` before `./swan-client` to ignore the HUP (hangup) signal and therefore avoid stop when you log out.
-- You can add `>> swan-client.log` in the command to let all the logs output to `swan-client.log`.
-- You can add `&` at the end of the command to let the program run in background.
-- Such as:
+- To avoid program exit when you log out, you can run the program like this:
 ```shell
-nohup ./swan-client auto -out-dir [output_files_dir] >> swan-client.log &
+nohup ./swan-client auto -out-dir [output_files_dir] >> swan-client.log 2>&1 &
 ```
