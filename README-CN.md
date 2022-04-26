@@ -37,7 +37,8 @@
     * **手动竞价**: 当出价人(Storage Provider)赢得竞价时，任务持有方（Client）需要发起手动竞价任务给获胜的一方(Storage Provider)。
   * **私有任务**: 指客户端会发起一个私有任务(交易的集合)给特定的存储提供者。
 - 任务状态:
-  * **已创建**: 表示该任务第一次在filswan平台上被成功创建，此状态与任务类型无关；  * **已分配**: 表示该任务已经被用户分配给一个存储提供者，包括用户手动分配和被自动竞价模块----市场匹配器(Market Matcher) 两种情况；
+  * **已创建**: 表示该任务第一次在filswan平台上被成功创建，此状态与任务类型无关；  
+  * **已分配**: 表示该任务已经被用户分配给一个存储提供者，包括用户手动分配和被自动竞价模块----市场匹配器(Market Matcher) 两种情况；
   * **需操作**: 表示该自动竞价任务(系统设置为`bid_mode=1`, `public_deal=true`)有部分信息缺失或者无效：    
     
     *  MaxPrice: 缺失或者是一个无效的数字
@@ -104,7 +105,7 @@ git checkout <release_branch>
 ./build_from_source.sh
 ```
 
-## 安装后配置
+## 安装后
 - 选项二中的二进制文件`swan-client`位于`./build`下，需要进入对应目录下
 ```shell
 cd build
@@ -128,14 +129,17 @@ vi ~/.swan/client/config.toml
 ### [web-server]
 - **download_url_prefix**: Web服务器地址前缀，如:`https://[ip]:[port]/download`存储需要被存储提供者下载的Car文件，Car文件的地址为：`[download_url_prefix]/[filename]`.
 ### [ipfs-server]
-- **download_url_prefix**: IPFS服务器前缀，如：`http://[ip]:[port]`， 存储需要被存储提供者下载的Car文件，Car文件的地址为： `[download_url_prefix]/ipfs/[filename]`。- **upload_url**:  用于上传文件的IPFS服务器，如：`http://[ip]:[port]`.
+- **download_url_prefix**: IPFS服务器前缀，如：`http://[ip]:[port]`， 存储需要被存储提供者下载的Car文件，Car文件的地址为： `[download_url_prefix]/ipfs/[filename]`。
+- **upload_url**:  用于上传文件的IPFS服务器，如：`http://[ip]:[port]`.
 
 ### [sender]
 - **bid_mode**: [0/1] 默认是1, 表示自动竞价模式，swan会为当前客户端自动分配存储提供者；0表示手动竞价模式，需要存储提供者手动竞价。
 - **offline_mode**:  [true/false] 默认是 false。当设置为true时，将不会在filswan.com平台上创建任务，但是仍然会生成Car文件、csv文件和JSON文件用于发单。
 - **output_dir**: 当运行命令中没有设置--out-dir时，将会使用此路径作为输出路径来保存生成的Car文件、csv文件和JSON文件，需要有访问或者创建该路径的权限。
 - **public_deal**: [true/false] 表示是任务中的交易是否为公开交易。
-- **verified_deal**:  [true/false] 表示该任务中的交易是否会以经过验证的(verified)属性发送。- **fast_retrieval**: [true/false] 表示数据是否要求可以被快速检索。- **generate_md5**:  [true/false] 表示是否为每个Car文件和原文件都生成md5值，注意：`此操作会比较消耗资源的`。
+- **verified_deal**:  [true/false] 表示该任务中的交易是否会以经过验证的(verified)属性发送。
+- **fast_retrieval**: [true/false] 表示数据是否要求可以被快速检索。
+- **generate_md5**:  [true/false] 表示是否为每个Car文件和原文件都生成md5值，注意：`此操作会比较消耗资源的`。
 - **skip_confirmation**: [true/false] 表示在每笔交易发送之前是否手动确认。
 - **wallet**: 表示用来发送离线交易的钱包地址。
 - **max_price**: 表示离线交易中客户端愿意支付的最高的单价(/GiB/Epoch)。
@@ -143,7 +147,7 @@ vi ~/.swan/client/config.toml
 - **expired_days**: 表示希望存储提供者完成数据封装需要的天数。
 - **gocar_file_size_limit**: 表示利用gocar模式生成Car文件时限制的字节数。
 - **gocar_folder_based**: 表示基于整个文件夹生成Car文件，或者基于单个文件生成Car文件。
-- **duration**: 用区块来表示(1个区块的时间是30秒)。默认是1512000, 也就是525天，有效值区间为:[518400, 1540000]。 参见[Make the Deal](https://docs.filecoin.io/store/lotus/store-data/#make-the-deal)
+- **duration**: 用区块来表示(1个区块的时间是30秒)。默认是1512000, 也就是525天，有效值区间为:[518400, 1540000]，参见[Make the Deal](https://docs.filecoin.io/store/lotus/store-data/#make-the-deal)
 - **relative_epoch_from_main_network**: # 表示网络的当前区块高度-主网当前区块高度。
 
 ## 工作流程
@@ -213,6 +217,7 @@ vi ~/.swan/client/config.toml
 **此命令相关参数如下:**
 - -input-dir(必选): 源文件所在路径
 - -out-dir(可选): 生成的Car文件和元数据文件的存放路径，当缺省时，使用[配置文件](#Configuration)中设置的`[sender].output_dir`
+
 **此步骤用到的配置项:**
 - [lotus].client_api_url, 见[配置文件](#Configuration)
 - [lotus].client_access_token, 见[配置文件](#Configuration)
@@ -267,6 +272,7 @@ vi ~/.swan/client/config.toml
 ```shell
 ./swan-client upload -input-dir [input_file_dir]
 ```
+
 **此命令相关参数如下:**
 - -input-dir(必选): Car文件和元数据文件所在的路径。元数据文件会在Car文件被上传以后，在此路径下被使用和更新。
 
