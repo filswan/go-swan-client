@@ -166,8 +166,8 @@ vi ~/.swan/client/config.toml
 
 ### [main]
 - **api_url**: Swan API address. For Swan production, it is `https://go-swan-server.filswan.com/`. It can be ignored if `[sender].offline_mode=true`.
-- :bangbang:**api_key**: Your Swan API key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_mode=true`.
-- :bangbang:**access_token**: Your Swan API access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_mode=true`.
+- :bangbang:**api_key**: Your Swan API key. Acquire from [Swan Platform](https://console.filswan.com/#/dashboard) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_mode=true`.
+- :bangbang:**access_token**: Your Swan API access token. Acquire from [Swan Platform](https://console.filswan.com/#/dashboard) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_mode=true`.
 - :bangbang:**storage_server_type**: `ipfs server` or `web server`
 
 ### [web-server]
