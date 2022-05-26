@@ -165,7 +165,7 @@ vi ~/.swan/client/config.toml
 - **client_access_token**:  Access token of lotus client web api. It should have admin access right. You can get it from your lotus node machine using command `lotus auth create-token --perm admin`. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
 
 ### [main]
-- **api_url**: Swan API address. For Swan production, it is `https://go-swan-server.filswan.com/`. It can be ignored if `[sender].offline_mode=true`.
+- **api_url**: Swan API address. For Swan production, it is `https://go-swan-server.filswan.com`. It can be ignored if `[sender].offline_mode=true`.
 - :bangbang:**api_key**: Your Swan API key. Acquire from [Swan Platform](https://console.filswan.com/#/dashboard) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_mode=true`.
 - :bangbang:**access_token**: Your Swan API access token. Acquire from [Swan Platform](https://console.filswan.com/#/dashboard) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_mode=true`.
 - :bangbang:**storage_server_type**: `ipfs server` or `web server`
