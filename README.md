@@ -133,7 +133,10 @@ export LIBRARY_PATH=/opt/homebrew/Cellar/hwloc/2.6.0/lib
 ## Installation
 ### Option:one:  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-client/releases)
 ```shell
-wget https://github.com/filswan/go-swan-client/releases/download/release-0.1.0/install.sh
+mkdir swan-client
+cd swan-client
+wget https://github.com/filswan/go-swan-client/releases/download/v2.0.0-rc1/install.sh
+chmod +x install.sh
 ./install.sh
 ```
 
@@ -147,7 +150,7 @@ git checkout <release_branch>
 ```
 
 ## After Installation
-- The binary file `swan-client` is under `./build` directory, you need to switch to it.
+- If you install from source code, the binary file `swan-client` is under `./build` directory, you need to switch to it.
 ```shell
 cd build
 ```
