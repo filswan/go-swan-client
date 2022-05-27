@@ -190,7 +190,7 @@ vi ~/.swan/client/config.toml
 - **expired_days**: Expected completion days for storage provider sealing data.
 - **gocar_file_size_limit**: Go car file size limit in bytes
 - **gocar_folder_based**: Generate car file based on whole folder, or on each file separately
-- **duration**: Expressed in blocks (1 block is equivalent to 30s). Default value is 1512000, that is 525 days. Valid value range:[518400, 1540000]. See [Make the Deal](https://docs.filecoin.io/store/lotus/store-data/#make-the-deal)
+- **duration**: Expressed in epochs (30 seconds per epoch). Default value is 1512000, that is 525 days. Valid value range:[518400, 1540000].
 - **max_auto_bid_copy_number**: When in auto-bid mode, that is `bid_mode=1`, max number of miners a car file can be allocated by Market Matcher
 
 ## Flowcharts
