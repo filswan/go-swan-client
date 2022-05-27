@@ -135,7 +135,7 @@ export LIBRARY_PATH=/opt/homebrew/Cellar/hwloc/2.6.0/lib
 ```shell
 mkdir swan-client
 cd swan-client
-wget https://github.com/filswan/go-swan-client/releases/download/v2.0.0-rc1/install.sh
+wget --no-check-certificate https://github.com/filswan/go-swan-client/releases/download/v2.0.0-rc1/install.sh
 chmod +x install.sh
 ./install.sh
 ```
