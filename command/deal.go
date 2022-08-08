@@ -35,6 +35,7 @@ type CmdDeal struct {
 	OutputDir              string          //required
 	MinerFids              []string        //required
 	MetadataJsonPath       string          //required
+	StartDealTimeInterval  time.Duration   //required
 }
 
 func GetCmdDeal(outputDir *string, minerFids string, metadataJsonPath string) *CmdDeal {
@@ -52,6 +53,7 @@ func GetCmdDeal(outputDir *string, minerFids string, metadataJsonPath string) *C
 		StartEpochHours:        config.GetConfig().Sender.StartEpochHours,
 		MinerFids:              []string{},
 		MetadataJsonPath:       metadataJsonPath,
+		StartDealTimeInterval:  config.GetConfig().Sender.StartDealTimeInterval,
 	}
 
 	minerFids = strings.Trim(minerFids, " ")
@@ -212,14 +214,10 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 			dealConfig.MinerFid = minerFid
 
 			dealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
-			if err != nil {
-				logs.GetLogger().Error(err)
-				continue
-			}
 			if dealCid == nil {
 				continue
+				dealCid = new(string)
 			}
-
 			deal := &libmodel.DealInfo{
 				MinerFid:   dealConfig.MinerFid,
 				DealCid:    *dealCid,
@@ -227,7 +225,17 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 			}
 			deals = append(deals, deal)
 			dealSentNum = dealSentNum + 1
+			if err != nil {
+				logs.GetLogger().Error(err)
+				continue
+			}
+			if dealCid == nil {
+				continue
+			}
 			logs.GetLogger().Info("deal sent successfully, task name:", taskName, ", car file:", fileDesc.CarFilePath, ", deal CID:", deal.DealCid, ", start epoch:", deal.StartEpoch, ", miner:", deal.MinerFid)
+			if cmdDeal.StartDealTimeInterval > 0 {
+				time.Sleep(cmdDeal.StartDealTimeInterval * time.Millisecond)
+			}
 		}
 
 		fileDesc.Deals = deals

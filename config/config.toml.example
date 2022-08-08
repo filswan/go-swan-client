@@ -31,3 +31,4 @@ gocar_file_size_limit = 8589934592
 gocar_folder_based = false
 duration = 1051200    # Duration is expressed in blocks (1 block is equivalent to 30s).
 max_auto_bid_copy_number = 8 # max copy number you want to send
+start_deal_time_interval = 500 # lotus proposes a deal with a miner the time interval. default: 500ms
