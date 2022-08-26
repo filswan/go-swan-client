@@ -215,7 +215,6 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 
 			dealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
 			if dealCid == nil {
-				continue
 				dealCid = new(string)
 			}
 			deal := &libmodel.DealInfo{
