@@ -205,11 +205,21 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDeals4Task(assignedOfflineDeals
 
 		fileDescs = append(fileDescs, fileDesc)
 
+		var cost string
+		dealInfo, err := cmdAutoBidDeal.CheckDealStatus(fileDesc.Deals[0].DealCid)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			cost = "fail"
+		} else {
+			cost = dealInfo.CostComputed
+		}
+
 		updateOfflineDealParams := swan.UpdateOfflineDealParams{
 			DealId:     assignedOfflineDeal.Id,
 			DealCid:    &fileDesc.Deals[0].DealCid,
 			Status:     libconstants.OFFLINE_DEAL_STATUS_CREATED,
 			StartEpoch: &fileDesc.Deals[0].StartEpoch,
+			Cost:       &cost,
 		}
 
 		err = swanClient.UpdateOfflineDeal(updateOfflineDealParams)
@@ -334,4 +344,18 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.Offl
 	err = fmt.Errorf("failed to send deal for task:%d,uuid:%s,deal:%d", offlineDeal.TaskId, *offlineDeal.TaskUuid, offlineDeal.Id)
 	logs.GetLogger().Error(err)
 	return nil, err
+}
+
+func (cmdAutoBidDeal *CmdAutoBidDeal) CheckDealStatus(dealCid string) (*lotus.ClientDealCostStatus, error) {
+	lotusClient, err := lotus.LotusGetClient(cmdAutoBidDeal.LotusClientApiUrl, cmdAutoBidDeal.LotusClientAccessToken)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+	dealCostInfo, err := lotusClient.LotusClientGetDealInfo(dealCid)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+	return dealCostInfo, err
 }
