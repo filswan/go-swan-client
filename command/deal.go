@@ -35,6 +35,7 @@ type CmdDeal struct {
 	OutputDir              string          //required
 	MinerFids              []string        //required
 	MetadataJsonPath       string          //required
+	StartDealTimeInterval  time.Duration   //required
 }
 
 func GetCmdDeal(outputDir *string, minerFids string, metadataJsonPath string) *CmdDeal {
@@ -52,6 +53,7 @@ func GetCmdDeal(outputDir *string, minerFids string, metadataJsonPath string) *C
 		StartEpochHours:        config.GetConfig().Sender.StartEpochHours,
 		MinerFids:              []string{},
 		MetadataJsonPath:       metadataJsonPath,
+		StartDealTimeInterval:  config.GetConfig().Sender.StartDealTimeInterval,
 	}
 
 	minerFids = strings.Trim(minerFids, " ")
@@ -210,8 +212,27 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 		deals := []*libmodel.DealInfo{}
 		for _, minerFid := range cmdDeal.MinerFids {
 			dealConfig.MinerFid = minerFid
-
+			var cost string
 			dealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
+			if dealCid == nil {
+				dealCid = new(string)
+			} else {
+				dealInfo, err := lotusClient.LotusClientGetDealInfo(*dealCid)
+				if err != nil {
+					logs.GetLogger().Error(err)
+					cost = "fail"
+				} else {
+					cost = dealInfo.CostComputed
+				}
+			}
+			deal := &libmodel.DealInfo{
+				MinerFid:   dealConfig.MinerFid,
+				DealCid:    *dealCid,
+				StartEpoch: int(dealConfig.StartEpoch),
+				Cost:       cost,
+			}
+			deals = append(deals, deal)
+			dealSentNum = dealSentNum + 1
 			if err != nil {
 				logs.GetLogger().Error(err)
 				continue
@@ -219,15 +240,10 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 			if dealCid == nil {
 				continue
 			}
-
-			deal := &libmodel.DealInfo{
-				MinerFid:   dealConfig.MinerFid,
-				DealCid:    *dealCid,
-				StartEpoch: int(dealConfig.StartEpoch),
+			logs.GetLogger().Info("deal sent successfully, task name:", taskName, ", car file:", fileDesc.CarFilePath, ", deal CID:", deal.DealCid, ", start epoch:", deal.StartEpoch, ", miner:", deal.MinerFid)
+			if cmdDeal.StartDealTimeInterval > 0 {
+				time.Sleep(cmdDeal.StartDealTimeInterval * time.Millisecond)
 			}
-			deals = append(deals, deal)
-			dealSentNum = dealSentNum + 1
-			logs.GetLogger().Info("deal sent successfully, task:", taskName, ", car file:", fileDesc.CarFilePath, ", deal CID:", deal.DealCid, ", start epoch:", deal.StartEpoch, ", miner:", deal.MinerFid)
 		}
 
 		fileDesc.Deals = deals

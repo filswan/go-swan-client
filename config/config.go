@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/BurntSushi/toml"
 	"github.com/filswan/go-swan-lib/logs"
@@ -39,21 +40,22 @@ type ipfsServer struct {
 }
 
 type sender struct {
-	BidMode              int    `toml:"bid_mode"`
-	OfflineMode          bool   `toml:"offline_mode"`
-	OutputDir            string `toml:"output_dir"`
-	VerifiedDeal         bool   `toml:"verified_deal"`
-	FastRetrieval        bool   `toml:"fast_retrieval"`
-	SkipConfirmation     bool   `toml:"skip_confirmation"`
-	GenerateMd5          bool   `toml:"generate_md5"`
-	Wallet               string `toml:"wallet"`
-	MaxPrice             string `toml:"max_price"`
-	StartEpochHours      int    `toml:"start_epoch_hours"`
-	ExpireDays           int    `toml:"expire_days"`
-	GocarFileSizeLimit   int64  `toml:"gocar_file_size_limit"`
-	GocarFolderBased     bool   `toml:"gocar_folder_based"`
-	Duration             int    `toml:"duration"`
-	MaxAutoBidCopyNumber int    `toml:"max_auto_bid_copy_number"`
+	BidMode               int           `toml:"bid_mode"`
+	OfflineMode           bool          `toml:"offline_mode"`
+	OutputDir             string        `toml:"output_dir"`
+	VerifiedDeal          bool          `toml:"verified_deal"`
+	FastRetrieval         bool          `toml:"fast_retrieval"`
+	SkipConfirmation      bool          `toml:"skip_confirmation"`
+	GenerateMd5           bool          `toml:"generate_md5"`
+	Wallet                string        `toml:"wallet"`
+	MaxPrice              string        `toml:"max_price"`
+	StartEpochHours       int           `toml:"start_epoch_hours"`
+	ExpireDays            int           `toml:"expire_days"`
+	GocarFileSizeLimit    int64         `toml:"gocar_file_size_limit"`
+	GocarFolderBased      bool          `toml:"gocar_folder_based"`
+	Duration              int           `toml:"duration"`
+	MaxAutoBidCopyNumber  int           `toml:"max_auto_bid_copy_number"`
+	StartDealTimeInterval time.Duration `toml:"start_deal_time_interval"`
 }
 
 var config *Configuration
@@ -117,6 +119,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"sender", "gocar_folder_based"},
 		{"sender", "duration"},
 		{"sender", "max_auto_bid_copy_number"},
+		{"sender", "start_deal_time_interval"},
 	}
 
 	for _, v := range requiredFields {
