@@ -237,7 +237,7 @@ func (cmdGoCar *CmdGoCar) createFilesDescFromManifest() ([]*libmodel.FileDesc, e
 		fileDescs = append(fileDescs, &fileDesc)
 	}
 
-	_, err = WriteFileDescsToJsonFile(fileDescs, cmdGoCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteCarFilesToFiles(fileDescs, cmdGoCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD, CSV_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

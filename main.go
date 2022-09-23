@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/filswan/go-swan-client/command"
 
@@ -127,7 +128,7 @@ func createTask() error {
 	cmd := flag.NewFlagSet(command.CMD_TASK, flag.ExitOnError)
 
 	taskName := cmd.String("name", "", "Directory where source files are in.")
-	inputDir := cmd.String("input-dir", "", "Directory where source files are in.")
+	inputDir := cmd.String("input-dir", "", "Absolute path where the json or csv format source files.")
 	outputDir := cmd.String("out-dir", "", "Directory where target files will in.")
 	minerFid := cmd.String("miner", "", "Target miner fid")
 	dataset := cmd.String("dataset", "", "Curated dataset.")
@@ -151,7 +152,13 @@ func createTask() error {
 		return err
 	}
 
-	logs.GetLogger().Info("your input dir: ", *inputDir)
+	if !strings.HasSuffix(*inputDir, "csv") && !strings.HasSuffix(*inputDir, "json") {
+		err := fmt.Errorf("inputDir must be json or csv format file")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	logs.GetLogger().Info("your input source file as: ", *inputDir)
 
 	_, _, _, err = command.CreateTaskByConfig(*inputDir, outputDir, *taskName, *minerFid, *dataset, *description)
 	if err != nil {
@@ -166,6 +173,7 @@ func sendDeal() error {
 	cmd := flag.NewFlagSet(command.CMD_DEAL, flag.ExitOnError)
 
 	metadataJsonPath := cmd.String("json", "", "The JSON file path of deal metadata.")
+	metadataCsvPath := cmd.String("csv", "", "The CSV file path of deal metadata.")
 	outputDir := cmd.String("out-dir", "", "Directory where target files will in.")
 	minerFid := cmd.String("miner", "", "Target miner fid")
 
@@ -181,16 +189,28 @@ func sendDeal() error {
 		return err
 	}
 
-	if metadataJsonPath == nil || len(*metadataJsonPath) == 0 {
-		err := fmt.Errorf("metadata json file path is required")
+	if (metadataJsonPath == nil || len(*metadataJsonPath) == 0) && (metadataCsvPath == nil || len(*metadataCsvPath) == 0) {
+		err := fmt.Errorf("both metadataJsonPath and metadataCsvPath is nil")
 		logs.GetLogger().Error(err)
 		return err
 	}
 
-	logs.GetLogger().Info("Metadata json file:", *metadataJsonPath)
+	if len(*metadataJsonPath) > 0 && len(*metadataCsvPath) > 0 {
+		err := fmt.Errorf("metadata file path is required, it cannot contain csv file path  or json file path  at the same time")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if len(*metadataJsonPath) > 0 {
+		logs.GetLogger().Info("Metadata json file:", *metadataJsonPath)
+	}
+	if len(*metadataCsvPath) > 0 {
+		logs.GetLogger().Info("Metadata csv file:", *metadataCsvPath)
+	}
+
 	logs.GetLogger().Info("Output dir:", *outputDir)
 
-	_, err = command.SendDealsByConfig(*outputDir, *minerFid, *metadataJsonPath)
+	_, err = command.SendDealsByConfig(*outputDir, *minerFid, *metadataJsonPath, *metadataCsvPath)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err

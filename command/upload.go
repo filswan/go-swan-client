@@ -83,7 +83,7 @@ func (cmdUpload *CmdUpload) UploadCarFiles() ([]*libmodel.FileDesc, error) {
 
 	logs.GetLogger().Info(len(fileDescs), " car files have been uploaded to:", uploadUrl)
 
-	_, err = WriteFileDescsToJsonFile(fileDescs, cmdUpload.InputDir, JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteCarFilesToFiles(fileDescs, cmdUpload.InputDir, JSON_FILE_NAME_CAR_UPLOAD, CSV_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

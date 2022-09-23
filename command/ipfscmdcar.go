@@ -145,7 +145,7 @@ func (cmdIpfsCmdCar *CmdIpfsCmdCar) CreateIpfsCmdCarFiles() ([]*libmodel.FileDes
 		&fileDesc,
 	}
 
-	_, err = WriteFileDescsToJsonFile(fileDescs, cmdIpfsCmdCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteCarFilesToFiles(fileDescs, cmdIpfsCmdCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD, CSV_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

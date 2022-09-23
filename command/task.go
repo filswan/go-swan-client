@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -90,7 +91,7 @@ func GetCmdTask(inputDir string, outputDir *string, taskName, dataset, descripti
 
 func CreateTaskByConfig(inputDir string, outputDir *string, taskName, minerFid, dataset, description string) (*string, []*libmodel.FileDesc, []*Deal, error) {
 	cmdTask := GetCmdTask(inputDir, outputDir, taskName, dataset, description)
-	cmdDeal := GetCmdDeal(outputDir, minerFid, "")
+	cmdDeal := GetCmdDeal(outputDir, minerFid, "", "")
 	jsonFileName, fileDescs, deals, err := cmdTask.CreateTask(cmdDeal)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -134,9 +135,9 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		return nil, nil, nil, err
 	}
 
-	err = utils.CheckDirExists(cmdTask.InputDir, DIR_NAME_INPUT)
+	_, err = os.Stat(cmdTask.InputDir)
 	if err != nil {
-		logs.GetLogger().Error(err)
+		logs.GetLogger().Errorf("input-dir: %s, not such file, error: %v", cmdTask.InputDir, err)
 		return nil, nil, nil, err
 	}
 
@@ -152,10 +153,20 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		cmdTask.TaskName = taskName
 	}
 
-	fileDescs, err := ReadFileDescsFromJsonFile(cmdTask.InputDir, JSON_FILE_NAME_CAR_UPLOAD)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, nil, nil, err
+	var fileDescs []*libmodel.FileDesc
+	if strings.HasSuffix(cmdTask.InputDir, "json") {
+		fileDescs, err = ReadFileDescsFromJsonFile(cmdTask.InputDir, "")
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, nil, nil, err
+		}
+	}
+	if strings.HasSuffix(cmdTask.InputDir, "csv") {
+		fileDescs, err = ReadFileFromCsvFile(cmdTask.InputDir, "")
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, nil, nil, err
+		}
 	}
 
 	if fileDescs == nil {
@@ -246,7 +257,8 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 	}
 
 	jsonFileName := cmdTask.TaskName + JSON_FILE_NAME_TASK
-	jsonFilepath, err := WriteFileDescsToJsonFile(fileDescs, cmdTask.OutputDir, jsonFileName)
+	csvFileName := cmdTask.TaskName + CSV_FILE_NAME_TASK
+	filepath, err := WriteCarFilesToFiles(fileDescs, cmdTask.OutputDir, jsonFileName, csvFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
@@ -259,10 +271,10 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 	}
 
 	if *task.BidMode == libconstants.TASK_BID_MODE_MANUAL {
-		logs.GetLogger().Info("task ", task.TaskName, " has been created, please send its deal(s) later using deal subcommand and ", *jsonFilepath)
+		logs.GetLogger().Info("task ", task.TaskName, " has been created, please send its deal(s) later using deal subcommand and ", *filepath)
 	}
 
-	return jsonFilepath, fileDescs, deals, nil
+	return filepath, fileDescs, deals, nil
 }
 
 func (cmdTask *CmdTask) sendTask2Swan(task libmodel.Task, fileDescs []*libmodel.FileDesc) ([]*Deal, error) {

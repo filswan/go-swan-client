@@ -142,7 +142,7 @@ func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error) {
 
 	logs.GetLogger().Info(len(fileDescs), " car files have been created to directory:", cmdCar.OutputDir)
 
-	_, err = WriteFileDescsToJsonFile(fileDescs, cmdCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteCarFilesToFiles(fileDescs, cmdCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD, CSV_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
