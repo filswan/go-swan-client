@@ -1,8 +1,13 @@
 package command
 
 import (
+	"encoding/csv"
 	"encoding/json"
+	"github.com/google/uuid"
+	"io"
+	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
@@ -25,9 +30,39 @@ const (
 	JSON_FILE_NAME_DEAL       = "-deals.json"
 	JSON_FILE_NAME_DEAL_AUTO  = "-auto-deals.json"
 
+	CSV_FILE_NAME_CAR_UPLOAD = "car.csv"
+	CSV_FILE_NAME_TASK       = "-metadata.csv"
+	CSV_FILE_NAME_DEAL       = "-deals.csv"
+	CSV_FILE_NAME_DEAL_AUTO  = "-auto-deals.csv"
+
 	DIR_NAME_INPUT  = "input"
 	DIR_NAME_OUTPUT = "output"
+
+	DURATION_MIN = 518400
+	DURATION_MAX = 1551168
 )
+
+func WriteCarFilesToFiles(carFiles []*libmodel.FileDesc, outputDir, jsonFilename, csvFileName string) (*string, error) {
+	err := os.MkdirAll(outputDir, os.ModePerm)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	jsonFilePath, err := WriteFileDescsToJsonFile(carFiles, outputDir, jsonFilename)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	err = WriteCarFilesToCsvFile(carFiles, outputDir, csvFileName)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return jsonFilePath, nil
+}
 
 func WriteFileDescsToJsonFile(fileDescs []*libmodel.FileDesc, outputDir, jsonFileName string) (*string, error) {
 	jsonFilePath := filepath.Join(outputDir, jsonFileName)
@@ -73,6 +108,205 @@ func ReadFileDescsFromJsonFileByFullPath(jsonFilePath string) ([]*libmodel.FileD
 	}
 
 	return fileDescs, nil
+}
+
+func WriteCarFilesToCsvFile(carFiles []*libmodel.FileDesc, outDir, csvFileName string) error {
+	csvFilePath := filepath.Join(outDir, csvFileName)
+	var headers []string
+	headers = append(headers, "uuid")
+	headers = append(headers, "source_file_name")
+	headers = append(headers, "source_file_path")
+	headers = append(headers, "source_file_md5")
+	headers = append(headers, "source_file_size")
+	headers = append(headers, "car_file_name")
+	headers = append(headers, "car_file_path")
+	headers = append(headers, "car_file_md5")
+	headers = append(headers, "car_file_url")
+	headers = append(headers, "car_file_size")
+	headers = append(headers, "pay_load_cid")
+	headers = append(headers, "piece_cid")
+	headers = append(headers, "start_epoch")
+	headers = append(headers, "source_id")
+	headers = append(headers, "deals")
+
+	file, err := os.Create(csvFilePath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	err = writer.Write(headers)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	for _, carFile := range carFiles {
+		var columns []string
+		columns = append(columns, carFile.Uuid)
+		columns = append(columns, carFile.SourceFileName)
+		columns = append(columns, carFile.SourceFilePath)
+		columns = append(columns, carFile.SourceFileMd5)
+		columns = append(columns, strconv.FormatInt(carFile.SourceFileSize, 10))
+		columns = append(columns, carFile.CarFileName)
+		columns = append(columns, carFile.CarFilePath)
+		columns = append(columns, carFile.CarFileMd5)
+		columns = append(columns, carFile.CarFileUrl)
+		columns = append(columns, strconv.FormatInt(carFile.CarFileSize, 10))
+		columns = append(columns, carFile.PayloadCid)
+		columns = append(columns, carFile.PieceCid)
+
+		if carFile.StartEpoch != nil {
+			columns = append(columns, strconv.FormatInt(*carFile.StartEpoch, 10))
+		} else {
+			columns = append(columns, "")
+		}
+
+		if carFile.SourceId != nil {
+			columns = append(columns, strconv.Itoa(*carFile.SourceId))
+		} else {
+			columns = append(columns, "")
+		}
+		if len(carFile.Deals) > 0 {
+			dealsByte, err := json.Marshal(carFile.Deals)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				columns = append(columns, "")
+			} else {
+				columns = append(columns, string(dealsByte))
+			}
+		} else {
+			columns = append(columns, "")
+		}
+		err = writer.Write(columns)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
+	}
+
+	logs.GetLogger().Info("metadata csv generated: ", csvFilePath)
+
+	return nil
+}
+
+func ReadFileFromCsvFile(inputDir, csvFilename string) ([]*libmodel.FileDesc, error) {
+	csvFilePath := filepath.Join(inputDir, csvFilename)
+	fileDescs, err := ReadFileFromCsvFileByFullPath(csvFilePath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return fileDescs, nil
+}
+
+func ReadFileFromCsvFileByFullPath(csvFileName string) (fileDesc []*libmodel.FileDesc, err error) {
+	fs, err := os.Open(csvFileName)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
+	defer fs.Close()
+	r := csv.NewReader(fs)
+	isFirst := true
+	for {
+		row, err := r.Read()
+		if err != nil && err != io.EOF {
+			logs.GetLogger().Error(err)
+			break
+		}
+		if err == io.EOF {
+			logs.GetLogger().Error(err)
+			break
+		}
+		if isFirst {
+			isFirst = false
+			continue
+		}
+
+		carFile := new(libmodel.FileDesc)
+		if len(row) == 5 {
+			carFile.Uuid = uuid.NewString()
+			carFile.SourceFileName = row[0]
+			carFile.SourceFilePath = row[4]
+			carFile.SourceFileMd5 = ""
+			SourceFileSize, _ := strconv.ParseInt(row[1], 10, 64)
+			carFile.SourceFileSize = SourceFileSize
+			carFile.CarFileName = row[0]
+			carFile.CarFilePath = row[4]
+			carFile.CarFileMd5 = ""
+			carFile.CarFileUrl = row[4]
+			carFile.CarFileSize = SourceFileSize
+			carFile.PayloadCid = row[3]
+			carFile.PieceCid = row[2]
+		}
+
+		if len(row) == 11 {
+			carFile.Uuid = uuid.NewString()
+			carFile.SourceFileName = row[6]
+			carFile.SourceFilePath = row[7]
+			carFile.SourceFileMd5 = row[9]
+			SourceFileSize, _ := strconv.ParseInt(row[8], 10, 64)
+			carFile.SourceFileSize = SourceFileSize
+			carFile.CarFileName = row[0]
+			carFile.CarFilePath = row[1]
+			carFile.CarFileMd5 = row[5]
+			carFile.CarFileUrl = row[10]
+			CarFileSize, _ := strconv.ParseInt(row[4], 10, 64)
+			carFile.CarFileSize = CarFileSize
+			carFile.PayloadCid = row[3]
+			carFile.PieceCid = row[2]
+		}
+
+		if len(row) > 11 {
+			var sourceFileSize, carFileSize, startEpochs int64
+			var sourceIds int
+			if len(row[4]) > 0 {
+				sourceFileSize, _ = strconv.ParseInt(row[4], 10, 64)
+			}
+			if len(row[9]) > 0 {
+				carFileSize, _ = strconv.ParseInt(row[9], 10, 64)
+			}
+			if len(row[12]) > 0 {
+				startEpochs, _ = strconv.ParseInt(row[12], 10, 64)
+			}
+			if len(row[13]) > 0 {
+				sourceIds, _ = strconv.Atoi(row[13])
+			}
+			dealInfo := []*libmodel.DealInfo{}
+			if len(row[14]) > 0 {
+				err = json.Unmarshal([]byte(row[14]), &dealInfo)
+				if err != nil {
+					println(err)
+				}
+			}
+
+			carFile.Uuid = row[0]
+			carFile.SourceFileName = row[1]
+			carFile.SourceFilePath = row[2]
+			carFile.SourceFileMd5 = row[3]
+			carFile.SourceFileSize = sourceFileSize
+			carFile.CarFileName = row[5]
+			carFile.CarFilePath = row[6]
+			carFile.CarFileMd5 = row[7]
+			carFile.CarFileUrl = row[8]
+			carFile.CarFileSize = carFileSize
+			carFile.PayloadCid = row[10]
+			carFile.PieceCid = row[11]
+			carFile.StartEpoch = &startEpochs
+			carFile.SourceId = &sourceIds
+			carFile.Deals = dealInfo
+		}
+		if carFile != nil {
+			fileDesc = append(fileDesc, carFile)
+		}
+	}
+	return
 }
 
 func GetDeals(carFiles []*libmodel.FileDesc) ([]*Deal, error) {

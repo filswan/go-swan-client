@@ -35,10 +35,11 @@ type CmdDeal struct {
 	OutputDir              string          //required
 	MinerFids              []string        //required
 	MetadataJsonPath       string          //required
+	MetadataCsvPath        string          //required
 	StartDealTimeInterval  time.Duration   //required
 }
 
-func GetCmdDeal(outputDir *string, minerFids string, metadataJsonPath string) *CmdDeal {
+func GetCmdDeal(outputDir *string, minerFids, metadataJsonPath, metadataCsvPath string) *CmdDeal {
 	cmdDeal := &CmdDeal{
 		SwanApiUrl:             config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:             config.GetConfig().Main.SwanApiKey,
@@ -53,6 +54,7 @@ func GetCmdDeal(outputDir *string, minerFids string, metadataJsonPath string) *C
 		StartEpochHours:        config.GetConfig().Sender.StartEpochHours,
 		MinerFids:              []string{},
 		MetadataJsonPath:       metadataJsonPath,
+		MetadataCsvPath:        metadataCsvPath,
 		StartDealTimeInterval:  config.GetConfig().Sender.StartDealTimeInterval,
 	}
 
@@ -78,14 +80,14 @@ func GetCmdDeal(outputDir *string, minerFids string, metadataJsonPath string) *C
 	return cmdDeal
 }
 
-func SendDealsByConfig(outputDir, minerFid, metadataJsonPath string) ([]*libmodel.FileDesc, error) {
-	if metadataJsonPath == "" {
-		err := fmt.Errorf("metadataJsonPath is nil")
+func SendDealsByConfig(outputDir, minerFid, metadataJsonPath, metadataCsvPath string) ([]*libmodel.FileDesc, error) {
+	if metadataJsonPath == "" && metadataCsvPath == "" {
+		err := fmt.Errorf("both metadataJsonPath and metadataCsvPath is nil")
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	cmdDeal := GetCmdDeal(&outputDir, minerFid, metadataJsonPath)
+	cmdDeal := GetCmdDeal(&outputDir, minerFid, metadataJsonPath, metadataCsvPath)
 	fileDescs, err := cmdDeal.SendDeals()
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -101,17 +103,27 @@ func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
+	fileDescs := make([]*libmodel.FileDesc, 0)
+	var errMsg error
 
-	fileDescs, err := ReadFileDescsFromJsonFileByFullPath(cmdDeal.MetadataJsonPath)
+	if len(cmdDeal.MetadataJsonPath) > 0 {
+		fileDescs, err = ReadFileDescsFromJsonFileByFullPath(cmdDeal.MetadataJsonPath)
+		errMsg = fmt.Errorf("no car files read from:%s", cmdDeal.MetadataJsonPath)
+	}
+	if len(cmdDeal.MetadataCsvPath) > 0 {
+		fileDescs, err = ReadFileFromCsvFileByFullPath(cmdDeal.MetadataCsvPath)
+		errMsg = fmt.Errorf("no car files read from:%s", cmdDeal.MetadataJsonPath)
+	}
+
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
-
 	if len(fileDescs) == 0 {
-		err := fmt.Errorf("no car files read from:%s", cmdDeal.MetadataJsonPath)
-		logs.GetLogger().Error(err)
+		logs.GetLogger().Error(errMsg)
 		return nil, err
+	} else {
+		errMsg = nil
 	}
 
 	swanClient, err := swan.GetClient(cmdDeal.SwanApiUrl, cmdDeal.SwanApiKey, cmdDeal.SwanAccessToken, cmdDeal.SwanToken)
@@ -204,7 +216,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 		}
 
 		if len(cmdDeal.MinerFids) == 0 {
-			err := fmt.Errorf("miner is required, you can set in command line or in metadata json file")
+			err := fmt.Errorf("miner is required, you can set in command line or in metadata file")
 			logs.GetLogger().Error(err)
 			return nil, err
 		}
@@ -252,7 +264,8 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 	logs.GetLogger().Info(dealSentNum, " deal(s) has(ve) been sent for task:", taskName)
 
 	jsonFileName := taskName + JSON_FILE_NAME_DEAL
-	_, err = WriteFileDescsToJsonFile(fileDescs, outputDir, jsonFileName)
+	csvFileName := taskName + CSV_FILE_NAME_DEAL
+	_, err = WriteCarFilesToFiles(fileDescs, outputDir, jsonFileName, csvFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

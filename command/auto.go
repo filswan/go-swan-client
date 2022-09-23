@@ -230,13 +230,14 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDeals4Task(assignedOfflineDeals
 	}
 
 	jsonFileName := *assignedOfflineDeals[0].TaskName + JSON_FILE_NAME_DEAL_AUTO
-	jsonFilepath, err := WriteFileDescsToJsonFile(fileDescs, cmdAutoBidDeal.OutputDir, jsonFileName)
+	csvFileName := *assignedOfflineDeals[0].TaskName + CSV_FILE_NAME_DEAL_AUTO
+	filepath, err := WriteCarFilesToFiles(fileDescs, cmdAutoBidDeal.OutputDir, jsonFileName, csvFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, err
 	}
 
-	return jsonFilepath, fileDescs, nil
+	return filepath, fileDescs, nil
 }
 
 func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.OfflineDeal) (*libmodel.FileDesc, error) {
