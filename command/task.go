@@ -190,10 +190,10 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		return nil, nil, nil, err
 	}
 
-	startEpoch := *currentEpoch + int64((cmdTask.StartEpochHours+1)*libconstants.EPOCH_PER_HOUR)
-
-	err = lotusClient.CheckDuration(cmdTask.Duration, startEpoch)
-	if err != nil {
+	startEpoch := *currentEpoch + int64(cmdTask.StartEpochHours*libconstants.EPOCH_PER_HOUR)
+	epoch2EndFromNow := int64(cmdTask.StartEpochHours*libconstants.EPOCH_PER_HOUR) + int64(cmdTask.Duration)
+	if epoch2EndFromNow <= DURATION_MIN || epoch2EndFromNow >= DURATION_MAX {
+		err := fmt.Errorf("deal duration out of bounds (min, max, provided): %d, %d, %d", DURATION_MIN, DURATION_MAX, int64(cmdTask.Duration))
 		logs.GetLogger().Error(err)
 		return nil, nil, nil, err
 	}
