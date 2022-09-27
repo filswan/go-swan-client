@@ -34,8 +34,10 @@ func execSubCmd() error {
 		err = sendDeal()
 	case command.CMD_AUTO:
 		err = sendAutoBidDeal()
+	case command.CMD_VERSION:
+		err = printVersion()
 	default:
-		err = fmt.Errorf("sub command should be: car|gocar|upload|task|deal|auto")
+		err = fmt.Errorf("sub command should be: car|gocar|upload|task|deal|auto|version")
 		logs.GetLogger().Error(err)
 	}
 
@@ -237,5 +239,10 @@ func sendAutoBidDeal() error {
 	}
 
 	command.SendAutoBidDealsLoopByConfig(*outputDir)
+	return nil
+}
+
+func printVersion() error {
+	println(command.CMD_VERSION)
 	return nil
 }
