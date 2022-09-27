@@ -39,7 +39,7 @@ const (
 	DIR_NAME_OUTPUT = "output"
 
 	DURATION_MIN = 518400
-	DURATION_MAX = 1551168
+	DURATION_MAX = 1555200
 )
 
 func WriteCarFilesToFiles(carFiles []*libmodel.FileDesc, outputDir, jsonFilename, csvFileName string) (*string, error) {
