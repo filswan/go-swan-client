@@ -24,6 +24,7 @@ const (
 	CMD_TASK       = "task"
 	CMD_DEAL       = "deal"
 	CMD_AUTO       = "auto"
+	CMD_VERSION    = "version"
 
 	JSON_FILE_NAME_CAR_UPLOAD = "car.json"
 	JSON_FILE_NAME_TASK       = "-metadata.json"
@@ -40,6 +41,7 @@ const (
 
 	DURATION_MIN = 518400
 	DURATION_MAX = 1555200
+	VERSION      = "2.0.0"
 )
 
 func WriteCarFilesToFiles(carFiles []*libmodel.FileDesc, outputDir, jsonFilename, csvFileName string) (*string, error) {
