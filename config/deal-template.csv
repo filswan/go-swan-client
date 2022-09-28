@@ -1,0 +1,1 @@
+car_file_name(Required),car_file_path,piece_cid(Required),data_cid(Required),car_file_size(Required),car_file_md5,source_file_name,source_file_path,source_file_size(Required),source_file_md5,car_file_url(Required)
