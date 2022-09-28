@@ -243,6 +243,6 @@ func sendAutoBidDeal() error {
 }
 
 func printVersion() error {
-	println(command.CMD_VERSION)
+	println(command.VERSION)
 	return nil
 }
