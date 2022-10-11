@@ -338,14 +338,14 @@ var carCmd = &cli.Command{
 		if inputDir == "" {
 			err := fmt.Errorf("input-dir is required")
 			logs.GetLogger().Error(err)
-			return err
+			return ShowHelp(ctx, err)
 		}
 		outputDir := ctx.String("out-dir")
 		mode := ctx.String("mode")
 		if mode == "" {
 			err := fmt.Errorf("mode is required")
 			logs.GetLogger().Error(err)
-			return err
+			return ShowHelp(ctx, err)
 		}
 		var err error
 		switch mode {
