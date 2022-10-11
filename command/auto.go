@@ -2,6 +2,9 @@ package command
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
+	"io/ioutil"
+	"net/http"
 	"path/filepath"
 	"strings"
 	"time"
@@ -359,4 +362,37 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) CheckDealStatus(dealCid string) (*lotus.Cl
 		return nil, err
 	}
 	return dealCostInfo, err
+}
+
+func SendRpcReqAndResp(chainId, params string) (result []byte, err error) {
+	urls, ok := publicChain[chainId]
+	if !ok {
+		return nil, errors.New(fmt.Sprintf("not support chainId: %s", chainId))
+	}
+
+	for _, u := range urls {
+		copyUrl := u
+		result, err = doReq(copyUrl, params)
+		if err != nil {
+			if len(urls) > 0 {
+				fmt.Printf("occur error, msg: %v, retry it ...", err)
+				continue
+			}
+			fmt.Printf("occur error, msg: %v", err)
+		}
+		break
+	}
+	return
+}
+
+func doReq(reqUrl, params string) ([]byte, error) {
+	client := http.Client{
+		Timeout: 30 * time.Second,
+	}
+	resp, err := client.Post(reqUrl, "application/json", strings.NewReader(params))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	return ioutil.ReadAll(resp.Body)
 }
