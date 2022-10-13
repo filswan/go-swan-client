@@ -98,7 +98,7 @@ func TestSendDeals() {
 
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
-	command.SendDealsByConfig(outDir, "t03354", "/Users/dorachen/work/carFiles/swan-task-oe1p20-metadata.json")
+	command.SendDealsByConfig(outDir, "t03354", "", "/Users/dorachen/work/carFiles/swan-task-oe1p20-metadata.json")
 }
 
 func TestSendAutoBidDeals() {

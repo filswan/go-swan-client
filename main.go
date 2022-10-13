@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/filswan/go-swan-client/command"
+	"github.com/filswan/go-swan-client/config"
+	"github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	"github.com/filswan/go-swan-lib/utils"
 	"github.com/julienschmidt/httprouter"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
 	"io/ioutil"
@@ -20,7 +23,7 @@ import (
 func main() {
 	app := &cli.App{
 		Name:                 "swan-client",
-		Usage:                "A PiB level data ooborading tool for Filecoin Network",
+		Usage:                "A PiB level data onboarding tool for Filecoin Network",
 		Version:              command.VERSION,
 		EnableBashCompletion: true,
 		After: func(context *cli.Context) error {
@@ -30,10 +33,16 @@ func main() {
 			return nil
 		},
 		Commands: []*cli.Command{
-			daemonCmd, carCmd, uploadCmd, taskCmd, dealCmd, autoCmd, rpcCmd, VersionCmd},
+			daemonCmd, uploadCmd, taskCmd, dealCmd, autoCmd, rpcCmd, VersionCmd,
+			WithCategory("generate-car", lotusCarCmd),
+			WithCategory("generate-car", splitCarCmd),
+			WithCategory("generate-car", ipfsCarCmd),
+			WithCategory("generate-car", ipfsCmdCarCmd),
+		},
 	}
 	if err := app.Run(os.Args); err != nil {
 		var phe *PrintHelpErr
+		fmt.Fprintf(os.Stderr, "ERROR: %s\n\n", err)
 		if xerrors.As(err, &phe) {
 			_ = cli.ShowCommandHelp(phe.Ctx, phe.Ctx.Command.Name)
 		}
@@ -115,14 +124,9 @@ var uploadCmd = &cli.Command{
 		},
 	},
 	Action: func(ctx *cli.Context) error {
-		if !ctx.Args().Present() {
-			return cli.ShowCommandHelp(ctx, ctx.Command.Name)
-		}
 		inputDir := ctx.String("input-dir")
 		if inputDir == "" {
-			err := fmt.Errorf("input-dir is required")
-			logs.GetLogger().Error(err)
-			return ShowHelp(ctx, err)
+			return errors.New("input-dir is required")
 		}
 		_, err := command.UploadCarFilesByConfig(inputDir)
 		if err != nil {
@@ -165,26 +169,31 @@ var taskCmd = &cli.Command{
 		},
 	},
 	Action: func(ctx *cli.Context) error {
-		if !ctx.Args().Present() {
-			return cli.ShowCommandHelp(ctx, ctx.Command.Name)
-		}
 		inputDir := ctx.String("input-dir")
 		if inputDir == "" {
-			err := fmt.Errorf("input-dir is required")
-			logs.GetLogger().Error(err)
-			return ShowHelp(ctx, err)
+			return errors.New("input-dir is required")
 		}
 		if !strings.HasSuffix(inputDir, "csv") && !strings.HasSuffix(inputDir, "json") {
-			err := fmt.Errorf("inputDir must be json or csv format file")
-			logs.GetLogger().Error(err)
-			return ShowHelp(ctx, err)
+			return errors.New("inputDir must be json or csv format file")
 		}
 		logs.GetLogger().Info("your input source file as: ", inputDir)
 		outputDir := ctx.String("out-dir")
-		_, _, _, err := command.CreateTaskByConfig(inputDir, &outputDir, ctx.String("name"), ctx.String("miner"), ctx.String("dataset"), ctx.String("description"))
+		_, fileDesc, _, total, err := command.CreateTaskByConfig(inputDir, &outputDir, ctx.String("name"), ctx.String("miner"), ctx.String("dataset"), ctx.String("description"))
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
+		}
+
+		if config.GetConfig().Sender.BidMode == constants.TASK_BID_MODE_AUTO {
+			taskId := fileDesc[0].Uuid
+			exitCh := make(chan interface{})
+			go func() {
+				defer func() {
+					exitCh <- struct{}{}
+				}()
+				command.GetCmdAutoDeal(&outputDir).SendAutoBidDealsBySwanClientSourceId(inputDir, taskId, total)
+			}()
+			<-exitCh
 		}
 		return nil
 	},
@@ -213,23 +222,15 @@ var dealCmd = &cli.Command{
 		},
 	},
 	Action: func(ctx *cli.Context) error {
-		if !ctx.Args().Present() {
-			return cli.ShowCommandHelp(ctx, ctx.Command.Name)
-		}
-
 		metadataJsonPath := ctx.String("json")
 		metadataCsvPath := ctx.String("csv")
 
 		if len(metadataJsonPath) == 0 && len(metadataCsvPath) == 0 {
-			err := fmt.Errorf("both metadataJsonPath and metadataCsvPath is nil")
-			logs.GetLogger().Error(err)
-			return ShowHelp(ctx, err)
+			return errors.New("both metadataJsonPath and metadataCsvPath is nil")
 		}
 
 		if len(metadataJsonPath) > 0 && len(metadataCsvPath) > 0 {
-			err := fmt.Errorf("metadata file path is required, it cannot contain csv file path  or json file path  at the same time")
-			logs.GetLogger().Error(err)
-			return ShowHelp(ctx, err)
+			return errors.New("metadata file path is required, it cannot contain csv file path  or json file path  at the same time")
 		}
 
 		if len(metadataJsonPath) > 0 {
@@ -260,9 +261,6 @@ var autoCmd = &cli.Command{
 		},
 	},
 	Action: func(ctx *cli.Context) error {
-		if !ctx.Args().Present() {
-			return cli.ShowCommandHelp(ctx, ctx.Command.Name)
-		}
 		err := command.SendAutoBidDealsLoopByConfig(ctx.String("out-dir"))
 		if err != nil {
 			logs.GetLogger().Error(err)
@@ -288,16 +286,11 @@ var rpcCmd = &cli.Command{
 		},
 	},
 	Action: func(ctx *cli.Context) error {
-		if !ctx.Args().Present() {
-			return cli.ShowCommandHelp(ctx, ctx.Command.Name)
-		}
 		chainId := ctx.String("chain-id")
 		params := ctx.String("params")
 
 		if utils.IsStrEmpty(&chainId) && utils.IsStrEmpty(&params) {
-			err := fmt.Errorf("both chain-id and params are required")
-			logs.GetLogger().Error(err)
-			return ShowHelp(ctx, err)
+			return errors.New("both chain-id and params are required")
 		}
 		result, err := command.SendRpcReqAndResp(chainId, params)
 		if err != nil {
@@ -310,57 +303,119 @@ var rpcCmd = &cli.Command{
 	},
 }
 
-var carCmd = &cli.Command{
-	Name:      "car",
-	Usage:     "generate car file",
+var lotusCarCmd = &cli.Command{
+	Name:      "lotus",
+	Usage:     "use lotus to generate car file",
 	ArgsUsage: "[inputPath]",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "input-dir",
 			Aliases: []string{"i"},
-			Usage:   "Directory where source file(s) is(are) in.",
+			Usage:   "Directory where source file(s) is(are) in. (required)",
 		},
 		&cli.StringFlag{
 			Name:    "out-dir",
 			Aliases: []string{"o"},
-			Usage:   "Directory where car file(s) will be generated.",
-		},
-		&cli.StringFlag{
-			Name:  "mode",
-			Usage: "support four mode: lotus,split,ipfs,ipfscmd",
+			Usage:   "Directory where car file(s) will be generated. (default)",
 		},
 	},
 	Action: func(ctx *cli.Context) error {
-		if !ctx.Args().Present() {
-			return cli.ShowCommandHelp(ctx, ctx.Command.Name)
-		}
 		inputDir := ctx.String("input-dir")
 		if inputDir == "" {
-			err := fmt.Errorf("input-dir is required")
-			logs.GetLogger().Error(err)
-			return ShowHelp(ctx, err)
+			return errors.New("input-dir is required")
 		}
 		outputDir := ctx.String("out-dir")
-		mode := ctx.String("mode")
-		if mode == "" {
-			err := fmt.Errorf("mode is required")
+		if _, err := command.CreateCarFilesByConfig(inputDir, &outputDir); err != nil {
 			logs.GetLogger().Error(err)
-			return ShowHelp(ctx, err)
+			return err
 		}
-		var err error
-		switch mode {
-		case command.CMD_CAR:
-			_, err = command.CreateCarFilesByConfig(inputDir, &outputDir)
-		case command.CMD_GOCAR:
-			_, err = command.CreateGoCarFilesByConfig(inputDir, &outputDir)
-		case command.CMD_IPFSCAR:
-			_, err = command.CreateIpfsCarFilesByConfig(inputDir, &outputDir)
-		case command.CMD_IPFSCMDCAR:
-			_, err = command.CreateIpfsCmdCarFilesByConfig(inputDir, &outputDir)
-		default:
-			err = fmt.Errorf("not support mode:%s, only support: car,gocar,ipfscar,ipfscmdcar", mode)
+		return nil
+	},
+}
+
+var splitCarCmd = &cli.Command{
+	Name:      "split",
+	Usage:     "use go-graphsplit to generate car file",
+	ArgsUsage: "[inputPath]",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:    "input-dir",
+			Aliases: []string{"i"},
+			Usage:   "Directory where source file(s) is(are) in. (required)",
+		},
+		&cli.StringFlag{
+			Name:    "out-dir",
+			Aliases: []string{"o"},
+			Usage:   "Directory where car file(s) will be generated. (default)",
+		},
+	},
+	Action: func(ctx *cli.Context) error {
+		inputDir := ctx.String("input-dir")
+		if inputDir == "" {
+			return errors.New("input-dir is required")
 		}
-		if err != nil {
+		outputDir := ctx.String("out-dir")
+		if _, err := command.CreateGoCarFilesByConfig(inputDir, &outputDir); err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
+		return nil
+	},
+}
+
+var ipfsCarCmd = &cli.Command{
+	Name:      "ipfs",
+	Usage:     "use ipfs api to generate car file",
+	ArgsUsage: "[inputPath]",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:    "input-dir",
+			Aliases: []string{"i"},
+			Usage:   "Directory where source file(s) is(are) in. (required)",
+		},
+		&cli.StringFlag{
+			Name:    "out-dir",
+			Aliases: []string{"o"},
+			Usage:   "Directory where car file(s) will be generated. (default)",
+		},
+	},
+	Action: func(ctx *cli.Context) error {
+		inputDir := ctx.String("input-dir")
+		if inputDir == "" {
+			return errors.New("input-dir is required")
+		}
+		outputDir := ctx.String("out-dir")
+		if _, err := command.CreateIpfsCarFilesByConfig(inputDir, &outputDir); err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
+		return nil
+	},
+}
+
+var ipfsCmdCarCmd = &cli.Command{
+	Name:      "ipfs-cmd",
+	Usage:     "use the ipfs command to generate the car file",
+	ArgsUsage: "[inputPath]",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:    "input-dir",
+			Aliases: []string{"i"},
+			Usage:   "Directory where source file(s) is(are) in. (required)",
+		},
+		&cli.StringFlag{
+			Name:    "out-dir",
+			Aliases: []string{"o"},
+			Usage:   "Directory where car file(s) will be generated. (default)",
+		},
+	},
+	Action: func(ctx *cli.Context) error {
+		inputDir := ctx.String("input-dir")
+		if inputDir == "" {
+			return errors.New("input-dir is required")
+		}
+		outputDir := ctx.String("out-dir")
+		if _, err := command.CreateIpfsCmdCarFilesByConfig(inputDir, &outputDir); err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
@@ -388,4 +443,9 @@ func (e *PrintHelpErr) Is(o error) bool {
 
 func ShowHelp(cctx *cli.Context, err error) error {
 	return &PrintHelpErr{Err: err, Ctx: cctx}
+}
+
+func WithCategory(cat string, cmd *cli.Command) *cli.Command {
+	cmd.Category = strings.ToUpper(cat)
+	return cmd
 }
