@@ -40,21 +40,21 @@ type ipfsServer struct {
 }
 
 type sender struct {
-	BidMode               int           `toml:"bid_mode"`
-	OfflineMode           bool          `toml:"offline_mode"`
-	OutputDir             string        `toml:"output_dir"`
-	VerifiedDeal          bool          `toml:"verified_deal"`
-	FastRetrieval         bool          `toml:"fast_retrieval"`
-	SkipConfirmation      bool          `toml:"skip_confirmation"`
-	GenerateMd5           bool          `toml:"generate_md5"`
-	Wallet                string        `toml:"wallet"`
-	MaxPrice              string        `toml:"max_price"`
-	StartEpochHours       int           `toml:"start_epoch_hours"`
-	ExpireDays            int           `toml:"expire_days"`
-	GocarFileSizeLimit    int64         `toml:"gocar_file_size_limit"`
-	GocarFolderBased      bool          `toml:"gocar_folder_based"`
-	Duration              int           `toml:"duration"`
-	MaxAutoBidCopyNumber  int           `toml:"max_auto_bid_copy_number"`
+	BidMode     int  `toml:"bid_mode"`
+	OfflineMode bool `toml:"offline_mode"`
+	//OutputDir             string        `toml:"output_dir"`
+	VerifiedDeal     bool   `toml:"verified_deal"`
+	FastRetrieval    bool   `toml:"fast_retrieval"`
+	SkipConfirmation bool   `toml:"skip_confirmation"`
+	GenerateMd5      bool   `toml:"generate_md5"`
+	Wallet           string `toml:"wallet"`
+	MaxPrice         string `toml:"max_price"`
+	StartEpochHours  int    `toml:"start_epoch_hours"`
+	ExpireDays       int    `toml:"expire_days"`
+	//GocarFileSizeLimit    int64         `toml:"gocar_file_size_limit"`
+	//GocarFolderBased      bool          `toml:"gocar_folder_based"`
+	Duration int `toml:"duration"`
+	//MaxAutoBidCopyNumber  int           `toml:"max_auto_bid_copy_number"`
 	StartDealTimeInterval time.Duration `toml:"start_deal_time_interval"`
 }
 
@@ -104,7 +104,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"ipfs_server", "download_url_prefix"},
 		{"ipfs_server", "upload_url_prefix"},
 
-		{"sender", "bid_mode"},
+		//{"sender", "bid_mode"},
 		{"sender", "offline_mode"},
 		{"sender", "output_dir"},
 		{"sender", "verified_deal"},
@@ -115,10 +115,10 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"sender", "max_price"},
 		{"sender", "start_epoch_hours"},
 		{"sender", "expire_days"},
-		{"sender", "gocar_file_size_limit"},
-		{"sender", "gocar_folder_based"},
+		//{"sender", "gocar_file_size_limit"},
+		//{"sender", "gocar_folder_based"},
 		{"sender", "duration"},
-		{"sender", "max_auto_bid_copy_number"},
+		//{"sender", "max_auto_bid_copy_number"},
 		{"sender", "start_deal_time_interval"},
 	}
 

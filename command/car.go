@@ -36,7 +36,7 @@ func GetCmdCar(inputDir string, outputDir *string) *CmdCar {
 	if !utils.IsStrEmpty(outputDir) {
 		cmdCar.OutputDir = *outputDir
 	} else {
-		cmdCar.OutputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
+		cmdCar.OutputDir = filepath.Join(*outputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
 	}
 
 	return cmdCar
