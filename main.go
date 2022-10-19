@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/filswan/go-swan-client/config"
+	"github.com/filswan/go-swan-lib/constants"
 	"os"
 	"strings"
 
@@ -162,10 +164,22 @@ func createTask() error {
 
 	logs.GetLogger().Info("your input source file as: ", *inputDir)
 
-	_, _, _, err = command.CreateTaskByConfig(*inputDir, outputDir, *taskName, *minerFid, *dataset, *description)
+	_, fileDesc, _, total, err := command.CreateTaskByConfig(*inputDir, outputDir, *taskName, *minerFid, *dataset, *description)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
+	}
+
+	if config.GetConfig().Sender.BidMode == constants.TASK_BID_MODE_AUTO {
+		taskId := fileDesc[0].Uuid
+		exitCh := make(chan interface{})
+		go func() {
+			defer func() {
+				exitCh <- struct{}{}
+			}()
+			command.GetCmdAutoDeal(outputDir).SendAutoBidDealsBySwanClientSourceId(*inputDir, taskId, total)
+		}()
+		<-exitCh
 	}
 
 	return nil
