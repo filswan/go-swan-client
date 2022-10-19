@@ -43,7 +43,7 @@ func TestCreateGoCarFiles() {
 	inputDir := filepath.Join(homeDir, "work/srcFiles")
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
-	command.CreateGoCarFilesByConfig(inputDir, &outDir)
+	command.CreateGoCarFilesByConfig(inputDir, &outDir, 5, 17179869184, true)
 }
 
 func TestCreateIpfsCarFiles() {
@@ -86,7 +86,7 @@ func TestCreateTask() {
 	inputDir := filepath.Join(homeDir, "work/carFiles")
 	outDir := filepath.Join(homeDir, "work/carFiles")
 
-	command.CreateTaskByConfig(inputDir, &outDir, "", "t03354", "", "")
+	command.CreateTaskByConfig(inputDir, &outDir, "", "t03354", "", "", false, false)
 }
 
 func TestSendDeals() {

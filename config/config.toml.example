@@ -17,7 +17,7 @@ upload_url_prefix = "http://[ip]:[port]"
 
 [sender]
 bid_mode = 1     # 1: auto bid, 0: manual bid, 2: not use bid, when creating task, set miners and sending deals
-offline_mode = false
+offline_mode = false # Default false. When set to true, you will not be able to create a Swan task on filswan.com, but you can still generate Car Files, CSV and JSON files for sending deals.
 output_dir = "/tmp/tasks"
 verified_deal = true
 fast_retrieval = true

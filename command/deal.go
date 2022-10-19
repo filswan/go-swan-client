@@ -66,7 +66,7 @@ func GetCmdDeal(outputDir *string, minerFids, metadataJsonPath, metadataCsvPath 
 	if !utils.IsStrEmpty(outputDir) {
 		cmdDeal.OutputDir = *outputDir
 	} else {
-		cmdDeal.OutputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
+		cmdDeal.OutputDir = filepath.Join(*outputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
 	}
 
 	maxPriceStr := strings.Trim(config.GetConfig().Sender.MaxPrice, " ")
