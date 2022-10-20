@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	big2 "github.com/filecoin-project/go-state-types/big"
 	"github.com/filswan/go-swan-client/command"
 	"github.com/filswan/go-swan-lib/logs"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
+	"math/big"
 	"os"
 	"strings"
 )
@@ -23,7 +25,7 @@ func main() {
 			}
 			return nil
 		},
-		Commands:        []*cli.Command{toolsCmd, uploadCmd, taskCmd, dealCmd, autoCmd},
+		Commands:        []*cli.Command{toolsCmd, uploadCmd, taskCmd, dealCmd, autoCmd, calculateCmd},
 		HideHelpCommand: true,
 	}
 	if err := app.Run(os.Args); err != nil {
@@ -243,8 +245,8 @@ var inPutFlag = cli.StringFlag{
 }
 var importFlag = cli.BoolFlag{
 	Name:  "import",
-	Usage: "Whether to import lotus (default: false)",
-	Value: false,
+	Usage: "whether to import lotus",
+	Value: true,
 }
 
 var outPutFlag = cli.StringFlag{
@@ -254,6 +256,7 @@ var outPutFlag = cli.StringFlag{
 	Value:   "/tmp/tasks",
 }
 
+//做完了
 var lotusCarCmd = &cli.Command{
 	Name:      "lotus",
 	Usage:     "Use lotus api to generate CAR file",
@@ -269,7 +272,7 @@ var lotusCarCmd = &cli.Command{
 			return errors.New("input-dir is required")
 		}
 		outputDir := ctx.String("out-dir")
-		if _, err := command.CreateCarFilesByConfig(inputDir, &outputDir); err != nil {
+		if _, err := command.CreateCarFilesByConfig(inputDir, &outputDir, ctx.Bool("import")); err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
@@ -315,7 +318,7 @@ var generateCarCmd = &cli.Command{
 			return errors.New("input-dir is required")
 		}
 		outputDir := ctx.String("out-dir")
-		if _, err := command.CreateGoCarFilesByConfig(inputDir, &outputDir, ctx.Int("parallel"), ctx.Int64("slice-size"), ctx.Bool("parent-path")); err != nil {
+		if _, err := command.CreateGoCarFilesByConfig(inputDir, &outputDir, ctx.Int("parallel"), ctx.Int64("slice-size"), ctx.Bool("parent-path"), ctx.Bool("import")); err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
@@ -370,7 +373,7 @@ var ipfsCarCmd = &cli.Command{
 			return errors.New("input-dir is required")
 		}
 		outputDir := ctx.String("out-dir")
-		if _, err := command.CreateIpfsCarFilesByConfig(inputDir, &outputDir); err != nil {
+		if _, err := command.CreateIpfsCarFilesByConfig(inputDir, &outputDir, ctx.Bool("import")); err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
@@ -400,12 +403,78 @@ var ipfsCmdCarCmd = &cli.Command{
 			return errors.New("input-dir is required")
 		}
 		outputDir := ctx.String("out-dir")
-		if _, err := command.CreateIpfsCmdCarFilesByConfig(inputDir, &outputDir); err != nil {
+		if _, err := command.CreateIpfsCmdCarFilesByConfig(inputDir, &outputDir, ctx.Bool("import")); err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
 		return nil
 	},
+}
+
+var calculateCmd = &cli.Command{
+	Name:      "commP",
+	Usage:     "Calculate the dataCid, pieceCid, pieceSize of the CAR file",
+	ArgsUsage: "[inputPath]",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:  "car-path",
+			Usage: "absolute path to the car file",
+		},
+		&cli.BoolFlag{
+			Name:   "data-cid",
+			Usage:  "whether to generate the dataCid flag",
+			Value:  true,
+			Hidden: true,
+		},
+		&cli.BoolFlag{
+			Name:  "piece-cid",
+			Usage: "whether to generate the pieceCid flag",
+			Value: false,
+		},
+	},
+	Action: func(ctx *cli.Context) error {
+		carPath := ctx.String("car-path")
+		if carPath == "" {
+			return errors.New("car-path is required")
+		}
+		dataCid, pieceCid, pieceSize, err := command.CalculateValueByCarFile(carPath, ctx.Bool("data-cid"), ctx.Bool("--piece-cid"))
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
+		fmt.Println("CarFileName: ", carPath)
+		if ctx.Bool("data-cid") {
+			fmt.Println("DataCID: ", dataCid)
+		}
+		if ctx.Bool("piece-cid") {
+			fmt.Println("PieceCID: ", pieceCid)
+			fmt.Println("PieceSize: ", SizeStr(NewInt(pieceSize)))
+			fmt.Println("Piece size in bytes: ", NewInt(pieceSize))
+		}
+		return nil
+	},
+}
+
+type BigInt = big2.Int
+
+func NewInt(i uint64) BigInt {
+	return BigInt{Int: big.NewInt(0).SetUint64(i)}
+}
+
+var byteSizeUnits = []string{"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB"}
+
+func SizeStr(bi big2.Int) string {
+	r := new(big.Rat).SetInt(bi.Int)
+	den := big.NewRat(1, 1024)
+
+	var i int
+	for f, _ := r.Float64(); f >= 1024 && i+1 < len(byteSizeUnits); f, _ = r.Float64() {
+		i++
+		r = r.Mul(r, den)
+	}
+
+	f, _ := r.Float64()
+	return fmt.Sprintf("%.4g %s", f, byteSizeUnits[i])
 }
 
 type PrintHelpErr struct {

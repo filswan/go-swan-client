@@ -14,6 +14,7 @@ COMMANDS:
    upload        Upload CAR file to ipfs server
    task          Send task to swan
    deal          Send manual bid deal
+   commP         Calculate the dataCid, pieceCid, pieceSize of the CAR file
 
 GLOBAL OPTIONS:
    --help, -h     show help (default: false)
@@ -168,4 +169,18 @@ OPTIONS:
    --miner value              target miner ID
    --help, -h                 show help (default: false)
 
+```
+
+## swan-client commP
+```
+NAME:
+   swan-client commP - Calculate the dataCid, pieceCid, pieceSize of the CAR file
+
+USAGE:
+   swan-client commP [command options] [inputPath]
+
+OPTIONS:
+   --car-path value  absolute path to the car file
+   --piece-cid       whether to generate the pieceCid flag (default: false)
+   --help, -h        show help (default: false)
 ```

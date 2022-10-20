@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/filswan/go-swan-lib/client/lotus"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
@@ -18,7 +19,6 @@ import (
 
 	"github.com/codingsince1985/checksum"
 	"github.com/filedrive-team/go-graphsplit"
-	"github.com/filswan/go-swan-lib/client/lotus"
 	libmodel "github.com/filswan/go-swan-lib/model"
 )
 
@@ -31,9 +31,10 @@ type CmdGoCar struct {
 	GocarFileSizeLimit     int64  //required
 	GocarFolderBased       bool   //required
 	Parallel               int
+	ImportFlag             bool
 }
 
-func GetCmdGoCar(inputDir string, outputDir *string, parallel int, carFileSizeLimit int64, carFolderBased bool) *CmdGoCar {
+func GetCmdGoCar(inputDir string, outputDir *string, parallel int, carFileSizeLimit int64, carFolderBased, importFlag bool) *CmdGoCar {
 	cmdGoCar := &CmdGoCar{
 		LotusClientApiUrl:      config.GetConfig().Lotus.ClientApiUrl,
 		LotusClientAccessToken: config.GetConfig().Lotus.ClientAccessToken,
@@ -42,6 +43,7 @@ func GetCmdGoCar(inputDir string, outputDir *string, parallel int, carFileSizeLi
 		GenerateMd5:            config.GetConfig().Sender.GenerateMd5,
 		GocarFolderBased:       carFolderBased,
 		Parallel:               parallel,
+		ImportFlag:             importFlag,
 	}
 
 	if !utils.IsStrEmpty(outputDir) {
@@ -53,8 +55,8 @@ func GetCmdGoCar(inputDir string, outputDir *string, parallel int, carFileSizeLi
 	return cmdGoCar
 }
 
-func CreateGoCarFilesByConfig(inputDir string, outputDir *string, parallel int, carFileSizeLimit int64, carFolderBased bool) ([]*libmodel.FileDesc, error) {
-	cmdGoCar := GetCmdGoCar(inputDir, outputDir, parallel, carFileSizeLimit, carFolderBased)
+func CreateGoCarFilesByConfig(inputDir string, outputDir *string, parallel int, carFileSizeLimit int64, carFolderBased, importFlag bool) ([]*libmodel.FileDesc, error) {
+	cmdGoCar := GetCmdGoCar(inputDir, outputDir, parallel, carFileSizeLimit, carFolderBased, importFlag)
 	fileDescs, err := cmdGoCar.CreateGoCarFiles()
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -65,7 +67,7 @@ func CreateGoCarFilesByConfig(inputDir string, outputDir *string, parallel int, 
 }
 
 func RestoreCarFilesByConfig(inputDir string, outputDir *string, parallel int) error {
-	cmdGoCar := GetCmdGoCar(inputDir, outputDir, parallel, 0, false)
+	cmdGoCar := GetCmdGoCar(inputDir, outputDir, parallel, 0, false, false)
 	err := cmdGoCar.RestoreCarToFiles()
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -181,11 +183,13 @@ func (cmdGoCar *CmdGoCar) createFilesDescFromManifest() ([]*libmodel.FileDesc, e
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
-
-	lotusClient, err := lotus.LotusGetClient(cmdGoCar.LotusClientApiUrl, cmdGoCar.LotusClientAccessToken)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, err
+	var lotusClient *lotus.LotusClient
+	if cmdGoCar.ImportFlag {
+		lotusClient, err = lotus.LotusGetClient(cmdGoCar.LotusClientApiUrl, cmdGoCar.LotusClientAccessToken)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
 	}
 
 	fileDescs := []*libmodel.FileDesc{}
@@ -208,20 +212,22 @@ func (cmdGoCar *CmdGoCar) createFilesDescFromManifest() ([]*libmodel.FileDesc, e
 		fileDesc.PieceCid = fields[2]
 		fileDesc.CarFileSize = utils.GetInt64FromStr(fields[3])
 
-		pieceCid, err := lotusClient.LotusClientCalcCommP(fileDesc.CarFilePath)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return nil, err
-		}
+		if cmdGoCar.ImportFlag {
+			//pieceCid, err := lotusClient.LotusClientCalcCommP(fileDesc.CarFilePath)
+			//if err != nil {
+			//	logs.GetLogger().Error(err)
+			//	return nil, err
+			//}
+			//
+			//fileDesc.PieceCid = *pieceCid
+			dataCid, err := lotusClient.LotusClientImport(fileDesc.CarFilePath, true)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return nil, err
+			}
 
-		fileDesc.PieceCid = *pieceCid
-		dataCid, err := lotusClient.LotusClientImport(fileDesc.CarFilePath, true)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return nil, err
+			fileDesc.PayloadCid = *dataCid
 		}
-
-		fileDesc.PayloadCid = *dataCid
 
 		carFileDetail := fields[4]
 		for i := 5; i < len(fields); i++ {
