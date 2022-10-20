@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/filswan/go-swan-lib/client/lotus"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
@@ -18,7 +19,6 @@ import (
 
 	"github.com/codingsince1985/checksum"
 	"github.com/filedrive-team/go-graphsplit"
-	"github.com/filswan/go-swan-lib/client/lotus"
 	libmodel "github.com/filswan/go-swan-lib/model"
 )
 
@@ -30,29 +30,33 @@ type CmdGoCar struct {
 	GenerateMd5            bool   //required
 	GocarFileSizeLimit     int64  //required
 	GocarFolderBased       bool   //required
+	Parallel               int
+	ImportFlag             bool
 }
 
-func GetCmdGoCar(inputDir string, outputDir *string) *CmdGoCar {
+func GetCmdGoCar(inputDir string, outputDir *string, parallel int, carFileSizeLimit int64, carFolderBased, importFlag bool) *CmdGoCar {
 	cmdGoCar := &CmdGoCar{
 		LotusClientApiUrl:      config.GetConfig().Lotus.ClientApiUrl,
 		LotusClientAccessToken: config.GetConfig().Lotus.ClientAccessToken,
 		InputDir:               inputDir,
-		GocarFileSizeLimit:     config.GetConfig().Sender.GocarFileSizeLimit,
+		GocarFileSizeLimit:     carFileSizeLimit,
 		GenerateMd5:            config.GetConfig().Sender.GenerateMd5,
-		GocarFolderBased:       config.GetConfig().Sender.GocarFolderBased,
+		GocarFolderBased:       carFolderBased,
+		Parallel:               parallel,
+		ImportFlag:             importFlag,
 	}
 
 	if !utils.IsStrEmpty(outputDir) {
 		cmdGoCar.OutputDir = *outputDir
 	} else {
-		cmdGoCar.OutputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
+		cmdGoCar.OutputDir = filepath.Join(*outputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
 	}
 
 	return cmdGoCar
 }
 
-func CreateGoCarFilesByConfig(inputDir string, outputDir *string) ([]*libmodel.FileDesc, error) {
-	cmdGoCar := GetCmdGoCar(inputDir, outputDir)
+func CreateGoCarFilesByConfig(inputDir string, outputDir *string, parallel int, carFileSizeLimit int64, carFolderBased, importFlag bool) ([]*libmodel.FileDesc, error) {
+	cmdGoCar := GetCmdGoCar(inputDir, outputDir, parallel, carFileSizeLimit, carFolderBased, importFlag)
 	fileDescs, err := cmdGoCar.CreateGoCarFiles()
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -60,6 +64,16 @@ func CreateGoCarFilesByConfig(inputDir string, outputDir *string) ([]*libmodel.F
 	}
 
 	return fileDescs, nil
+}
+
+func RestoreCarFilesByConfig(inputDir string, outputDir *string, parallel int) error {
+	cmdGoCar := GetCmdGoCar(inputDir, outputDir, parallel, 0, false, false)
+	err := cmdGoCar.RestoreCarToFiles()
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+	return nil
 }
 
 func (cmdGoCar *CmdGoCar) CreateGoCarFiles() ([]*libmodel.FileDesc, error) {
@@ -90,7 +104,6 @@ func (cmdGoCar *CmdGoCar) CreateGoCarFiles() ([]*libmodel.FileDesc, error) {
 
 	carDir := cmdGoCar.OutputDir
 	Emptyctx := context.Background()
-	parallel := 4
 	cb := graphsplit.CommPCallback(carDir)
 
 	if cmdGoCar.GocarFolderBased {
@@ -99,7 +112,7 @@ func (cmdGoCar *CmdGoCar) CreateGoCarFiles() ([]*libmodel.FileDesc, error) {
 		graphName := filepath.Base(parentPath)
 
 		logs.GetLogger().Info("Creating car file for ", parentPath)
-		err = graphsplit.Chunk(Emptyctx, sliceSize, parentPath, targetPath, carDir, graphName, parallel, cb)
+		err = graphsplit.Chunk(Emptyctx, sliceSize, parentPath, targetPath, carDir, graphName, cmdGoCar.Parallel, cb)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, err
@@ -112,7 +125,7 @@ func (cmdGoCar *CmdGoCar) CreateGoCarFiles() ([]*libmodel.FileDesc, error) {
 			graphName := srcFile.Name()
 
 			logs.GetLogger().Info("Creating car file for ", parentPath)
-			err = graphsplit.Chunk(Emptyctx, sliceSize, parentPath, targetPath, carDir, graphName, parallel, cb)
+			err = graphsplit.Chunk(Emptyctx, sliceSize, parentPath, targetPath, carDir, graphName, cmdGoCar.Parallel, cb)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				return nil, err
@@ -130,6 +143,26 @@ func (cmdGoCar *CmdGoCar) CreateGoCarFiles() ([]*libmodel.FileDesc, error) {
 	logs.GetLogger().Info("Please upload car files to web server or ipfs server.")
 
 	return fileDescs, nil
+}
+
+func (cmdGoCar *CmdGoCar) RestoreCarToFiles() error {
+	err := utils.CheckDirExists(cmdGoCar.InputDir, DIR_NAME_INPUT)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	err = utils.CreateDirIfNotExists(cmdGoCar.OutputDir, DIR_NAME_OUTPUT)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	graphsplit.CarTo(cmdGoCar.InputDir, cmdGoCar.OutputDir, cmdGoCar.Parallel)
+	graphsplit.Merge(cmdGoCar.OutputDir, cmdGoCar.Parallel)
+
+	logs.GetLogger().Info("car files have been restored to directory:", cmdGoCar.OutputDir)
+	return nil
 }
 
 type ManifestDetail struct {
@@ -150,11 +183,13 @@ func (cmdGoCar *CmdGoCar) createFilesDescFromManifest() ([]*libmodel.FileDesc, e
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
-
-	lotusClient, err := lotus.LotusGetClient(cmdGoCar.LotusClientApiUrl, cmdGoCar.LotusClientAccessToken)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, err
+	var lotusClient *lotus.LotusClient
+	if cmdGoCar.ImportFlag {
+		lotusClient, err = lotus.LotusGetClient(cmdGoCar.LotusClientApiUrl, cmdGoCar.LotusClientAccessToken)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
 	}
 
 	fileDescs := []*libmodel.FileDesc{}
@@ -177,20 +212,22 @@ func (cmdGoCar *CmdGoCar) createFilesDescFromManifest() ([]*libmodel.FileDesc, e
 		fileDesc.PieceCid = fields[2]
 		fileDesc.CarFileSize = utils.GetInt64FromStr(fields[3])
 
-		pieceCid, err := lotusClient.LotusClientCalcCommP(fileDesc.CarFilePath)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return nil, err
-		}
+		if cmdGoCar.ImportFlag {
+			//pieceCid, err := lotusClient.LotusClientCalcCommP(fileDesc.CarFilePath)
+			//if err != nil {
+			//	logs.GetLogger().Error(err)
+			//	return nil, err
+			//}
+			//
+			//fileDesc.PieceCid = *pieceCid
+			dataCid, err := lotusClient.LotusClientImport(fileDesc.CarFilePath, true)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return nil, err
+			}
 
-		fileDesc.PieceCid = *pieceCid
-		dataCid, err := lotusClient.LotusClientImport(fileDesc.CarFilePath, true)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return nil, err
+			fileDesc.PayloadCid = *dataCid
 		}
-
-		fileDesc.PayloadCid = *dataCid
 
 		carFileDetail := fields[4]
 		for i := 5; i < len(fields); i++ {

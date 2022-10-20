@@ -46,7 +46,7 @@ func GetCmdAutoDeal(outputDir *string) *CmdAutoBidDeal {
 	if !utils.IsStrEmpty(outputDir) {
 		cmdAutoBidDeal.OutputDir = *outputDir
 	} else {
-		cmdAutoBidDeal.OutputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
+		cmdAutoBidDeal.OutputDir = filepath.Join(*outputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
 	}
 
 	return cmdAutoBidDeal
