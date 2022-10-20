@@ -35,7 +35,7 @@ func GetCmdIpfsCmdCar(inputDir string, outputDir *string) *CmdIpfsCmdCar {
 	if !utils.IsStrEmpty(outputDir) {
 		cmdIpfsCmdCar.OutputDir = *outputDir
 	} else {
-		cmdIpfsCmdCar.OutputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
+		cmdIpfsCmdCar.OutputDir = filepath.Join(*outputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
 	}
 
 	return cmdIpfsCmdCar
