@@ -83,18 +83,18 @@ var taskCmd = &cli.Command{
 			Value:   "/tmp/tasks",
 		},
 		&cli.BoolFlag{
-			Name:  "auto",
-			Usage: "automatically send the deal after the task is created",
+			Name:  "auto-bid",
+			Usage: "send the auto-bid task",
 			Value: false,
 		},
 		&cli.BoolFlag{
-			Name:  "manual",
-			Usage: "manually send the deal after the task is created",
+			Name:  "manual-bid",
+			Usage: "send the manual-bid task",
 			Value: false,
 		},
 		&cli.StringFlag{
-			Name:  "miner",
-			Usage: "target miner ID",
+			Name:  "miners",
+			Usage: "minerID is required when send private task (pass comma separated array of minerIDs)",
 		},
 		&cli.StringFlag{
 			Name:  "dataset",
@@ -108,8 +108,8 @@ var taskCmd = &cli.Command{
 		&cli.IntFlag{
 			Name:    "max-copy-number",
 			Aliases: []string{"max"},
-			Usage:   "max copy number you want to send",
-			Value:   8,
+			Usage:   "max copy numbers when send auto-bid or manual-bid task",
+			Value:   1,
 		},
 	},
 	Action: func(ctx *cli.Context) error {
@@ -122,28 +122,28 @@ var taskCmd = &cli.Command{
 		}
 		logs.GetLogger().Info("your input source file as: ", inputDir)
 
-		auto := ctx.Bool("auto")
-		manual := ctx.Bool("manual")
-		minerId := ctx.String("miner")
+		auto := ctx.Bool("auto-bid")
+		manual := ctx.Bool("manual-bid")
+		minerId := ctx.String("miners")
 
 		if auto && minerId != "" {
-			return errors.New("miner cannot set when auto value is true")
+			return errors.New("miners need not to set when auto value is true")
 		}
 
 		if manual && minerId != "" {
-			return errors.New("miner cannot set when manual value is true")
+			return errors.New("miners need not to set when manual value is true")
 		}
 
 		if !auto && !manual && minerId == "" {
-			return errors.New("auto, manual, miner have at least one setting value")
+			return errors.New("only one argument can be set among auto-bid, manual-bid and miners")
 		}
 
 		if auto && manual {
-			return errors.New("auto and manual cannot be set at the same time")
+			return errors.New("auto-bid and manual-bid cannot be set at the same time")
 		}
 
 		outputDir := ctx.String("out-dir")
-		_, fileDesc, _, total, err := command.CreateTaskByConfig(inputDir, &outputDir, ctx.String("name"), ctx.String("miner"),
+		_, fileDesc, _, total, err := command.CreateTaskByConfig(inputDir, &outputDir, ctx.String("name"), minerId,
 			ctx.String("dataset"), ctx.String("description"), auto, manual, ctx.Int("max-copy-number"))
 		if err != nil {
 			logs.GetLogger().Error(err)
@@ -167,7 +167,7 @@ var taskCmd = &cli.Command{
 
 var dealCmd = &cli.Command{
 	Name:  "deal",
-	Usage: "Send manual bid deal",
+	Usage: "Send manual-bid deal",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:  "csv",
@@ -184,8 +184,8 @@ var dealCmd = &cli.Command{
 			Value:   "/tmp/tasks",
 		},
 		&cli.StringFlag{
-			Name:  "miner",
-			Usage: "target miner ID",
+			Name:  "miners",
+			Usage: "minerID is required when send manual-bid task (pass comma separated array of minerIDs)",
 		},
 	},
 	Action: func(ctx *cli.Context) error {
@@ -193,11 +193,11 @@ var dealCmd = &cli.Command{
 		metadataCsvPath := ctx.String("csv")
 
 		if len(metadataJsonPath) == 0 && len(metadataCsvPath) == 0 {
-			return errors.New("both metadataJsonPath and metadataCsvPath is nil")
+			return errors.New("at least one argument can be set between csv and json")
 		}
 
 		if len(metadataJsonPath) > 0 && len(metadataCsvPath) > 0 {
-			return errors.New("metadata file path is required, it cannot contain csv file path  or json file path  at the same time")
+			return errors.New("metadata file path is required, it cannot contain csv file path or json file path at the same time")
 		}
 
 		if len(metadataJsonPath) > 0 {
@@ -206,8 +206,12 @@ var dealCmd = &cli.Command{
 		if len(metadataCsvPath) > 0 {
 			logs.GetLogger().Info("Metadata csv file:", metadataCsvPath)
 		}
+		minerIds := ctx.String("miners")
+		if minerIds == "" {
+			return errors.New("miners is required")
+		}
 
-		_, err := command.SendDealsByConfig(ctx.String("out-dir"), ctx.String("miner"), metadataJsonPath, metadataCsvPath)
+		_, err := command.SendDealsByConfig(ctx.String("out-dir"), minerIds, metadataJsonPath, metadataCsvPath)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
@@ -245,7 +249,7 @@ var inPutFlag = cli.StringFlag{
 }
 var importFlag = cli.BoolFlag{
 	Name:  "import",
-	Usage: "whether to import lotus",
+	Usage: "whether to import CAR file to lotus",
 	Value: true,
 }
 

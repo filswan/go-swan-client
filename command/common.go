@@ -195,7 +195,7 @@ func WriteCarFilesToCsvFile(carFiles []*libmodel.FileDesc, outDir, csvFileName s
 		}
 	}
 
-	logs.GetLogger().Info("metadata csv generated: ", csvFilePath)
+	logs.GetLogger().Info("Metadata csv generated: ", csvFilePath)
 
 	return nil
 }
