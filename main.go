@@ -441,7 +441,7 @@ var calculateCmd = &cli.Command{
 		if carPath == "" {
 			return errors.New("car-path is required")
 		}
-		dataCid, pieceCid, pieceSize, err := command.CalculateValueByCarFile(carPath, ctx.Bool("data-cid"), ctx.Bool("--piece-cid"))
+		dataCid, pieceCid, pieceSize, err := command.CalculateValueByCarFile(carPath, ctx.Bool("data-cid"), ctx.Bool("piece-cid"))
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
