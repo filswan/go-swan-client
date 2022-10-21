@@ -13,7 +13,7 @@ COMMANDS:
    generate-car  Generate CAR files from a file or directory
    upload        Upload CAR file to ipfs server
    task          Send task to swan
-   deal          Send manual bid deal
+   deal          Send manual-bid deal
    commP         Calculate the dataCid, pieceCid, pieceSize of the CAR file
 
 GLOBAL OPTIONS:
@@ -50,9 +50,8 @@ USAGE:
 OPTIONS:
    --input-dir value, -i value  directory where source file(s) is(are) in.
    --out-dir value, -o value    directory where CAR file(s) will be generated. (default: "/tmp/tasks")
-   --import                     Whether to import lotus (default: false) (default: false)
+   --import                     whether to import CAR file to lotus (default: true)
    --help, -h                   show help (default: false)
-
 ```
 
 ### swan-client generate-car ipfs
@@ -66,9 +65,22 @@ USAGE:
 OPTIONS:
    --input-dir value, -i value  directory where source file(s) is(are) in.
    --out-dir value, -o value    directory where CAR file(s) will be generated. (default: "/tmp/tasks")
-   --import                     Whether to import lotus (default: false) (default: false)
+   --import                     whether to import CAR file to lotus (default: true)
    --help, -h                   show help (default: false)
+```
+### swan-client generate-car ipfs-car
+```
+NAME:
+   swan-client generate-car ipfs - Use ipfs api to generate CAR file
 
+USAGE:
+   swan-client generate-car ipfs [command options] [inputPath]
+
+OPTIONS:
+   --input-dir value, -i value  directory where source file(s) is(are) in.
+   --out-dir value, -o value    directory where CAR file(s) will be generated. (default: "/tmp/tasks")
+   --import                     whether to import CAR file to lotus (default: true)
+   --help, -h                   show help (default: false)
 ```
 
 ### swan-client generate-car graphsplit
@@ -98,7 +110,7 @@ USAGE:
 OPTIONS:
    --input-dir value, -i value       directory where source file(s) is(are) in.
    --out-dir value, -o value         directory where CAR file(s) will be generated. (default: "/tmp/tasks")
-   --import                          Whether to import lotus (default: false) (default: false)
+   --import                          whether to import CAR file to lotus (default: true)
    --parallel value                  number goroutines run when building ipld nodes (default: 5)
    --slice-size value, --size value  GiB of each piece (default: 16GiB) (default: 17179869184)
    --parent-path                     specify graph parent path (default: false)
@@ -145,30 +157,30 @@ OPTIONS:
    --name value                          task name
    --input-dir value, -i value           absolute path where the json or csv format source files
    --out-dir value, -o value             directory where target files will in (default: "/tmp/tasks")
-   --auto                                automatically send the deal after the task is created (default: false)
-   --manual                              manually send the deal after the task is created (default: false)
-   --miner value                         target miner ID
+   --auto-bid                            send the auto-bid task (default: false)
+   --manual-bid                          send the manual-bid task (default: false)
+   --miners value                        minerID is required when send private task (pass comma separated array of minerIDs)
    --dataset value                       curated dataset
    --description value, -d value         task description
-   --max-copy-number value, --max value  max copy number you want to send (default: 8)
+   --max-copy-number value, --max value  max copy numbers when send auto-bid or manual-bid task (default: 1)
    --help, -h                            show help (default: false)
+
 ```
 
 ## swan-client deal
 ```
 NAME:
-   swan-client deal - Send manual bid deal
+   swan-client deal - Send manual-bid deal
 
 USAGE:
    swan-client deal [command options] [arguments...]
 
 OPTIONS:
-   --csv value                the CSV file path of deal metadata.
-   --json value               the JSON file path of deal metadata.
-   --out-dir value, -o value  directory where target files will in.
-   --miner value              target miner ID
+   --csv value                the CSV file path of deal metadata
+   --json value               the JSON file path of deal metadata
+   --out-dir value, -o value  directory where target files will in (default: "/tmp/tasks")
+   --miners value             minerID is required when send manual-bid task (pass comma separated array of minerIDs)
    --help, -h                 show help (default: false)
-
 ```
 
 ## swan-client commP
