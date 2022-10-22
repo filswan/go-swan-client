@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"github.com/filswan/go-swan-lib/client/web"
 	"path/filepath"
 	"strings"
 	"time"
@@ -144,7 +145,7 @@ func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
 	}
 
 	if cmdDeal.VerifiedDeal {
-		isWalletVerified, err := swanClient.CheckDatacap(cmdDeal.SenderWallet)
+		isWalletVerified, err := cmdDeal.CheckDatacap(cmdDeal.SenderWallet)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, err
@@ -272,4 +273,34 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 	}
 
 	return fileDescs, err
+}
+
+func (cmdDeal *CmdDeal) CheckDatacap(address string) (bool, error) {
+
+	var params []interface{}
+	params = append(params, address)
+	params = append(params, []interface{}{})
+
+	jsonRpcParams := lotus.LotusJsonRpcParams{
+		JsonRpc: lotus.LOTUS_JSON_RPC_VERSION,
+		Method:  "Filecoin.StateVerifiedClientStatus",
+		Params:  params,
+		Id:      lotus.LOTUS_JSON_RPC_ID,
+	}
+	response, err := web.HttpPostNoToken(cmdDeal.LotusClientApiUrl, jsonRpcParams)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return false, err
+	}
+
+	result := utils.GetFieldStrFromJson(response, "result")
+	if result == "" {
+		logs.GetLogger().Error("no response from:", cmdDeal.LotusClientApiUrl)
+		return false, err
+	}
+
+	if string(result) == "0" {
+		return false, nil
+	}
+	return true, nil
 }
