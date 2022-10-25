@@ -1,11 +1,15 @@
 package command
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
 	"io/ioutil"
+	"math"
+	"math/big"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -395,4 +399,176 @@ func doReq(reqUrl, params string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 	return ioutil.ReadAll(resp.Body)
+}
+
+func QueryChainInfo(chain string, height int64, address string, balance bool) (ChainInfo, error) {
+	if balance {
+		return QueryBalance(chain, height, address)
+	} else {
+		return QueryHeight(chain)
+	}
+}
+
+func QueryHeight(chain string) (info ChainInfo, err error) {
+	urls, ok := chainUrlMap[chain]
+	if !ok {
+		return info, errors.New(fmt.Sprintf("not support chainId: %s", chain))
+	}
+	var rpcParam rpcReq
+	switch chain {
+	case "ETH", "BNB", "MATIC", "FTM", "xDAI", "IOTX", "BOBA", "EVMOS", "AVAX", "FUSE", "JEWEL", "TUS":
+		rpcParam.Jsonrpc = "2.0"
+		rpcParam.Method = "eth_blockNumber"
+		rpcParam.Params = []interface{}{}
+		rpcParam.Id = 83
+	case "ONE":
+		rpcParam.Jsonrpc = "2.0"
+		rpcParam.Method = "hmyv2_blockNumber"
+		rpcParam.Id = 1
+		rpcParam.Params = []interface{}{}
+	}
+
+	var returnMap map[string]interface{}
+	for _, u := range urls {
+		copyUrl := u
+		rpcParamBytes, err := json.Marshal(rpcParam)
+		if err != nil {
+			logs.GetLogger().Errorf("generate req params bytes failed,error: %v", err)
+			continue
+		}
+		data, err := doReq(copyUrl, string(rpcParamBytes))
+		if err != nil {
+			logs.GetLogger().Errorf("request url: %s failed, error: %v", copyUrl, err)
+			if len(urls) > 0 {
+				logs.GetLogger().Warnf("retry it by other request")
+				continue
+			}
+			break
+		}
+		if err = json.Unmarshal(data, &returnMap); err != nil {
+			logs.GetLogger().Warn("convert the return data to map failed, error: %v", err)
+			continue
+		}
+		break
+	}
+	if returnMap["result"] != nil {
+		switch (returnMap["result"]).(type) {
+		case float64:
+			info.Height = uint64((returnMap["result"]).(float64))
+		case string:
+			hex := (returnMap["result"]).(string)
+			val := hex[2:]
+			var data uint64
+			data, err = strconv.ParseUint(val, 16, 64)
+			if err != nil {
+				logs.GetLogger().Errorf("convert height value failed, error: %v", err)
+				return
+			}
+			info.Height = data
+		}
+	}
+	return
+}
+
+func QueryBalance(chain string, height int64, address string) (info ChainInfo, err error) {
+	urls, ok := chainUrlMap[chain]
+	if !ok {
+		return info, errors.New(fmt.Sprintf("not support chainId: %s", chain))
+	}
+
+	// IOTX need change wallet to eth wallet
+	var rpcParam rpcReq
+	switch chain {
+	case "ETH", "BNB", "MATIC", "FTM", "xDAI", "IOTX", "BOBA", "EVMOS", "AVAX", "FUSE", "JEWEL", "TUS":
+		rpcParam.Jsonrpc = "2.0"
+		rpcParam.Method = "eth_getBalance"
+		chainHeight := "latest"
+		rpcParam.Id = 1
+		if height != 0 {
+			chainHeight = strconv.Itoa(int(height))
+			info.Height = uint64(height)
+		} else {
+			queryHeight, err := QueryHeight(chain)
+			if err != nil {
+				return queryHeight, err
+			}
+			info.Height = queryHeight.Height
+		}
+		rpcParam.Params = []interface{}{address, chainHeight}
+
+	case "ONE":
+		rpcParam.Jsonrpc = "2.0"
+		rpcParam.Method = "hmyv2_getBalanceByBlockNumber"
+		rpcParam.Params = []interface{}{address, strconv.Itoa(int(height))}
+		rpcParam.Id = 1
+
+		info.Height = uint64(height)
+	}
+
+	info.Address = address
+	var returnMap map[string]interface{}
+	for _, u := range urls {
+		copyUrl := u
+		rpcParamBytes, err := json.Marshal(rpcParam)
+		if err != nil {
+			logs.GetLogger().Errorf("generate req params bytes failed,error: %v", err)
+			continue
+		}
+		data, err := doReq(copyUrl, string(rpcParamBytes))
+		if err != nil {
+			logs.GetLogger().Errorf("request url: %s failed, error: %v", copyUrl, err)
+			if len(urls) > 0 {
+				logs.GetLogger().Warnf("retry it by other request")
+				continue
+			}
+			break
+		}
+		if err = json.Unmarshal(data, &returnMap); err != nil {
+			logs.GetLogger().Warn("convert the return data to map failed, error: %v", err)
+			continue
+		}
+		break
+	}
+	if returnMap["result"] != nil {
+		switch (returnMap["result"]).(type) {
+		case float64:
+			fbalance := new(big.Float)
+			fbalance.SetFloat64((returnMap["result"]).(float64))
+			info.Balance = fbalance
+		case string:
+			hex := (returnMap["result"]).(string)
+			val := hex[2:]
+			var data uint64
+			data, err = strconv.ParseUint(val, 16, 64)
+			if err != nil {
+				logs.GetLogger().Errorf("convert balance value failed, error: %v", err)
+				return
+			}
+			fbalance := new(big.Float)
+			fbalance.SetUint64(data)
+			ethValue := new(big.Float).Quo(fbalance, big.NewFloat(math.Pow10(18)))
+			info.Balance = ethValue
+		}
+	}
+	return
+}
+
+type ChainInfo struct {
+	Height  uint64
+	Balance *big.Float
+	Address string
+}
+
+// {"jsonrpc":"2.0","method":"eth_getBalance","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1", "latest"],"id":1}
+type rpcReq struct {
+	Jsonrpc string        `json:"jsonrpc"`
+	Method  string        `json:"method"`
+	Params  []interface{} `json:"params"`
+	Id      int           `json:"id"`
+}
+
+type rpcResp struct {
+	Id      int    `json:"id"`
+	Jsonrpc string `json:"jsonrpc"`
+	Result  string `json:"result"`
 }
