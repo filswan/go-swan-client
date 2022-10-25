@@ -46,7 +46,7 @@ func GetCmdAutoDeal(outputDir *string) *CmdAutoBidDeal {
 	if !utils.IsStrEmpty(outputDir) {
 		cmdAutoBidDeal.OutputDir = *outputDir
 	} else {
-		cmdAutoBidDeal.OutputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
+		cmdAutoBidDeal.OutputDir = filepath.Join(*outputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
 	}
 
 	return cmdAutoBidDeal
@@ -138,7 +138,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDealsBySourceId(sourceId int) (
 			}
 		}
 
-		jsonFilepath, fileDescs, err := cmdAutoBidDeal.sendAutoBidDeals4Task(offlineDeals)
+		_, jsonFilepath, fileDescs, err := cmdAutoBidDeal.sendAutoBidDeals4Task(offlineDeals, nil)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, nil, err
@@ -169,7 +169,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsByTaskUuid(taskUuid string
 		return nil, nil, err
 	}
 
-	jsonFilepath, fileDescs, err := cmdAutoBidDeal.sendAutoBidDeals4Task(assignedOfflineDeals)
+	_, jsonFilepath, fileDescs, err := cmdAutoBidDeal.sendAutoBidDeals4Task(assignedOfflineDeals, nil)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, err
@@ -178,20 +178,20 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsByTaskUuid(taskUuid string
 	return jsonFilepath, fileDescs, nil
 }
 
-func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDeals4Task(assignedOfflineDeals []*libmodel.OfflineDeal) (*string, []*libmodel.FileDesc, error) {
+func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDeals4Task(assignedOfflineDeals []*libmodel.OfflineDeal, carSourceInfoMap map[string]*libmodel.FileDesc) (int, *string, []*libmodel.FileDesc, error) {
 	if len(assignedOfflineDeals) == 0 {
 		logs.GetLogger().Info("no offline deals to be sent")
-		return nil, nil, nil
+		return 0, nil, nil, nil
 	}
 
 	swanClient, err := swan.GetClient(cmdAutoBidDeal.SwanApiUrl, cmdAutoBidDeal.SwanApiKey, cmdAutoBidDeal.SwanAccessToken, cmdAutoBidDeal.SwanToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return 0, nil, nil, err
 	}
 
+	var successCount int
 	fileDescs := []*libmodel.FileDesc{}
-
 	for _, assignedOfflineDeal := range assignedOfflineDeals {
 		fileDesc, err := cmdAutoBidDeal.sendAutobidDeal(assignedOfflineDeal)
 		if err != nil {
@@ -201,6 +201,18 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDeals4Task(assignedOfflineDeals
 
 		if fileDesc == nil {
 			continue
+		}
+
+		if carSourceInfoMap != nil {
+			if carSourceInfo, ok := carSourceInfoMap[fileDesc.PayloadCid]; ok {
+				fileDesc.SourceFileName = carSourceInfo.SourceFileName
+				fileDesc.SourceFilePath = carSourceInfo.SourceFilePath
+				fileDesc.SourceFileMd5 = carSourceInfo.SourceFileMd5
+				fileDesc.SourceFileSize = carSourceInfo.SourceFileSize
+				fileDesc.CarFileName = carSourceInfo.CarFileName
+				fileDesc.CarFilePath = carSourceInfo.CarFilePath
+				fileDesc.CarFileMd5 = carSourceInfo.CarFileMd5
+			}
 		}
 
 		fileDescs = append(fileDescs, fileDesc)
@@ -227,6 +239,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDeals4Task(assignedOfflineDeals
 			logs.GetLogger().Error(err)
 			continue
 		}
+		successCount += 1
 	}
 
 	jsonFileName := *assignedOfflineDeals[0].TaskName + JSON_FILE_NAME_DEAL_AUTO
@@ -234,10 +247,10 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDeals4Task(assignedOfflineDeals
 	filepath, err := WriteCarFilesToFiles(fileDescs, cmdAutoBidDeal.OutputDir, jsonFileName, csvFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return successCount, nil, nil, err
 	}
 
-	return filepath, fileDescs, nil
+	return successCount, filepath, fileDescs, nil
 }
 
 func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.OfflineDeal) (*libmodel.FileDesc, error) {
@@ -359,4 +372,73 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) CheckDealStatus(dealCid string) (*lotus.Cl
 		return nil, err
 	}
 	return dealCostInfo, err
+}
+
+func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsBySwanClientSourceId(inputDir string, taskUuid string, total int) {
+	swanClient, err := swan.GetClient(cmdAutoBidDeal.SwanApiUrl, cmdAutoBidDeal.SwanApiKey, cmdAutoBidDeal.SwanAccessToken, cmdAutoBidDeal.SwanToken)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
+
+	var fileDescs []*libmodel.FileDesc
+	if strings.HasSuffix(inputDir, "json") {
+		fileDescs, err = ReadFileDescsFromJsonFile(inputDir, "")
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return
+		}
+	}
+	if strings.HasSuffix(inputDir, "csv") {
+		fileDescs, err = ReadFileFromCsvFile(inputDir, "")
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return
+		}
+	}
+
+	var carSourceInfoMap = make(map[string]*libmodel.FileDesc)
+	for _, desc := range fileDescs {
+		carSourceInfoMap[desc.PayloadCid] = desc
+	}
+
+	sourceId := libconstants.TASK_SOURCE_ID_SWAN_CLIENT
+	params := swan.GetOfflineDealsByStatusParams{
+		DealStatus: libconstants.OFFLINE_DEAL_STATUS_ASSIGNED,
+		ForMiner:   false,
+		SourceId:   &sourceId,
+	}
+
+	var totalCount, successCount int
+	tick := time.Tick(10 * time.Second)
+	for {
+		select {
+		case <-tick:
+			assignedOfflineDeals, err := swanClient.GetOfflineDealsByStatus(params)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				continue
+			}
+			var offlineDeals []*libmodel.OfflineDeal
+			for _, offlineDeal := range assignedOfflineDeals {
+				if *offlineDeal.TaskUuid == taskUuid {
+					offlineDeals = append(offlineDeals, offlineDeal)
+				}
+			}
+			totalCount += len(offlineDeals)
+			success, _, _, err := cmdAutoBidDeal.sendAutoBidDeals4Task(offlineDeals, carSourceInfoMap)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				continue
+			}
+			successCount += success
+			if totalCount == total {
+				goto END
+			}
+		case <-time.After(30 * time.Minute):
+			goto END
+		}
+	}
+END:
+	logs.GetLogger().Infof("auto send deal end,dealTotalCount: %d,successed: %d,failed: %d", total, successCount, total-successCount)
 }

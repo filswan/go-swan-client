@@ -13,7 +13,6 @@ import (
 type Configuration struct {
 	Lotus      lotus      `toml:"lotus"`
 	Main       main       `toml:"main"`
-	WebServer  webServer  `toml:"web_server"`
 	IpfsServer ipfsServer `toml:"ipfs_server"`
 	Sender     sender     `toml:"sender"`
 }
@@ -30,19 +29,13 @@ type main struct {
 	StorageServerType string `toml:"storage_server_type"`
 }
 
-type webServer struct {
-	DownloadUrlPrefix string `toml:"download_url_prefix"`
-}
-
 type ipfsServer struct {
 	DownloadUrlPrefix string `toml:"download_url_prefix"`
 	UploadUrlPrefix   string `toml:"upload_url_prefix"`
 }
 
 type sender struct {
-	BidMode               int           `toml:"bid_mode"`
 	OfflineMode           bool          `toml:"offline_mode"`
-	OutputDir             string        `toml:"output_dir"`
 	VerifiedDeal          bool          `toml:"verified_deal"`
 	FastRetrieval         bool          `toml:"fast_retrieval"`
 	SkipConfirmation      bool          `toml:"skip_confirmation"`
@@ -51,10 +44,7 @@ type sender struct {
 	MaxPrice              string        `toml:"max_price"`
 	StartEpochHours       int           `toml:"start_epoch_hours"`
 	ExpireDays            int           `toml:"expire_days"`
-	GocarFileSizeLimit    int64         `toml:"gocar_file_size_limit"`
-	GocarFolderBased      bool          `toml:"gocar_folder_based"`
 	Duration              int           `toml:"duration"`
-	MaxAutoBidCopyNumber  int           `toml:"max_auto_bid_copy_number"`
 	StartDealTimeInterval time.Duration `toml:"start_deal_time_interval"`
 }
 
@@ -87,7 +77,6 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 	requiredFields := [][]string{
 		{"lotus"},
 		{"main"},
-		{"web_server"},
 		{"ipfs_server"},
 		{"sender"},
 
@@ -97,16 +86,11 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"main", "api_url"},
 		{"main", "api_key"},
 		{"main", "access_token"},
-		{"main", "storage_server_type"},
-
-		{"web_server", "download_url_prefix"},
 
 		{"ipfs_server", "download_url_prefix"},
 		{"ipfs_server", "upload_url_prefix"},
 
-		{"sender", "bid_mode"},
 		{"sender", "offline_mode"},
-		{"sender", "output_dir"},
 		{"sender", "verified_deal"},
 		{"sender", "fast_retrieval"},
 		{"sender", "skip_confirmation"},
@@ -115,10 +99,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"sender", "max_price"},
 		{"sender", "start_epoch_hours"},
 		{"sender", "expire_days"},
-		{"sender", "gocar_file_size_limit"},
-		{"sender", "gocar_folder_based"},
 		{"sender", "duration"},
-		{"sender", "max_auto_bid_copy_number"},
 		{"sender", "start_deal_time_interval"},
 	}
 

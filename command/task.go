@@ -23,59 +23,59 @@ import (
 )
 
 type CmdTask struct {
-	SwanApiUrl                 string          //required when OfflineMode is false
-	SwanApiKey                 string          //required when OfflineMode is false and SwanJwtToken is not provided
-	SwanAccessToken            string          //required when OfflineMode is false and SwanJwtToken is not provided
-	SwanToken                  string          //required when OfflineMode is false and SwanApiKey & SwanAccessToken are not provided
-	LotusClientApiUrl          string          //required
-	BidMode                    int             //required
-	VerifiedDeal               bool            //required
-	OfflineMode                bool            //required
-	FastRetrieval              bool            //required
-	MaxPrice                   decimal.Decimal //required
-	StorageServerType          string          //required
-	WebServerDownloadUrlPrefix string          //required only when StorageServerType is web server
-	ExpireDays                 int             //required
-	GenerateMd5                bool            //required
-	Duration                   int             //not necessary, when not provided use default value:1512000
-	OutputDir                  string          //required
-	InputDir                   string          //required
-	TaskName                   string          //not necessary, when not provided use default value:swan_task_xxxxxx
-	Dataset                    string          //not necessary
-	Description                string          //not necessary
-	StartEpochHours            int             //required
-	SourceId                   int             //required
-	MaxAutoBidCopyNumber       int             //required only for public autobid deal
+	SwanApiUrl        string          //required when OfflineMode is false
+	SwanApiKey        string          //required when OfflineMode is false and SwanJwtToken is not provided
+	SwanAccessToken   string          //required when OfflineMode is false and SwanJwtToken is not provided
+	SwanToken         string          //required when OfflineMode is false and SwanApiKey & SwanAccessToken are not provided
+	LotusClientApiUrl string          //required
+	BidMode           int             //required
+	VerifiedDeal      bool            //required
+	OfflineMode       bool            //required
+	FastRetrieval     bool            //required
+	MaxPrice          decimal.Decimal //required
+	//StorageServerType          string          //required
+	//WebServerDownloadUrlPrefix string          //required only when StorageServerType is web server
+	ExpireDays           int    //required
+	GenerateMd5          bool   //required
+	Duration             int    //not necessary, when not provided use default value:1512000
+	OutputDir            string //required
+	InputDir             string //required
+	TaskName             string //not necessary, when not provided use default value:swan_task_xxxxxx
+	Dataset              string //not necessary
+	Description          string //not necessary
+	StartEpochHours      int    //required
+	SourceId             int    //required
+	MaxAutoBidCopyNumber int    //required only for public autobid deal
 }
 
-func GetCmdTask(inputDir string, outputDir *string, taskName, dataset, description string) *CmdTask {
+func GetCmdTask(inputDir string, outputDir *string, taskName, dataset, description string, bidMode, maxCopyNumber int) *CmdTask {
 	cmdTask := &CmdTask{
-		SwanApiUrl:                 config.GetConfig().Main.SwanApiUrl,
-		SwanApiKey:                 config.GetConfig().Main.SwanApiKey,
-		SwanAccessToken:            config.GetConfig().Main.SwanAccessToken,
-		LotusClientApiUrl:          config.GetConfig().Lotus.ClientApiUrl,
-		BidMode:                    config.GetConfig().Sender.BidMode,
-		VerifiedDeal:               config.GetConfig().Sender.VerifiedDeal,
-		OfflineMode:                config.GetConfig().Sender.OfflineMode,
-		FastRetrieval:              config.GetConfig().Sender.FastRetrieval,
-		StorageServerType:          config.GetConfig().Main.StorageServerType,
-		WebServerDownloadUrlPrefix: config.GetConfig().WebServer.DownloadUrlPrefix,
-		ExpireDays:                 config.GetConfig().Sender.ExpireDays,
-		GenerateMd5:                config.GetConfig().Sender.GenerateMd5,
-		Duration:                   config.GetConfig().Sender.Duration,
-		InputDir:                   inputDir,
-		TaskName:                   taskName,
-		Dataset:                    dataset,
-		Description:                description,
-		StartEpochHours:            config.GetConfig().Sender.StartEpochHours,
-		SourceId:                   libconstants.TASK_SOURCE_ID_SWAN_CLIENT,
-		MaxAutoBidCopyNumber:       config.GetConfig().Sender.MaxAutoBidCopyNumber,
+		SwanApiUrl:        config.GetConfig().Main.SwanApiUrl,
+		SwanApiKey:        config.GetConfig().Main.SwanApiKey,
+		SwanAccessToken:   config.GetConfig().Main.SwanAccessToken,
+		LotusClientApiUrl: config.GetConfig().Lotus.ClientApiUrl,
+		BidMode:           bidMode,
+		VerifiedDeal:      config.GetConfig().Sender.VerifiedDeal,
+		OfflineMode:       config.GetConfig().Sender.OfflineMode,
+		FastRetrieval:     config.GetConfig().Sender.FastRetrieval,
+		//StorageServerType:          config.GetConfig().Main.StorageServerType,
+		//WebServerDownloadUrlPrefix: config.GetConfig().WebServer.DownloadUrlPrefix,
+		ExpireDays:           config.GetConfig().Sender.ExpireDays,
+		GenerateMd5:          config.GetConfig().Sender.GenerateMd5,
+		Duration:             config.GetConfig().Sender.Duration,
+		InputDir:             inputDir,
+		TaskName:             taskName,
+		Dataset:              dataset,
+		Description:          description,
+		StartEpochHours:      config.GetConfig().Sender.StartEpochHours,
+		SourceId:             libconstants.TASK_SOURCE_ID_SWAN_CLIENT,
+		MaxAutoBidCopyNumber: maxCopyNumber,
 	}
 
 	if !utils.IsStrEmpty(outputDir) {
 		cmdTask.OutputDir = *outputDir
 	} else {
-		cmdTask.OutputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
+		cmdTask.OutputDir = filepath.Join(*outputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
 	}
 
 	var err error
@@ -89,32 +89,40 @@ func GetCmdTask(inputDir string, outputDir *string, taskName, dataset, descripti
 	return cmdTask
 }
 
-func CreateTaskByConfig(inputDir string, outputDir *string, taskName, minerFid, dataset, description string) (*string, []*libmodel.FileDesc, []*Deal, error) {
-	cmdTask := GetCmdTask(inputDir, outputDir, taskName, dataset, description)
+func CreateTaskByConfig(inputDir string, outputDir *string, taskName, minerFid, dataset, description string, auto, manual bool, maxCopyNumber int) (*string, []*libmodel.FileDesc, []*Deal, int, error) {
+	var bidMode int
+	bidMode = libconstants.TASK_BID_MODE_NONE
+	if auto {
+		bidMode = libconstants.TASK_BID_MODE_AUTO
+	}
+	if manual {
+		bidMode = libconstants.TASK_BID_MODE_MANUAL
+	}
+
+	cmdTask := GetCmdTask(inputDir, outputDir, taskName, dataset, description, bidMode, maxCopyNumber)
 	cmdDeal := GetCmdDeal(outputDir, minerFid, "", "")
-	jsonFileName, fileDescs, deals, err := cmdTask.CreateTask(cmdDeal)
+	jsonFileName, fileDescs, deals, total, err := cmdTask.CreateTask(cmdDeal)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, nil, err
+		return nil, nil, nil, total, err
 	}
-	logs.GetLogger().Info("Task information is in:", *jsonFileName)
-
-	return jsonFileName, fileDescs, deals, nil
+	logs.GetLogger().Info("task information is in:", *jsonFileName)
+	return jsonFileName, fileDescs, deals, total, nil
 }
 
-func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileDesc, []*Deal, error) {
+func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileDesc, []*Deal, int, error) {
 	switch cmdTask.BidMode {
 	case libconstants.TASK_BID_MODE_NONE:
 		if cmdDeal == nil {
 			err := fmt.Errorf("parameter PublicDeal is required for non-bid task")
 			logs.GetLogger().Error(err)
-			return nil, nil, nil, err
+			return nil, nil, nil, 0, err
 		}
 
 		if len(cmdDeal.MinerFids) == 0 {
 			err := fmt.Errorf("miner fids are required for non-bid task")
 			logs.GetLogger().Error(err)
-			return nil, nil, nil, err
+			return nil, nil, nil, 0, err
 		}
 	case libconstants.TASK_BID_MODE_AUTO, libconstants.TASK_BID_MODE_MANUAL:
 		if cmdDeal != nil {
@@ -126,25 +134,25 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 	default:
 		err := fmt.Errorf("invalid bid mode:%d", cmdTask.BidMode)
 		logs.GetLogger().Error(err)
-		return nil, nil, nil, err
+		return nil, nil, nil, 0, err
 	}
 
 	lotusClient, err := lotus.LotusGetClient(cmdTask.LotusClientApiUrl, "")
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, nil, err
+		return nil, nil, nil, 0, err
 	}
 
 	_, err = os.Stat(cmdTask.InputDir)
 	if err != nil {
 		logs.GetLogger().Errorf("input-dir: %s, not such file, error: %v", cmdTask.InputDir, err)
-		return nil, nil, nil, err
+		return nil, nil, nil, 0, err
 	}
 
 	err = utils.CreateDirIfNotExists(cmdTask.OutputDir, DIR_NAME_OUTPUT)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, nil, err
+		return nil, nil, nil, 0, err
 	}
 
 	logs.GetLogger().Info("Your output dir: ", cmdTask.OutputDir)
@@ -158,21 +166,21 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		fileDescs, err = ReadFileDescsFromJsonFile(cmdTask.InputDir, "")
 		if err != nil {
 			logs.GetLogger().Error(err)
-			return nil, nil, nil, err
+			return nil, nil, nil, 0, err
 		}
 	}
 	if strings.HasSuffix(cmdTask.InputDir, "csv") {
 		fileDescs, err = ReadFileFromCsvFile(cmdTask.InputDir, "")
 		if err != nil {
 			logs.GetLogger().Error(err)
-			return nil, nil, nil, err
+			return nil, nil, nil, 0, err
 		}
 	}
 
 	if fileDescs == nil {
 		err := fmt.Errorf("failed to read car files from :%s", cmdTask.InputDir)
 		logs.GetLogger().Error(err)
-		return nil, nil, nil, err
+		return nil, nil, nil, 0, err
 	}
 
 	taskType := libconstants.TASK_TYPE_REGULAR
@@ -187,7 +195,7 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 	currentEpoch, err := lotusClient.LotusGetCurrentEpoch()
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, nil, err
+		return nil, nil, nil, 0, err
 	}
 
 	startEpoch := *currentEpoch + int64(cmdTask.StartEpochHours*libconstants.EPOCH_PER_HOUR)
@@ -195,7 +203,7 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 	if epoch2EndFromNow <= DURATION_MIN || epoch2EndFromNow >= DURATION_MAX {
 		err := fmt.Errorf("deal duration out of bounds (min, max, provided): %d, %d, %d", DURATION_MIN, DURATION_MAX, int64(cmdTask.Duration))
 		logs.GetLogger().Error(err)
-		return nil, nil, nil, err
+		return nil, nil, nil, 0, err
 	}
 
 	fastRetrieval := libconstants.TASK_FAST_RETRIEVAL_NO
@@ -224,16 +232,16 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		fileDesc.StartEpoch = &startEpoch
 		fileDesc.SourceId = &cmdTask.SourceId
 
-		if cmdTask.StorageServerType == libconstants.STORAGE_SERVER_TYPE_WEB_SERVER {
-			fileDesc.CarFileUrl = utils.UrlJoin(cmdTask.WebServerDownloadUrlPrefix, fileDesc.CarFileName)
-		}
+		//if cmdTask.StorageServerType == libconstants.STORAGE_SERVER_TYPE_WEB_SERVER {
+		//	fileDesc.CarFileUrl = utils.UrlJoin(cmdTask.WebServerDownloadUrlPrefix, fileDesc.CarFileName)
+		//}
 
 		if cmdTask.GenerateMd5 {
 			if fileDesc.SourceFileMd5 == "" && utils.IsFileExistsFullPath(fileDesc.SourceFilePath) {
 				srcFileMd5, err := checksum.MD5sum(fileDesc.SourceFilePath)
 				if err != nil {
 					logs.GetLogger().Error(err)
-					return nil, nil, nil, err
+					return nil, nil, nil, 0, err
 				}
 				fileDesc.SourceFileMd5 = srcFileMd5
 			}
@@ -242,7 +250,7 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 				carFileMd5, err := checksum.MD5sum(fileDesc.CarFilePath)
 				if err != nil {
 					logs.GetLogger().Error(err)
-					return nil, nil, nil, err
+					return nil, nil, nil, 0, err
 				}
 				fileDesc.CarFileMd5 = carFileMd5
 			}
@@ -252,7 +260,7 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 	if cmdTask.BidMode == libconstants.TASK_BID_MODE_NONE {
 		_, err := cmdDeal.sendDeals2Miner(cmdTask.TaskName, cmdTask.OutputDir, fileDescs)
 		if err != nil {
-			return nil, nil, nil, err
+			return nil, nil, nil, 0, err
 		}
 	}
 
@@ -261,20 +269,20 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 	filepath, err := WriteCarFilesToFiles(fileDescs, cmdTask.OutputDir, jsonFileName, csvFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, nil, err
+		return nil, nil, nil, 0, err
 	}
 
 	deals, err := cmdTask.sendTask2Swan(task, fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, nil, err
+		return nil, nil, nil, 0, err
 	}
 
 	if *task.BidMode == libconstants.TASK_BID_MODE_MANUAL {
 		logs.GetLogger().Info("task ", task.TaskName, " has been created, please send its deal(s) later using deal subcommand and ", *filepath)
 	}
 
-	return filepath, fileDescs, deals, nil
+	return filepath, fileDescs, deals, len(fileDescs) * task.MaxAutoBidCopyNumber, nil
 }
 
 func (cmdTask *CmdTask) sendTask2Swan(task libmodel.Task, fileDescs []*libmodel.FileDesc) ([]*Deal, error) {

@@ -1,16 +1,20 @@
 package command
 
 import (
+	"bufio"
+	"context"
 	"encoding/csv"
 	"encoding/json"
+	"github.com/filedrive-team/go-graphsplit"
+	"github.com/filswan/go-swan-lib/logs"
+	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/google/uuid"
+	"github.com/ipld/go-car"
+	"golang.org/x/xerrors"
 	"io"
 	"os"
 	"path/filepath"
 	"strconv"
-
-	"github.com/filswan/go-swan-lib/logs"
-	libmodel "github.com/filswan/go-swan-lib/model"
 
 	"io/ioutil"
 )
@@ -191,7 +195,7 @@ func WriteCarFilesToCsvFile(carFiles []*libmodel.FileDesc, outDir, csvFileName s
 		}
 	}
 
-	logs.GetLogger().Info("metadata csv generated: ", csvFilePath)
+	logs.GetLogger().Info("Metadata csv generated: ", csvFilePath)
 
 	return nil
 }
@@ -344,4 +348,40 @@ type Deal struct {
 	PieceCid       string `json:"piece_cid"`
 	FileSize       int64  `json:"file_size"`
 	Cost           string `json:"cost"`
+}
+
+func CalculateValueByCarFile(carFilePath string, playload, piece bool) (string, string, uint64, error) {
+	var dataCid string
+	if playload {
+		f, err := os.Open(carFilePath)
+		if err != nil {
+			return "", "", 0, xerrors.Errorf("failed to open CAR file: %w", err)
+		}
+		defer f.Close() //nolint:errcheck
+
+		hd, _, err := car.ReadHeader(bufio.NewReader(f))
+		if err != nil {
+			return "", "", 0, xerrors.Errorf("failed to read CAR header: %w", err)
+		}
+		if len(hd.Roots) != 1 {
+			return "", "", 0, xerrors.New("car file can have one and only one header")
+		}
+		if hd.Version != 1 && hd.Version != 2 {
+			return "", "", 0, xerrors.Errorf("car version must be 1 or 2, is %d", hd.Version)
+		}
+		dataCid = hd.Roots[0].String()
+	}
+
+	var pieceCid string
+	var pieceSize uint64
+	if piece {
+		cpRes, err := graphsplit.CalcCommP(context.TODO(), carFilePath)
+		if err != nil {
+			logs.GetLogger().Error(err)
+		}
+		pieceCid = cpRes.Root.String()
+		pieceSize = uint64(cpRes.Size)
+	}
+	return dataCid, pieceCid, pieceSize, nil
+
 }
