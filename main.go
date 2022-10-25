@@ -7,6 +7,7 @@ import (
 	"github.com/filswan/go-swan-lib/logs"
 	"github.com/filswan/go-swan-lib/utils"
 	"github.com/julienschmidt/httprouter"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
 	"io/ioutil"
@@ -30,7 +31,7 @@ func main() {
 			return nil
 		},
 		Commands: []*cli.Command{
-			daemonCmd, carCmd, uploadCmd, taskCmd, dealCmd, autoCmd, rpcCmd, VersionCmd},
+			daemonCmd, carCmd, uploadCmd, taskCmd, dealCmd, autoCmd, rpcCmd, rpcApiCmd, VersionCmd},
 	}
 	if err := app.Run(os.Args); err != nil {
 		var phe *PrintHelpErr
@@ -272,9 +273,9 @@ var autoCmd = &cli.Command{
 	},
 }
 
-var rpcCmd = &cli.Command{
-	Name:      "rpc",
-	Usage:     "rpc proxy client of public chain",
+var rpcApiCmd = &cli.Command{
+	Name:      "rpc-api",
+	Usage:     "rpc-api proxy client of public chain",
 	ArgsUsage: "[inputPath]",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
@@ -306,6 +307,74 @@ var rpcCmd = &cli.Command{
 		}
 		fmt.Println("out:")
 		print(result)
+		return nil
+	},
+}
+
+var rpcCmd = &cli.Command{
+	Name:        "rpc",
+	Usage:       "RPC proxy client of public chain",
+	Subcommands: []*cli.Command{rpcLatestBalanceCmd, rpcCurrentHeightCmd},
+}
+
+var rpcCurrentHeightCmd = &cli.Command{
+	Name:  "height",
+	Usage: "Query current height of public chain",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:    "chain",
+			Aliases: []string{"c"},
+			Usage:   "public chain. support ETH、BNB、AVAX、MATIC、FTM、xDAI、IOTX、ONE、BOBA、FUSE、JEWEL、EVMOS、TUS",
+		},
+	},
+	Action: func(ctx *cli.Context) error {
+		chain := ctx.String("chain")
+		result, err := command.QueryHeight(chain)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
+		fmt.Printf("Chain: %s\n", chain)
+		fmt.Printf("Height: %d \n", result.Height)
+		return nil
+	},
+}
+
+var rpcLatestBalanceCmd = &cli.Command{
+	Name:  "balance",
+	Usage: "Query current balance of public chain",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:    "chain",
+			Aliases: []string{"c"},
+			Usage:   "public chain. support ETH、BNB、AVAX、MATIC、FTM、xDAI、IOTX、ONE、BOBA、FUSE、JEWEL、EVMOS、TUS",
+		},
+		&cli.StringFlag{
+			Name:    "address",
+			Aliases: []string{"a"},
+			Usage:   "wallet address",
+		},
+	},
+	Action: func(ctx *cli.Context) error {
+		chain := ctx.String("chain")
+		address := ctx.String("address")
+
+		if utils.IsStrEmpty(&chain) && utils.IsStrEmpty(&chain) {
+			err := errors.New("chain is required")
+			logs.GetLogger().Error(err)
+			return ShowHelp(ctx, err)
+		}
+
+		result, err := command.QueryChainInfo(chain, 0, address)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
+		fmt.Printf("Chain: %s\n", chain)
+		fmt.Printf("Height: %d \n", result.Height)
+		fmt.Printf("Address: %s \n", result.Address)
+		fmt.Printf("Balance: %v \n", result.Balance)
+
 		return nil
 	},
 }
@@ -389,3 +458,5 @@ func (e *PrintHelpErr) Is(o error) bool {
 func ShowHelp(cctx *cli.Context, err error) error {
 	return &PrintHelpErr{Err: err, Ctx: cctx}
 }
+
+// rpc --chain ONE -a one15vlc8yqstm9algcf6e94dxqx6y04jcsqjuc3gt -b --height 33051718
