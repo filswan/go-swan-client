@@ -401,11 +401,11 @@ func doReq(reqUrl, params string) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
-func QueryChainInfo(chain string, height int64, address string, balance bool) (ChainInfo, error) {
-	if balance {
-		return QueryBalance(chain, height, address)
-	} else {
+func QueryChainInfo(chain string, height int64, address string) (ChainInfo, error) {
+	if utils.IsStrEmpty(&address) {
 		return QueryHeight(chain)
+	} else {
+		return QueryBalance(chain, height, address)
 	}
 }
 
@@ -428,7 +428,7 @@ func QueryHeight(chain string) (info ChainInfo, err error) {
 		rpcParam.Params = []interface{}{}
 	}
 
-	var returnMap map[string]interface{}
+	var data []byte
 	for _, u := range urls {
 		copyUrl := u
 		rpcParamBytes, err := json.Marshal(rpcParam)
@@ -436,7 +436,7 @@ func QueryHeight(chain string) (info ChainInfo, err error) {
 			logs.GetLogger().Errorf("generate req params bytes failed,error: %v", err)
 			continue
 		}
-		data, err := doReq(copyUrl, string(rpcParamBytes))
+		data, err = doReq(copyUrl, string(rpcParamBytes))
 		if err != nil {
 			logs.GetLogger().Errorf("request url: %s failed, error: %v", copyUrl, err)
 			if len(urls) > 0 {
@@ -445,28 +445,34 @@ func QueryHeight(chain string) (info ChainInfo, err error) {
 			}
 			break
 		}
-		if err = json.Unmarshal(data, &returnMap); err != nil {
-			logs.GetLogger().Warn("convert the return data to map failed, error: %v", err)
-			continue
-		}
 		break
 	}
-	if returnMap["result"] != nil {
-		switch (returnMap["result"]).(type) {
-		case float64:
-			info.Height = uint64((returnMap["result"]).(float64))
-		case string:
-			hex := (returnMap["result"]).(string)
-			val := hex[2:]
-			var data uint64
-			data, err = strconv.ParseUint(val, 16, 64)
-			if err != nil {
-				logs.GetLogger().Errorf("convert height value failed, error: %v", err)
-				return
-			}
-			info.Height = data
-		}
+
+	height := utils.GetFieldFromJson(data, "result")
+	errorInfo := GetFieldMapFromJsonByError(data)
+
+	if errorInfo != nil {
+		errCode := int(errorInfo["code"].(float64))
+		errMsg := errorInfo["message"].(string)
+		logs.GetLogger().Errorf("get %s height failed, code: %d error: %s", chain, errCode, errMsg)
+		return
 	}
+
+	switch height.(type) {
+	case float64:
+		info.Height = uint64(height.(float64))
+	case string:
+		hex := height.(string)
+		val := hex[2:]
+		var data uint64
+		data, err = strconv.ParseUint(val, 16, 64)
+		if err != nil {
+			logs.GetLogger().Errorf("convert height value failed, error: %v", err)
+			return
+		}
+		info.Height = data
+	}
+
 	return
 }
 
@@ -499,14 +505,21 @@ func QueryBalance(chain string, height int64, address string) (info ChainInfo, e
 	case "ONE":
 		rpcParam.Jsonrpc = "2.0"
 		rpcParam.Method = "hmyv2_getBalanceByBlockNumber"
-		rpcParam.Params = []interface{}{address, strconv.Itoa(int(height))}
 		rpcParam.Id = 1
-
-		info.Height = uint64(height)
+		if height != 0 {
+			info.Height = uint64(height)
+		} else {
+			queryHeight, err := QueryHeight(chain)
+			if err != nil {
+				return queryHeight, err
+			}
+			info.Height = queryHeight.Height
+		}
+		rpcParam.Params = []interface{}{address, info.Height}
 	}
 
 	info.Address = address
-	var returnMap map[string]interface{}
+	var data []byte
 	for _, u := range urls {
 		copyUrl := u
 		rpcParamBytes, err := json.Marshal(rpcParam)
@@ -514,7 +527,7 @@ func QueryBalance(chain string, height int64, address string) (info ChainInfo, e
 			logs.GetLogger().Errorf("generate req params bytes failed,error: %v", err)
 			continue
 		}
-		data, err := doReq(copyUrl, string(rpcParamBytes))
+		data, err = doReq(copyUrl, string(rpcParamBytes))
 		if err != nil {
 			logs.GetLogger().Errorf("request url: %s failed, error: %v", copyUrl, err)
 			if len(urls) > 0 {
@@ -523,32 +536,35 @@ func QueryBalance(chain string, height int64, address string) (info ChainInfo, e
 			}
 			break
 		}
-		if err = json.Unmarshal(data, &returnMap); err != nil {
-			logs.GetLogger().Warn("convert the return data to map failed, error: %v", err)
-			continue
-		}
-		break
 	}
-	if returnMap["result"] != nil {
-		switch (returnMap["result"]).(type) {
-		case float64:
-			fbalance := new(big.Float)
-			fbalance.SetFloat64((returnMap["result"]).(float64))
-			info.Balance = fbalance
-		case string:
-			hex := (returnMap["result"]).(string)
-			val := hex[2:]
-			var data uint64
-			data, err = strconv.ParseUint(val, 16, 64)
-			if err != nil {
-				logs.GetLogger().Errorf("convert balance value failed, error: %v", err)
-				return
-			}
-			fbalance := new(big.Float)
-			fbalance.SetUint64(data)
-			ethValue := new(big.Float).Quo(fbalance, big.NewFloat(math.Pow10(18)))
-			info.Balance = ethValue
+
+	balance := utils.GetFieldFromJson(data, "result")
+	errorInfo := GetFieldMapFromJsonByError(data)
+
+	if errorInfo != nil {
+		errCode := int(errorInfo["code"].(float64))
+		errMsg := errorInfo["message"].(string)
+		logs.GetLogger().Errorf("get %s balance failed, code: %d error: %s", chain, errCode, errMsg)
+		return
+	}
+
+	switch balance.(type) {
+	case float64:
+		fbalance := new(big.Float)
+		fbalance.SetFloat64(balance.(float64))
+		info.Balance = new(big.Float).Quo(fbalance, big.NewFloat(math.Pow10(18)))
+	case string:
+		hex := balance.(string)
+		val := hex[2:]
+		var data uint64
+		data, err = strconv.ParseUint(val, 16, 64)
+		if err != nil {
+			logs.GetLogger().Errorf("convert balance value failed, error: %v", err)
+			return
 		}
+		fbalance := new(big.Float)
+		fbalance.SetUint64(data)
+		info.Balance = new(big.Float).Quo(fbalance, big.NewFloat(math.Pow10(18)))
 	}
 	return
 }
@@ -571,4 +587,22 @@ type rpcResp struct {
 	Id      int    `json:"id"`
 	Jsonrpc string `json:"jsonrpc"`
 	Result  string `json:"result"`
+	Error   struct {
+		Code    int    `json:"code"`
+		Message string `json:"message"`
+	} `json:"error"`
+}
+
+func GetFieldMapFromJsonByError(jsonBytes []byte) map[string]interface{} {
+	fieldVal := utils.GetFieldFromJson(jsonBytes, "error")
+	if fieldVal == nil {
+		return nil
+	}
+
+	switch fieldValType := fieldVal.(type) {
+	case map[string]interface{}:
+		return fieldValType
+	default:
+		return nil
+	}
 }

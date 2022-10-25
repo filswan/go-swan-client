@@ -104,6 +104,7 @@ func (cmdIpfsCmdCar *CmdIpfsCmdCar) CreateIpfsCmdCarFiles() ([]*libmodel.FileDes
 	fileDesc.SourceFilePath = cmdIpfsCmdCar.InputDir
 	fileDesc.SourceFileSize = *srcFileSize
 	fileDesc.CarFileName = carFileName
+	fileDesc.CarFileUrl = fileDesc.CarFileName
 	fileDesc.CarFilePath = carFilePath
 
 	pieceCid, err := lotusClient.LotusClientCalcCommP(fileDesc.CarFilePath)
