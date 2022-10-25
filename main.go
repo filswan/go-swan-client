@@ -7,6 +7,7 @@ import (
 	"github.com/filswan/go-swan-lib/logs"
 	"github.com/filswan/go-swan-lib/utils"
 	"github.com/julienschmidt/httprouter"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
 	"io/ioutil"
@@ -30,7 +31,7 @@ func main() {
 			return nil
 		},
 		Commands: []*cli.Command{
-			daemonCmd, carCmd, uploadCmd, taskCmd, dealCmd, autoCmd, rpcCmd, VersionCmd},
+			daemonCmd, carCmd, uploadCmd, taskCmd, dealCmd, autoCmd, rpcCmd, rpcApiCmd, VersionCmd},
 	}
 	if err := app.Run(os.Args); err != nil {
 		var phe *PrintHelpErr
@@ -272,9 +273,9 @@ var autoCmd = &cli.Command{
 	},
 }
 
-var rpcCmd = &cli.Command{
-	Name:      "rpc",
-	Usage:     "rpc proxy client of public chain",
+var rpcApiCmd = &cli.Command{
+	Name:      "rpc-api",
+	Usage:     "rpc-api proxy client of public chain",
 	ArgsUsage: "[inputPath]",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
@@ -306,6 +307,63 @@ var rpcCmd = &cli.Command{
 		}
 		fmt.Println("out:")
 		print(result)
+		return nil
+	},
+}
+
+var rpcCmd = &cli.Command{
+	Name:  "rpc",
+	Usage: "Rpc proxy client of public chain",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:    "chain",
+			Aliases: []string{"c"},
+			Usage:   "public chain. support ETH、BNB、AVAX、MATIC、FTM、xDAI、IOTX、ONE、BOBA、FUSE、JEWEL、EVMOS、TUS",
+		},
+		&cli.Int64Flag{
+			Name:  "height",
+			Usage: "the parameters of the request api must be in string json format",
+			Value: 0,
+		},
+		&cli.StringFlag{
+			Name:    "address",
+			Aliases: []string{"a"},
+			Usage:   "wallet address",
+		},
+		&cli.BoolFlag{
+			Name:    "balance",
+			Aliases: []string{"b"},
+			Usage:   "balance at specified height",
+			Value:   false,
+		},
+	},
+	Action: func(ctx *cli.Context) error {
+		chain := ctx.String("chain")
+		height := ctx.Int64("height")
+		address := ctx.String("address")
+		balance := ctx.Bool("balance")
+
+		if utils.IsStrEmpty(&chain) && utils.IsStrEmpty(&chain) {
+			return errors.New("chain is required")
+		}
+
+		if balance && utils.IsStrEmpty(&address) {
+			return errors.New("address is required when query wallet balance")
+		}
+
+		result, err := command.QueryChainInfo(chain, height, address, balance)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
+
+		if balance {
+			fmt.Printf("height: %d \n", result.Height)
+			fmt.Printf("Address: %s \n", result.Address)
+			fmt.Printf("balance: %v \n", result.Balance)
+		} else {
+			fmt.Printf("height: %d \n", result.Height)
+		}
 		return nil
 	},
 }
