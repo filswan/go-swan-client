@@ -173,6 +173,7 @@ func (cmdGoCar *CmdGoCar) createFilesDescFromManifest() ([]*libmodel.FileDesc, e
 		fileDesc := libmodel.FileDesc{}
 		fileDesc.PayloadCid = fields[0]
 		fileDesc.CarFileName = fileDesc.PayloadCid + ".car"
+		fileDesc.CarFileUrl = fileDesc.CarFileName
 		fileDesc.CarFilePath = filepath.Join(cmdGoCar.OutputDir, fileDesc.CarFileName)
 		fileDesc.PieceCid = fields[2]
 		fileDesc.CarFileSize = utils.GetInt64FromStr(fields[3])
