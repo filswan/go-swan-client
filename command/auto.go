@@ -680,7 +680,6 @@ func GetFieldMapFromJsonByError(jsonBytes []byte) map[string]interface{} {
 	if fieldVal == nil {
 		return nil
 	}
-
 	switch fieldValType := fieldVal.(type) {
 	case map[string]interface{}:
 		return fieldValType
