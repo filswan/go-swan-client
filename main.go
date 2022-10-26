@@ -5,6 +5,7 @@ import (
 	big2 "github.com/filecoin-project/go-state-types/big"
 	"github.com/filswan/go-swan-client/command"
 	"github.com/filswan/go-swan-lib/logs"
+	"github.com/filswan/go-swan-lib/utils"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
@@ -25,7 +26,7 @@ func main() {
 			}
 			return nil
 		},
-		Commands:        []*cli.Command{toolsCmd, uploadCmd, taskCmd, dealCmd, autoCmd, calculateCmd},
+		Commands:        []*cli.Command{toolsCmd, uploadCmd, taskCmd, dealCmd, autoCmd, calculateCmd, rpcApiCmd, rpcCmd},
 		HideHelpCommand: true,
 	}
 	if err := app.Run(os.Args); err != nil {
@@ -459,6 +460,112 @@ var calculateCmd = &cli.Command{
 	},
 }
 
+var rpcApiCmd = &cli.Command{
+	Name:      "rpc-api",
+	Usage:     "rpc-api proxy client of public chain",
+	ArgsUsage: "[inputPath]",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:  "chain-id",
+			Usage: "chainId as public chain.",
+		},
+		&cli.StringFlag{
+			Name:    "params",
+			Aliases: []string{"p"},
+			Usage:   "the parameters of the request api must be in string json format.",
+		},
+	},
+	Action: func(ctx *cli.Context) error {
+		if !ctx.Args().Present() {
+			return cli.ShowCommandHelp(ctx, ctx.Command.Name)
+		}
+		chainId := ctx.String("chain-id")
+		params := ctx.String("params")
+
+		if utils.IsStrEmpty(&chainId) && utils.IsStrEmpty(&params) {
+			err := fmt.Errorf("both chain-id and params are required")
+			logs.GetLogger().Error(err)
+			return ShowHelp(ctx, err)
+		}
+		result, err := command.SendRpcReqAndResp(chainId, params)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
+		fmt.Println("out:")
+		print(result)
+		return nil
+	},
+}
+
+var rpcCmd = &cli.Command{
+	Name:        "rpc",
+	Usage:       "RPC proxy client of public chain",
+	Subcommands: []*cli.Command{rpcLatestBalanceCmd, rpcCurrentHeightCmd},
+}
+
+var rpcCurrentHeightCmd = &cli.Command{
+	Name:  "height",
+	Usage: "Query current height of public chain",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:    "chain",
+			Aliases: []string{"c"},
+			Usage:   "public chain. support ETH、BNB、AVAX、MATIC、FTM、xDAI、IOTX、ONE、BOBA、FUSE、JEWEL、EVMOS、TUS",
+		},
+	},
+	Action: func(ctx *cli.Context) error {
+		chain := ctx.String("chain")
+		result, err := command.QueryHeight(chain)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
+		fmt.Printf("Chain: %s\n", chain)
+		fmt.Printf("Height: %d \n", result.Height)
+		return nil
+	},
+}
+
+var rpcLatestBalanceCmd = &cli.Command{
+	Name:  "balance",
+	Usage: "Query current balance of public chain",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:    "chain",
+			Aliases: []string{"c"},
+			Usage:   "public chain. support ETH、BNB、AVAX、MATIC、FTM、xDAI、IOTX、ONE、BOBA、FUSE、JEWEL、EVMOS、TUS",
+		},
+		&cli.StringFlag{
+			Name:    "address",
+			Aliases: []string{"a"},
+			Usage:   "wallet address",
+		},
+	},
+	Action: func(ctx *cli.Context) error {
+		chain := ctx.String("chain")
+		address := ctx.String("address")
+
+		if utils.IsStrEmpty(&chain) && utils.IsStrEmpty(&chain) {
+			err := errors.New("chain is required")
+			logs.GetLogger().Error(err)
+			return ShowHelp(ctx, err)
+		}
+
+		result, err := command.QueryChainInfo(chain, 0, address)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
+		fmt.Printf("Chain: %s\n", chain)
+		fmt.Printf("Height: %d \n", result.Height)
+		fmt.Printf("Address: %s \n", result.Address)
+		fmt.Printf("Balance: %v \n", result.Balance)
+
+		return nil
+	},
+}
+
 type BigInt = big2.Int
 
 func NewInt(i uint64) BigInt {
@@ -501,9 +608,4 @@ func (e *PrintHelpErr) Is(o error) bool {
 
 func ShowHelp(cctx *cli.Context, err error) error {
 	return &PrintHelpErr{Err: err, Ctx: cctx}
-}
-
-func WithCategory(cat string, cmd *cli.Command) *cli.Command {
-	cmd.Category = strings.ToUpper(cat)
-	return cmd
 }

@@ -48,6 +48,38 @@ const (
 	VERSION      = "2.0.0"
 )
 
+var publicChain = map[string][]string{
+	"1":  {"https://eth-mainnet.gateway.pokt.network/v1/5f3453978e354ab992c4da79", "https://eth-rpc.gateway.pokt.network"},                      // 1     Ethereum Mainnet
+	"2":  {"https://bsc-mainnet.gateway.pokt.network/v1/lb/6136201a7bad1500343e248d"},                                                           // 56    Binance Smart Chain Mainnet
+	"3":  {"https://api.avax.network/ext/bc/C/rpc", "https://avax-mainnet.gateway.pokt.network/v1/lb/605238bf6b986eea7cf36d5e/ext/bc/C/rpc"},    // 43114 Avalanche C-Chain
+	"4":  {"https://poly-rpc.gateway.pokt.network"},                                                                                             // 137   Polygon Mainnet
+	"5":  {"https://fantom-mainnet.gateway.pokt.network/v1/lb/6261a8a154c745003bcdb0f8"},                                                        // 250   Fantom Opera
+	"6":  {"https://xdai-rpc.gateway.pokt.network"},                                                                                             // 100   Gnosis Chain (formerly xDai)
+	"7":  {"https://pokt-api.iotex.io", "https://iotex-mainnet.gateway.pokt.network/v1/lb/6176f902e19001003499f492"},                            // 4689  IoTeX Network Mainnet
+	"8":  {"https://harmony-0-rpc.gateway.pokt.network"},                                                                                        // 1666600000 Harmony Mainnet Shard 0
+	"9":  {"https://boba-mainnet.gateway.pokt.network/v1/lb/623ad21b20354900396fed7f"},                                                          // 288   Boba Network
+	"10": {"https://fuse-rpc.gateway.pokt.network"},                                                                                             // 122   Fuse Mainnet
+	"11": {"https://avax-dfk.gateway.pokt.network/v1/lb/6244818c00b9f0003ad1b619/ext/bc/q2aTwKuyzgs8pynF7UXBZCU7DejbZbZ6EUyHr3JQzYgwNPUPi/rpc"}, // 53935  DFK Chain
+	"12": {"https://evmos-mainnet.gateway.pokt.network/v1/lb/627586ddea1b320039c95205"},                                                         // 9001   Evmos
+	"13": {"https://avax-cra-rpc.gateway.pokt.network"},                                                                                         // 73772  Swimmer Network
+}
+
+var chainUrlMap = map[string][]string{
+	"ETH":   {"https://eth-mainnet.gateway.pokt.network/v1/5f3453978e354ab992c4da79", "https://eth-rpc.gateway.pokt.network"},                      // 1     Ethereum Mainnet
+	"BNB":   {"https://bsc-mainnet.gateway.pokt.network/v1/lb/6136201a7bad1500343e248d"},                                                           // 56    Binance Smart Chain Mainnet
+	"AVAX":  {"https://api.avax.network/ext/bc/C/rpc", "https://avax-mainnet.gateway.pokt.network/v1/lb/605238bf6b986eea7cf36d5e/ext/bc/C/rpc"},    // 43114 Avalanche C-Chain
+	"MATIC": {"https://poly-rpc.gateway.pokt.network"},                                                                                             // 137   Polygon Mainnet
+	"FTM":   {"https://fantom-mainnet.gateway.pokt.network/v1/lb/6261a8a154c745003bcdb0f8"},                                                        // 250   Fantom Opera
+	"xDAI":  {"https://xdai-rpc.gateway.pokt.network"},                                                                                             // 100   Gnosis Chain (formerly xDai)
+	"IOTX":  {"https://pokt-api.iotex.io", "https://iotex-mainnet.gateway.pokt.network/v1/lb/6176f902e19001003499f492"},                            // 4689  IoTeX Network Mainnet
+	"ONE":   {"https://harmony-0-rpc.gateway.pokt.network"},                                                                                        // 1666600000 Harmony Mainnet Shard 0
+	"BOBA":  {"https://boba-mainnet.gateway.pokt.network/v1/lb/623ad21b20354900396fed7f"},                                                          // 288   Boba Network
+	"FUSE":  {"https://fuse-rpc.gateway.pokt.network"},                                                                                             // 122   Fuse Mainnet
+	"JEWEL": {"https://avax-dfk.gateway.pokt.network/v1/lb/6244818c00b9f0003ad1b619/ext/bc/q2aTwKuyzgs8pynF7UXBZCU7DejbZbZ6EUyHr3JQzYgwNPUPi/rpc"}, // 53935  DFK Chain
+	"EVMOS": {"https://evmos-mainnet.gateway.pokt.network/v1/lb/627586ddea1b320039c95205"},                                                         // 9001   Evmos
+	"TUS":   {"https://avax-cra-rpc.gateway.pokt.network"},                                                                                         // 73772  Swimmer Network
+}
+
 func WriteCarFilesToFiles(carFiles []*libmodel.FileDesc, outputDir, jsonFilename, csvFileName string) (*string, error) {
 	err := os.MkdirAll(outputDir, os.ModePerm)
 	if err != nil {

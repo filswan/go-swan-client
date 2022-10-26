@@ -120,6 +120,7 @@ func (cmdIpfsCar *CmdIpfsCar) CreateIpfsCarFiles() ([]*libmodel.FileDesc, error)
 	fileDesc.SourceFilePath = cmdIpfsCar.InputDir
 	fileDesc.SourceFileSize = srcFileSize
 	fileDesc.CarFileName = carFileName
+	fileDesc.CarFileUrl = fileDesc.CarFileName
 	fileDesc.CarFilePath = carFilePath
 
 	if cmdIpfsCar.ImportFlag {
