@@ -1,17 +1,23 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	big2 "github.com/filecoin-project/go-state-types/big"
 	"github.com/filswan/go-swan-client/command"
 	"github.com/filswan/go-swan-lib/logs"
 	"github.com/filswan/go-swan-lib/utils"
+	"github.com/julienschmidt/httprouter"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
+	"io/ioutil"
 	"math/big"
+	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 )
 
 func main() {
@@ -26,7 +32,7 @@ func main() {
 			}
 			return nil
 		},
-		Commands:        []*cli.Command{toolsCmd, uploadCmd, taskCmd, dealCmd, autoCmd, calculateCmd, rpcApiCmd, rpcCmd},
+		Commands:        []*cli.Command{daemonCmd, toolsCmd, uploadCmd, taskCmd, dealCmd, autoCmd, calculateCmd, rpcApiCmd, rpcCmd},
 		HideHelpCommand: true,
 	}
 	if err := app.Run(os.Args); err != nil {
@@ -37,6 +43,59 @@ func main() {
 		}
 		os.Exit(1)
 	}
+}
+
+var daemonCmd = &cli.Command{
+	Name:  "daemon",
+	Usage: "Start a API service process",
+	Action: func(ctx *cli.Context) error {
+		router := httprouter.New()
+		router.POST("/chain/rpc", func(writer http.ResponseWriter, request *http.Request, _ httprouter.Params) {
+			defer request.Body.Close()
+			data, _ := ioutil.ReadAll(request.Body)
+			var reqParam struct {
+				ChainId string `json:"chain_id"`
+				Params  string `json:"params"`
+			}
+			if err := json.Unmarshal(data, &reqParam); err != nil {
+				logs.GetLogger().Error(err)
+				writer.WriteHeader(http.StatusBadRequest)
+				writer.Write([]byte("request parameter is bad"))
+				return
+			}
+			if reqParam.ChainId == "" && reqParam.Params == "" {
+				logs.GetLogger().Error("both chain-id and params are required")
+				writer.WriteHeader(http.StatusNotFound)
+				writer.Write([]byte("both chain-id and params are required"))
+				return
+			}
+			result, err := command.SendRpcReqAndResp(reqParam.ChainId, reqParam.Params)
+			if err != nil {
+				writer.WriteHeader(http.StatusInternalServerError)
+				writer.Write([]byte(err.Error()))
+				return
+			}
+			writer.Write(result)
+		})
+
+		c := make(chan os.Signal)
+		signal.Notify(c, syscall.SIGTERM, syscall.SIGINT)
+		go func() {
+			defer func() {
+				if r := recover(); r != nil {
+					panic(r)
+				}
+			}()
+			logs.GetLogger().Infof("listen port: 8099")
+			http.ListenAndServe(":8099", router)
+		}()
+
+		select {
+		case sig := <-c:
+			logs.GetLogger().Warnf(" receive %s signal exit.", sig)
+		}
+		return nil
+	},
 }
 
 var uploadCmd = &cli.Command{
