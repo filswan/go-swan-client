@@ -520,7 +520,7 @@ var calculateCmd = &cli.Command{
 
 var rpcApiCmd = &cli.Command{
 	Name:      "rpc-api",
-	Usage:     "rpc-api proxy client of public chain",
+	Usage:     "RPC api proxy client of public chain",
 	ArgsUsage: "[inputPath]",
 	Flags: []cli.Flag{
 		&cli.StringFlag{

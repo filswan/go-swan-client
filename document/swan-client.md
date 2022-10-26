@@ -16,7 +16,7 @@ COMMANDS:
    task          Send task to swan
    deal          Send manual-bid deal
    commP         Calculate the dataCid, pieceCid, pieceSize of the CAR file
-   rpc-api       rpc-api proxy client of public chain
+   rpc-api       RPC api proxy client of public chain
    rpc           RPC proxy client of public chain
 
 GLOBAL OPTIONS:
@@ -216,7 +216,7 @@ OPTIONS:
 ## swan-client rpc-api
 ```
 NAME:
-   swan-client rpc-api - rpc-api proxy client of public chain
+   swan-client rpc-api - RPC api proxy client of public chain
 
 USAGE:
    swan-client rpc-api [command options] [inputPath]
