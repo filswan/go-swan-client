@@ -88,6 +88,7 @@ func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error) {
 		fileDesc.SourceFilePath = filepath.Join(cmdCar.InputDir, fileDesc.SourceFileName)
 		fileDesc.SourceFileSize = srcFile.Size()
 		fileDesc.CarFileName = fileDesc.SourceFileName + ".car"
+		fileDesc.CarFileUrl = fileDesc.CarFileName
 		fileDesc.CarFilePath = filepath.Join(cmdCar.OutputDir, fileDesc.CarFileName)
 		logs.GetLogger().Info("Creating car file ", fileDesc.CarFilePath, " for ", fileDesc.SourceFilePath)
 
