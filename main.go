@@ -320,7 +320,6 @@ var outPutFlag = cli.StringFlag{
 	Value:   "/tmp/tasks",
 }
 
-//做完了
 var lotusCarCmd = &cli.Command{
 	Name:      "lotus",
 	Usage:     "Use lotus api to generate CAR file",
