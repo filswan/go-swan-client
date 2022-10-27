@@ -627,27 +627,18 @@ func QueryBalance(chain string, height int64, address string) (info ChainInfo, e
 		errCode := int(errorInfo["code"].(float64))
 		errMsg := errorInfo["message"].(string)
 		logs.GetLogger().Errorf("get %s balance failed, code: %d error: %s", chain, errCode, errMsg)
+		err = errors.New(errMsg)
 		return
 	}
 
+	fbalance := new(big.Float)
 	switch balance.(type) {
 	case float64:
-		fbalance := new(big.Float)
 		fbalance.SetFloat64(balance.(float64))
-		info.Balance = new(big.Float).Quo(fbalance, big.NewFloat(math.Pow10(18)))
 	case string:
-		hex := balance.(string)
-		val := hex[2:]
-		var data uint64
-		data, err = strconv.ParseUint(val, 16, 64)
-		if err != nil {
-			logs.GetLogger().Errorf("convert balance value failed, error: %v", err)
-			return
-		}
-		fbalance := new(big.Float)
-		fbalance.SetUint64(data)
-		info.Balance = new(big.Float).Quo(fbalance, big.NewFloat(math.Pow10(18)))
+		fbalance.SetString(balance.(string))
 	}
+	info.Balance = new(big.Float).Quo(fbalance, big.NewFloat(math.Pow10(18)))
 	return
 }
 

@@ -23,10 +23,9 @@ type lotus struct {
 }
 
 type main struct {
-	SwanApiUrl        string `toml:"api_url"`
-	SwanApiKey        string `toml:"api_key"`
-	SwanAccessToken   string `toml:"access_token"`
-	StorageServerType string `toml:"storage_server_type"`
+	SwanApiUrl      string `toml:"api_url"`
+	SwanApiKey      string `toml:"api_key"`
+	SwanAccessToken string `toml:"access_token"`
 }
 
 type ipfsServer struct {
@@ -35,7 +34,7 @@ type ipfsServer struct {
 }
 
 type sender struct {
-	OfflineMode           bool          `toml:"offline_mode"`
+	OfflineSwan           bool          `toml:"offline_swan"`
 	VerifiedDeal          bool          `toml:"verified_deal"`
 	FastRetrieval         bool          `toml:"fast_retrieval"`
 	SkipConfirmation      bool          `toml:"skip_confirmation"`
@@ -90,7 +89,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"ipfs_server", "download_url_prefix"},
 		{"ipfs_server", "upload_url_prefix"},
 
-		{"sender", "offline_mode"},
+		{"sender", "offline_swan"},
 		{"sender", "verified_deal"},
 		{"sender", "fast_retrieval"},
 		{"sender", "skip_confirmation"},

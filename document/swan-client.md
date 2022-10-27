@@ -128,8 +128,8 @@ OPTIONS:
    --out-dir value, -o value         directory where CAR file(s) will be generated. (default: "/tmp/tasks")
    --import                          whether to import CAR file to lotus (default: true)
    --parallel value                  number goroutines run when building ipld nodes (default: 5)
-   --slice-size value, --size value  GiB of each piece (default: 16GiB) (default: 17179869184)
-   --parent-path                     specify graph parent path (default: false)
+   --slice-size value, --size value  bytes of each piece (default: 17179869184)
+   --parent-path                     generate CAR file based on whole folder (default: true)
    --help, -h                        show help (default: false)
 ```
 
