@@ -10,16 +10,32 @@ VERSION:
    2.0.0
 
 COMMANDS:
+   daemon        Start a API service process
    generate-car  Generate CAR files from a file or directory
    upload        Upload CAR file to ipfs server
    task          Send task to swan
    deal          Send manual-bid deal
    commP         Calculate the dataCid, pieceCid, pieceSize of the CAR file
+   rpc-api       RPC api proxy client of public chain
+   rpc           RPC proxy client of public chain
 
 GLOBAL OPTIONS:
    --help, -h     show help (default: false)
    --version, -v  print the version (default: false)
 ```
+
+## swan-client daemon
+```
+NAME:
+   swan-client daemon - Start a API service process
+
+USAGE:
+   swan-client daemon [command options] [arguments...]
+
+OPTIONS:
+   --help, -h  show help (default: false)
+```
+
 
 ## swan-client generate-car
 ```
@@ -195,4 +211,62 @@ OPTIONS:
    --car-path value  absolute path to the car file
    --piece-cid       whether to generate the pieceCid flag (default: false)
    --help, -h        show help (default: false)
+```
+
+## swan-client rpc-api
+```
+NAME:
+   swan-client rpc-api - RPC api proxy client of public chain
+
+USAGE:
+   swan-client rpc-api [command options] [inputPath]
+
+OPTIONS:
+   --chain-id value          chainId as public chain.
+   --params value, -p value  the parameters of the request api must be in string json format.
+   --help, -h                show help (default: false)
+```
+
+## swan-client rpc
+```
+NAME:
+   swan-client rpc - RPC proxy client of public chain
+
+USAGE:
+   swan-client rpc command [command options] [arguments...]
+
+COMMANDS:
+   balance  Query current balance of public chain
+   height   Query current height of public chain
+   help, h  Shows a list of commands or help for one command
+
+OPTIONS:
+   --help, -h  show help (default: false)
+```
+### swan-client rpc balance
+```
+NAME:
+   swan-client rpc balance - Query current balance of public chain
+
+USAGE:
+   swan-client rpc balance [command options] [arguments...]
+
+OPTIONS:
+   --chain value, -c value    public chain. support ETH、BNB、AVAX、MATIC、FTM、xDAI、IOTX、ONE、BOBA、FUSE、JEWEL、EVMOS、TUS
+   --address value, -a value  wallet address
+   --help, -h                 show help (default: false)
+```
+
+### swan-client rpc height
+```
+NAME:
+   swan-client rpc height - Query current height of public chain
+
+USAGE:
+   swan-client rpc height [command options] [arguments...]
+
+OPTIONS:
+   --chain value, -c value  public chain. support ETH、BNB、AVAX、MATIC、FTM、xDAI、IOTX、ONE、BOBA、FUSE、JEWEL、EVMOS、TUS
+   --help, -h               show help (default: false)
+
 ```
