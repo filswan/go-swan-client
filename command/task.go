@@ -23,43 +23,39 @@ import (
 )
 
 type CmdTask struct {
-	SwanApiUrl        string          //required when OfflineMode is false
-	SwanApiKey        string          //required when OfflineMode is false and SwanJwtToken is not provided
-	SwanAccessToken   string          //required when OfflineMode is false and SwanJwtToken is not provided
-	SwanToken         string          //required when OfflineMode is false and SwanApiKey & SwanAccessToken are not provided
-	LotusClientApiUrl string          //required
-	BidMode           int             //required
-	VerifiedDeal      bool            //required
-	OfflineMode       bool            //required
-	FastRetrieval     bool            //required
-	MaxPrice          decimal.Decimal //required
-	//StorageServerType          string          //required
-	//WebServerDownloadUrlPrefix string          //required only when StorageServerType is web server
-	ExpireDays           int    //required
-	GenerateMd5          bool   //required
-	Duration             int    //not necessary, when not provided use default value:1512000
-	OutputDir            string //required
-	InputDir             string //required
-	TaskName             string //not necessary, when not provided use default value:swan_task_xxxxxx
-	Dataset              string //not necessary
-	Description          string //not necessary
-	StartEpochHours      int    //required
-	SourceId             int    //required
-	MaxAutoBidCopyNumber int    //required only for public autobid deal
+	SwanApiUrl           string          //required when OfflineMode is false
+	SwanApiKey           string          //required when OfflineMode is false and SwanJwtToken is not provided
+	SwanAccessToken      string          //required when OfflineMode is false and SwanJwtToken is not provided
+	SwanToken            string          //required when OfflineMode is false and SwanApiKey & SwanAccessToken are not provided
+	LotusClientApiUrl    string          //required
+	BidMode              int             //required
+	VerifiedDeal         bool            //required
+	OfflineMode          bool            //required
+	FastRetrieval        bool            //required
+	MaxPrice             decimal.Decimal //required
+	ExpireDays           int             //required
+	GenerateMd5          bool            //required
+	Duration             int             //not necessary, when not provided use default value:1512000
+	OutputDir            string          //required
+	InputDir             string          //required
+	TaskName             string          //not necessary, when not provided use default value:swan_task_xxxxxx
+	Dataset              string          //not necessary
+	Description          string          //not necessary
+	StartEpochHours      int             //required
+	SourceId             int             //required
+	MaxAutoBidCopyNumber int             //required only for public autobid deal
 }
 
 func GetCmdTask(inputDir string, outputDir *string, taskName, dataset, description string, bidMode, maxCopyNumber int) *CmdTask {
 	cmdTask := &CmdTask{
-		SwanApiUrl:        config.GetConfig().Main.SwanApiUrl,
-		SwanApiKey:        config.GetConfig().Main.SwanApiKey,
-		SwanAccessToken:   config.GetConfig().Main.SwanAccessToken,
-		LotusClientApiUrl: config.GetConfig().Lotus.ClientApiUrl,
-		BidMode:           bidMode,
-		VerifiedDeal:      config.GetConfig().Sender.VerifiedDeal,
-		OfflineMode:       config.GetConfig().Sender.OfflineMode,
-		FastRetrieval:     config.GetConfig().Sender.FastRetrieval,
-		//StorageServerType:          config.GetConfig().Main.StorageServerType,
-		//WebServerDownloadUrlPrefix: config.GetConfig().WebServer.DownloadUrlPrefix,
+		SwanApiUrl:           config.GetConfig().Main.SwanApiUrl,
+		SwanApiKey:           config.GetConfig().Main.SwanApiKey,
+		SwanAccessToken:      config.GetConfig().Main.SwanAccessToken,
+		LotusClientApiUrl:    config.GetConfig().Lotus.ClientApiUrl,
+		BidMode:              bidMode,
+		VerifiedDeal:         config.GetConfig().Sender.VerifiedDeal,
+		OfflineMode:          config.GetConfig().Sender.OfflineSwan,
+		FastRetrieval:        config.GetConfig().Sender.FastRetrieval,
 		ExpireDays:           config.GetConfig().Sender.ExpireDays,
 		GenerateMd5:          config.GetConfig().Sender.GenerateMd5,
 		Duration:             config.GetConfig().Sender.Duration,
@@ -231,10 +227,6 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		fileDesc.Uuid = task.Uuid
 		fileDesc.StartEpoch = &startEpoch
 		fileDesc.SourceId = &cmdTask.SourceId
-
-		//if cmdTask.StorageServerType == libconstants.STORAGE_SERVER_TYPE_WEB_SERVER {
-		//	fileDesc.CarFileUrl = utils.UrlJoin(cmdTask.WebServerDownloadUrlPrefix, fileDesc.CarFileName)
-		//}
 
 		if cmdTask.GenerateMd5 {
 			if fileDesc.SourceFileMd5 == "" && utils.IsFileExistsFullPath(fileDesc.SourceFilePath) {

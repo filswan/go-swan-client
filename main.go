@@ -366,13 +366,13 @@ var generateCarCmd = &cli.Command{
 		&cli.Int64Flag{
 			Name:    "slice-size",
 			Aliases: []string{"size"},
-			Usage:   "GiB of each piece (default: 16GiB)",
+			Usage:   "bytes of each piece",
 			Value:   17179869184,
 		},
 		&cli.BoolFlag{
 			Name:  "parent-path",
-			Usage: "specify graph parent path",
-			Value: false,
+			Usage: "generate CAR file based on whole folder",
+			Value: true,
 		},
 	},
 	Action: func(ctx *cli.Context) error {
