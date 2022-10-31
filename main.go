@@ -5,6 +5,8 @@ import (
 	"fmt"
 	big2 "github.com/filecoin-project/go-state-types/big"
 	"github.com/filswan/go-swan-client/command"
+	"github.com/filswan/go-swan-client/config"
+	"github.com/filswan/go-swan-lib/client/swan"
 	"github.com/filswan/go-swan-lib/logs"
 	"github.com/filswan/go-swan-lib/utils"
 	"github.com/julienschmidt/httprouter"
@@ -48,6 +50,17 @@ func main() {
 var daemonCmd = &cli.Command{
 	Name:  "daemon",
 	Usage: "Start a API service process",
+	Before: func(context *cli.Context) error {
+		swanClient, err := swan.GetClient(config.GetConfig().Main.SwanApiUrl, config.GetConfig().Main.SwanApiKey,
+			config.GetConfig().Main.SwanAccessToken, "")
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
+		swanClient.StatisticsNodeStatus()
+
+		return nil
+	},
 	Action: func(ctx *cli.Context) error {
 		router := httprouter.New()
 		router.POST("/chain/rpc", func(writer http.ResponseWriter, request *http.Request, _ httprouter.Params) {
@@ -76,6 +89,15 @@ var daemonCmd = &cli.Command{
 				return
 			}
 			writer.Write(result)
+			go func() {
+				swanClient, err := swan.GetClient(config.GetConfig().Main.SwanApiUrl, config.GetConfig().Main.SwanApiKey,
+					config.GetConfig().Main.SwanAccessToken, "")
+				if err != nil {
+					logs.GetLogger().Error(err)
+					return
+				}
+				swanClient.StatisticsChainInfo(reqParam.ChainId)
+			}()
 		})
 
 		c := make(chan os.Signal)
