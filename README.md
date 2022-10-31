@@ -29,16 +29,16 @@ Swan-client is an important Web3 toolkit. It provides different tools to help us
 	- [2.1 Deploy RPC Service](#21-Deploy-RPC-Service)
 	- [2.2 RPC Command Service](#22-RPC-Command-Service)
 ## 1. Filecoin Deal Sender
-As a PiB level data onboarding tool for Filecoin Network, Swan-client can help users prepare data and send the data to storage providers in Filecoin network. The main features and steps are as follows:
- - Generate CAR files from your source files by [graphsplit](#Graphsplit), [lotus](#Lotus-API), [IPFS](#IPFS-API) or [ipfs-car](#ipfs-car).
- - Upload the CAR files to IPFS server and generate metadata file(JSON and CSV) for sending offline-deals. 
- - Propose offline-deals based on the metadata file.
+As a PiB-level data onboarding tool for Filecoin Network, Swan-client can help users prepare data and send the data to storage providers in the Filecoin network. The main features and steps are as follows:
+ - Generate CAR files from your source files by [graphsplit](#Graphsplit), [lotus](#Lotus-API), [IPFS](#IPFS-API), or [ipfs-car](#ipfs-car).
+ - Upload the CAR files to the IPFS server and generate metadata files (JSON and CSV) for sending offline deals. 
+ - Propose offline deals based on the metadata file.
  - Generate a final metadata file for storage providers to import deals.
- - Create tasks and offline-deals on [Swan Platform](https://console.filswan.com/#/dashboard).
+ - Create tasks and offline deals on [Swan Platform](https://console.filswan.com/#/dashboard).
 
  	**(Storage Providers can automatically import the deals by [Swan-Provider](https://github.com/filswan/go-swan-provider/tree/release-2.0.0))**
 
-swan-client can help users send their data to storage providers by creating three different kind of tasks. The complete process from the source file to the storage provider is as follows:
+swan-client can help users send their data to storage providers by creating three different kinds of tasks. The complete process from the source file to the storage provider is as follows:
  - **Private Task**
 <img src="http://yuml.me/diagram/plain/activity/(start)->(Generate CAR Files)->(Upload CAR Files to IPFS)->(Create Private Task)->(end)" >
  
@@ -87,7 +87,7 @@ api_key = "" # Swan API key. Acquire from [Swan Platform](https://console.filswa
 access_token = ""                              # Swan API access token. Acquire from [Swan Platform](https://console.filswan.com/#/dashboard) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_swan=true`.
 
 [ipfs_server]
-download_url_prefix = "http://[ip]:[port]"     # IPFS server url prefix. Store CAR files for downloading by storage provider. The downloading url will be `[download_url_prefix]/ipfs/[dataCID]`
+download_url_prefix = "http://[ip]:[port]"     # IPFS server url prefix. Store CAR files for downloading by the storage provider. The downloading url will be `[download_url_prefix]/ipfs/[dataCID]`
 upload_url_prefix = "http://[ip]:[port]"       # IPFS server url for uploading files
 
 [sender]
@@ -98,17 +98,17 @@ skip_confirmation = false                      # Whether to skip manual confirma
 generate_md5 = false                           # Whether to generate md5 for each car file and source file(resource consuming)
 wallet = ""                                    # Wallet used for sending offline deals
 max_price = "0"                                # Max price willing to pay per GiB/epoch for offline deals
-start_epoch_hours = 96                         # Specify hours that the deal should after at (default 96 hours)
+start_epoch_hours = 96                         # Specify hours that the deal should be after at (default 96 hours)
 expire_days = 4                                # Specify days that the deal will expire after (default 4 days) 
-duration = 1512000                             # How long the Storage Providers should store the data for, in blocks(30s/block), default 1512000.
+duration = 1512000                             # How long the Storage Providers should store the data for, in blocks(the 30s/block), default 1512000.
 start_deal_time_interval = 500                 # The interval between two deals sent, default: 500ms
 ```
 
 ### 1.3 Generate CAR Files
-A CAR file is an independent unit to be sent to storage providers, swan-client provides four different ways to generate CAR files, and the CAR file will be imported to lotus.
+A CAR file is an independent unit to be sent to storage providers, swan-client provides four different ways to generate CAR files, and the CAR file will be imported to the lotus.
 
 #### Graphsplit
-:bell: This option can split a file under source directory or the files in a whole directory to one or more car file(s) in output directory.
+:bell: This option can split a file under the source directory or the files in a whole directory to one or more car file(s) in output directory.
 ```shell
 ./swan-client generate-car graphsplit car --input-dir [input_files_dir] --out-dir [car_files_output_dir]
 
@@ -118,14 +118,14 @@ OPTIONS:
    --import                          whether to import CAR file to lotus (default: true)
    --parallel value                  number goroutines run when building ipld nodes (default: 5)
    --slice-size value, --size value  bytes of each piece (default: 17179869184)
-   --parent-path                     generate CAR file based on whole folder (default: true)
+   --parent-path                     generate CAR file based on the whole folder (default: true)
 ```
 
 **Files generated after this step:**
 - `manifest.csv`: A metadata file generated by `graphsplit API`
 - `car.json`: contains information for both source files and CAR files
 - `car.csv`: contains information for both source files and CAR files
-- `[dataCID].car`: if `--parent-path=true` is set, the CAR files generated based on the whole directory, otherwize based on each file according to file size and `--slice-size`
+- `[dataCID].car`: if `--parent-path=true` is set, the CAR files are generated based on the whole directory, otherwise based on each file according to the file size and `--slice-size`
 
 Credits should be given to filedrive-team. More information can be found [here](https://github.com/filedrive-team/go-graphsplit)
 
@@ -148,7 +148,7 @@ OPTIONS:
 - `[source-file-name].car`: each source file has a related CAR file
 
 #### IPFS API
-:bell: This option will merge files under source directory to one car file in output directory using IPFS API.
+:bell: This option will merge files under the source directory to one car file in the output directory using IPFS API.
 
 :bell: A running **IPFS** node is required.
 
@@ -161,14 +161,14 @@ OPTIONS:
    --import                     whether to import CAR file to lotus (default: true)
 ```
 **Files generated after this step:**
-- `car.json`: contains information for CAR file
-- `car.csv`: contains information for CAR file
+- `car.json`: contains information for the CAR file
+- `car.csv`: contains information for the CAR file
 - `[dataCID].car`: the source file(s) will be merged into this car file
 
 #### ipfs-car 
-:bell: `ipfs-car` pacakage is **required**: `sudo npm install -g ipfs-car`
+:bell: `ipfs-car` package is **required**: `sudo npm install -g ipfs-car`
 
-:bell: This option will merge files under source directory to one car file in output directory using `ipfs-car` command.
+:bell: This option will merge files under source directory to one car file in the output directory using `ipfs-car` command.
 ```shell
 ./swan-client generate-car ipfs-car --input-dir [input_files_dir] --out-dir [car_file_output_dir]
 
@@ -179,8 +179,8 @@ OPTIONS:
 ```
 
 **Files generated after this step:**
-- `car.json`: contains information for CAR file
-- `car.csv`: contains information for CAR file
+- `car.json`: contains information for the CAR file
+- `car.csv`: contains information for the CAR file
 - `[source-files-dir-name].car`: the source file(s) will be merged into this CAR file
 
 ### 1.4 Upload CAR Files to IPFS
@@ -198,7 +198,7 @@ OPTIONS:
 - `car.csv`: the `CarFileUrl` of CAR files will be updated
 
 ### 1.5 Create A Task
-You can create three different kind of task using the `car.json` or `car.csv` 
+You can create three different kinds of tasks using the `car.json` or `car.csv` 
 #### Private Task
 You can directly send deals to miners by creating a  private task
 
@@ -208,13 +208,13 @@ You can directly send deals to miners by creating a  private task
 OPTIONS:
    --name value                          task name
    --input-dir value, -i value           absolute path where the json or csv format source files
-   --out-dir value, -o value             directory where target files will in (default: "/tmp/tasks")
+   --out-dir value, -o value             directory where target files will be in (default: "/tmp/tasks")
    --auto-bid                            send the auto-bid task (default: false)
    --manual-bid                          send the manual-bid task (default: false)
-   --miners value                        minerID is required when send private task (pass comma separated array of minerIDs)
+   --miners value                        miners is required when sending private task (pass comma separated array of minerIDs)
    --dataset value                       curated dataset
    --description value, -d value         task description
-   --max-copy-number value, --max value  max copy numbers when send auto-bid or manual-bid task (default: 1)
+   --max-copy-number value, --max value  max copy numbers when sending auto-bid or manual-bid task (default: 1)
 
 ```
 
@@ -232,17 +232,17 @@ OPTIONS:
    --out-dir value, -o value             directory where target files will in (default: "/tmp/tasks")
    --auto-bid                            send the auto-bid task (default: false)
    --manual-bid                          send the manual-bid task (default: false)
-   --miners value                        minerID is required when send private task (pass comma separated array of minerIDs)
+   --miners value                        miners is required when sending private task (pass comma separated array of minerIDs)
    --dataset value                       curated dataset
    --description value, -d value         task description
-   --max-copy-number value, --max value  max copy numbers when send auto-bid or manual-bid task (default: 1)
+   --max-copy-number value, --max value  max copy numbers when sending auto-bid or manual-bid task (default: 1)
 
 ```
 **Files generated after this step:**
 - `[task-name]-metadata.json`: contains `Uuid` and `Deals` for storage providers to import deals.
 
 ### Manual-bid Task
-You can create manual-bid task on the swan platform. And each storage providers can apply this task from swan platform. After that, you can send deals to the storage providers.
+You can create manual-bid tasks on the swan platform. And each storage provider can apply this task from swan platform. After that, you can send deals to the storage providers.
 
  **(1) Create manulal-bid task:**
 ```shell
@@ -255,13 +255,13 @@ OPTIONS:
    --out-dir value, -o value             directory where target files will in (default: "/tmp/tasks")
    --auto-bid                            send the auto-bid task (default: false)
    --manual-bid                          send the manual-bid task (default: false)
-   --miners value                        minerID is required when send private task (pass comma separated array of minerIDs)
+   --miners value                        miners is required when sending private task (pass comma separated array of minerIDs)
    --dataset value                       curated dataset
    --description value, -d value         task description
-   --max-copy-number value, --max value  max copy numbers when send auto-bid or manual-bid task (default: 1)
+   --max-copy-number value, --max value  max copy numbers when sending auto-bid or manual-bid task (default: 1)
 ```
 **Files generated after this step:**
-- `[task-name]-metadata.json`: contains `Uuid` sourfile and CAR file infomation.
+- `[task-name]-metadata.json`: contains the `Uuid`, source file information, and CAR file information.
 
 
 **(2) Send deals to the storage providers:**
@@ -272,18 +272,18 @@ OPTIONS:
    --csv value                the CSV file path of deal metadata
    --json value               the JSON file path of deal metadata
    --out-dir value, -o value  directory where target files will in (default: "/tmp/tasks")
-   --miners value             minerID is required when send manual-bid task (pass comma separated array of minerIDs)
+   --miners value             miners is required when sending manual-bid task (pass comma separated array of minerIDs)
 
 ```
 
 **Files generated after this step:**
-- `[task-name]-deals.json`: `Deals`infomation updated based on `[task-name]-metadata.json` generated on previous step
+- `[task-name]-deals.json`: `Deals`infomation updated based on `[task-name]-metadata.json` generated on the previous step
 
 ---
 ## 2. Blockchain RPC Service
-The second feature of swan-client is blockchain rpc service. It is supported by [POKT RPCList](https://rpclist.info). As the first version, swan-client provides users [deploy a RPC service](#21-Deploy-RPC-Service) and uses [RPC Command Service](#22-RPC-Command-Service). It is worth noting that the blockchain RPC services provided by swan-client are free at present. 
+The second feature of swan-client is the blockchain RPC service. It is supported by [POKT RPCList](https://rpclist.info). As the first version, swan-client provides users [deploy a RPC service](#21-Deploy-RPC-Service) and uses [RPC Command Service](#22-RPC-Command-Service). It is worth noting that the blockchain RPC services provided by swan-client are free at present. 
 
-  * The following table shows the full list of supported chain until now.
+  * The following table shows the full list of the supported chain until now.
 
 	ChainID | ChainName
 	:-: | :-:
