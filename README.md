@@ -83,8 +83,8 @@ client_access_token = ""                       # Access token of lotus client we
 
 [main]
 api_url = "https://go-swan-server.filswan.com" # Swan API address. For Swan production, it is `https://go-swan-server.filswan.com`. It can be ignored if `[sender].offline_swan=true`
-api_key = "" # Swan API key. Acquire from [Swan Platform](https://console.filswan.com/#/dashboard) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_mode=true`.
-access_token = ""                              # Swan API access token. Acquire from [Swan Platform](https://console.filswan.com/#/dashboard) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_mode=true`.
+api_key = "" # Swan API key. Acquire from [Swan Platform](https://console.filswan.com/#/dashboard) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_swan=true`.
+access_token = ""                              # Swan API access token. Acquire from [Swan Platform](https://console.filswan.com/#/dashboard) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_swan=true`.
 
 [ipfs_server]
 download_url_prefix = "http://[ip]:[port]"     # IPFS server url prefix. Store CAR files for downloading by storage provider. The downloading url will be `[download_url_prefix]/ipfs/[dataCID]`
