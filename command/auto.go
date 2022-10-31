@@ -648,22 +648,11 @@ type ChainInfo struct {
 	Address string
 }
 
-// {"jsonrpc":"2.0","method":"eth_getBalance","params":["0x407d73d8a49eeb85d32cf465507dd71d507100c1", "latest"],"id":1}
 type rpcReq struct {
 	Jsonrpc string        `json:"jsonrpc"`
 	Method  string        `json:"method"`
 	Params  []interface{} `json:"params"`
 	Id      int           `json:"id"`
-}
-
-type rpcResp struct {
-	Id      int    `json:"id"`
-	Jsonrpc string `json:"jsonrpc"`
-	Result  string `json:"result"`
-	Error   struct {
-		Code    int    `json:"code"`
-		Message string `json:"message"`
-	} `json:"error"`
 }
 
 func GetFieldMapFromJsonByError(jsonBytes []byte) map[string]interface{} {

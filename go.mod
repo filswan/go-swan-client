@@ -7,7 +7,7 @@ require (
 	github.com/codingsince1985/checksum v1.2.3
 	github.com/filecoin-project/go-state-types v0.1.1-0.20210506134452-99b279731c48
 	github.com/filedrive-team/go-graphsplit v0.4.1
-	github.com/filswan/go-swan-lib v0.2.132
+	github.com/filswan/go-swan-lib v0.2.133
 	github.com/google/uuid v1.3.0
 	github.com/ipld/go-car v0.1.1-0.20201119040415-11b6074b6d4d
 	github.com/julienschmidt/httprouter v1.3.0
