@@ -18,6 +18,7 @@ type CmdCar struct {
 	OutputDir              string //required
 	InputDir               string //required
 	GenerateMd5            bool   //required
+	ImportFlag             bool
 }
 ```
 
@@ -31,6 +32,8 @@ type CmdGoCar struct {
 	GenerateMd5            bool   //required
 	GocarFileSizeLimit     int64  //required
 	GocarFolderBased       bool   //required
+	Parallel               int
+	ImportFlag             bool
 }
 ```
 
@@ -43,6 +46,7 @@ type CmdIpfsCar struct {
 	InputDir                  string //required
 	GenerateMd5               bool   //required
 	IpfsServerUploadUrlPrefix string //required
+	ImportFlag                bool
 }
 ```
 
@@ -55,16 +59,15 @@ type CmdIpfsCmdCar struct {
 	OutputDir              string //required
 	InputDir               string //required
 	GenerateMd5            bool   //required
+	ImportFlag             bool
 }
 ```
 
 ## CmdUpload
 ```shell
 type CmdUpload struct {
-	StorageServerType           string //required
 	IpfsServerDownloadUrlPrefix string //required only when upload to ipfs server
 	IpfsServerUploadUrlPrefix   string //required only when upload to ipfs server
-	OutputDir                   string //invalid
 	InputDir                    string //required
 }
 ```
@@ -82,8 +85,6 @@ type CmdTask struct {
 	OfflineMode                bool            //required
 	FastRetrieval              bool            //required
 	MaxPrice                   decimal.Decimal //required
-	StorageServerType          string          //required
-	WebServerDownloadUrlPrefix string          //required only when StorageServerType is web server
 	ExpireDays                 int             //required
 	GenerateMd5                bool            //required
 	Duration                   int             //not necessary, when not provided use default value:1512000

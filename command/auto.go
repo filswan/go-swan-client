@@ -1,8 +1,15 @@
 package command
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
+	"io/ioutil"
+	"math"
+	"math/big"
+	"net/http"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -46,7 +53,7 @@ func GetCmdAutoDeal(outputDir *string) *CmdAutoBidDeal {
 	if !utils.IsStrEmpty(outputDir) {
 		cmdAutoBidDeal.OutputDir = *outputDir
 	} else {
-		cmdAutoBidDeal.OutputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
+		cmdAutoBidDeal.OutputDir = filepath.Join(*outputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
 	}
 
 	return cmdAutoBidDeal
@@ -138,7 +145,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDealsBySourceId(sourceId int) (
 			}
 		}
 
-		jsonFilepath, fileDescs, err := cmdAutoBidDeal.sendAutoBidDeals4Task(offlineDeals)
+		_, jsonFilepath, fileDescs, err := cmdAutoBidDeal.sendAutoBidDeals4Task(offlineDeals, nil)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return nil, nil, err
@@ -169,7 +176,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsByTaskUuid(taskUuid string
 		return nil, nil, err
 	}
 
-	jsonFilepath, fileDescs, err := cmdAutoBidDeal.sendAutoBidDeals4Task(assignedOfflineDeals)
+	_, jsonFilepath, fileDescs, err := cmdAutoBidDeal.sendAutoBidDeals4Task(assignedOfflineDeals, nil)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, nil, err
@@ -178,20 +185,20 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsByTaskUuid(taskUuid string
 	return jsonFilepath, fileDescs, nil
 }
 
-func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDeals4Task(assignedOfflineDeals []*libmodel.OfflineDeal) (*string, []*libmodel.FileDesc, error) {
+func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDeals4Task(assignedOfflineDeals []*libmodel.OfflineDeal, carSourceInfoMap map[string]*libmodel.FileDesc) (int, *string, []*libmodel.FileDesc, error) {
 	if len(assignedOfflineDeals) == 0 {
 		logs.GetLogger().Info("no offline deals to be sent")
-		return nil, nil, nil
+		return 0, nil, nil, nil
 	}
 
 	swanClient, err := swan.GetClient(cmdAutoBidDeal.SwanApiUrl, cmdAutoBidDeal.SwanApiKey, cmdAutoBidDeal.SwanAccessToken, cmdAutoBidDeal.SwanToken)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return 0, nil, nil, err
 	}
 
+	var successCount int
 	fileDescs := []*libmodel.FileDesc{}
-
 	for _, assignedOfflineDeal := range assignedOfflineDeals {
 		fileDesc, err := cmdAutoBidDeal.sendAutobidDeal(assignedOfflineDeal)
 		if err != nil {
@@ -201,6 +208,18 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDeals4Task(assignedOfflineDeals
 
 		if fileDesc == nil {
 			continue
+		}
+
+		if carSourceInfoMap != nil {
+			if carSourceInfo, ok := carSourceInfoMap[fileDesc.PayloadCid]; ok {
+				fileDesc.SourceFileName = carSourceInfo.SourceFileName
+				fileDesc.SourceFilePath = carSourceInfo.SourceFilePath
+				fileDesc.SourceFileMd5 = carSourceInfo.SourceFileMd5
+				fileDesc.SourceFileSize = carSourceInfo.SourceFileSize
+				fileDesc.CarFileName = carSourceInfo.CarFileName
+				fileDesc.CarFilePath = carSourceInfo.CarFilePath
+				fileDesc.CarFileMd5 = carSourceInfo.CarFileMd5
+			}
 		}
 
 		fileDescs = append(fileDescs, fileDesc)
@@ -227,6 +246,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDeals4Task(assignedOfflineDeals
 			logs.GetLogger().Error(err)
 			continue
 		}
+		successCount += 1
 	}
 
 	jsonFileName := *assignedOfflineDeals[0].TaskName + JSON_FILE_NAME_DEAL_AUTO
@@ -234,10 +254,10 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDeals4Task(assignedOfflineDeals
 	filepath, err := WriteCarFilesToFiles(fileDescs, cmdAutoBidDeal.OutputDir, jsonFileName, csvFileName)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return nil, nil, err
+		return successCount, nil, nil, err
 	}
 
-	return filepath, fileDescs, nil
+	return successCount, filepath, fileDescs, nil
 }
 
 func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.OfflineDeal) (*libmodel.FileDesc, error) {
@@ -359,4 +379,291 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) CheckDealStatus(dealCid string) (*lotus.Cl
 		return nil, err
 	}
 	return dealCostInfo, err
+}
+
+func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsBySwanClientSourceId(inputDir string, taskUuid string, total int) {
+	swanClient, err := swan.GetClient(cmdAutoBidDeal.SwanApiUrl, cmdAutoBidDeal.SwanApiKey, cmdAutoBidDeal.SwanAccessToken, cmdAutoBidDeal.SwanToken)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
+
+	var fileDescs []*libmodel.FileDesc
+	if strings.HasSuffix(inputDir, "json") {
+		fileDescs, err = ReadFileDescsFromJsonFile(inputDir, "")
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return
+		}
+	}
+	if strings.HasSuffix(inputDir, "csv") {
+		fileDescs, err = ReadFileFromCsvFile(inputDir, "")
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return
+		}
+	}
+
+	var carSourceInfoMap = make(map[string]*libmodel.FileDesc)
+	for _, desc := range fileDescs {
+		carSourceInfoMap[desc.PayloadCid] = desc
+	}
+
+	sourceId := libconstants.TASK_SOURCE_ID_SWAN_CLIENT
+	params := swan.GetOfflineDealsByStatusParams{
+		DealStatus: libconstants.OFFLINE_DEAL_STATUS_ASSIGNED,
+		ForMiner:   false,
+		SourceId:   &sourceId,
+	}
+
+	var totalCount, successCount int
+	tick := time.Tick(10 * time.Second)
+	for {
+		select {
+		case <-tick:
+			assignedOfflineDeals, err := swanClient.GetOfflineDealsByStatus(params)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				continue
+			}
+			var offlineDeals []*libmodel.OfflineDeal
+			for _, offlineDeal := range assignedOfflineDeals {
+				if *offlineDeal.TaskUuid == taskUuid {
+					offlineDeals = append(offlineDeals, offlineDeal)
+				}
+			}
+			totalCount += len(offlineDeals)
+			success, _, _, err := cmdAutoBidDeal.sendAutoBidDeals4Task(offlineDeals, carSourceInfoMap)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				continue
+			}
+			successCount += success
+			if totalCount == total {
+				goto END
+			}
+		case <-time.After(30 * time.Minute):
+			goto END
+		}
+	}
+END:
+	logs.GetLogger().Infof("auto send deal end,dealTotalCount: %d,successed: %d,failed: %d", total, successCount, total-successCount)
+}
+
+func SendRpcReqAndResp(chainId, params string) (result []byte, err error) {
+	urls, ok := publicChain[chainId]
+	if !ok {
+		return nil, errors.New(fmt.Sprintf("not support chainId: %s", chainId))
+	}
+
+	for _, u := range urls {
+		copyUrl := u
+		result, err = doReq(copyUrl, params)
+		if err != nil {
+			if len(urls) > 0 {
+				fmt.Printf("occur error, msg: %v, retry it ...", err)
+				continue
+			}
+			fmt.Printf("occur error, msg: %v", err)
+		}
+		break
+	}
+	return
+}
+
+func doReq(reqUrl, params string) ([]byte, error) {
+	client := http.Client{
+		Timeout: 30 * time.Second,
+	}
+	resp, err := client.Post(reqUrl, "application/json", strings.NewReader(params))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	return ioutil.ReadAll(resp.Body)
+}
+
+func QueryChainInfo(chain string, height int64, address string) (ChainInfo, error) {
+	if utils.IsStrEmpty(&address) {
+		return QueryHeight(chain)
+	} else {
+		return QueryBalance(chain, height, address)
+	}
+}
+
+func QueryHeight(chain string) (info ChainInfo, err error) {
+	urls, ok := chainUrlMap[chain]
+	if !ok {
+		return info, errors.New(fmt.Sprintf("not support chainId: %s", chain))
+	}
+	var rpcParam rpcReq
+	switch chain {
+	case "ETH", "BNB", "MATIC", "FTM", "xDAI", "IOTX", "BOBA", "EVMOS", "AVAX", "FUSE", "JEWEL", "TUS":
+		rpcParam.Jsonrpc = "2.0"
+		rpcParam.Method = "eth_blockNumber"
+		rpcParam.Params = []interface{}{}
+		rpcParam.Id = 83
+	case "ONE":
+		rpcParam.Jsonrpc = "2.0"
+		rpcParam.Method = "hmyv2_blockNumber"
+		rpcParam.Id = 1
+		rpcParam.Params = []interface{}{}
+	}
+
+	var data []byte
+	for _, u := range urls {
+		copyUrl := u
+		rpcParamBytes, err := json.Marshal(rpcParam)
+		if err != nil {
+			logs.GetLogger().Errorf("generate req params bytes failed,error: %v", err)
+			continue
+		}
+		data, err = doReq(copyUrl, string(rpcParamBytes))
+		if err != nil {
+			logs.GetLogger().Errorf("request url: %s failed, error: %v", copyUrl, err)
+			if len(urls) > 0 {
+				logs.GetLogger().Warnf("retry it by other request")
+				continue
+			}
+			break
+		}
+		break
+	}
+
+	height := utils.GetFieldFromJson(data, "result")
+	errorInfo := GetFieldMapFromJsonByError(data)
+
+	if errorInfo != nil {
+		errCode := int(errorInfo["code"].(float64))
+		errMsg := errorInfo["message"].(string)
+		logs.GetLogger().Errorf("get %s height failed, code: %d error: %s", chain, errCode, errMsg)
+		return
+	}
+
+	switch height.(type) {
+	case float64:
+		info.Height = uint64(height.(float64))
+	case string:
+		hex := height.(string)
+		val := hex[2:]
+		var data uint64
+		data, err = strconv.ParseUint(val, 16, 64)
+		if err != nil {
+			logs.GetLogger().Errorf("convert height value failed, error: %v", err)
+			return
+		}
+		info.Height = data
+	}
+
+	return
+}
+
+func QueryBalance(chain string, height int64, address string) (info ChainInfo, err error) {
+	urls, ok := chainUrlMap[chain]
+	if !ok {
+		return info, errors.New(fmt.Sprintf("not support chainId: %s", chain))
+	}
+
+	// IOTX need change wallet to eth wallet
+	var rpcParam rpcReq
+	switch chain {
+	case "ETH", "BNB", "MATIC", "FTM", "xDAI", "IOTX", "BOBA", "EVMOS", "AVAX", "FUSE", "JEWEL", "TUS":
+		rpcParam.Jsonrpc = "2.0"
+		rpcParam.Method = "eth_getBalance"
+		chainHeight := "latest"
+		rpcParam.Id = 1
+		if height != 0 {
+			chainHeight = strconv.Itoa(int(height))
+			info.Height = uint64(height)
+		} else {
+			queryHeight, err := QueryHeight(chain)
+			if err != nil {
+				return queryHeight, err
+			}
+			info.Height = queryHeight.Height
+		}
+		rpcParam.Params = []interface{}{address, chainHeight}
+
+	case "ONE":
+		rpcParam.Jsonrpc = "2.0"
+		rpcParam.Method = "hmyv2_getBalanceByBlockNumber"
+		rpcParam.Id = 1
+		if height != 0 {
+			info.Height = uint64(height)
+		} else {
+			queryHeight, err := QueryHeight(chain)
+			if err != nil {
+				return queryHeight, err
+			}
+			info.Height = queryHeight.Height
+		}
+		rpcParam.Params = []interface{}{address, info.Height}
+	}
+
+	info.Address = address
+	var data []byte
+	for _, u := range urls {
+		copyUrl := u
+		rpcParamBytes, err := json.Marshal(rpcParam)
+		if err != nil {
+			logs.GetLogger().Errorf("generate req params bytes failed,error: %v", err)
+			continue
+		}
+		data, err = doReq(copyUrl, string(rpcParamBytes))
+		if err != nil {
+			logs.GetLogger().Errorf("request url: %s failed, error: %v", copyUrl, err)
+			if len(urls) > 0 {
+				logs.GetLogger().Warnf("retry it by other request")
+				continue
+			}
+			break
+		}
+	}
+
+	balance := utils.GetFieldFromJson(data, "result")
+	errorInfo := GetFieldMapFromJsonByError(data)
+
+	if errorInfo != nil {
+		errCode := int(errorInfo["code"].(float64))
+		errMsg := errorInfo["message"].(string)
+		logs.GetLogger().Errorf("get %s balance failed, code: %d error: %s", chain, errCode, errMsg)
+		err = errors.New(errMsg)
+		return
+	}
+
+	fbalance := new(big.Float)
+	switch balance.(type) {
+	case float64:
+		fbalance.SetFloat64(balance.(float64))
+	case string:
+		fbalance.SetString(balance.(string))
+	}
+	info.Balance = new(big.Float).Quo(fbalance, big.NewFloat(math.Pow10(18)))
+	return
+}
+
+type ChainInfo struct {
+	Height  uint64
+	Balance *big.Float
+	Address string
+}
+
+type rpcReq struct {
+	Jsonrpc string        `json:"jsonrpc"`
+	Method  string        `json:"method"`
+	Params  []interface{} `json:"params"`
+	Id      int           `json:"id"`
+}
+
+func GetFieldMapFromJsonByError(jsonBytes []byte) map[string]interface{} {
+	fieldVal := utils.GetFieldFromJson(jsonBytes, "error")
+	if fieldVal == nil {
+		return nil
+	}
+	switch fieldValType := fieldVal.(type) {
+	case map[string]interface{}:
+		return fieldValType
+	default:
+		return nil
+	}
 }

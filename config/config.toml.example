@@ -1,34 +1,25 @@
 [lotus]
 client_api_url = "http://[ip]:[port]/rpc/v0"   # Url of lotus client web api, generally the [port] is 1234
-client_access_token = ""   # Access token of lotus client web api, it should have admin access right
+client_access_token = ""                       # Access token of lotus client web api, it should have admin access right
 
 [main]
-api_url = "https://go-swan-server.filswan.com"
-api_key = ""
-access_token = ""
-storage_server_type = "ipfs server"
-
-[web_server]
-download_url_prefix = "https://nbai.io:443/download"
+api_url = "https://go-swan-server.filswan.com" # Swan API address. For Swan production, it is `https://go-swan-server.filswan.com`. It can be ignored if `[sender].offline_swan=true`
+api_key = ""                                   # Swan API key. Acquire from [Swan Platform](https://console.filswan.com/#/dashboard) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_mode=true`.
+access_token = ""                              # Swan API access token. Acquire from [Swan Platform](https://console.filswan.com/#/dashboard) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_mode=true`.
 
 [ipfs_server]
-download_url_prefix = "http://[ip]:[port]"
-upload_url_prefix = "http://[ip]:[port]"
+download_url_prefix = "http://[ip]:[port]"     # IPFS server url prefix. Store CAR files for downloading by storage provider. The downloading url will be `[download_url_prefix]/ipfs/[dataCID]`
+upload_url_prefix = "http://[ip]:[port]"       # IPFS server url for uploading files
 
 [sender]
-bid_mode = 1     # 1: auto bid, 0: manual bid, 2: not use bid, when creating task, set miners and sending deals
-offline_mode = false
-output_dir = "/tmp/tasks"
-verified_deal = true
-fast_retrieval = true
-skip_confirmation = false
-generate_md5 = false
-wallet = ""
-max_price = "0"
-start_epoch_hours = 96
-expire_days = 4
-gocar_file_size_limit = 8589934592
-gocar_folder_based = false
-duration = 1051200    # Duration is expressed in blocks (1 block is equivalent to 30s).
-max_auto_bid_copy_number = 8 # max copy number you want to send
-start_deal_time_interval = 500 # lotus proposes a deal with a miner the time interval. default: 500ms
+offline_swan = false                           # Whether to create a task on [Swan Platform](https://console.filswan.com/#/dashboard), when set to true, only generate metadata for Storage Providers to import deals. 
+verified_deal = true                           # Whether deals in the task are going to be sent as verified or not
+fast_retrieval = true                          # Whether deals in the task are available for fast-retrieval or not
+skip_confirmation = false                      # Whether to skip manual confirmation of each deal before sending
+generate_md5 = false                           # Whether to generate md5 for each car file and source file(resource consuming)
+wallet = ""                                    # Wallet used for sending offline deals
+max_price = "0"                                # Max price willing to pay per GiB/epoch for offline deals
+start_epoch_hours = 96                         # Specify hours that the deal should after at (default 96 hours)
+expire_days = 4                                # Specify days that the deal will expire after (default 4 days) 
+duration = 1512000                             # How long the Storage Providers should store the data for, in blocks(30s/block), default 1512000.
+start_deal_time_interval = 500                 # The interval between two deals sent, default: 500ms
