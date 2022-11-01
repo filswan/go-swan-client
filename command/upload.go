@@ -8,13 +8,11 @@ import (
 
 	"github.com/filswan/go-swan-client/config"
 
-	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	"github.com/filswan/go-swan-lib/utils"
 )
 
 type CmdUpload struct {
-	StorageServerType           string //required
 	IpfsServerDownloadUrlPrefix string //required only when upload to ipfs server
 	IpfsServerUploadUrlPrefix   string //required only when upload to ipfs server
 	InputDir                    string //required
@@ -22,7 +20,6 @@ type CmdUpload struct {
 
 func GetCmdUpload(inputDir string) *CmdUpload {
 	cmdUpload := &CmdUpload{
-		StorageServerType:           config.GetConfig().Main.StorageServerType,
 		IpfsServerDownloadUrlPrefix: config.GetConfig().IpfsServer.DownloadUrlPrefix,
 		IpfsServerUploadUrlPrefix:   config.GetConfig().IpfsServer.UploadUrlPrefix,
 		InputDir:                    inputDir,
@@ -50,11 +47,6 @@ func (cmdUpload *CmdUpload) UploadCarFiles() ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	if cmdUpload.StorageServerType == libconstants.STORAGE_SERVER_TYPE_WEB_SERVER {
-		logs.GetLogger().Info("Please upload car files to web server manually.")
-		return nil, nil
-	}
-
 	fileDescs, err := ReadFileDescsFromJsonFile(cmdUpload.InputDir, JSON_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -66,7 +58,6 @@ func (cmdUpload *CmdUpload) UploadCarFiles() ([]*libmodel.FileDesc, error) {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
-
 	uploadUrl := utils.UrlJoin(cmdUpload.IpfsServerUploadUrlPrefix, "api/v0/add?stream-channels=true&pin=true")
 	for _, fileDesc := range fileDescs {
 		logs.GetLogger().Info("Uploading car file:", fileDesc.CarFilePath, " to:", uploadUrl)
@@ -83,7 +74,7 @@ func (cmdUpload *CmdUpload) UploadCarFiles() ([]*libmodel.FileDesc, error) {
 
 	logs.GetLogger().Info(len(fileDescs), " car files have been uploaded to:", uploadUrl)
 
-	_, err = WriteFileDescsToJsonFile(fileDescs, cmdUpload.InputDir, JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteCarFilesToFiles(fileDescs, cmdUpload.InputDir, JSON_FILE_NAME_CAR_UPLOAD, CSV_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

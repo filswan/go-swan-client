@@ -23,27 +23,29 @@ type CmdCar struct {
 	OutputDir              string //required
 	InputDir               string //required
 	GenerateMd5            bool   //required
+	ImportFlag             bool
 }
 
-func GetCmdCar(inputDir string, outputDir *string) *CmdCar {
+func GetCmdCar(inputDir string, outputDir *string, importFlag bool) *CmdCar {
 	cmdCar := &CmdCar{
 		LotusClientApiUrl:      config.GetConfig().Lotus.ClientApiUrl,
 		LotusClientAccessToken: config.GetConfig().Lotus.ClientAccessToken,
 		InputDir:               inputDir,
 		GenerateMd5:            config.GetConfig().Sender.GenerateMd5,
+		ImportFlag:             importFlag,
 	}
 
 	if !utils.IsStrEmpty(outputDir) {
 		cmdCar.OutputDir = *outputDir
 	} else {
-		cmdCar.OutputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
+		cmdCar.OutputDir = filepath.Join(*outputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
 	}
 
 	return cmdCar
 }
 
-func CreateCarFilesByConfig(inputDir string, outputDir *string) ([]*libmodel.FileDesc, error) {
-	cmdCar := GetCmdCar(inputDir, outputDir)
+func CreateCarFilesByConfig(inputDir string, outputDir *string, importFlag bool) ([]*libmodel.FileDesc, error) {
+	cmdCar := GetCmdCar(inputDir, outputDir, importFlag)
 	fileDescs, err := cmdCar.CreateCarFiles()
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -86,6 +88,7 @@ func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error) {
 		fileDesc.SourceFilePath = filepath.Join(cmdCar.InputDir, fileDesc.SourceFileName)
 		fileDesc.SourceFileSize = srcFile.Size()
 		fileDesc.CarFileName = fileDesc.SourceFileName + ".car"
+		fileDesc.CarFileUrl = fileDesc.CarFileName
 		fileDesc.CarFilePath = filepath.Join(cmdCar.OutputDir, fileDesc.CarFileName)
 		logs.GetLogger().Info("Creating car file ", fileDesc.CarFilePath, " for ", fileDesc.SourceFilePath)
 
@@ -103,20 +106,30 @@ func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error) {
 
 		fileDesc.PieceCid = *pieceCid
 
-		dataCid, err := lotusClient.LotusClientImport(fileDesc.CarFilePath, true)
-		if err != nil {
-			err := fmt.Errorf("failed to import car file")
-			logs.GetLogger().Error(err)
-			return nil, err
-		}
+		if cmdCar.ImportFlag {
+			dataCid, err := lotusClient.LotusClientImport(fileDesc.CarFilePath, true)
+			if err != nil {
+				err := fmt.Errorf("failed to import car file")
+				logs.GetLogger().Error(err)
+				return nil, err
+			}
 
-		if dataCid == nil {
-			err := fmt.Errorf("failed to generate data cid for: %s", fileDesc.CarFilePath)
-			logs.GetLogger().Error(err)
-			return nil, err
-		}
+			if dataCid == nil {
+				err := fmt.Errorf("failed to generate data cid for: %s", fileDesc.CarFilePath)
+				logs.GetLogger().Error(err)
+				return nil, err
+			}
 
-		fileDesc.PayloadCid = *dataCid
+			fileDesc.PayloadCid = *dataCid
+		} else {
+			dataCid, _, _, err := CalculateValueByCarFile(fileDesc.CarFilePath, true, false)
+			if err != nil {
+				err := fmt.Errorf("failed to generate data cid for: %s", fileDesc.CarFilePath)
+				logs.GetLogger().Error(err)
+				return nil, err
+			}
+			fileDesc.PayloadCid = dataCid
+		}
 
 		fileDesc.CarFileSize = utils.GetFileSize(fileDesc.CarFilePath)
 
@@ -142,7 +155,7 @@ func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error) {
 
 	logs.GetLogger().Info(len(fileDescs), " car files have been created to directory:", cmdCar.OutputDir)
 
-	_, err = WriteFileDescsToJsonFile(fileDescs, cmdCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteCarFilesToFiles(fileDescs, cmdCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD, CSV_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"github.com/filswan/go-swan-lib/client/lotus"
 	"io/ioutil"
 	"path/filepath"
 	"time"
@@ -9,7 +10,6 @@ import (
 	"github.com/codingsince1985/checksum"
 	"github.com/filswan/go-swan-client/config"
 	"github.com/filswan/go-swan-lib/client/ipfs"
-	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
@@ -23,28 +23,30 @@ type CmdIpfsCar struct {
 	InputDir                  string //required
 	GenerateMd5               bool   //required
 	IpfsServerUploadUrlPrefix string //required
+	ImportFlag                bool
 }
 
-func GetCmdIpfsCar(inputDir string, outputDir *string) *CmdIpfsCar {
+func GetCmdIpfsCar(inputDir string, outputDir *string, importFlag bool) *CmdIpfsCar {
 	cmdIpfsCar := &CmdIpfsCar{
 		LotusClientApiUrl:         config.GetConfig().Lotus.ClientApiUrl,
 		LotusClientAccessToken:    config.GetConfig().Lotus.ClientAccessToken,
 		InputDir:                  inputDir,
 		GenerateMd5:               config.GetConfig().Sender.GenerateMd5,
 		IpfsServerUploadUrlPrefix: config.GetConfig().IpfsServer.UploadUrlPrefix,
+		ImportFlag:                importFlag,
 	}
 
 	if !utils.IsStrEmpty(outputDir) {
 		cmdIpfsCar.OutputDir = *outputDir
 	} else {
-		cmdIpfsCar.OutputDir = filepath.Join(config.GetConfig().Sender.OutputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
+		cmdIpfsCar.OutputDir = filepath.Join(*outputDir, time.Now().Format("2006-01-02_15:04:05")) + "_" + uuid.NewString()
 	}
 
 	return cmdIpfsCar
 }
 
-func CreateIpfsCarFilesByConfig(inputDir string, outputDir *string) ([]*libmodel.FileDesc, error) {
-	cmdIpfsCar := GetCmdIpfsCar(inputDir, outputDir)
+func CreateIpfsCarFilesByConfig(inputDir string, outputDir *string, importFlag bool) ([]*libmodel.FileDesc, error) {
+	cmdIpfsCar := GetCmdIpfsCar(inputDir, outputDir, importFlag)
 	fileDescs, err := cmdIpfsCar.CreateIpfsCarFiles()
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -85,12 +87,6 @@ func (cmdIpfsCar *CmdIpfsCar) CreateIpfsCarFiles() ([]*libmodel.FileDesc, error)
 		return nil, err
 	}
 
-	lotusClient, err := lotus.LotusGetClient(cmdIpfsCar.LotusClientApiUrl, cmdIpfsCar.LotusClientAccessToken)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
 	logs.GetLogger().Info("Creating car file for ", cmdIpfsCar.InputDir)
 	srcFileCids := []string{}
 	var srcFileSize int64 = int64(0)
@@ -124,24 +120,39 @@ func (cmdIpfsCar *CmdIpfsCar) CreateIpfsCarFiles() ([]*libmodel.FileDesc, error)
 	fileDesc.SourceFilePath = cmdIpfsCar.InputDir
 	fileDesc.SourceFileSize = srcFileSize
 	fileDesc.CarFileName = carFileName
+	fileDesc.CarFileUrl = fileDesc.CarFileName
 	fileDesc.CarFilePath = carFilePath
 
-	pieceCid, err := lotusClient.LotusClientCalcCommP(fileDesc.CarFilePath)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, err
+	if cmdIpfsCar.ImportFlag {
+		lotusClient, err := lotus.LotusGetClient(cmdIpfsCar.LotusClientApiUrl, cmdIpfsCar.LotusClientAccessToken)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
+
+		pieceCid, err := lotusClient.LotusClientCalcCommP(fileDesc.CarFilePath)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
+		fileDesc.PieceCid = *pieceCid
+
+		dataCid, err := lotusClient.LotusClientImport(fileDesc.CarFilePath, true)
+		if err != nil {
+			err := fmt.Errorf("failed to import car file to lotus client")
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
+		fileDesc.PayloadCid = *dataCid
+	} else {
+		dataCid, pieceCid, _, err := CalculateValueByCarFile(fileDesc.CarFilePath, true, true)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil, err
+		}
+		fileDesc.PayloadCid = dataCid
+		fileDesc.PieceCid = pieceCid
 	}
-
-	fileDesc.PieceCid = *pieceCid
-
-	dataCid, err := lotusClient.LotusClientImport(fileDesc.CarFilePath, true)
-	if err != nil {
-		err := fmt.Errorf("failed to import car file to lotus client")
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-
-	fileDesc.PayloadCid = *dataCid
 
 	fileDesc.CarFileSize = utils.GetFileSize(fileDesc.CarFilePath)
 
@@ -165,7 +176,7 @@ func (cmdIpfsCar *CmdIpfsCar) CreateIpfsCarFiles() ([]*libmodel.FileDesc, error)
 		&fileDesc,
 	}
 
-	_, err = WriteFileDescsToJsonFile(fileDescs, cmdIpfsCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD)
+	_, err = WriteCarFilesToFiles(fileDescs, cmdIpfsCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD, CSV_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
