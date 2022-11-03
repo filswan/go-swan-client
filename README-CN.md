@@ -247,7 +247,7 @@ OPTIONS:
 ### 手动竞价任务
 用户可以创建手动竞价任务，每个存储提供商都可以从 Swan Platform 申请接单，然后用户将订单发送给申请的存储供应商或者指定特定的存储提供商。
 
- **(1) 创建 manulal-bid task:**
+ **(1) 创建手动竞价任务:**
 ```shell
 ./swan-client task --input-dir [json_or_csv_absolute_path] --out-dir [output_files_dir] --manual-bid true --max-copy-number 5
 
