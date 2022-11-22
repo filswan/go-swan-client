@@ -158,20 +158,7 @@ func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
 		}
 	}
 
-	fd := make([]*libmodel.FileDesc, 0)
-	for _, offlineDeal := range task.Data.Deal {
-		dealInfo := make([]*libmodel.DealInfo, 0)
-		fd = append(fd, &libmodel.FileDesc{
-			PayloadCid:  offlineDeal.PayloadCid,
-			PieceCid:    offlineDeal.PieceCid,
-			CarFileSize: offlineDeal.CarFileSize,
-			CarFilePath: offlineDeal.FilePath,
-			Deals: append(dealInfo, &libmodel.DealInfo{
-				MinerFid: offlineDeal.MinerFid,
-			}),
-		})
-	}
-	fileDescs, err = cmdDeal.sendDeals2Miner(task.Data.Task.TaskName, cmdDeal.OutputDir, fd)
+	fileDescs, err = cmdDeal.sendDeals2Miner(task.Data.Task.TaskName, cmdDeal.OutputDir, fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
