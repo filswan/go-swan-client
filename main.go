@@ -267,7 +267,7 @@ var dealCmd = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:  "miners",
-			Usage: "minerID is required when send manual-bid task (pass comma separated array of minerIDs)",
+			Usage: "minerID is required when send manual-bid task not assigned (pass comma separated array of minerIDs)",
 		},
 	},
 	Action: func(ctx *cli.Context) error {
@@ -289,10 +289,6 @@ var dealCmd = &cli.Command{
 			logs.GetLogger().Info("Metadata csv file:", metadataCsvPath)
 		}
 		minerIds := ctx.String("miners")
-		if minerIds == "" {
-			return errors.New("miners is required")
-		}
-
 		_, err := command.SendDealsByConfig(ctx.String("out-dir"), minerIds, metadataJsonPath, metadataCsvPath)
 		if err != nil {
 			logs.GetLogger().Error(err)
