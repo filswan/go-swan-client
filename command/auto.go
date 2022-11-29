@@ -306,7 +306,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.Offl
 		FileSize:         offlineDeal.CarFileSize,
 	}
 
-	msg := fmt.Sprintf("send deal for taskName:%d,%s, deal:%d", offlineDeal.TaskName, *offlineDeal.TaskUuid, offlineDeal.Id)
+	msg := fmt.Sprintf("send deal for task:%d,%s, deal:%d", offlineDeal.TaskId, *offlineDeal.TaskUuid, offlineDeal.Id)
 	logs.GetLogger().Info(msg)
 
 	lotusClient, err := lotus.LotusGetClient(cmdAutoBidDeal.LotusClientApiUrl, cmdAutoBidDeal.LotusClientAccessToken)
