@@ -158,6 +158,14 @@ func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
 		}
 	}
 
+	minerFids := make([]string, 0)
+	for _, bid := range task.Data.Bids {
+		minerFids = append(minerFids, bid.MinerFid)
+	}
+	if len(minerFids) > 0 {
+		cmdDeal.MinerFids = minerFids
+	}
+
 	fileDescs, err = cmdDeal.sendDeals2Miner(task.Data.Task.TaskName, cmdDeal.OutputDir, fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
