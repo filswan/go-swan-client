@@ -158,34 +158,12 @@ func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
 		}
 	}
 
-	sourceId := libconstants.TASK_SOURCE_ID_SWAN_CLIENT
-	params := swan.GetOfflineDealsByStatusParams{
-		DealStatus: libconstants.OFFLINE_DEAL_STATUS_ASSIGNED,
-		ForMiner:   false,
-		SourceId:   &sourceId,
+	minerFids := make([]string, 0)
+	for _, bid := range task.Data.Bids {
+		minerFids = append(minerFids, bid.MinerFid)
 	}
-	assignedOfflineDeals, err := swanClient.GetOfflineDealsByStatus(params)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-	var offlineDeals []*libmodel.OfflineDeal
-	for _, offlineDeal := range assignedOfflineDeals {
-		if *offlineDeal.TaskUuid == task.Data.Task.Uuid {
-			offlineDeals = append(offlineDeals, offlineDeal)
-		}
-	}
-
-	for i, fd := range fileDescs {
-		for _, od := range offlineDeals {
-			if od.PayloadCid == fd.PayloadCid {
-				desc := fileDescs[i]
-				dealInfo := make([]*libmodel.DealInfo, 0)
-				desc.Deals = append(dealInfo, &libmodel.DealInfo{
-					MinerFid: od.MinerFid,
-				})
-			}
-		}
+	if len(minerFids) > 0 {
+		cmdDeal.MinerFids = minerFids
 	}
 
 	fileDescs, err = cmdDeal.sendDeals2Miner(task.Data.Task.TaskName, cmdDeal.OutputDir, fileDescs)
@@ -194,12 +172,10 @@ func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	if len(cmdDeal.MinerFids) != 0 {
-		_, err = swanClient.CreateOfflineDeals(fileDescs)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return nil, err
-		}
+	_, err = swanClient.CreateOfflineDeals(fileDescs)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
 	}
 
 	return fileDescs, nil
