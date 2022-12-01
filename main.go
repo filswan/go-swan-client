@@ -267,7 +267,7 @@ var dealCmd = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:  "miners",
-			Usage: "minerID is required when send manual-bid task not assigned (pass comma separated array of minerIDs)",
+			Usage: "miners must have been assigned the task (pass comma separated array of minerIDs)",
 		},
 	},
 	Action: func(ctx *cli.Context) error {
