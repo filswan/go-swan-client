@@ -166,7 +166,7 @@ func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
 
 	if len(cmdDeal.MinerFids) > 0 {
 		if !minerFIdsIsExist(cmdDeal.MinerFids, minerFids) {
-			return nil, errors.New(fmt.Sprintf("this task is not assigned to these miners: %+v", cmdDeal.MinerFids))
+			return nil, errors.New(fmt.Sprintf("this task is not assigned to these miners: %+v, should be: %+v", cmdDeal.MinerFids, minerFids))
 		}
 	} else {
 		cmdDeal.MinerFids = minerFids
@@ -277,7 +277,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 		fileDesc.Deals = deals
 	}
 
-	logs.GetLogger().Info(dealSentNum, " deal(s) has(ve) been sent for task:", taskName)
+	logs.GetLogger().Infof("%d deal(s) has(ve) been sent for task: %s, minerID: %+v", dealSentNum, taskName, cmdDeal.MinerFids)
 
 	jsonFileName := taskName + JSON_FILE_NAME_DEAL
 	csvFileName := taskName + CSV_FILE_NAME_DEAL
