@@ -3,6 +3,7 @@ client_api_url = "http://[ip]:[port]/rpc/v0"   # Url of lotus client web api, ge
 client_access_token = ""                       # Access token of lotus client web api, it should have admin access right
 
 [main]
+market_type = "lotus"                          # Send deal type: lotus or boost. config(market_type) is DEPRECATION, will REMOVE SOON (default: "lotus")
 api_url = "https://go-swan-server.filswan.com" # Swan API address. For Swan production, it is `https://go-swan-server.filswan.com`. It can be ignored if `[sender].offline_swan=true`
 api_key = ""                                   # Swan API key. Acquire from [Swan Platform](https://console.filswan.com/#/dashboard) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_mode=true`.
 access_token = ""                              # Swan API access token. Acquire from [Swan Platform](https://console.filswan.com/#/dashboard) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_mode=true`.

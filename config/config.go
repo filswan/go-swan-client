@@ -26,6 +26,8 @@ type main struct {
 	SwanApiUrl      string `toml:"api_url"`
 	SwanApiKey      string `toml:"api_key"`
 	SwanAccessToken string `toml:"access_token"`
+	SwanRepo        string `toml:"swan_repo"`
+	MarketType      string `toml:"market_type"`
 }
 
 type ipfsServer struct {
@@ -63,6 +65,7 @@ func initConfig() {
 			log.Fatal("Required fields not given")
 		}
 	}
+	config.Main.SwanRepo = filepath.Join(homedir, ".swan/client/boost")
 }
 
 func GetConfig() Configuration {
@@ -85,6 +88,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"main", "api_url"},
 		{"main", "api_key"},
 		{"main", "access_token"},
+		{"main", "market_type"},
 
 		{"ipfs_server", "download_url_prefix"},
 		{"ipfs_server", "upload_url_prefix"},
