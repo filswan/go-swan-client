@@ -5,8 +5,9 @@ go 1.16
 require (
 	github.com/BurntSushi/toml v1.1.0
 	github.com/codingsince1985/checksum v1.2.3
+	github.com/fatih/color v1.13.0
 	github.com/filecoin-project/go-state-types v0.9.8
-	github.com/filedrive-team/go-graphsplit v0.4.1
+	github.com/filedrive-team/go-graphsplit v0.5.0
 	github.com/filswan/go-swan-lib v0.2.136-0.20221208074623-dbf0b0524a01
 	github.com/google/uuid v1.3.0
 	github.com/ipld/go-car v0.4.1-0.20220707083113-89de8134e58e
