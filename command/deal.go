@@ -161,7 +161,9 @@ func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
 
 	minerFids := make([]string, 0)
 	for _, bid := range task.Data.Bids {
-		minerFids = append(minerFids, bid.MinerFid)
+		if len(strings.TrimSpace(" ")) != 0 {
+			minerFids = append(minerFids, bid.MinerFid)
+		}
 	}
 
 	if len(cmdDeal.MinerFids) > 0 {
