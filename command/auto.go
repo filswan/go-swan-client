@@ -416,8 +416,9 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsBySwanClientSourceId(input
 		SourceId:   &sourceId,
 	}
 
-	var totalCount, successCount int
+	timeout := time.After(60 * time.Minute)
 	tick := time.Tick(10 * time.Second)
+	var totalCount, successCount int
 	for {
 		select {
 		case <-tick:
@@ -442,7 +443,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsBySwanClientSourceId(input
 			if totalCount == total {
 				goto END
 			}
-		case <-time.After(30 * time.Minute):
+		case <-timeout:
 			goto END
 		}
 	}
