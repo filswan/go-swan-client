@@ -62,6 +62,10 @@ var walletCmd = &cli.Command{
 			Action: func(ctx *cli.Context) error {
 				marketType := strings.TrimSpace(config.GetConfig().Main.MarketType)
 				if marketType == constants.MARKET_TYPE_BOOST {
+					run, err := checkRepo()
+					if err != nil || !run {
+						return err
+					}
 					var inputData []byte
 					if !ctx.Args().Present() || ctx.Args().First() == "-" {
 						reader := bufio.NewReader(os.Stdin)
