@@ -3,6 +3,8 @@ package command
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/fatih/color"
+	"github.com/filswan/go-swan-lib/client/boost"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"math"
@@ -35,6 +37,8 @@ type CmdAutoBidDeal struct {
 	SenderWallet           string //required
 	OutputDir              string //required
 	DealSourceIds          []int  //required
+	SwanRepo               string
+	MarketType             string
 }
 
 func GetCmdAutoDeal(outputDir *string) *CmdAutoBidDeal {
@@ -45,6 +49,8 @@ func GetCmdAutoDeal(outputDir *string) *CmdAutoBidDeal {
 		LotusClientApiUrl:      config.GetConfig().Lotus.ClientApiUrl,
 		LotusClientAccessToken: config.GetConfig().Lotus.ClientAccessToken,
 		SenderWallet:           config.GetConfig().Sender.Wallet,
+		SwanRepo:               strings.TrimSpace(config.GetConfig().Main.SwanRepo),
+		MarketType:             strings.TrimSpace(config.GetConfig().Main.MarketType),
 	}
 
 	cmdAutoBidDeal.DealSourceIds = append(cmdAutoBidDeal.DealSourceIds, libconstants.TASK_SOURCE_ID_SWAN)
@@ -325,24 +331,34 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.Offl
 		//change start epoch to ensure that the deal cid is different
 		dealConfig.StartEpoch = dealConfig.StartEpoch - (int64)(i)
 
-		dealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
-		if err != nil {
-			logs.GetLogger().Error("tried ", i+1, " times,", err)
-
-			if strings.Contains(err.Error(), "already tracking identifier") {
+		var dealCid string
+		if cmdAutoBidDeal.MarketType == libconstants.MARKET_TYPE_BOOST {
+			dealCid, err = boost.GetClient(cmdAutoBidDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
+			if err != nil {
+				logs.GetLogger().Error(err)
 				continue
-			} else {
-				break
 			}
-		}
-		if dealCid == nil {
-			logs.GetLogger().Info("no deal CID returned")
-			continue
+		} else {
+			lotusDealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
+			if err != nil {
+				logs.GetLogger().Error("tried ", i+1, " times,", err)
+
+				if strings.Contains(err.Error(), "already tracking identifier") {
+					continue
+				} else {
+					break
+				}
+			}
+			if lotusDealCid == nil {
+				logs.GetLogger().Info("no deal CID returned")
+				continue
+			}
+			dealCid = *lotusDealCid
 		}
 
 		dealInfo := &libmodel.DealInfo{
 			MinerFid:   offlineDeal.MinerFid,
-			DealCid:    *dealCid,
+			DealCid:    dealCid,
 			StartEpoch: int(dealConfig.StartEpoch),
 		}
 
@@ -360,6 +376,10 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.Offl
 
 		logs.GetLogger().Info("deal sent successfully, task:", offlineDeal.TaskId, ", uuid:", *offlineDeal.TaskUuid, ", deal:", offlineDeal.Id, ", task name:", offlineDeal.TaskName, ", deal CID:", dealInfo.DealCid, ", start epoch:", dealInfo.StartEpoch, ", miner:", dealInfo.MinerFid)
 		return &fileDesc, nil
+	}
+
+	if cmdAutoBidDeal.MarketType == libconstants.MARKET_TYPE_LOTUS {
+		fmt.Println(color.YellowString("you are using the MARKET send deals built-in Lotus, but it is deprecated, will remove soon. Please set [main.market_tye=“boost”]"))
 	}
 
 	err = fmt.Errorf("failed to send deal for task:%d,uuid:%s,deal:%d", offlineDeal.TaskId, *offlineDeal.TaskUuid, offlineDeal.Id)
