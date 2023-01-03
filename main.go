@@ -1,12 +1,16 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	big2 "github.com/filecoin-project/go-state-types/big"
 	"github.com/filswan/go-swan-client/command"
 	"github.com/filswan/go-swan-client/config"
+	"github.com/filswan/go-swan-lib/client/boost"
+	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/client/swan"
+	"github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	"github.com/filswan/go-swan-lib/utils"
 	"github.com/julienschmidt/httprouter"
@@ -34,7 +38,7 @@ func main() {
 			}
 			return nil
 		},
-		Commands:        []*cli.Command{daemonCmd, toolsCmd, uploadCmd, taskCmd, dealCmd, autoCmd, calculateCmd, rpcApiCmd, rpcCmd},
+		Commands:        []*cli.Command{daemonCmd, walletCmd, toolsCmd, uploadCmd, taskCmd, dealCmd, autoCmd, calculateCmd, rpcApiCmd, rpcCmd},
 		HideHelpCommand: true,
 	}
 	if err := app.Run(os.Args); err != nil {
@@ -45,6 +49,52 @@ func main() {
 		}
 		os.Exit(1)
 	}
+}
+
+var walletCmd = &cli.Command{
+	Name:  "wallet",
+	Usage: "Manage wallets with Swan",
+	Subcommands: []*cli.Command{
+		{
+			Name:      "import",
+			Usage:     "import keys",
+			ArgsUsage: "[<path> (optional, will read from stdin if omitted)]",
+			Action: func(ctx *cli.Context) error {
+				marketType := strings.TrimSpace(config.GetConfig().Main.MarketType)
+				if marketType == constants.MARKET_TYPE_BOOST {
+					run, err := checkRepo()
+					if err != nil || !run {
+						return err
+					}
+					var inputData []byte
+					if !ctx.Args().Present() || ctx.Args().First() == "-" {
+						reader := bufio.NewReader(os.Stdin)
+						fmt.Print("Enter private key: ")
+						indata, err := reader.ReadBytes('\n')
+						if err != nil {
+							return err
+						}
+						inputData = indata
+					} else {
+						fdata, err := ioutil.ReadFile(ctx.Args().First())
+						if err != nil {
+							return err
+						}
+						inputData = fdata
+					}
+					lotusClient, err := lotus.LotusGetClient(config.GetConfig().Lotus.ClientApiUrl, config.GetConfig().Lotus.ClientAccessToken)
+					if err != nil {
+						logs.GetLogger().Error(err)
+						return err
+					}
+					return boost.GetClient(config.GetConfig().Main.SwanRepo).WithClient(lotusClient).WalletImport(inputData)
+
+				} else {
+					return errors.New("not support market_type")
+				}
+			},
+		}},
+	HideHelpCommand: true,
 }
 
 var daemonCmd = &cli.Command{
@@ -195,6 +245,14 @@ var taskCmd = &cli.Command{
 		},
 	},
 	Action: func(ctx *cli.Context) error {
+		run, err := checkRepo()
+		if err != nil {
+			return err
+		}
+		if !run {
+			return nil
+		}
+
 		inputDir := ctx.String("input-dir")
 		if inputDir == "" {
 			return errors.New("input-dir is required")
@@ -271,6 +329,14 @@ var dealCmd = &cli.Command{
 		},
 	},
 	Action: func(ctx *cli.Context) error {
+		run, err := checkRepo()
+		if err != nil {
+			return err
+		}
+		if !run {
+			return nil
+		}
+
 		metadataJsonPath := ctx.String("json")
 		metadataCsvPath := ctx.String("csv")
 
@@ -289,8 +355,7 @@ var dealCmd = &cli.Command{
 			logs.GetLogger().Info("Metadata csv file:", metadataCsvPath)
 		}
 		minerIds := ctx.String("miners")
-		_, err := command.SendDealsByConfig(ctx.String("out-dir"), minerIds, metadataJsonPath, metadataCsvPath)
-		if err != nil {
+		if _, err := command.SendDealsByConfig(ctx.String("out-dir"), minerIds, metadataJsonPath, metadataCsvPath); err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
@@ -310,8 +375,15 @@ var autoCmd = &cli.Command{
 		},
 	},
 	Action: func(ctx *cli.Context) error {
-		err := command.SendAutoBidDealsLoopByConfig(ctx.String("out-dir"))
+		run, err := checkRepo()
 		if err != nil {
+			return err
+		}
+		if !run {
+			return nil
+		}
+
+		if err = command.SendAutoBidDealsLoopByConfig(ctx.String("out-dir")); err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
@@ -439,33 +511,10 @@ var carRestoreCmd = &cli.Command{
 	},
 }
 
-var ipfsCarCmd = &cli.Command{
-	Name:      "ipfs",
-	Usage:     "Use ipfs api to generate CAR file",
-	ArgsUsage: "[inputPath]",
-	Flags: []cli.Flag{
-		&inPutFlag,
-		&outPutFlag,
-		&importFlag,
-	},
-	Action: func(ctx *cli.Context) error {
-		inputDir := ctx.String("input-dir")
-		if inputDir == "" {
-			return errors.New("input-dir is required")
-		}
-		outputDir := ctx.String("out-dir")
-		if _, err := command.CreateIpfsCarFilesByConfig(inputDir, &outputDir, ctx.Bool("import")); err != nil {
-			logs.GetLogger().Error(err)
-			return err
-		}
-		return nil
-	},
-}
-
 var toolsCmd = &cli.Command{
 	Name:            "generate-car",
 	Usage:           "Generate CAR files from a file or directory",
-	Subcommands:     []*cli.Command{splitCarCmd, lotusCarCmd, ipfsCarCmd, ipfsCmdCarCmd},
+	Subcommands:     []*cli.Command{splitCarCmd, lotusCarCmd, ipfsCmdCarCmd},
 	HideHelpCommand: true,
 }
 
@@ -640,6 +689,20 @@ var rpcLatestBalanceCmd = &cli.Command{
 
 		return nil
 	},
+}
+
+func checkRepo() (bool, error) {
+	if strings.TrimSpace(config.GetConfig().Main.MarketType) == constants.MARKET_TYPE_BOOST {
+		repoPath := config.GetConfig().Main.SwanRepo
+		if _, err := os.Stat(repoPath); err != nil {
+			if err := boost.GetClient(repoPath).InitRepo(repoPath); err != nil {
+				return false, err
+			}
+			logs.GetLogger().Warn("market actor is not initialised, you must add funds to it in order to send deals. Please run `lotus wallet market add --from <address> --address <market address> <amount>`")
+			return false, nil
+		}
+	}
+	return true, nil
 }
 
 type BigInt = big2.Int

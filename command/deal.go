@@ -2,6 +2,8 @@ package command
 
 import (
 	"fmt"
+	"github.com/fatih/color"
+	"github.com/filswan/go-swan-lib/client/boost"
 	"github.com/filswan/go-swan-lib/client/web"
 	"github.com/pkg/errors"
 	"path/filepath"
@@ -39,6 +41,8 @@ type CmdDeal struct {
 	MetadataJsonPath       string          //required
 	MetadataCsvPath        string          //required
 	StartDealTimeInterval  time.Duration   //required
+	SwanRepo               string
+	MarketType             string
 }
 
 func GetCmdDeal(outputDir *string, minerFids, metadataJsonPath, metadataCsvPath string) *CmdDeal {
@@ -58,6 +62,8 @@ func GetCmdDeal(outputDir *string, minerFids, metadataJsonPath, metadataCsvPath 
 		MetadataJsonPath:       metadataJsonPath,
 		MetadataCsvPath:        metadataCsvPath,
 		StartDealTimeInterval:  config.GetConfig().Sender.StartDealTimeInterval,
+		SwanRepo:               strings.TrimSpace(config.GetConfig().Main.SwanRepo),
+		MarketType:             strings.TrimSpace(config.GetConfig().Main.MarketType),
 	}
 
 	minerFids = strings.Trim(minerFids, " ")
@@ -222,6 +228,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 			PayloadCid:       fileDesc.PayloadCid,
 			PieceCid:         fileDesc.PieceCid,
 			FileSize:         fileDesc.CarFileSize,
+			ClientRepo:       cmdDeal.SwanRepo,
 		}
 
 		logs.GetLogger().Info("File:", fileDesc.CarFilePath, ",current epoch:", *currentEpoch, ", start epoch:", dealConfig.StartEpoch)
@@ -242,41 +249,59 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 		deals := []*libmodel.DealInfo{}
 		for _, minerFid := range cmdDeal.MinerFids {
 			dealConfig.MinerFid = minerFid
+
 			var cost string
-			dealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
-			if dealCid == nil {
-				dealCid = new(string)
-			} else {
-				dealInfo, err := lotusClient.LotusClientGetDealInfo(*dealCid)
+			var deal *libmodel.DealInfo
+			if cmdDeal.MarketType == libconstants.MARKET_TYPE_BOOST {
+				dealUuid, err := boost.GetClient(cmdDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
 				if err != nil {
 					logs.GetLogger().Error(err)
-					cost = "fail"
+					continue
+				}
+				deal = &libmodel.DealInfo{
+					MinerFid:   dealConfig.MinerFid,
+					DealCid:    dealUuid,
+					StartEpoch: int(dealConfig.StartEpoch),
+					Cost:       "0",
+				}
+			} else {
+				dealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
+				if err != nil {
+					logs.GetLogger().Error(err)
+					continue
+				}
+				if dealCid == nil {
+					dealCid = new(string)
 				} else {
-					cost = dealInfo.CostComputed
+					dealInfo, err := lotusClient.LotusClientGetDealInfo(*dealCid)
+					if err != nil {
+						logs.GetLogger().Error(err)
+						cost = "fail"
+					} else {
+						cost = dealInfo.CostComputed
+					}
+				}
+				deal = &libmodel.DealInfo{
+					MinerFid:   dealConfig.MinerFid,
+					DealCid:    *dealCid,
+					StartEpoch: int(dealConfig.StartEpoch),
+					Cost:       cost,
 				}
 			}
-			deal := &libmodel.DealInfo{
-				MinerFid:   dealConfig.MinerFid,
-				DealCid:    *dealCid,
-				StartEpoch: int(dealConfig.StartEpoch),
-				Cost:       cost,
-			}
+
 			deals = append(deals, deal)
 			dealSentNum = dealSentNum + 1
-			if err != nil {
-				logs.GetLogger().Error(err)
-				continue
-			}
-			if dealCid == nil {
-				continue
-			}
-			logs.GetLogger().Info("deal sent successfully, task name:", taskName, ", car file:", fileDesc.CarFilePath, ", deal CID:", deal.DealCid, ", start epoch:", deal.StartEpoch, ", miner:", deal.MinerFid)
+			logs.GetLogger().Info("deal sent successfully, task name:", taskName, ", car file:", fileDesc.CarFilePath, ", dealCID|dealUuid:", deal.DealCid, ", start epoch:", deal.StartEpoch, ", miner:", deal.MinerFid)
 			if cmdDeal.StartDealTimeInterval > 0 {
 				time.Sleep(cmdDeal.StartDealTimeInterval * time.Millisecond)
 			}
 		}
 
 		fileDesc.Deals = deals
+	}
+
+	if cmdDeal.MarketType == libconstants.MARKET_TYPE_LOTUS {
+		fmt.Println(color.YellowString("you are using the MARKET send deals built-in Lotus, but it is deprecated, will remove soon. Please set [main.market_tye=“boost”]"))
 	}
 
 	logs.GetLogger().Infof("%d deal(s) has(ve) been sent for task: %s, minerID: %+v", dealSentNum, taskName, cmdDeal.MinerFids)

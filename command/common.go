@@ -391,7 +391,7 @@ func CalculateValueByCarFile(carFilePath string, playload, piece bool) (string, 
 		}
 		defer f.Close() //nolint:errcheck
 
-		hd, _, err := car.ReadHeader(bufio.NewReader(f))
+		hd, err := car.ReadHeader(bufio.NewReader(f))
 		if err != nil {
 			return "", "", 0, xerrors.Errorf("failed to read CAR header: %w", err)
 		}
