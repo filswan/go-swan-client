@@ -212,7 +212,7 @@ var taskCmd = &cli.Command{
 			return errors.New("miners need not to set when auto value is true")
 		}
 
-		if manual && minerId == "" {
+		if manual && minerId != "" {
 			return errors.New("miners need not to set when manual value is true")
 		}
 
