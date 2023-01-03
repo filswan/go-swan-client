@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"github.com/filswan/go-swan-lib/client/web"
+	"github.com/pkg/errors"
 	"path/filepath"
 	"strings"
 	"time"
@@ -158,6 +159,22 @@ func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
 		}
 	}
 
+	minerFids := make([]string, 0)
+	for _, bid := range task.Data.Bids {
+		if len(strings.TrimSpace(bid.MinerFid)) != 0 {
+			minerFids = append(minerFids, bid.MinerFid)
+		}
+	}
+
+	if len(cmdDeal.MinerFids) > 0 {
+		if !minerFIdsIsExist(cmdDeal.MinerFids, minerFids) {
+			return nil, errors.New(fmt.Sprintf("this task is not assigned to these miners: %+v, should be: %+v", cmdDeal.MinerFids, minerFids))
+		}
+	} else {
+		cmdDeal.MinerFids = minerFids
+	}
+	logs.GetLogger().Infof("this task will send deal to these miners: %+v", cmdDeal.MinerFids)
+
 	fileDescs, err = cmdDeal.sendDeals2Miner(task.Data.Task.TaskName, cmdDeal.OutputDir, fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -262,7 +279,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 		fileDesc.Deals = deals
 	}
 
-	logs.GetLogger().Info(dealSentNum, " deal(s) has(ve) been sent for task:", taskName)
+	logs.GetLogger().Infof("%d deal(s) has(ve) been sent for task: %s, minerID: %+v", dealSentNum, taskName, cmdDeal.MinerFids)
 
 	jsonFileName := taskName + JSON_FILE_NAME_DEAL
 	csvFileName := taskName + CSV_FILE_NAME_DEAL
@@ -303,4 +320,22 @@ func (cmdDeal *CmdDeal) CheckDatacap(address string) (bool, error) {
 		return false, nil
 	}
 	return true, nil
+}
+
+func minerFIdsIsExist(target, src []string) bool {
+	var exist bool
+loop:
+	for _, t := range target {
+		exist = false
+		for _, s := range src {
+			if strings.EqualFold(t, s) {
+				exist = true
+				break
+			}
+		}
+		if !exist {
+			break loop
+		}
+	}
+	return exist
 }
