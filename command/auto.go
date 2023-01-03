@@ -492,9 +492,9 @@ func QueryChainInfo(chain string, height int64, address string) (ChainInfo, erro
 }
 
 func QueryHeight(chain string) (info ChainInfo, err error) {
-	urls, ok := chainUrlMap[chain]
-	if !ok {
-		return info, errors.New(fmt.Sprintf("not support chainId: %s", chain))
+	chainInfo, err := config.GetChainByChainName(chain)
+	if err != nil {
+		return info, err
 	}
 	var rpcParam rpcReq
 	switch chain {
@@ -511,7 +511,7 @@ func QueryHeight(chain string) (info ChainInfo, err error) {
 	}
 
 	var data []byte
-	for _, u := range urls {
+	for _, u := range chainInfo.RpcEndpoint {
 		copyUrl := u
 		rpcParamBytes, err := json.Marshal(rpcParam)
 		if err != nil {
@@ -521,7 +521,7 @@ func QueryHeight(chain string) (info ChainInfo, err error) {
 		data, err = doReq(copyUrl, string(rpcParamBytes))
 		if err != nil {
 			logs.GetLogger().Errorf("request url: %s failed, error: %v", copyUrl, err)
-			if len(urls) > 0 {
+			if len(chainInfo.RpcEndpoint) > 0 {
 				logs.GetLogger().Warnf("retry it by other request")
 				continue
 			}
@@ -559,9 +559,9 @@ func QueryHeight(chain string) (info ChainInfo, err error) {
 }
 
 func QueryBalance(chain string, height int64, address string) (info ChainInfo, err error) {
-	urls, ok := chainUrlMap[chain]
-	if !ok {
-		return info, errors.New(fmt.Sprintf("not support chainId: %s", chain))
+	chainInfo, err := config.GetChainByChainName(chain)
+	if err != nil {
+		return info, err
 	}
 
 	// IOTX need change wallet to eth wallet
@@ -602,7 +602,7 @@ func QueryBalance(chain string, height int64, address string) (info ChainInfo, e
 
 	info.Address = address
 	var data []byte
-	for _, u := range urls {
+	for _, u := range chainInfo.RpcEndpoint {
 		copyUrl := u
 		rpcParamBytes, err := json.Marshal(rpcParam)
 		if err != nil {
@@ -612,7 +612,7 @@ func QueryBalance(chain string, height int64, address string) (info ChainInfo, e
 		data, err = doReq(copyUrl, string(rpcParamBytes))
 		if err != nil {
 			logs.GetLogger().Errorf("request url: %s failed, error: %v", copyUrl, err)
-			if len(urls) > 0 {
+			if len(chainInfo.RpcEndpoint) > 0 {
 				logs.GetLogger().Warnf("retry it by other request")
 				continue
 			}

@@ -1,0 +1,139 @@
+{
+  "chain_rpc_services":
+[
+  {
+    "remark": "Ethereum Mainnet",
+    "chain_name":"ETH",
+    "rpc_endpoint": [
+      "https://eth-mainnet.gateway.pokt.network/v1/5f3453978e354ab992c4da79",
+      "https://eth-rpc.gateway.pokt.network"
+    ]
+  },
+  {
+    "remark": "Binance Smart Chain Mainnet",
+    "chain_name":"BNB",
+    "rpc_endpoint": [
+      "https://bsc-mainnet.gateway.pokt.network/v1/lb/6136201a7bad1500343e248d",
+      "https://bsc-rpc.gateway.pokt.network"
+    ]
+  },
+  {
+    "remark": "Avalanche C-Chain",
+    "chain_name":"AVAX",
+    "rpc_endpoint": [
+      "https://api.avax.network/ext/bc/C/rpc",
+      "https://avax-mainnet.gateway.pokt.network/v1/lb/605238bf6b986eea7cf36d5e/ext/bc/C/rpc"
+    ]
+  },
+  {
+    "remark": "Polygon Mainnet",
+    "chain_name":"MATIC",
+    "rpc_endpoint": [
+      "https://poly-rpc.gateway.pokt.network"
+    ]
+  },
+  {
+    "remark": "Fantom Opera",
+    "chain_name":"FTM",
+    "rpc_endpoint": [
+      "https://fantom-mainnet.gateway.pokt.network/v1/lb/6261a8a154c745003bcdb0f8",
+      "https://fantom-rpc.gateway.pokt.network"
+    ]
+  },
+  {
+    "remark": "Gnosis Chain (formerly xDai)",
+    "chain_name":"xDAI",
+    "rpc_endpoint": [
+      "https://xdai-rpc.gateway.pokt.network"
+    ]
+  },
+  {
+    "remark": "IoTeX Network Mainnet",
+    "chain_name":"IOTX",
+    "rpc_endpoint": [
+      "https://pokt-api.iotex.io",
+      "https://iotex-mainnet.gateway.pokt.network/v1/lb/6176f902e19001003499f492"
+    ]
+  },
+  {
+    "remark": "Harmony Mainnet Shard 0",
+    "chain_name":"ONE",
+    "rpc_endpoint": [
+      "https://harmony-0-rpc.gateway.pokt.network"
+    ]
+  },
+  {
+    "remark": "Boba Network",
+    "chain_name":"BOBA",
+    "rpc_endpoint": [
+      "https://boba-mainnet.gateway.pokt.network/v1/lb/623ad21b20354900396fed7f",
+      "https://boba-rpc.gateway.pokt.network"
+    ]
+  },
+  {
+    "remark": "Fuse Mainnet",
+    "chain_name":"FUSE",
+    "rpc_endpoint": [
+      "https://fuse-rpc.gateway.pokt.network"
+    ]
+  },
+  {
+    "remark": "DFK Chain",
+    "chain_name":"JEWEL",
+    "rpc_endpoint": [
+      "https://avax-dfk.gateway.pokt.network/v1/lb/6244818c00b9f0003ad1b619/ext/bc/q2aTwKuyzgs8pynF7UXBZCU7DejbZbZ6EUyHr3JQzYgwNPUPi/rpc",
+      "https://avax-dfk-rpc.gateway.pokt.network"
+    ]
+  },
+  {
+    "remark": "Evmos",
+    "chain_name":"EVMOS",
+    "rpc_endpoint": [
+      "https://evmos-mainnet.gateway.pokt.network/v1/lb/627586ddea1b320039c95205",
+      "https://evmos-rpc.gateway.pokt.network"
+    ]
+  },
+  {
+    "remark": "Swimmer Network",
+    "chain_name":"TUS",
+    "rpc_endpoint": [
+      "https://avax-cra-rpc.gateway.pokt.network"
+    ]
+  },
+  {
+    "remark": "Algorand",
+    "chain_name":"ALGO",
+    "rpc_endpoint": [
+      "https://algo-mainnet-rpc.gateway.pokt.network"
+    ]
+  },
+  {
+    "remark": "NEAR",
+    "chain_name":"NEAR",
+    "rpc_endpoint": [
+      "https://near-rpc.gateway.pokt.network/"
+    ]
+  },
+  {
+    "remark": "Solana",
+    "chain_name":"SOL",
+    "rpc_endpoint": [
+      "https://solana-mainnet-rpc.gateway.pokt.network/"
+    ]
+  },
+  {
+    "remark": "Osmosis",
+    "chain_name":"OSMO",
+    "rpc_endpoint": [
+      "https://osmosis-rpc.gateway.pokt.network"
+    ]
+  },
+  {
+    "remark": "OKXChain",
+    "chain_name":"OKT",
+    "rpc_endpoint": [
+      "https://okc-rpc.gateway.pokt.network/"
+    ]
+  }
+  ]
+}
