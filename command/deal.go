@@ -42,7 +42,7 @@ type CmdDeal struct {
 	MetadataCsvPath        string          //required
 	StartDealTimeInterval  time.Duration   //required
 	SwanRepo               string
-	MarketType             string
+	MarketVersion          string
 }
 
 func GetCmdDeal(outputDir *string, minerFids, metadataJsonPath, metadataCsvPath string) *CmdDeal {
@@ -63,7 +63,7 @@ func GetCmdDeal(outputDir *string, minerFids, metadataJsonPath, metadataCsvPath 
 		MetadataCsvPath:        metadataCsvPath,
 		StartDealTimeInterval:  config.GetConfig().Sender.StartDealTimeInterval,
 		SwanRepo:               strings.TrimSpace(config.GetConfig().Main.SwanRepo),
-		MarketType:             strings.TrimSpace(config.GetConfig().Main.MarketType),
+		MarketVersion:          strings.TrimSpace(config.GetConfig().Main.MarketVersion),
 	}
 
 	minerFids = strings.Trim(minerFids, " ")
@@ -250,7 +250,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 
 			var cost string
 			var deal *libmodel.DealInfo
-			if cmdDeal.MarketType == libconstants.MARKET_TYPE_BOOST {
+			if cmdDeal.MarketVersion == libconstants.MARKET_TYPE_BOOST {
 				dealUuid, err := boost.GetClient(cmdDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
 				if err != nil {
 					logs.GetLogger().Error(err)
@@ -298,7 +298,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 		fileDesc.Deals = deals
 	}
 
-	if cmdDeal.MarketType == libconstants.MARKET_TYPE_LOTUS {
+	if cmdDeal.MarketVersion == libconstants.MARKET_TYPE_LOTUS {
 		fmt.Println(color.YellowString("you are using the MARKET send deals built-in Lotus, but it is deprecated, will remove soon. Please set [main.market_tye=“boost”]"))
 	}
 
