@@ -60,8 +60,8 @@ var walletCmd = &cli.Command{
 			Usage:     "import keys",
 			ArgsUsage: "[<path> (optional, will read from stdin if omitted)]",
 			Action: func(ctx *cli.Context) error {
-				marketType := strings.TrimSpace(config.GetConfig().Main.MarketType)
-				if marketType == constants.MARKET_TYPE_BOOST {
+				marketVersion := strings.TrimSpace(config.GetConfig().Main.MarketVersion)
+				if marketVersion == constants.MARKET_TYPE_BOOST {
 					run, err := checkRepo()
 					if err != nil || !run {
 						return err
@@ -90,7 +90,7 @@ var walletCmd = &cli.Command{
 					return boost.GetClient(config.GetConfig().Main.SwanRepo).WithClient(lotusClient).WalletImport(inputData)
 
 				} else {
-					return errors.New("not support market_type")
+					return errors.New("not support market_version")
 				}
 			},
 		}},
@@ -692,7 +692,7 @@ var rpcLatestBalanceCmd = &cli.Command{
 }
 
 func checkRepo() (bool, error) {
-	if strings.TrimSpace(config.GetConfig().Main.MarketType) == constants.MARKET_TYPE_BOOST {
+	if strings.TrimSpace(config.GetConfig().Main.MarketVersion) == constants.MARKET_TYPE_BOOST {
 		repoPath := config.GetConfig().Main.SwanRepo
 		if _, err := os.Stat(repoPath); err != nil {
 			if err := boost.GetClient(repoPath).InitRepo(repoPath); err != nil {

@@ -32,7 +32,7 @@ type main struct {
 	SwanApiKey      string `toml:"api_key"`
 	SwanAccessToken string `toml:"access_token"`
 	SwanRepo        string `toml:"swan_repo"`
-	MarketType      string `toml:"market_type"`
+	MarketVersion   string `toml:"market_version"`
 }
 
 type ipfsServer struct {
@@ -141,7 +141,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"main", "api_url"},
 		{"main", "api_key"},
 		{"main", "access_token"},
-		{"main", "market_type"},
+		{"main", "market_version"},
 
 		{"ipfs_server", "download_url_prefix"},
 		{"ipfs_server", "upload_url_prefix"},
