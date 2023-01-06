@@ -38,7 +38,7 @@ type CmdAutoBidDeal struct {
 	OutputDir              string //required
 	DealSourceIds          []int  //required
 	SwanRepo               string
-	MarketType             string
+	MarketVersion          string
 }
 
 func GetCmdAutoDeal(outputDir *string) *CmdAutoBidDeal {
@@ -50,7 +50,7 @@ func GetCmdAutoDeal(outputDir *string) *CmdAutoBidDeal {
 		LotusClientAccessToken: config.GetConfig().Lotus.ClientAccessToken,
 		SenderWallet:           config.GetConfig().Sender.Wallet,
 		SwanRepo:               strings.TrimSpace(config.GetConfig().Main.SwanRepo),
-		MarketType:             strings.TrimSpace(config.GetConfig().Main.MarketType),
+		MarketVersion:          strings.TrimSpace(config.GetConfig().Main.MarketVersion),
 	}
 
 	cmdAutoBidDeal.DealSourceIds = append(cmdAutoBidDeal.DealSourceIds, libconstants.TASK_SOURCE_ID_SWAN)
@@ -332,7 +332,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.Offl
 		dealConfig.StartEpoch = dealConfig.StartEpoch - (int64)(i)
 
 		var dealCid string
-		if cmdAutoBidDeal.MarketType == libconstants.MARKET_TYPE_BOOST {
+		if cmdAutoBidDeal.MarketVersion == libconstants.MARKET_TYPE_BOOST {
 			dealCid, err = boost.GetClient(cmdAutoBidDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
 			if err != nil {
 				logs.GetLogger().Error(err)
@@ -378,7 +378,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.Offl
 		return &fileDesc, nil
 	}
 
-	if cmdAutoBidDeal.MarketType == libconstants.MARKET_TYPE_LOTUS {
+	if cmdAutoBidDeal.MarketVersion == libconstants.MARKET_TYPE_LOTUS {
 		fmt.Println(color.YellowString("you are using the MARKET send deals built-in Lotus, but it is deprecated, will remove soon. Please set [main.market_tye=“boost”]"))
 	}
 
