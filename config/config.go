@@ -1,9 +1,14 @@
 package config
 
 import (
+	"encoding/json"
+	"fmt"
+	"github.com/pkg/errors"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -49,7 +54,17 @@ type sender struct {
 	StartDealTimeInterval time.Duration `toml:"start_deal_time_interval"`
 }
 
+type ChainInfo struct {
+	ChainRpcServices []ChainRpcService `json:"chain_rpc_services"`
+}
+type ChainRpcService struct {
+	Remark      string   `json:"remark"`
+	ChainName   string   `json:"chain_name"`
+	RpcEndpoint []string `json:"rpc_endpoint"`
+}
+
 var config *Configuration
+var chainInfo *ChainInfo
 
 func initConfig() {
 	homedir, err := os.UserHomeDir()
@@ -66,6 +81,44 @@ func initConfig() {
 		}
 	}
 	config.Main.SwanRepo = filepath.Join(homedir, ".swan/client/boost")
+}
+
+func initChain() {
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		logs.GetLogger().Fatal("Cannot get home directory.")
+	}
+
+	chainInfoPath := filepath.Join(homedir, ".swan/client/chain-rpc.json")
+	chainFile, err := os.Open(chainInfoPath)
+	if err != nil {
+		log.Fatalf("open chain-rpc.json failed,error: %v", err)
+	}
+	chainBytes, err := ioutil.ReadAll(chainFile)
+	if err != nil {
+		log.Fatalf("read chain-rpc.json failed,error: %v", err)
+	}
+	if err := json.Unmarshal(chainBytes, &chainInfo); err != nil {
+		log.Fatal("Error:", err)
+	}
+}
+
+func GetChainByChainName(name string) (chain ChainRpcService, err error) {
+	chains := GetChain()
+	for _, c := range chains.ChainRpcServices {
+		if strings.EqualFold(c.ChainName, name) {
+			chain = c
+			return chain, nil
+		}
+	}
+	return ChainRpcService{}, errors.New(fmt.Sprintf("not support chainName: %s", chain))
+}
+
+func GetChain() ChainInfo {
+	if chainInfo == nil {
+		initChain()
+	}
+	return *chainInfo
 }
 
 func GetConfig() Configuration {
