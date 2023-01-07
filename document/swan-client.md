@@ -48,8 +48,8 @@ USAGE:
 COMMANDS:
     new     Generate a new key of the given type
     list    List wallet address
-    import  import keys
-    export  export keys
+    import  Import keys
+    export  Export keys
     delete  Delete an account from the wallet
 
 OPTIONS:
