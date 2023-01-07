@@ -81,7 +81,7 @@ var walletNewCmd = &cli.Command{
 			}
 			return boost.GetClient(config.GetConfig().Main.SwanRepo).WalletNew(t)
 		} else {
-			return errors.New("not support market_version")
+			return errors.New("only support market_version=“1.2” ")
 		}
 	},
 }
@@ -103,7 +103,7 @@ var walletListCmd = &cli.Command{
 			return boost.GetClient(config.GetConfig().Main.SwanRepo).WithClient(lotusClient).WalletList()
 
 		} else {
-			return errors.New("not support market_version")
+			return errors.New("only support market_version=“1.2” ")
 		}
 	},
 }
@@ -142,7 +142,7 @@ var walletImportCmd = &cli.Command{
 			return boost.GetClient(config.GetConfig().Main.SwanRepo).WithClient(lotusClient).WalletImport(inputData)
 
 		} else {
-			return errors.New("not support market_version")
+			return errors.New("only support market_version=“1.2” ")
 		}
 	},
 }
@@ -164,7 +164,7 @@ var walletExportCmd = &cli.Command{
 			}
 			return boost.GetClient(config.GetConfig().Main.SwanRepo).WalletExport(addr)
 		} else {
-			return errors.New("not support market_version")
+			return errors.New("only support market_version=“1.2” ")
 		}
 	},
 }
@@ -186,7 +186,7 @@ var walletDeleteCmd = &cli.Command{
 			}
 			return boost.GetClient(config.GetConfig().Main.SwanRepo).WalletDelete(addr)
 		} else {
-			return errors.New("not support market_version")
+			return errors.New("only support market_version=“1.2” ")
 		}
 	},
 }
