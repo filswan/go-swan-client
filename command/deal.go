@@ -250,7 +250,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 
 			var cost string
 			var deal *libmodel.DealInfo
-			if cmdDeal.MarketVersion == libconstants.MARKET_TYPE_BOOST {
+			if cmdDeal.MarketVersion == libconstants.MARKET_VERSION_2 {
 				dealUuid, err := boost.GetClient(cmdDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
 				if err != nil {
 					logs.GetLogger().Error(err)
@@ -298,8 +298,8 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 		fileDesc.Deals = deals
 	}
 
-	if cmdDeal.MarketVersion == libconstants.MARKET_TYPE_LOTUS {
-		fmt.Println(color.YellowString("you are using the MARKET send deals built-in Lotus, but it is deprecated, will remove soon. Please set [main.market_tye=“boost”]"))
+	if cmdDeal.MarketVersion == libconstants.MARKET_VERSION_1 {
+		fmt.Println(color.YellowString("you are using the MARKET send deals built-in Lotus, but it is deprecated, will remove soon. Please set [main.market_version=“1.2”]"))
 	}
 
 	logs.GetLogger().Infof("%d deal(s) has(ve) been sent for task: %s, minerID: %+v", dealSentNum, taskName, cmdDeal.MinerFids)
