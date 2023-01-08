@@ -15,6 +15,7 @@ import (
 	"github.com/filswan/go-swan-lib/logs"
 	"github.com/filswan/go-swan-lib/utils"
 	"github.com/julienschmidt/httprouter"
+	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
@@ -802,6 +803,11 @@ func checkRepo() error {
 		repoPath := config.GetConfig().Main.SwanRepo
 		wallet := config.GetConfig().Sender.Wallet
 		if _, err := os.Stat(repoPath); err != nil {
+			sdir, err := homedir.Expand(repoPath)
+			if err != nil {
+				return err
+			}
+			os.Mkdir(sdir, 0755) //nolint:errcheck
 			if err := boost.GetClient(repoPath).InitRepo(repoPath, wallet); err != nil {
 				return err
 			}
