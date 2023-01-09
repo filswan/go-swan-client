@@ -15,7 +15,6 @@ import (
 	"github.com/filswan/go-swan-lib/logs"
 	"github.com/filswan/go-swan-lib/utils"
 	"github.com/julienschmidt/httprouter"
-	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
@@ -340,14 +339,22 @@ var taskCmd = &cli.Command{
 		},
 	},
 	Action: func(ctx *cli.Context) error {
+		repoPath := config.GetConfig().Main.SwanRepo
+		wallet := config.GetConfig().Sender.Wallet
+		var first bool
+		if _, err := os.Stat(repoPath); err != nil {
+			first = true
+		}
 		if err := checkRepo(); err != nil {
 			return err
 		}
 		if strings.TrimSpace(config.GetConfig().Main.MarketVersion) == constants.MARKET_VERSION_2 {
-			repoPath := config.GetConfig().Main.SwanRepo
-			wallet := config.GetConfig().Sender.Wallet
 			if exist := boost.GetClient(repoPath).ValidateExistWalletAddress(wallet); !exist {
-				return fmt.Errorf("the current client wallet address is: %s, please use the command <./swan-client wallet import wallet.key> to import the wallet private key", wallet)
+				if !first {
+					return fmt.Errorf("the current client wallet address is: %s, please use the command <./swan-client wallet import wallet.key> to import the wallet private key", wallet)
+				} else {
+					return nil
+				}
 			}
 		}
 
@@ -427,15 +434,22 @@ var dealCmd = &cli.Command{
 		},
 	},
 	Action: func(ctx *cli.Context) error {
+		repoPath := config.GetConfig().Main.SwanRepo
+		wallet := config.GetConfig().Sender.Wallet
+		var first bool
+		if _, err := os.Stat(repoPath); err != nil {
+			first = true
+		}
 		if err := checkRepo(); err != nil {
 			return err
 		}
-
 		if strings.TrimSpace(config.GetConfig().Main.MarketVersion) == constants.MARKET_VERSION_2 {
-			repoPath := config.GetConfig().Main.SwanRepo
-			wallet := config.GetConfig().Sender.Wallet
 			if exist := boost.GetClient(repoPath).ValidateExistWalletAddress(wallet); !exist {
-				return fmt.Errorf("the current client wallet address is: %s, please use the command <./swan-client wallet import wallet.key> to import the wallet private key", wallet)
+				if !first {
+					return fmt.Errorf("the current client wallet address is: %s, please use the command <./swan-client wallet import wallet.key> to import the wallet private key", wallet)
+				} else {
+					return nil
+				}
 			}
 		}
 
@@ -477,20 +491,26 @@ var autoCmd = &cli.Command{
 		},
 	},
 	Action: func(ctx *cli.Context) error {
-		err := checkRepo()
-		if err != nil {
+		repoPath := config.GetConfig().Main.SwanRepo
+		wallet := config.GetConfig().Sender.Wallet
+		var first bool
+		if _, err := os.Stat(repoPath); err != nil {
+			first = true
+		}
+		if err := checkRepo(); err != nil {
 			return err
 		}
-
 		if strings.TrimSpace(config.GetConfig().Main.MarketVersion) == constants.MARKET_VERSION_2 {
-			repoPath := config.GetConfig().Main.SwanRepo
-			wallet := config.GetConfig().Sender.Wallet
 			if exist := boost.GetClient(repoPath).ValidateExistWalletAddress(wallet); !exist {
-				return fmt.Errorf("the current client wallet address is: %s, please use the command <./swan-client wallet import wallet.key> to import the wallet private key", wallet)
+				if !first {
+					return fmt.Errorf("the current client wallet address is: %s, please use the command <./swan-client wallet import wallet.key> to import the wallet private key", wallet)
+				} else {
+					return nil
+				}
 			}
 		}
 
-		if err = command.SendAutoBidDealsLoopByConfig(ctx.String("out-dir")); err != nil {
+		if err := command.SendAutoBidDealsLoopByConfig(ctx.String("out-dir")); err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
@@ -803,11 +823,6 @@ func checkRepo() error {
 		repoPath := config.GetConfig().Main.SwanRepo
 		wallet := config.GetConfig().Sender.Wallet
 		if _, err := os.Stat(repoPath); err != nil {
-			sdir, err := homedir.Expand(repoPath)
-			if err != nil {
-				return err
-			}
-			os.Mkdir(sdir, 0755) //nolint:errcheck
 			if err := boost.GetClient(repoPath).InitRepo(repoPath, wallet); err != nil {
 				return err
 			}
