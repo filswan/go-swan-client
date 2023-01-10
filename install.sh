@@ -1,8 +1,8 @@
 #!/bin/bash
 
 URL_PREFIX=https://github.com/filswan/go-swan-client/releases/download
-BINARY_NAME=swan-client-2.0.0-linux-amd64
-TAG_NAME=v2.0.0
+BINARY_NAME=swan-client-2.1.0-rc1-linux-amd64
+TAG_NAME=2.1.0-rc1
 
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/${BINARY_NAME}
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/config.toml.example
