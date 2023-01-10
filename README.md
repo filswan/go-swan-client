@@ -6,52 +6,52 @@
 
 Swan-client is an important Web3 toolkit. It provides different tools to help users connect to the Web3 world. It includes the following features:
 
-*   Filecoin Deal Sender
-*   Blockchain RPC Service (supported by Pocket Network)
+-   Filecoin Deal Sender
+-   Blockchain RPC Service (supported by Pocket Network)
 
 ## Table of Contents
 
-*   [1. Filecoin Deal Sender](#1-Filecoin-Deal-Sender)
-    *   [1.1 Installation](#11-Installation)
-        *   [From Prebuilt Package](#From-Prebuilt-Package)
-        *   [From Source Code](#From-Source-Code)
-    *   [1.2 Configuration](#12-Configuration)
-    *   [1.3 Prerequisites](13-Prerequisites)
-    *   [1.4 Generate CAR Files](#13-Generate-CAR-Files)
-        *   [Graphsplit](#Graphsplit)
-        *   [Lotus API](#Lotus-API)
-        *   [IPFS API](#IPFS-API)
-        *   [ipfs-car](#ipfs-car)
-    *   [1.5 Upload CAR Files to IPFS](#14-Upload-CAR-Files-to-IPFS)
-    *   [1.6 Create a Task](#15-Create-A-Task)
-        *   [Private Task](#Private-Task)
-        *   [Auto-bid Task](#Auto-bid-Task)
-        *   [Manual-bid Task](#Manual-bid-Task)
-*   [2. Blockchain RPC Service](#2-Blockchain-RPC-Service)
-    *   [2.1 Deploy RPC Service](#21-Deploy-RPC-Service)
-    *   [2.2 RPC Command Service](#22-RPC-Command-Service)
+-   [1. Filecoin Deal Sender](#1-Filecoin-Deal-Sender)
+    -   [1.1 Installation](#11-Installation)
+        -   [From Prebuilt Package](#From-Prebuilt-Package)
+        -   [From Source Code](#From-Source-Code)
+    -   [1.2 Configuration](#12-Configuration)
+    -   [1.3 Prerequisites](13-Prerequisites)
+    -   [1.4 Generate CAR Files](#13-Generate-CAR-Files)
+        -   [Graphsplit](#Graphsplit)
+        -   [Lotus API](#Lotus-API)
+        -   [IPFS API](#IPFS-API)
+        -   [ipfs-car](#ipfs-car)
+    -   [1.5 Upload CAR Files to IPFS](#14-Upload-CAR-Files-to-IPFS)
+    -   [1.6 Create a Task](#15-Create-A-Task)
+        -   [Private Task](#Private-Task)
+        -   [Auto-bid Task](#Auto-bid-Task)
+        -  [Manual-bid Task](#Manual-bid-Task)
+-   [2. Blockchain RPC Service](#2-Blockchain-RPC-Service)
+    -   [2.1 Deploy RPC Service](#21-Deploy-RPC-Service)
+    -   [2.2 RPC Command Service](#22-RPC-Command-Service)
 
 ## 1. Filecoin Deal Sender
 
 As a PiB-level data onboarding tool for Filecoin Network, Swan-client can help users prepare data and send the data to storage providers in the Filecoin network. The main features and steps are as follows:
 
-*   Generate CAR files from your source files by [graphsplit](#Graphsplit), [lotus](#Lotus-API), [IPFS](#IPFS-API), or [ipfs-car](#ipfs-car)
-*   Upload the CAR files to the IPFS server and generate metadata files (JSON and CSV) for sending offline deals
-*   Propose offline deals based on the metadata file
-*   Generate a final metadata file for storage providers to import deals
-*   Create tasks and offline deals on [Swan Platform](https://console.filswan.com/#/dashboard)
+-   Generate CAR files from your source files by [graphsplit](#Graphsplit), [lotus](#Lotus-API), [IPFS](#IPFS-API), or [ipfs-car](#ipfs-car)
+-   Upload the CAR files to the IPFS server and generate metadata files (JSON and CSV) for sending offline deals
+-   Propose offline deals based on the metadata file
+-   Generate a final metadata file for storage providers to import deals
+-   Create tasks and offline deals on [Swan Platform](https://console.filswan.com/#/dashboard)
 
     **(Storage Providers can automatically import the deals by [Swan-Provider](https://github.com/filswan/go-swan-provider/tree/release-2.1.0-rc1))**
 
 swan-client can help users send their data to storage providers by creating three different kinds of tasks. The complete process from the source file to the storage provider is as follows:
 
-*   **Private Task**
+-   **Private Task**
     <img src="http://yuml.me/diagram/plain/activity/(start)-&gt;(Generate CAR Files)-&gt;(Upload CAR Files to IPFS)-&gt;(Create Private Task)-&gt;(end)">
 
-*   **Auto-bid Task**
+-   **Auto-bid Task**
     <img src="http://yuml.me/diagram/plain/activity/(start)-&gt;(Generate CAR Files)-&gt;(Upload CAR Files to IPFS)-&gt;(Create Auto-bid Task)-&gt;(end)">
 
-*   **Manual-bid Task**
+-   **Manual-bid Task**
     <img src="http://yuml.me/diagram/plain/activity/(start)-&gt;(Generate CAR Files)-&gt;(Upload CAR Files to IPFS)-&gt;(Create Manual-bid Task)-&gt;(Send Deals)-&gt;(end)">
 
 ### 1.1 Installation
@@ -88,7 +88,7 @@ Before creating a task, you should update your configuration in `~/.swan/client/
 ```shell
 vi ~/.swan/client/config.toml
 ```
-
+```
     [lotus]
     client_api_url = "http://[ip]:[port]/rpc/v0"   # Url of lotus client web API, generally the [port] is 1234
     client_access_token = ""                       # Access token of lotus client web API, it should have admin access right
@@ -115,23 +115,23 @@ vi ~/.swan/client/config.toml
     expire_days = 4                                # Specify days that the deal will expire after (default 4 days) 
     duration = 1512000                             # How long the Storage Providers should store the data for, in blocks(the 30s/block), default 1512000.
     start_deal_time_interval = 500                 # The interval between two deals sent, default: 500ms
-
+```
 ### 1.3 Prerequisites
 
 If you have set `market_version = "1.2"` in the `config.toml`, you must do the following steps:
 
-*   Import the client wallet private key to the `$SWAN_PATH`(default: `~/.swan`):
+-   Import the client wallet private key to the `$SWAN_PATH`(default: `~/.swan`):
 
-<!---->
+```
 
     ./swan-client wallet import wallet.key
+```
+-   Add funds to client wallet Market Actor in order to send deals:
 
-*   Add funds to client wallet Market Actor in order to send deals:
-
-<!---->
+```
 
     lotus wallet market add --from <address> --address <market_address> <amount>
-
+```
 <font color="red"> **Note：** </font>If you are using `market_version = "1.2"`, please make sure the storage providers are using the `swan-provider` [v2.1.0-rc1](https://github.com/filswan/go-swan-provider/releases/tag/v2.1.0-rc1) at least.
 
 ### 1.4 Generate CAR Files
@@ -156,10 +156,10 @@ OPTIONS:
 
 **Files generated after this step:**
 
-*   `manifest.csv`: A metadata file generated by `graphsplit API`
-*   `car.json`: contains information for both source files and CAR files
-*   `car.csv`: contains information for both source files and CAR files
-*   `[dataCID].car`: if `--parent-path=true` is set, the CAR files are generated based on the whole directory, otherwise based on each file according to the file size and `--slice-size`
+-   `manifest.csv`: A metadata file generated by `graphsplit API`
+-   `car.json`: contains information for both source files and CAR files
+-   `car.csv`: contains information for both source files and CAR files
+-   `[dataCID].car`: if `--parent-path=true` is set, the CAR files are generated based on the whole directory, otherwise based on each file according to the file size and `--slice-size`
 
 Credits should be given to FileDrive Team. More information can be found [here](https://github.com/filedrive-team/go-graphsplit).
 
@@ -180,9 +180,9 @@ OPTIONS:
 
 **Files generated after this step:**
 
-*   `car.json`: contains information for both source files and CAR files
-*   `car.csv`: contains information for both source files and CAR files
-*   `[source-file-name].car`: each source file has a related CAR file
+-   `car.json`: contains information for both source files and CAR files
+-   `car.csv`: contains information for both source files and CAR files
+-   `[source-file-name].car`: each source file has a related CAR file
 
 #### IPFS API
 
@@ -201,9 +201,9 @@ OPTIONS:
 
 **Files generated after this step:**
 
-*   `car.json`: contains information for the CAR file
-*   `car.csv`: contains information for the CAR file
-*   `[dataCID].car`: the source file(s) will be merged into this CAR file
+-   `car.json`: contains information for the CAR file
+-   `car.csv`: contains information for the CAR file
+-   `[dataCID].car`: the source file(s) will be merged into this CAR file
 
 #### ipfs-car
 
@@ -222,9 +222,9 @@ OPTIONS:
 
 **Files generated after this step:**
 
-*   `car.json`: contains information for the CAR file
-*   `car.csv`: contains information for the CAR file
-*   `[source-files-dir-name].car`: the source file(s) will be merged into this CAR file
+-   `car.json`: contains information for the CAR file
+-   `car.csv`: contains information for the CAR file
+-   `[source-files-dir-name].car`: the source file(s) will be merged into this CAR file
 
 ### 1.5 Upload CAR Files to IPFS
 
@@ -240,8 +240,8 @@ OPTIONS:
 
 **Files updated after this step:**
 
-*   `car.json`: the `CarFileUrl` of CAR files will be updated
-*   `car.csv`: the `CarFileUrl` of CAR files will be updated
+-   `car.json`: the `CarFileUrl` of CAR files will be updated
+-   `car.csv`: the `CarFileUrl` of CAR files will be updated
 
 ### 1.6 Create a Task
 
@@ -269,7 +269,7 @@ OPTIONS:
 
 **Files generated after this step:**
 
-*   `[task-name]-metadata.json`: contains `Uuid` and `Deals` for storage providers to import deals.
+-   `[task-name]-metadata.json`: contains `Uuid` and `Deals` for storage providers to import deals.
 
 ### Auto-bid Task
 
@@ -292,7 +292,7 @@ OPTIONS:
 
 **Files generated after this step:**
 
-*   `[task-name]-metadata.json`: contains `Uuid` and `Deals` for storage providers to import deals.
+-   `[task-name]-metadata.json`: contains `Uuid` and `Deals` for storage providers to import deals.
 
 ### Manual-bid Task
 
@@ -318,7 +318,7 @@ OPTIONS:
 
 **Files generated after this step:**
 
-*   `[task-name]-metadata.json`: contains the `Uuid`, source file information, and CAR file information.
+-   `[task-name]-metadata.json`: contains the `Uuid`, source file information, and CAR file information.
 
 **(2) Send deals to the storage providers:**
 
@@ -335,9 +335,9 @@ OPTIONS:
 
 **Files generated after this step:**
 
-*   `[task-name]-deals.json`: `Deals`information updated based on `[task-name]-metadata.json` generated in the previous steps
+-   `[task-name]-deals.json`: `Deals`information updated based on `[task-name]-metadata.json` generated in the previous steps
 
-***
+---
 
 ## 2. Blockchain RPC Service
 
@@ -345,29 +345,29 @@ The second feature of swan-client is the blockchain RPC service. It is supported
 
 *   The following table shows the full list of the chains supported by swan-client until now.
 
-    | ChainID |           ChainName          |
-    | :-----: | :--------------------------: |
-    |    1    |       Ethereum Mainnet       |
-    |    2    |  Binance Smart Chain Mainnet |
-    |    3    |       Avalanche C-Chain      |
-    |    4    |        Polygon Mainnet       |
-    |    5    |         Fantom Opera         |
-    |    6    | Gnosis Chain (formerly xDai) |
-    |    7    |     IoTeX Network Mainnet    |
-    |    8    |    Harmony Mainnet Shard 0   |
-    |    9    |         Boba Network         |
-    |    10   |         Fuse Mainnet         |
-    |    11   |           DFK Chain          |
-    |    12   |             Evmos            |
-    |    13   |        Swimmer Network       |
+	ChainID | ChainName
+	:-: | :-:
+	1| Ethereum Mainnet
+	2| Binance Smart Chain Mainnet
+	3 | Avalanche C-Chain
+	4 | Polygon Mainnet
+	5 | Fantom Opera
+	6 | Gnosis Chain (formerly xDai)
+	7 | IoTeX Network Mainnet
+	8 | Harmony Mainnet Shard 0
+	9 | Boba Network
+	10 | Fuse Mainnet
+	11 | DFK Chain
+	12 | Evmos
+	13 | Swimmer Network
 
 ### 2.1 Deploy RPC Service
 
 You can deploy your RPC service by the following command. And the example gives you a test case of your RPC service. More importantly, the RPC service provided by swan-client is compatible with thirteen public chain jsonrpc-api. The detail of public chain RPC-API documents and blockchain browsers can be found [here](document/rpc-cmd-example.md ":include").
-
+```
     nohup swan-client daemon >> swan-client.log 2>&1 &
-
-*   Example:
+```
+-   Example:
 
 ```shell
 $ curl --location --request POST '127.0.0.1:8099/chain/rpc' \
@@ -384,9 +384,9 @@ output:
 
 The RPC command can help you query the latest chain height and wallet balance. The cases of Ethereum and Binance Smart Chain are as follows:
 
-*   Ethereum Mainnet:
+-   Ethereum Mainnet:
 
-<!---->
+```
 
     # query the current height
     $ swan-client rpc height --chain ETH
@@ -403,10 +403,10 @@ The RPC command can help you query the latest chain height and wallet balance. T
             Height: 15844698
             Address: 0x29D5527CaA78f1946a409FA6aCaf14A0a4A0274b
             Balance: 749.53106079798394945
+```
+-   Binance Smart Chain Mainnet:
 
-*   Binance Smart Chain Mainnet:
-
-<!---->
+```
 
     # query the current height
     $ swan-client rpc height --chain BNB
@@ -423,6 +423,6 @@ The RPC command can help you query the latest chain height and wallet balance. T
             Height: 22559008
             Address: 0x4430b3230294D12c6AB2aAC5C2cd68E80B16b581
             Balance: 0.027942338705784518
-
-*   More examples can be seen [here](document/rpc-cmd-example.md ":include").
+```
+-   More examples can be seen [here](document/rpc-cmd-example.md ":include").
 
