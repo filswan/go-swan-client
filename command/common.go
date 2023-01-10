@@ -45,7 +45,7 @@ const (
 
 	DURATION_MIN = 518400
 	DURATION_MAX = 1555200
-	VERSION      = "2.0.0"
+	VERSION      = "release-2.1.0-rc1"
 )
 
 var publicChain = map[string][]string{
