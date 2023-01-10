@@ -370,56 +370,67 @@ You can deploy your RPC service by the following command. And the example gives 
 -   Example:
 
 ```shell
-$ curl --location --request POST '127.0.0.1:8099/chain/rpc' \
+curl --location --request POST '127.0.0.1:8099/chain/rpc' \
 --header 'Content-Type: application/json' \
---data-raw '{ \
-    "chain_id":"1", \
-    "params": "{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"id\":1}"}'
+--data-raw '{
+    "chain_id": "1",
+    "params": "{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"id\":1}"
+}'
 
+```
 output: 
        {"id":1,"jsonrpc":"2.0","result":"0xf1c622"}
-```
-
+       
 ### 2.2 RPC Command Service
 
 The RPC command can help you query the latest chain height and wallet balance. The cases of Ethereum and Binance Smart Chain are as follows:
 
 -   Ethereum Mainnet:
 
+query the current height
 ```
-
-    # query the current height
-    $ swan-client rpc height --chain ETH
-
+swan-client rpc height --chain ETH
+```
     output:
             Chain: ETH
             Height: 15844685
+	   
 
-    # query the balance of the current height wallet
-    $ swan-client rpc balance --chain ETH --address 0x29D5527CaA78f1946a409FA6aCaf14A0a4A0274b
-        
-    output:
-            Chain: ETH
-            Height: 15844698
-            Address: 0x29D5527CaA78f1946a409FA6aCaf14A0a4A0274b
-            Balance: 749.53106079798394945
+query the balance of the current height wallet	
 ```
+swan-client rpc balance --chain ETH --address 0x29D5527CaA78f1946a409FA6aCaf14A0a4A0274b
+
+```
+output:
+```
+Chain: ETH
+Height: 15844698
+Address: 0x29D5527CaA78f1946a409FA6aCaf14A0a4A0274b
+Balance: 749.53106079798394945
+```	    
 -   Binance Smart Chain Mainnet:
 
+query the current height
+
 ```
-
-    # query the current height
-    $ swan-client rpc height --chain BNB
-
-    output:
+swan-client rpc height --chain BNB
+```
+output:
+```
             Chain: BNB
             Height: 22558967
+```
 
-    # query the balance of the current height wallet
-    $ swan-client rpc balance --chain BNB --address 0x4430b3230294D12c6AB2aAC5C2cd68E80B16b581
+# query the balance of the current height wallet
 
-    output:
-            Chain: BNB
+```
+swan-client rpc balance --chain BNB --address 0x4430b3230294D12c6AB2aAC5C2cd68E80B16b581
+```
+
+output:
+
+```
+   Chain: BNB
             Height: 22559008
             Address: 0x4430b3230294D12c6AB2aAC5C2cd68E80B16b581
             Balance: 0.027942338705784518
