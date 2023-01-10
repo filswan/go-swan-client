@@ -332,7 +332,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.Offl
 		dealConfig.StartEpoch = dealConfig.StartEpoch - (int64)(i)
 
 		var dealCid string
-		if cmdAutoBidDeal.MarketVersion == libconstants.MARKET_TYPE_BOOST {
+		if cmdAutoBidDeal.MarketVersion == libconstants.MARKET_VERSION_2 {
 			dealCid, err = boost.GetClient(cmdAutoBidDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
 			if err != nil {
 				logs.GetLogger().Error(err)
@@ -378,8 +378,8 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.Offl
 		return &fileDesc, nil
 	}
 
-	if cmdAutoBidDeal.MarketVersion == libconstants.MARKET_TYPE_LOTUS {
-		fmt.Println(color.YellowString("you are using the MARKET send deals built-in Lotus, but it is deprecated, will remove soon. Please set [main.market_tye=“boost”]"))
+	if cmdAutoBidDeal.MarketVersion == libconstants.MARKET_VERSION_1 {
+		fmt.Println(color.YellowString("You are using the MARKET(version=1.1 built-in Lotus) send deals, but it is deprecated, will remove soon. Please set [main.market_version=“1.2”]"))
 	}
 
 	err = fmt.Errorf("failed to send deal for task:%d,uuid:%s,deal:%d", offlineDeal.TaskId, *offlineDeal.TaskUuid, offlineDeal.Id)

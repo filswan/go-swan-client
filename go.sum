@@ -87,6 +87,7 @@ github.com/StackExchange/wmi v1.2.1/go.mod h1:rcmrprowKIVzvc+NUiLncP2uuArMWLCbu9
 github.com/Stebalien/go-bitfield v0.0.1 h1:X3kbSSPUaJK60wV2hjOPZwmpljr6VGCqdq4cBLhbQBo=
 github.com/Stebalien/go-bitfield v0.0.1/go.mod h1:GNjFpasyUVkHMsfEOk8EFLJ9syQ6SI+XWrX9Wf2XH0s=
 github.com/VividCortex/gohistogram v1.0.0/go.mod h1:Pf5mBqqDxYaXu3hDrrU+w6nw50o/4+TcAqDqk/vUH7g=
+github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d h1:licZJFw2RwpHMqeKTCYkitsPqHNxTmd4SNR5r94FGM8=
 github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d/go.mod h1:asat636LX7Bqt5lYEZ27JNDcqxfjdBQuJ/MM4CN/Lzo=
 github.com/aead/siphash v1.0.1/go.mod h1:Nywa3cDsYNNK3gaciGTWPwHt0wlpNV15vwmswBAUSII=
 github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5/go.mod h1:SkGFH1ia65gfNATL8TAiHDNxPzPdmEL5uirI2Uyuz6c=
@@ -469,8 +470,8 @@ github.com/filecoin-project/storetheindex v0.4.17/go.mod h1:y2dL8C5D3PXi183hdxgG
 github.com/filecoin-project/test-vectors/schema v0.0.5/go.mod h1:iQ9QXLpYWL3m7warwvK1JC/pTri8mnfEmKygNDqqY6E=
 github.com/filedrive-team/go-graphsplit v0.5.0 h1:IYFenyqWmW7hyCgd5j9IHsdgA48pByd6BFIZnnNcVQU=
 github.com/filedrive-team/go-graphsplit v0.5.0/go.mod h1:160KtCvBMGi1BTDO1ObQUZ7d6XO6XWBphiVdFfA50pA=
-github.com/filswan/go-swan-lib v0.2.136-0.20230103075248-f26fa230be11 h1:itRX5L+yVXIFUAEH30i13eDVzR8ogVsKo4G7PH4ytFI=
-github.com/filswan/go-swan-lib v0.2.136-0.20230103075248-f26fa230be11/go.mod h1:RLE2LsZCd6i3CGgvbczpOWER5r5P7pLfG77AEw6ygCY=
+github.com/filswan/go-swan-lib v0.2.136-0.20230107123811-b20e88dd2b88 h1:gyXaIyCUiYZd4I0ocTMxQb4zc61f9xexWCBbXtPDdGg=
+github.com/filswan/go-swan-lib v0.2.136-0.20230107123811-b20e88dd2b88/go.mod h1:RLE2LsZCd6i3CGgvbczpOWER5r5P7pLfG77AEw6ygCY=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI435gkrCt3MPfRiAkVrwSbHsst4LCFVfpJc=
 github.com/flynn/noise v0.0.0-20180327030543-2492fe189ae6/go.mod h1:1i71OnUq3iUe1ma7Lr6yG6/rjvM3emb6yoL7xLFzcVQ=
 github.com/flynn/noise v1.0.0 h1:DlTHqmzmvcEiKj+4RYo/imoswx/4r6iBlCMfVtrMXpQ=

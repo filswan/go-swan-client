@@ -11,6 +11,7 @@ VERSION:
 
 COMMANDS:
    daemon        Start a API service process
+   wallet        Manage wallets with Swan client
    generate-car  Generate CAR files from a file or directory
    upload        Upload CAR file to ipfs server
    task          Send task to swan
@@ -36,6 +37,84 @@ OPTIONS:
    --help, -h  show help (default: false)
 ```
 
+## swan-client wallet
+```
+NAME:
+    swan-client wallet - Manage wallets with Swan client
+
+USAGE:
+    swan-client wallet command [command options] [arguments...]
+
+COMMANDS:
+    new     Generate a new key of the given type
+    list    List wallet address
+    import  Import keys
+    export  Export keys
+    delete  Delete an account from the wallet
+
+OPTIONS:
+--help, -h  show help (default: false)
+```
+
+### swan-client wallet new
+```
+NAME:
+    swan-client wallet new - Generate a new key of the given type
+
+USAGE:
+    swan-client wallet new [command options] [bls|secp256k1 (default secp256k1)]
+
+OPTIONS:
+    --help, -h  show help (default: false)
+```
+
+### swan-client wallet list
+```
+NAME:
+    swan-client wallet list - List wallet address
+
+USAGE:
+    swan-client wallet list [command options] [arguments...]
+
+OPTIONS:
+    --help, -h  show help (default: false)
+```
+
+### swan-client wallet import
+```
+NAME:
+    swan-client wallet import - import keys
+
+USAGE:
+    swan-client wallet import [command options] [<path> (optional, will read from stdin if omitted)]
+
+OPTIONS:
+    --help, -h  show help (default: false)
+```
+
+### swan-client wallet export
+```
+NAME:
+   swan-client wallet export - export keys
+
+USAGE:
+   swan-client wallet export [command options] [address]
+
+OPTIONS:
+   --help, -h  show help (default: false)
+```
+
+### swan-client wallet delete
+```
+NAME:
+    swan-client wallet delete - Delete an account from the wallet
+
+USAGE:
+    swan-client wallet delete [command options] <address>
+
+OPTIONS:
+    --help, -h  show help (default: false)
+```
 
 ## swan-client generate-car
 ```
@@ -268,5 +347,4 @@ USAGE:
 OPTIONS:
    --chain value, -c value  public chain. support ETH、BNB、AVAX、MATIC、FTM、xDAI、IOTX、ONE、BOBA、FUSE、JEWEL、EVMOS、TUS
    --help, -h               show help (default: false)
-
 ```
