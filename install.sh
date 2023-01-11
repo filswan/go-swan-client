@@ -8,7 +8,7 @@ wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/${BINARY_NAME}
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/config.toml.example
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/chain-rpc.json
 
-install -C $(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
+sudo install -C $(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
 
 CONF_FILE_DIR=${HOME}/.swan/client
 mkdir -p ${CONF_FILE_DIR}

@@ -43,7 +43,7 @@ build_win: test
 .PHONY: build_win
 
 install-client:
-	install -C $(GOBIN)/$(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
+	sudo install -C $(GOBIN)/$(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
 
 clean: ## Remove previous build
 	@go clean
