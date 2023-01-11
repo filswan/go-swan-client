@@ -42,6 +42,9 @@ build_win: test
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(GOBIN)/$(BINARY_UNIX) -v  main.go
 .PHONY: build_win
 
+install-client:
+	install -C $(GOBIN)/$(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
+
 clean: ## Remove previous build
 	@go clean
 	@rm -rf $(shell pwd)/build
