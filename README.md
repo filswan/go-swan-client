@@ -429,7 +429,7 @@ Query the balance
 ```
 swan-client rpc balance --chain BNB --address 0x4430b3230294D12c6AB2aAC5C2cd68E80B16b581
 ```
-output:
+Output:
 
 ```
 	Chain: BNB
