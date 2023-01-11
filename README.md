@@ -367,8 +367,7 @@ You can deploy your RPC service by the following command. And the example gives 
 ```
     nohup swan-client daemon >> swan-client.log 2>&1 &
 ```
--   Example:
-
+-   Example `eth_blockNumber` :
 ```shell
 curl --location --request POST '127.0.0.1:8099/chain/rpc' \
 --header 'Content-Type: application/json' \
@@ -376,10 +375,17 @@ curl --location --request POST '127.0.0.1:8099/chain/rpc' \
     "chain_id": "1",
     "params": "{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"id\":1}"
 }'
-
 ```
-output: 
-       {"id":1,"jsonrpc":"2.0","result":"0xf1c622"}
+
+-   Example `eth_signTransaction` :
+```shell
+curl --location --request POST '127.0.0.1:8099/chain/rpc' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "chain_id": "1",
+    "params": "{\"jsonrpc\":\"2.0\",\"method\":\"eth_signTransaction\",\"params\": [{\"data\":\"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675\",\"from\": \"0xb60e8dd61c5d32be8058bb8eb970870f07233155\",\"gas\": \"0x76c0\",\"gasPrice\": \"0x9184e72a000\",\"to\": \"0xd46e8dd67c5d32be8058bb8eb970870f07244567\",\"value\": \"0x9184e72a\"}], \"id\":1}"
+}'
+```
        
 ### 2.2 RPC Command Service
 
@@ -391,23 +397,22 @@ query the current height
 ```
 swan-client rpc height --chain ETH
 ```
-    output:
+output:
+```
             Chain: ETH
             Height: 15844685
-	   
-
+```
 query the balance of the current height wallet	
 ```
 swan-client rpc balance --chain ETH --address 0x29D5527CaA78f1946a409FA6aCaf14A0a4A0274b
-
 ```
 output:
 ```
-Chain: ETH
-Height: 15844698
-Address: 0x29D5527CaA78f1946a409FA6aCaf14A0a4A0274b
-Balance: 749.53106079798394945
-```	    
+            Chain: ETH
+            Height: 15844698
+            Address: 0x29D5527CaA78f1946a409FA6aCaf14A0a4A0274b
+            Balance: 749.53106079798394945
+```   
 -   Binance Smart Chain Mainnet:
 
 query the current height
