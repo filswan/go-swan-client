@@ -1,12 +1,17 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	big2 "github.com/filecoin-project/go-state-types/big"
 	"github.com/filswan/go-swan-client/command"
 	"github.com/filswan/go-swan-client/config"
+	"github.com/filswan/go-swan-lib/client/boost"
+	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/client/swan"
+	"github.com/filswan/go-swan-lib/constants"
+	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	"github.com/filswan/go-swan-lib/utils"
 	"github.com/julienschmidt/httprouter"
@@ -34,7 +39,7 @@ func main() {
 			}
 			return nil
 		},
-		Commands:        []*cli.Command{daemonCmd, toolsCmd, uploadCmd, taskCmd, dealCmd, autoCmd, calculateCmd, rpcApiCmd, rpcCmd},
+		Commands:        []*cli.Command{daemonCmd, walletCmd, toolsCmd, uploadCmd, taskCmd, dealCmd, autoCmd, calculateCmd, rpcApiCmd, rpcCmd},
 		HideHelpCommand: true,
 	}
 	if err := app.Run(os.Args); err != nil {
@@ -45,6 +50,145 @@ func main() {
 		}
 		os.Exit(1)
 	}
+}
+
+var walletCmd = &cli.Command{
+	Name:  "wallet",
+	Usage: "Manage wallets with Swan client",
+	Subcommands: []*cli.Command{
+		walletNewCmd,
+		walletListCmd,
+		walletImportCmd,
+		walletExportCmd,
+		walletDeleteCmd,
+	},
+	HideHelpCommand: true,
+}
+
+var walletNewCmd = &cli.Command{
+	Name:      "new",
+	Usage:     "Generate a new key of the given type",
+	ArgsUsage: "[bls|secp256k1 (default secp256k1)]",
+	Action: func(cctx *cli.Context) error {
+		t := cctx.Args().First()
+		if t == "" {
+			t = libconstants.WALLET_TYPE_256
+		}
+		marketVersion := strings.TrimSpace(config.GetConfig().Main.MarketVersion)
+		if marketVersion == constants.MARKET_VERSION_2 {
+			if err := checkRepo(); err != nil {
+				return err
+			}
+			return boost.GetClient(config.GetConfig().Main.SwanRepo).WalletNew(t)
+		} else {
+			return errors.New("only support market_version=“1.2” ")
+		}
+	},
+}
+
+var walletListCmd = &cli.Command{
+	Name:  "list",
+	Usage: "List wallet address",
+	Action: func(ctx *cli.Context) error {
+		marketVersion := strings.TrimSpace(config.GetConfig().Main.MarketVersion)
+		if marketVersion == constants.MARKET_VERSION_2 {
+			if err := checkRepo(); err != nil {
+				return err
+			}
+			lotusClient, err := lotus.LotusGetClient(config.GetConfig().Lotus.ClientApiUrl, config.GetConfig().Lotus.ClientAccessToken)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return err
+			}
+			return boost.GetClient(config.GetConfig().Main.SwanRepo).WithClient(lotusClient).WalletList()
+
+		} else {
+			return errors.New("only support market_version=“1.2” ")
+		}
+	},
+}
+
+var walletImportCmd = &cli.Command{
+	Name:      "import",
+	Usage:     "import keys",
+	ArgsUsage: "[<path> (optional, will read from stdin if omitted)]",
+	Action: func(ctx *cli.Context) error {
+		marketVersion := strings.TrimSpace(config.GetConfig().Main.MarketVersion)
+		if marketVersion == constants.MARKET_VERSION_2 {
+			if err := checkRepo(); err != nil {
+				return err
+			}
+			var inputData []byte
+			if !ctx.Args().Present() || ctx.Args().First() == "-" {
+				reader := bufio.NewReader(os.Stdin)
+				fmt.Print("Enter private key: ")
+				indata, err := reader.ReadBytes('\n')
+				if err != nil {
+					return err
+				}
+				inputData = indata
+			} else {
+				fdata, err := ioutil.ReadFile(ctx.Args().First())
+				if err != nil {
+					return err
+				}
+				inputData = fdata
+			}
+			lotusClient, err := lotus.LotusGetClient(config.GetConfig().Lotus.ClientApiUrl, config.GetConfig().Lotus.ClientAccessToken)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return err
+			}
+			return boost.GetClient(config.GetConfig().Main.SwanRepo).WithClient(lotusClient).WalletImport(inputData)
+
+		} else {
+			return errors.New("only support market_version=“1.2” ")
+		}
+	},
+}
+
+var walletExportCmd = &cli.Command{
+	Name:      "export",
+	Usage:     "export keys",
+	ArgsUsage: "[address]",
+	Action: func(cctx *cli.Context) error {
+		if !cctx.Args().Present() || cctx.NArg() != 1 {
+			return fmt.Errorf("must specify address to export")
+		}
+		addr := cctx.Args().First()
+
+		marketVersion := strings.TrimSpace(config.GetConfig().Main.MarketVersion)
+		if marketVersion == constants.MARKET_VERSION_2 {
+			if err := checkRepo(); err != nil {
+				return err
+			}
+			return boost.GetClient(config.GetConfig().Main.SwanRepo).WalletExport(addr)
+		} else {
+			return errors.New("only support market_version=“1.2” ")
+		}
+	},
+}
+
+var walletDeleteCmd = &cli.Command{
+	Name:      "delete",
+	Usage:     "Delete an account from the wallet",
+	ArgsUsage: "<address> ",
+	Action: func(cctx *cli.Context) error {
+		if !cctx.Args().Present() || cctx.NArg() != 1 {
+			return fmt.Errorf("must specify address to delete")
+		}
+		addr := cctx.Args().First()
+
+		marketVersion := strings.TrimSpace(config.GetConfig().Main.MarketVersion)
+		if marketVersion == constants.MARKET_VERSION_2 {
+			if err := checkRepo(); err != nil {
+				return err
+			}
+			return boost.GetClient(config.GetConfig().Main.SwanRepo).WalletDelete(addr)
+		} else {
+			return errors.New("only support market_version=“1.2” ")
+		}
+	},
 }
 
 var daemonCmd = &cli.Command{
@@ -195,6 +339,25 @@ var taskCmd = &cli.Command{
 		},
 	},
 	Action: func(ctx *cli.Context) error {
+		repoPath := config.GetConfig().Main.SwanRepo
+		wallet := config.GetConfig().Sender.Wallet
+		var first bool
+		if _, err := os.Stat(repoPath); err != nil {
+			first = true
+		}
+		if err := checkRepo(); err != nil {
+			return err
+		}
+		if strings.TrimSpace(config.GetConfig().Main.MarketVersion) == constants.MARKET_VERSION_2 {
+			if exist := boost.GetClient(repoPath).ValidateExistWalletAddress(wallet); !exist {
+				if !first {
+					return fmt.Errorf("the current client wallet address is: %s, please use the command <./swan-client wallet import wallet.key> to import the wallet private key", wallet)
+				} else {
+					return nil
+				}
+			}
+		}
+
 		inputDir := ctx.String("input-dir")
 		if inputDir == "" {
 			return errors.New("input-dir is required")
@@ -267,10 +430,29 @@ var dealCmd = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:  "miners",
-			Usage: "minerID is required when send manual-bid task (pass comma separated array of minerIDs)",
+			Usage: "miners must have been assigned the task (pass comma separated array of minerIDs)",
 		},
 	},
 	Action: func(ctx *cli.Context) error {
+		repoPath := config.GetConfig().Main.SwanRepo
+		wallet := config.GetConfig().Sender.Wallet
+		var first bool
+		if _, err := os.Stat(repoPath); err != nil {
+			first = true
+		}
+		if err := checkRepo(); err != nil {
+			return err
+		}
+		if strings.TrimSpace(config.GetConfig().Main.MarketVersion) == constants.MARKET_VERSION_2 {
+			if exist := boost.GetClient(repoPath).ValidateExistWalletAddress(wallet); !exist {
+				if !first {
+					return fmt.Errorf("the current client wallet address is: %s, please use the command <./swan-client wallet import wallet.key> to import the wallet private key", wallet)
+				} else {
+					return nil
+				}
+			}
+		}
+
 		metadataJsonPath := ctx.String("json")
 		metadataCsvPath := ctx.String("csv")
 
@@ -289,12 +471,7 @@ var dealCmd = &cli.Command{
 			logs.GetLogger().Info("Metadata csv file:", metadataCsvPath)
 		}
 		minerIds := ctx.String("miners")
-		if minerIds == "" {
-			return errors.New("miners is required")
-		}
-
-		_, err := command.SendDealsByConfig(ctx.String("out-dir"), minerIds, metadataJsonPath, metadataCsvPath)
-		if err != nil {
+		if _, err := command.SendDealsByConfig(ctx.String("out-dir"), minerIds, metadataJsonPath, metadataCsvPath); err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
@@ -314,8 +491,26 @@ var autoCmd = &cli.Command{
 		},
 	},
 	Action: func(ctx *cli.Context) error {
-		err := command.SendAutoBidDealsLoopByConfig(ctx.String("out-dir"))
-		if err != nil {
+		repoPath := config.GetConfig().Main.SwanRepo
+		wallet := config.GetConfig().Sender.Wallet
+		var first bool
+		if _, err := os.Stat(repoPath); err != nil {
+			first = true
+		}
+		if err := checkRepo(); err != nil {
+			return err
+		}
+		if strings.TrimSpace(config.GetConfig().Main.MarketVersion) == constants.MARKET_VERSION_2 {
+			if exist := boost.GetClient(repoPath).ValidateExistWalletAddress(wallet); !exist {
+				if !first {
+					return fmt.Errorf("the current client wallet address is: %s, please use the command <./swan-client wallet import wallet.key> to import the wallet private key", wallet)
+				} else {
+					return nil
+				}
+			}
+		}
+
+		if err := command.SendAutoBidDealsLoopByConfig(ctx.String("out-dir")); err != nil {
 			logs.GetLogger().Error(err)
 			return err
 		}
@@ -443,33 +638,10 @@ var carRestoreCmd = &cli.Command{
 	},
 }
 
-var ipfsCarCmd = &cli.Command{
-	Name:      "ipfs",
-	Usage:     "Use ipfs api to generate CAR file",
-	ArgsUsage: "[inputPath]",
-	Flags: []cli.Flag{
-		&inPutFlag,
-		&outPutFlag,
-		&importFlag,
-	},
-	Action: func(ctx *cli.Context) error {
-		inputDir := ctx.String("input-dir")
-		if inputDir == "" {
-			return errors.New("input-dir is required")
-		}
-		outputDir := ctx.String("out-dir")
-		if _, err := command.CreateIpfsCarFilesByConfig(inputDir, &outputDir, ctx.Bool("import")); err != nil {
-			logs.GetLogger().Error(err)
-			return err
-		}
-		return nil
-	},
-}
-
 var toolsCmd = &cli.Command{
 	Name:            "generate-car",
 	Usage:           "Generate CAR files from a file or directory",
-	Subcommands:     []*cli.Command{splitCarCmd, lotusCarCmd, ipfsCarCmd, ipfsCmdCarCmd},
+	Subcommands:     []*cli.Command{splitCarCmd, lotusCarCmd, ipfsCmdCarCmd},
 	HideHelpCommand: true,
 }
 
@@ -644,6 +816,19 @@ var rpcLatestBalanceCmd = &cli.Command{
 
 		return nil
 	},
+}
+
+func checkRepo() error {
+	if strings.TrimSpace(config.GetConfig().Main.MarketVersion) == constants.MARKET_VERSION_2 {
+		repoPath := config.GetConfig().Main.SwanRepo
+		wallet := config.GetConfig().Sender.Wallet
+		if _, err := os.Stat(repoPath); err != nil {
+			if err := boost.GetClient(repoPath).InitRepo(repoPath, wallet); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 type BigInt = big2.Int

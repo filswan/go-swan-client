@@ -2,7 +2,10 @@ package command
 
 import (
 	"fmt"
+	"github.com/fatih/color"
+	"github.com/filswan/go-swan-lib/client/boost"
 	"github.com/filswan/go-swan-lib/client/web"
+	"github.com/pkg/errors"
 	"path/filepath"
 	"strings"
 	"time"
@@ -38,6 +41,8 @@ type CmdDeal struct {
 	MetadataJsonPath       string          //required
 	MetadataCsvPath        string          //required
 	StartDealTimeInterval  time.Duration   //required
+	SwanRepo               string
+	MarketVersion          string
 }
 
 func GetCmdDeal(outputDir *string, minerFids, metadataJsonPath, metadataCsvPath string) *CmdDeal {
@@ -57,6 +62,8 @@ func GetCmdDeal(outputDir *string, minerFids, metadataJsonPath, metadataCsvPath 
 		MetadataJsonPath:       metadataJsonPath,
 		MetadataCsvPath:        metadataCsvPath,
 		StartDealTimeInterval:  config.GetConfig().Sender.StartDealTimeInterval,
+		SwanRepo:               strings.TrimSpace(config.GetConfig().Main.SwanRepo),
+		MarketVersion:          strings.TrimSpace(config.GetConfig().Main.MarketVersion),
 	}
 
 	minerFids = strings.Trim(minerFids, " ")
@@ -158,6 +165,22 @@ func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
 		}
 	}
 
+	minerFids := make([]string, 0)
+	for _, bid := range task.Data.Bids {
+		if len(strings.TrimSpace(bid.MinerFid)) != 0 {
+			minerFids = append(minerFids, bid.MinerFid)
+		}
+	}
+
+	if len(cmdDeal.MinerFids) > 0 {
+		if !minerFIdsIsExist(cmdDeal.MinerFids, minerFids) {
+			return nil, errors.New(fmt.Sprintf("this task is not assigned to these miners: %+v, should be: %+v", cmdDeal.MinerFids, minerFids))
+		}
+	} else {
+		cmdDeal.MinerFids = minerFids
+	}
+	logs.GetLogger().Infof("this task will send deal to these miners: %+v", cmdDeal.MinerFids)
+
 	fileDescs, err = cmdDeal.sendDeals2Miner(task.Data.Task.TaskName, cmdDeal.OutputDir, fileDescs)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -205,6 +228,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 			PayloadCid:       fileDesc.PayloadCid,
 			PieceCid:         fileDesc.PieceCid,
 			FileSize:         fileDesc.CarFileSize,
+			ClientRepo:       cmdDeal.SwanRepo,
 		}
 
 		logs.GetLogger().Info("File:", fileDesc.CarFilePath, ",current epoch:", *currentEpoch, ", start epoch:", dealConfig.StartEpoch)
@@ -225,35 +249,49 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 		deals := []*libmodel.DealInfo{}
 		for _, minerFid := range cmdDeal.MinerFids {
 			dealConfig.MinerFid = minerFid
+
 			var cost string
-			dealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
-			if dealCid == nil {
-				dealCid = new(string)
-			} else {
-				dealInfo, err := lotusClient.LotusClientGetDealInfo(*dealCid)
+			var deal *libmodel.DealInfo
+			if cmdDeal.MarketVersion == libconstants.MARKET_VERSION_2 {
+				dealUuid, err := boost.GetClient(cmdDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
 				if err != nil {
 					logs.GetLogger().Error(err)
-					cost = "fail"
+					continue
+				}
+				deal = &libmodel.DealInfo{
+					MinerFid:   dealConfig.MinerFid,
+					DealCid:    dealUuid,
+					StartEpoch: int(dealConfig.StartEpoch),
+					Cost:       "0",
+				}
+			} else {
+				dealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
+				if err != nil {
+					logs.GetLogger().Error(err)
+					continue
+				}
+				if dealCid == nil {
+					dealCid = new(string)
 				} else {
-					cost = dealInfo.CostComputed
+					dealInfo, err := lotusClient.LotusClientGetDealInfo(*dealCid)
+					if err != nil {
+						logs.GetLogger().Error(err)
+						cost = "fail"
+					} else {
+						cost = dealInfo.CostComputed
+					}
+				}
+				deal = &libmodel.DealInfo{
+					MinerFid:   dealConfig.MinerFid,
+					DealCid:    *dealCid,
+					StartEpoch: int(dealConfig.StartEpoch),
+					Cost:       cost,
 				}
 			}
-			deal := &libmodel.DealInfo{
-				MinerFid:   dealConfig.MinerFid,
-				DealCid:    *dealCid,
-				StartEpoch: int(dealConfig.StartEpoch),
-				Cost:       cost,
-			}
+
 			deals = append(deals, deal)
 			dealSentNum = dealSentNum + 1
-			if err != nil {
-				logs.GetLogger().Error(err)
-				continue
-			}
-			if dealCid == nil {
-				continue
-			}
-			logs.GetLogger().Info("deal sent successfully, task name:", taskName, ", car file:", fileDesc.CarFilePath, ", deal CID:", deal.DealCid, ", start epoch:", deal.StartEpoch, ", miner:", deal.MinerFid)
+			logs.GetLogger().Info("deal sent successfully, task name:", taskName, ", car file:", fileDesc.CarFilePath, ", dealCID|dealUuid:", deal.DealCid, ", start epoch:", deal.StartEpoch, ", miner:", deal.MinerFid)
 			if cmdDeal.StartDealTimeInterval > 0 {
 				time.Sleep(cmdDeal.StartDealTimeInterval * time.Millisecond)
 			}
@@ -262,7 +300,11 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 		fileDesc.Deals = deals
 	}
 
-	logs.GetLogger().Info(dealSentNum, " deal(s) has(ve) been sent for task:", taskName)
+	if cmdDeal.MarketVersion == libconstants.MARKET_VERSION_1 {
+		fmt.Println(color.YellowString("You are using the MARKET(version=1.1 built-in Lotus) send deals, but it is deprecated, will remove soon. Please set [main.market_version=“1.2”]"))
+	}
+
+	logs.GetLogger().Infof("%d deal(s) has(ve) been sent for task: %s, minerID: %+v", dealSentNum, taskName, cmdDeal.MinerFids)
 
 	jsonFileName := taskName + JSON_FILE_NAME_DEAL
 	csvFileName := taskName + CSV_FILE_NAME_DEAL
@@ -303,4 +345,22 @@ func (cmdDeal *CmdDeal) CheckDatacap(address string) (bool, error) {
 		return false, nil
 	}
 	return true, nil
+}
+
+func minerFIdsIsExist(target, src []string) bool {
+	var exist bool
+loop:
+	for _, t := range target {
+		exist = false
+		for _, s := range src {
+			if strings.EqualFold(t, s) {
+				exist = true
+				break
+			}
+		}
+		if !exist {
+			break loop
+		}
+	}
+	return exist
 }
