@@ -123,13 +123,11 @@ If you have set `market_version = "1.2"` in the `config.toml`, you must do the f
 -   Import the client wallet private key to the `$SWAN_PATH`(default: `~/.swan`):
 
 ```
-
-    ./swan-client wallet import wallet.key
+    swan-client wallet import wallet.key
 ```
 -   Add funds to client wallet Market Actor in order to send deals:
 
 ```
-
     lotus wallet market add --from <address> --address <market_address> <amount>
 ```
 <font color="red"> **Note：** </font>If you are using `market_version = "1.2"`, please make sure the storage providers are using the `swan-provider` [v2.1.0-rc1](https://github.com/filswan/go-swan-provider/releases/tag/v2.1.0-rc1) at least.
@@ -143,7 +141,7 @@ A CAR file is an independent unit to be sent to storage providers, swan-client p
 \:bell: This option can split a file under the source directory or the files in a whole directory to one or more car file(s) in the output directory.
 
 ```shell
-./swan-client generate-car graphsplit car --input-dir [input_files_dir] --out-dir [car_files_output_dir]
+swan-client generate-car graphsplit car --input-dir [input_files_dir] --out-dir [car_files_output_dir]
 
 OPTIONS:
    --input-dir value, -i value       directory where source file(s) is(are) in
@@ -170,7 +168,7 @@ Credits should be given to FileDrive Team. More information can be found [here](
 \:bell: A running **Lotus** node is required.
 
 ```shell
-./swan-client generate-car lotus --input-dir [input_files_dir] --out-dir [car_files_output_dir]
+swan-client generate-car lotus --input-dir [input_files_dir] --out-dir [car_files_output_dir]
 
 OPTIONS:
    --input-dir value, -i value  directory where source file(s) is(are) in
@@ -191,7 +189,7 @@ OPTIONS:
 \:bell: A running **IPFS** node is required.
 
 ```shell
-./swan-client generate-car ipfs --input-dir [input_files_dir] --out-dir [car_file_output_dir]
+swan-client generate-car ipfs --input-dir [input_files_dir] --out-dir [car_file_output_dir]
 
 OPTIONS:
    --input-dir value, -i value  directory where source file(s) is(are) in
@@ -212,7 +210,7 @@ OPTIONS:
 \:bell: This option will merge files under the source directory to one CAR file in the output directory using the `ipfs-car` command.
 
 ```shell
-./swan-client generate-car ipfs-car --input-dir [input_files_dir] --out-dir [car_file_output_dir]
+swan-client generate-car ipfs-car --input-dir [input_files_dir] --out-dir [car_file_output_dir]
 
 OPTIONS:
    --input-dir value, -i value  directory where source file(s) is(are) in
@@ -231,7 +229,7 @@ OPTIONS:
 \:bell:- `[ipfs_server].download_url_prefix` and `[ipfs_server].upload_url_prefix` are required to upload CAR files to IPFS server.
 
 ```shell
-./swan-client upload -input-dir [input_file_dir]
+swan-client upload -input-dir [input_file_dir]
 
 OPTIONS:
    --input-dir value, -i value  directory where source files are in
@@ -252,7 +250,7 @@ You can create three different kinds of tasks using the `car.json` or `car.csv`
 You can directly send deals to miners by creating a  private task.
 
 ```shell
-./swan-client task --input-dir [json_or_csv_absolute_path] --out-dir [output_files_dir] --miners [storage_provider_id1,storage_provider_id2,...]
+swan-client task --input-dir [json_or_csv_absolute_path] --out-dir [output_files_dir] --miners [storage_provider_id1,storage_provider_id2,...]
 
 OPTIONS:
    --name value                          task name
@@ -274,7 +272,7 @@ OPTIONS:
 ### Auto-bid Task
 
 ```shell
-./swan-client task --input-dir [json_or_csv_absolute_path] --out-dir [output_files_dir] --auto-bid true --max-copy-number 5
+swan-client task --input-dir [json_or_csv_absolute_path] --out-dir [output_files_dir] --auto-bid true --max-copy-number 5
 
 
 OPTIONS:
@@ -301,7 +299,7 @@ You can create manual-bid tasks on the swan platform. And each storage provider 
 **(1) Create manulal-bid task:**
 
 ```shell
-./swan-client task --input-dir [json_or_csv_absolute_path] --out-dir [output_files_dir] --manual-bid true --max-copy-number 5
+swan-client task --input-dir [json_or_csv_absolute_path] --out-dir [output_files_dir] --manual-bid true --max-copy-number 5
 
 
 OPTIONS:
@@ -323,7 +321,7 @@ OPTIONS:
 **(2) Send deals to the storage providers:**
 
 ```shell
-./swan-client deal --json [path]/[task-name]-metadata.json -out-dir [output_files_dir] -miners [storage_provider_id1,storage_provider_id2,... ]
+swan-client deal --json [path]/[task-name]-metadata.json -out-dir [output_files_dir] -miners [storage_provider_id1,storage_provider_id2,... ]
 
 OPTIONS:
    --csv value                the CSV file path of deal metadata
@@ -363,66 +361,80 @@ The second feature of swan-client is the blockchain RPC service. It is supported
 
 ### 2.1 Deploy RPC Service
 
-You can deploy your RPC service by the following command. And the example gives you a test case of your RPC service. More importantly, the RPC service provided by swan-client is compatible with thirteen public chain jsonrpc-api. The detail of public chain RPC-API documents and blockchain browsers can be found [here](document/rpc-cmd-example.md ":include").
-```
-    nohup swan-client daemon >> swan-client.log 2>&1 &
-```
--   Example:
+You can deploy your RPC service by the following command. And the example gives you a test case of your RPC service. More importantly, the RPC service provided by swan-client is compatible with thirteen public chain jsonrpc-api. 
 
+You can find more public chain RPC-API documentation and blockchain browsers [here](document/rpc-cmd-example.md ":include").
+```
+nohup swan-client daemon >> swan-client.log 2>&1 &
+```
+-   Example `eth_blockNumber` :
 ```shell
-$ curl --location --request POST '127.0.0.1:8099/chain/rpc' \
+curl --location --request POST '127.0.0.1:8099/chain/rpc' \
 --header 'Content-Type: application/json' \
---data-raw '{ \
-    "chain_id":"1", \
-    "params": "{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"id\":1}"}'
-
-output: 
-       {"id":1,"jsonrpc":"2.0","result":"0xf1c622"}
+--data-raw '{
+    "chain_id": "1",
+    "params": "{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"id\":1}"
+}'
 ```
 
+-   Example `eth_signTransaction` :
+```shell
+curl --location --request POST '127.0.0.1:8099/chain/rpc' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "chain_id": "1",
+    "params": "{\"jsonrpc\":\"2.0\",\"method\":\"eth_signTransaction\",\"params\": [{\"data\":\"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675\",\"from\": \"0xb60e8dd61c5d32be8058bb8eb970870f07233155\",\"gas\": \"0x76c0\",\"gasPrice\": \"0x9184e72a000\",\"to\": \"0xd46e8dd67c5d32be8058bb8eb970870f07244567\",\"value\": \"0x9184e72a\"}], \"id\":1}"
+}'
+```
+       
 ### 2.2 RPC Command Service
 
 The RPC command can help you query the latest chain height and wallet balance. The cases of Ethereum and Binance Smart Chain are as follows:
 
--   Ethereum Mainnet:
+-   **Ethereum Mainnet**:
 
+Query the current height
+```
+swan-client rpc height --chain ETH
+```
+Output:
+```
+	Chain: ETH
+	Height: 15844685
+```
+Query the balance 
+```
+swan-client rpc balance --chain ETH --address 0x29D5527CaA78f1946a409FA6aCaf14A0a4A0274b
+```
+Output:
+```
+	Chain: ETH
+	Height: 15844698
+	Address: 0x29D5527CaA78f1946a409FA6aCaf14A0a4A0274b
+	Balance: 749.53106079798394945
+```   
+-   **Binance Smart Chain Mainnet**:
+
+Query the current height
+```
+swan-client rpc height --chain BNB
+```
+Output:
+```
+	Chain: BNB
+	Height: 22558967
 ```
 
-    # query the current height
-    $ swan-client rpc height --chain ETH
-
-    output:
-            Chain: ETH
-            Height: 15844685
-
-    # query the balance of the current height wallet
-    $ swan-client rpc balance --chain ETH --address 0x29D5527CaA78f1946a409FA6aCaf14A0a4A0274b
-        
-    output:
-            Chain: ETH
-            Height: 15844698
-            Address: 0x29D5527CaA78f1946a409FA6aCaf14A0a4A0274b
-            Balance: 749.53106079798394945
+Query the balance 
 ```
--   Binance Smart Chain Mainnet:
+swan-client rpc balance --chain BNB --address 0x4430b3230294D12c6AB2aAC5C2cd68E80B16b581
+```
+Output:
 
 ```
-
-    # query the current height
-    $ swan-client rpc height --chain BNB
-
-    output:
-            Chain: BNB
-            Height: 22558967
-
-    # query the balance of the current height wallet
-    $ swan-client rpc balance --chain BNB --address 0x4430b3230294D12c6AB2aAC5C2cd68E80B16b581
-
-    output:
-            Chain: BNB
-            Height: 22559008
-            Address: 0x4430b3230294D12c6AB2aAC5C2cd68E80B16b581
-            Balance: 0.027942338705784518
+	Chain: BNB
+	Height: 22559008
+	Address: 0x4430b3230294D12c6AB2aAC5C2cd68E80B16b581
+	Balance: 0.027942338705784518
 ```
--   More examples can be seen [here](document/rpc-cmd-example.md ":include").
-
+-   More JSON-RPC method can be seen [here](document/rpc-cmd-example.md ":include").
