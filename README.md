@@ -16,7 +16,7 @@ Swan-client is an important Web3 toolkit. It provides different tools to help us
         -   [From Prebuilt Package](#From-Prebuilt-Package)
         -   [From Source Code](#From-Source-Code)
     -   [1.2 Configuration](#12-Configuration)
-    -   [1.3 Prerequisites](13-Prerequisites)
+    -   [1.3 Prerequisites](#13-Prerequisites)
     -   [1.4 Generate CAR Files](#13-Generate-CAR-Files)
         -   [Graphsplit](#Graphsplit)
         -   [Lotus API](#Lotus-API)
