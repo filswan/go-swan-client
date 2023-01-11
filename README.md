@@ -376,8 +376,6 @@ curl --location --request POST '127.0.0.1:8099/chain/rpc' \
     "params": "{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"id\":1}"
 }'
 ```
-output: 
-       {"id":1,"jsonrpc":"2.0","result":"0xf1c622"}
 
 -   Example `eth_signTransaction` :
 ```shell
