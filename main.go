@@ -728,9 +728,6 @@ var rpcApiCmd = &cli.Command{
 		},
 	},
 	Action: func(ctx *cli.Context) error {
-		if !ctx.Args().Present() {
-			return cli.ShowCommandHelp(ctx, ctx.Command.Name)
-		}
 		chainId := ctx.String("chain-id")
 		params := ctx.String("params")
 
@@ -745,7 +742,7 @@ var rpcApiCmd = &cli.Command{
 			return err
 		}
 		fmt.Println("out:")
-		print(result)
+		print(string(result))
 		return nil
 	},
 }
