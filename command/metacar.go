@@ -6,64 +6,65 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var CmdGetCarRoot = &cli.Command{
-	Name:   "root",
-	Usage:  "Get the root CID of a car",
-	Action: MetaCarRoot,
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:    "file",
-			Aliases: []string{"f"},
-			Usage:   "Specify source car file",
-		},
-	},
+var MetaCmd = &cli.Command{
+	Name:            "meta",
+	Usage:           "Use the meta-lib api to manipulate CAR file",
+	Subcommands:     []*cli.Command{getRootCmd, listCarCmd, metaCarCmd, cmdRestoreCar},
+	HideHelpCommand: true,
 }
 
-var CmdListCar = &cli.Command{
-	Name:   "list",
-	Usage:  "List the CIDs in a car",
-	Action: MetaCarList,
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:    "file",
-			Aliases: []string{"f"},
-			Usage:   "Specify source car file",
-		},
-	},
+var getRootCmd = &cli.Command{
+	Name:      "root",
+	Usage:     "Get a CAR's root CID",
+	ArgsUsage: "filename",
+	Action:    metaCarRoot,
 }
 
-var CmdBuildCar = &cli.Command{
-	Name:   "build",
-	Usage:  "Generate CAR file",
-	Action: MetaCarBuildFromDir,
+var listCarCmd = &cli.Command{
+	Name:      "list",
+	Usage:     "List the CIDs in a CAR",
+	ArgsUsage: "filename",
+	Action:    metaCarList,
+}
+
+var metaCarCmd = &cli.Command{
+	Name:   "car",
+	Usage:  "Generate CAR files of the specified size",
+	Action: metaCarBuildFromDir,
 	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:     "input-dir",
+			Required: true,
+			Usage:    "directory where source file(s) is(are) in.",
+		},
+		&cli.StringFlag{
+			Name:     "output-dir",
+			Required: true,
+			Usage:    "directory where CAR file(s) will be generated. (default: \"/tmp/tasks\")",
+		},
 		&cli.Uint64Flag{
 			Name:  "slice-size",
 			Value: 17179869184, // 16G
 			Usage: "specify chunk piece size",
 		},
-		&cli.StringFlag{
-			Name:     "output-dir",
-			Required: true,
-			Usage:    "specify output CAR directory",
-		},
 	},
 }
 
-var CmdRestoreCar = &cli.Command{
-	Name:   "restore",
-	Usage:  "Restore files from CAR files",
-	Action: MetaCarRestore,
+var cmdRestoreCar = &cli.Command{
+	Name:      "restore",
+	Usage:     "Restore files from CAR files",
+	ArgsUsage: "[inputPath]",
+	Action:    metaCarRestore,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:     "car-path",
+			Name:     "input-dir",
 			Required: true,
-			Usage:    "specify source car path, directory or file",
+			Usage:    "directory where source file(s) is(are) in.",
 		},
 		&cli.StringFlag{
 			Name:     "output-dir",
 			Required: true,
-			Usage:    "specify output directory",
+			Usage:    "directory where CAR file(s) will be generated. (default: \"/tmp/tasks\")",
 		},
 		&cli.IntFlag{
 			Name:  "parallel",
@@ -73,8 +74,8 @@ var CmdRestoreCar = &cli.Command{
 	},
 }
 
-func MetaCarList(c *cli.Context) error {
-	carFile := c.String("file")
+func metaCarList(c *cli.Context) error {
+	carFile := c.Args().First()
 
 	info, err := metacar.ListCarFile(carFile)
 	if err != nil {
@@ -89,8 +90,8 @@ func MetaCarList(c *cli.Context) error {
 	return nil
 }
 
-func MetaCarRoot(c *cli.Context) error {
-	carFile := c.String("file")
+func metaCarRoot(c *cli.Context) error {
+	carFile := c.Args().First()
 
 	root, err := metacar.GetCarRoot(carFile)
 	if err != nil {
@@ -102,10 +103,10 @@ func MetaCarRoot(c *cli.Context) error {
 	return nil
 }
 
-func MetaCarBuildFromDir(c *cli.Context) error {
+func metaCarBuildFromDir(c *cli.Context) error {
 	outputDir := c.String("output-dir")
 	sliceSize := c.Uint64("slice-size")
-	srcDir := c.Args().First()
+	srcDir := c.String("input-dir")
 
 	carFileName, err := metacar.GenerateCarFromDir(outputDir, srcDir, int64(sliceSize))
 	if err != nil {
@@ -116,6 +117,6 @@ func MetaCarBuildFromDir(c *cli.Context) error {
 	return nil
 }
 
-func MetaCarRestore(c *cli.Context) error {
+func metaCarRestore(c *cli.Context) error {
 	return nil
 }

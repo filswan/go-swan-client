@@ -641,7 +641,7 @@ var carRestoreCmd = &cli.Command{
 var toolsCmd = &cli.Command{
 	Name:            "generate-car",
 	Usage:           "Generate CAR files from a file or directory",
-	Subcommands:     []*cli.Command{splitCarCmd, lotusCarCmd, ipfsCmdCarCmd},
+	Subcommands:     []*cli.Command{splitCarCmd, lotusCarCmd, ipfsCmdCarCmd, command.MetaCmd},
 	HideHelpCommand: true,
 }
 
