@@ -167,6 +167,7 @@ OPTIONS:
 #### Lotus API
 
 \:bell: 此选项会将 `--input-dir` 中每个文件都生成一个单独的CAR文件。
+
 \:bell: 需要一个运行中的 **Lotus** 节点。
 
 ```shell
