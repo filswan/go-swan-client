@@ -46,12 +46,15 @@ As a PiB-level data onboarding tool for Filecoin Network, Swan-client can help u
 swan-client can help users send their data to storage providers by creating three different kinds of tasks. The complete process from the source file to the storage provider is as follows:
 
 -   **Private Task**
+
     <img src="http://yuml.me/diagram/plain/activity/(start)-&gt;(Generate CAR Files)-&gt;(Upload CAR Files to IPFS)-&gt;(Create Private Task)-&gt;(end)">
 
 -   **Auto-bid Task**
+
     <img src="http://yuml.me/diagram/plain/activity/(start)-&gt;(Generate CAR Files)-&gt;(Upload CAR Files to IPFS)-&gt;(Create Auto-bid Task)-&gt;(end)">
 
 -   **Manual-bid Task**
+
     <img src="http://yuml.me/diagram/plain/activity/(start)-&gt;(Generate CAR Files)-&gt;(Upload CAR Files to IPFS)-&gt;(Create Manual-bid Task)-&gt;(Send Deals)-&gt;(end)">
 
 ### 1.1 Installation
