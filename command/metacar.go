@@ -9,7 +9,7 @@ import (
 var MetaCarCmd = &cli.Command{
 	Name:            "meta-car",
 	Usage:           "Utility tools for CAR file(s)",
-	Subcommands:     []*cli.Command{getRootCmd, listCarCmd, metaCarCmd, cmdRestoreCar},
+	Subcommands:     []*cli.Command{metaCarCmd, getRootCmd, listCarCmd, cmdRestoreCar},
 	HideHelpCommand: true,
 }
 
