@@ -118,5 +118,15 @@ func metaCarBuildFromDir(c *cli.Context) error {
 }
 
 func metaCarRestore(c *cli.Context) error {
+	inputDir := c.String("input-dir")
+	outputDir := c.String("output-dir")
+
+	err := metacar.RestoreCar(outputDir, inputDir)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Restore CAR To:", outputDir)
+
 	return nil
 }
