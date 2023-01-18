@@ -39,7 +39,7 @@ func main() {
 			}
 			return nil
 		},
-		Commands:        []*cli.Command{daemonCmd, walletCmd, toolsCmd, uploadCmd, taskCmd, dealCmd, autoCmd, calculateCmd, rpcApiCmd, rpcCmd},
+		Commands:        []*cli.Command{daemonCmd, walletCmd, toolsCmd, command.MetaCarCmd, uploadCmd, taskCmd, dealCmd, autoCmd, calculateCmd, rpcApiCmd, rpcCmd},
 		HideHelpCommand: true,
 	}
 	if err := app.Run(os.Args); err != nil {
@@ -641,7 +641,7 @@ var carRestoreCmd = &cli.Command{
 var toolsCmd = &cli.Command{
 	Name:            "generate-car",
 	Usage:           "Generate CAR files from a file or directory",
-	Subcommands:     []*cli.Command{splitCarCmd, lotusCarCmd, ipfsCmdCarCmd, command.MetaCmd},
+	Subcommands:     []*cli.Command{splitCarCmd, lotusCarCmd, ipfsCmdCarCmd},
 	HideHelpCommand: true,
 }
 

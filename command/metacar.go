@@ -6,9 +6,9 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var MetaCmd = &cli.Command{
-	Name:            "meta",
-	Usage:           "Use the meta-lib api to manipulate CAR file",
+var MetaCarCmd = &cli.Command{
+	Name:            "meta-car",
+	Usage:           "Utility tools for CAR file(s)",
 	Subcommands:     []*cli.Command{getRootCmd, listCarCmd, metaCarCmd, cmdRestoreCar},
 	HideHelpCommand: true,
 }
@@ -28,7 +28,7 @@ var listCarCmd = &cli.Command{
 }
 
 var metaCarCmd = &cli.Command{
-	Name:   "car",
+	Name:   "generate-car",
 	Usage:  "Generate CAR files of the specified size",
 	Action: metaCarBuildFromDir,
 	Flags: []cli.Flag{
@@ -52,7 +52,7 @@ var metaCarCmd = &cli.Command{
 
 var cmdRestoreCar = &cli.Command{
 	Name:      "restore",
-	Usage:     "Restore files from CAR files",
+	Usage:     "Restore original files from CAR(s)",
 	ArgsUsage: "[inputPath]",
 	Action:    metaCarRestore,
 	Flags: []cli.Flag{
