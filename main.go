@@ -39,7 +39,7 @@ func main() {
 			}
 			return nil
 		},
-		Commands:        []*cli.Command{daemonCmd, walletCmd, toolsCmd, uploadCmd, taskCmd, dealCmd, autoCmd, calculateCmd, rpcApiCmd, rpcCmd},
+		Commands:        []*cli.Command{daemonCmd, walletCmd, toolsCmd, command.MetaCarCmd, uploadCmd, taskCmd, dealCmd, autoCmd, calculateCmd, rpcApiCmd, rpcCmd},
 		HideHelpCommand: true,
 	}
 	if err := app.Run(os.Args); err != nil {
