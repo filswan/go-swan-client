@@ -2,6 +2,7 @@ package command
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	metacar "github.com/FogMeta/meta-lib/module/ipfs"
 	"github.com/codingsince1985/checksum"
@@ -16,6 +17,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -259,6 +261,12 @@ func createFilesDesc(cmdGoCar *CmdGoCar, carInfos []metacar.CarInfo) ([]*libmode
 		return nil, err
 	}
 
+	_, err = WriteCarIndexToJsonFile(carInfos, cmdGoCar.OutputDir, INDEX_FILE_NAME_CAR_UPLOAD)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
 	return fileDescs, nil
 }
 
@@ -295,4 +303,22 @@ func calcCommP(inputCarFile string) (string, uint64, error) {
 	}
 
 	return pieceCid.String(), uint64(pieceSize), nil
+}
+
+func WriteCarIndexToJsonFile(carInfos []metacar.CarInfo, outputDir, indexFileName string) (*string, error) {
+	jsonFilePath := filepath.Join(outputDir, indexFileName)
+	content, err := json.MarshalIndent(carInfos, "", " ")
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	err = ioutil.WriteFile(jsonFilePath, content, 0644)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	logs.GetLogger().Info("Metadata index file generated: ", jsonFilePath)
+	return &jsonFilePath, nil
 }

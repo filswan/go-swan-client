@@ -40,6 +40,8 @@ const (
 	CSV_FILE_NAME_DEAL       = "-deals.csv"
 	CSV_FILE_NAME_DEAL_AUTO  = "-auto-deals.csv"
 
+	INDEX_FILE_NAME_CAR_UPLOAD = "car.idx"
+
 	DIR_NAME_INPUT  = "input"
 	DIR_NAME_OUTPUT = "output"
 
