@@ -409,6 +409,7 @@ func metaWriteCarFilesToCsvFile(carFiles []*MetaFileDesc, outDir, csvFileName st
 	headers = append(headers, "start_epoch")
 	headers = append(headers, "source_id")
 	headers = append(headers, "deals")
+	headers = append(headers, "src_detail")
 
 	file, err := os.Create(csvFilePath)
 	if err != nil {
@@ -463,6 +464,19 @@ func metaWriteCarFilesToCsvFile(carFiles []*MetaFileDesc, outDir, csvFileName st
 		} else {
 			columns = append(columns, "")
 		}
+
+		if len(carFile.SrcDetail) > 0 {
+			detailByte, err := json.Marshal(carFile.SrcDetail)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				columns = append(columns, "")
+			} else {
+				columns = append(columns, string(detailByte))
+			}
+		} else {
+			columns = append(columns, "")
+		}
+
 		err = writer.Write(columns)
 		if err != nil {
 			logs.GetLogger().Error(err)
