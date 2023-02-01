@@ -272,6 +272,60 @@ OPTIONS:
 -   `[task-name]-metadata.json`: 包含 `Uuid` 和 `Deals`，供存储提供商导入订单。
 
 
+
+
+### <a id="17-生成CAR文件">1.7 CAR文件工具</a>
+
+CAR 文件是发送给存储提供商的一个独立的单元。Swan Client Meta-CAR提供了多个命令与 CAR 文件交互。
+
+#### generate-car
+
+\:bell: 此命令可以将源目录下的文件打包到输出目录中的一个或多个 CAR 文件。
+
+```shell
+swan-client meta-car generate-car --input-dir [input_files_dir] --output-dir [car_files_output_dir]
+
+OPTIONS:
+   --input-dir                       源文件所在的目录
+   --output-dir                      CAR 文件将会生成在此目录下 (默认: "/tmp/tasks")
+   --import                          是否导入 CAR 文件到 lotus (默认: true)
+   --parallel value                  构建 ipld 节点时运行的线程数量 (默认: 2)
+   --slice-size value                每个piece的字节 (默认: 17179869184)
+```
+
+**此步骤后生成的文件：**
+- `car.json`: 包含源文件和 CAR 文件的信息
+- `car.csv`: 包含源文件和 CAR 文件的信息
+- `car.idx`: 包含CAR 文件中源文件的详细信息
+
+#### root
+
+\:bell: 此命令将显示输入 CAR 文件的Root CID。
+
+```shell
+swan-client meta-car root [input_file]
+```
+
+#### list
+
+\:bell: 此命令将显示 CAR 文件中包含源文件的 FILE/CID/UUID/SIZE 信息。
+
+```shell
+swan-client meta-car list [input_file]
+```
+
+#### restore
+
+\:bell: 此选项将使用 `ipfs-car` 命令将源目录下的文件合并到输出目录中的一个 CAR 文件。
+
+```shell
+swan-client meta-car restore --input-path [input_file] --output-dir [source_file_output_dir]
+
+OPTIONS:
+   --input-path value                CAR 文件的路径
+   --output-dir value                源文件将会生成在此目录下 (默认: "/tmp/tasks")
+```
+
 ### 自动竞价任务
 Swan Client可以创建自动竞价任务，通过 Swan Platform 的市场匹配器（Market-Matcher）来自动匹配合适的存储提供商。
 ```shell
