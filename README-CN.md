@@ -276,7 +276,7 @@ OPTIONS:
 
 ### <a id="17-生成CAR文件">1.7 CAR文件工具</a>
 
-CAR 文件是发送给存储提供商的一个独立的单元。Swan Client Meta-CAR提供了多个命令与 CAR 文件交互。
+CAR 文件是发送给存储提供商的一个独立的单元。Swan Client `meta-car` 提供了多个与 CAR 文件的交互工具命令。
 
 #### generate-car
 
@@ -296,7 +296,8 @@ OPTIONS:
 **此步骤后生成的文件：**
 - `car.json`: 包含源文件和 CAR 文件的信息
 - `car.csv`: 包含源文件和 CAR 文件的信息
-- `car.idx`: 包含CAR 文件中源文件的详细信息
+- `car.idx`: 包含 CAR 文件中源文件的详细信息
+- [root-cid].car: 一个或多个 CAR 文件
 
 #### root
 
@@ -316,7 +317,7 @@ swan-client meta-car list [input_file]
 
 #### restore
 
-\:bell: 此选项将使用 `ipfs-car` 命令将源目录下的文件合并到输出目录中的一个 CAR 文件。
+\:bell: 此命令将包含在 CAR 文件中的源文件输出到指定文件夹。
 
 ```shell
 swan-client meta-car restore --input-path [input_file] --output-dir [source_file_output_dir]

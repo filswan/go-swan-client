@@ -272,6 +272,60 @@ OPTIONS:
 
 -   `[task-name]-metadata.json`: contains `Uuid` and `Deals` for storage providers to import deals.
 
+### 1.7 Generate CAR Files
+
+A CAR file is an independent unit to be sent to storage providers, swan client 'meta-car' provides a number of interactive tools with CAR files.
+
+#### generate-car
+
+\:bell: This option can package the files in a whole directory to one or more car file(s) in the output directory.
+
+```shell
+swan-client meta-car generate-car --input-dir [input_files_dir] --output-dir [car_files_output_dir]
+
+OPTIONS:
+   --input-dir                       directory where source file(s) is(are) in
+   --output-dir                      directory where CAR file(s) will be generated (default: "/tmp/tasks")
+   --import                          whether to import CAR files to lotus (default: true)
+   --parallel value                  number goroutines run when building ipld nodes (default: 2)
+   --slice-size value                bytes of each piece (default: 17179869184)
+```
+
+**Files generated after this step:**
+
+- `car.json`: contains information for both source files and CAR files
+- `car.csv`: contains information for both source files and CAR files
+- `car.idx`: contains detail information for source files which included in CAR files
+- `[root-cid].car`: one or more CAR files
+
+#### root
+
+\:bell: This command displays the Root CID of the input CAR file.
+
+```shell
+swan-client meta-car root [input_file]
+```
+
+#### list
+
+\:bell: This command displays the FILE/CID/UUID/SIZE information of the source file(s) in the CAR file.
+
+```shell
+swan-client meta-car list [input_file]
+```
+
+#### restore
+
+\:bell: This command outputs the source files contained in the CAR file to the specified folder.
+
+```shell
+swan-client meta-car restore --input-path [input_file] --output-dir [source_file_output_dir]
+
+OPTIONS:
+   --input-path value            path of the CAR file
+   --output-dir value            directory where source file(s) will be generated (default: "/tmp/tasks")
+```
+
 ### Auto-bid Task
 
 ```shell
