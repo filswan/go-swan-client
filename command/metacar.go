@@ -199,7 +199,7 @@ func createFilesDesc(cmdGoCar *CmdGoCar, carInfos []metacar.CarInfo) ([]*libmode
 	}
 
 	fileDescs := []*libmodel.FileDesc{}
-	for _, carInfo := range carInfos {
+	for i, carInfo := range carInfos {
 
 		fileDesc := libmodel.FileDesc{}
 		fileDesc.PayloadCid = carInfo.RootCid
@@ -211,6 +211,9 @@ func createFilesDesc(cmdGoCar *CmdGoCar, carInfos []metacar.CarInfo) ([]*libmode
 		if err == nil {
 			carInfo.PieceCID = pieceCid
 			carInfo.PieceSize = int64(pieceSize)
+
+			carInfos[i].PieceCID = pieceCid
+			carInfos[i].PieceSize = int64(pieceSize)
 
 		}
 		fileDesc.PieceCid = carInfo.PieceCID
