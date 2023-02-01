@@ -2,6 +2,7 @@ package command
 
 import (
 	"bufio"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	metacar "github.com/FogMeta/meta-lib/module/ipfs"
@@ -20,6 +21,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 var MetaCarCmd = &cli.Command{
@@ -186,7 +188,7 @@ func metaCarRestore(c *cli.Context) error {
 	return nil
 }
 
-func createFilesDesc(cmdGoCar *CmdGoCar, carInfos []metacar.CarInfo) ([]*libmodel.FileDesc, error) {
+func createFilesDesc(cmdGoCar *CmdGoCar, carInfos []metacar.CarInfo) ([]*MetaFileDesc, error) {
 
 	var lotusClient *lotus.LotusClient
 	var err error
@@ -198,10 +200,10 @@ func createFilesDesc(cmdGoCar *CmdGoCar, carInfos []metacar.CarInfo) ([]*libmode
 		}
 	}
 
-	fileDescs := []*libmodel.FileDesc{}
+	fileDescs := []*MetaFileDesc{}
 	for i, carInfo := range carInfos {
 
-		fileDesc := libmodel.FileDesc{}
+		fileDesc := MetaFileDesc{}
 		fileDesc.PayloadCid = carInfo.RootCid
 		fileDesc.CarFileName = carInfo.CarFileName
 		fileDesc.CarFileUrl = carInfo.CarFileName
@@ -255,20 +257,24 @@ func createFilesDesc(cmdGoCar *CmdGoCar, carInfos []metacar.CarInfo) ([]*libmode
 			fileDesc.CarFileMd5 = carFileMd5
 		}
 
+		fileDesc.SrcDetail = append(fileDesc.SrcDetail, carInfo.Details...)
+		// logs.GetLogger().Info("Details:", carInfo.Details)
+		// fileDesc.SrcDetail = carInfo.Details
+
 		fileDescs = append(fileDescs, &fileDesc)
 	}
 
-	_, err = WriteCarFilesToFiles(fileDescs, cmdGoCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD, CSV_FILE_NAME_CAR_UPLOAD)
+	_, err = metaWriteCarFilesToFiles(fileDescs, cmdGoCar.OutputDir, JSON_FILE_NAME_CAR_UPLOAD, CSV_FILE_NAME_CAR_UPLOAD)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
 	}
 
-	_, err = WriteCarIndexToJsonFile(carInfos, cmdGoCar.OutputDir, INDEX_FILE_NAME_CAR_UPLOAD)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
+	//_, err = metaWriteIndexToJsonFile(carInfos, cmdGoCar.OutputDir, INDEX_FILE_NAME_CAR_UPLOAD)
+	//if err != nil {
+	//	logs.GetLogger().Error(err)
+	//	return nil, err
+	//}
 
 	return fileDescs, nil
 }
@@ -308,7 +314,48 @@ func calcCommP(inputCarFile string) (string, uint64, error) {
 	return pieceCid.String(), uint64(pieceSize), nil
 }
 
-func WriteCarIndexToJsonFile(carInfos []metacar.CarInfo, outputDir, indexFileName string) (*string, error) {
+type MetaFileDesc struct {
+	Uuid           string
+	SourceFileName string
+	SourceFilePath string
+	SourceFileMd5  string
+	SourceFileSize int64
+	CarFileName    string
+	CarFilePath    string
+	CarFileMd5     string
+	CarFileUrl     string
+	CarFileSize    int64
+	PayloadCid     string
+	PieceCid       string
+	StartEpoch     *int64
+	SourceId       *int
+	Deals          []*libmodel.DealInfo
+	SrcDetail      []metacar.DetailInfo `json:"src_detail"`
+}
+
+func metaWriteCarFilesToFiles(carFiles []*MetaFileDesc, outputDir, jsonFilename, csvFileName string) (*string, error) {
+	err := os.MkdirAll(outputDir, os.ModePerm)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	jsonFilePath, err := metaWriteFileDescsToJsonFile(carFiles, outputDir, jsonFilename)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	err = metaWriteCarFilesToCsvFile(carFiles, outputDir, csvFileName)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	return jsonFilePath, nil
+}
+
+func metaWriteIndexToJsonFile(carInfos []metacar.CarInfo, outputDir, indexFileName string) (*string, error) {
 	jsonFilePath := filepath.Join(outputDir, indexFileName)
 	content, err := json.MarshalIndent(carInfos, "", " ")
 	if err != nil {
@@ -324,4 +371,106 @@ func WriteCarIndexToJsonFile(carInfos []metacar.CarInfo, outputDir, indexFileNam
 
 	logs.GetLogger().Info("Metadata index file generated: ", jsonFilePath)
 	return &jsonFilePath, nil
+}
+
+func metaWriteFileDescsToJsonFile(fileDescs []*MetaFileDesc, outputDir, jsonFileName string) (*string, error) {
+	jsonFilePath := filepath.Join(outputDir, jsonFileName)
+	content, err := json.MarshalIndent(fileDescs, "", " ")
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	err = ioutil.WriteFile(jsonFilePath, content, 0644)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+
+	logs.GetLogger().Info("Metadata json file generated: ", jsonFilePath)
+	return &jsonFilePath, nil
+}
+
+func metaWriteCarFilesToCsvFile(carFiles []*MetaFileDesc, outDir, csvFileName string) error {
+	csvFilePath := filepath.Join(outDir, csvFileName)
+	var headers []string
+	headers = append(headers, "uuid")
+	headers = append(headers, "source_file_name")
+	headers = append(headers, "source_file_path")
+	headers = append(headers, "source_file_md5")
+	headers = append(headers, "source_file_size")
+	headers = append(headers, "car_file_name")
+	headers = append(headers, "car_file_path")
+	headers = append(headers, "car_file_md5")
+	headers = append(headers, "car_file_url")
+	headers = append(headers, "car_file_size")
+	headers = append(headers, "pay_load_cid")
+	headers = append(headers, "piece_cid")
+	headers = append(headers, "start_epoch")
+	headers = append(headers, "source_id")
+	headers = append(headers, "deals")
+
+	file, err := os.Create(csvFilePath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	err = writer.Write(headers)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	for _, carFile := range carFiles {
+		var columns []string
+		columns = append(columns, carFile.Uuid)
+		columns = append(columns, carFile.SourceFileName)
+		columns = append(columns, carFile.SourceFilePath)
+		columns = append(columns, carFile.SourceFileMd5)
+		columns = append(columns, strconv.FormatInt(carFile.SourceFileSize, 10))
+		columns = append(columns, carFile.CarFileName)
+		columns = append(columns, carFile.CarFilePath)
+		columns = append(columns, carFile.CarFileMd5)
+		columns = append(columns, carFile.CarFileUrl)
+		columns = append(columns, strconv.FormatInt(carFile.CarFileSize, 10))
+		columns = append(columns, carFile.PayloadCid)
+		columns = append(columns, carFile.PieceCid)
+
+		if carFile.StartEpoch != nil {
+			columns = append(columns, strconv.FormatInt(*carFile.StartEpoch, 10))
+		} else {
+			columns = append(columns, "")
+		}
+
+		if carFile.SourceId != nil {
+			columns = append(columns, strconv.Itoa(*carFile.SourceId))
+		} else {
+			columns = append(columns, "")
+		}
+		if len(carFile.Deals) > 0 {
+			dealsByte, err := json.Marshal(carFile.Deals)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				columns = append(columns, "")
+			} else {
+				columns = append(columns, string(dealsByte))
+			}
+		} else {
+			columns = append(columns, "")
+		}
+		err = writer.Write(columns)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return err
+		}
+	}
+
+	logs.GetLogger().Info("Metadata csv generated: ", csvFilePath)
+
+	return nil
 }

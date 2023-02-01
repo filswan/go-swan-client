@@ -210,8 +210,8 @@ github.com/cncf/xds/go v0.0.0-20211011173535-cb28da3451f1/go.mod h1:eXthEFrGJvWH
 github.com/cockroachdb/datadriven v0.0.0-20190809214429-80d97fb3cbaa/go.mod h1:zn76sxSg3SzpJ0PPJaLDCu+Bu0Lg3sKTORVIj19EIF8=
 github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd/go.mod h1:sE/e/2PUdi/liOCUjSTXgM1o87ZssimdTWN964YiIeI=
 github.com/codegangsta/cli v1.20.0/go.mod h1:/qJNoX69yVSKu5o4jLyXAENLRyk1uhi7zkbQ3slBdOA=
-github.com/codex8080/meta-lib v0.0.7 h1:2BkJiVVfDWcJqE8HMmoPf2yBswLCB3j585k3AFct4Eg=
-github.com/codex8080/meta-lib v0.0.7/go.mod h1:lQUUSyxmvRHBjT4O1SzcIfAnO1eolhF0inrQ5bpZsqg=
+github.com/codex8080/meta-lib v0.0.8 h1:uGQ8zc/ShdYju4ueZSznExkmioRvHS4NJBiLx7e25K4=
+github.com/codex8080/meta-lib v0.0.8/go.mod h1:lQUUSyxmvRHBjT4O1SzcIfAnO1eolhF0inrQ5bpZsqg=
 github.com/codingsince1985/checksum v1.2.3 h1:BTqAK2E4ALvlRJ7qOQxrkDQ9KGn0QaytIy0UsKYYlDg=
 github.com/codingsince1985/checksum v1.2.3/go.mod h1:ndgq6j/rW3sNk4mAX04SElqXfFJkXuVvwKq1G4BPfVM=
 github.com/containerd/cgroups v0.0.0-20201119153540-4cbc285b3327/go.mod h1:ZJeTFisyysqgcCdecO57Dj79RfL0LNeGiFUqLYQRYLE=

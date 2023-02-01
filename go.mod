@@ -23,4 +23,4 @@ require (
 
 replace github.com/filecoin-project/filecoin-ffi => ./extern/filecoin-ffi
 
-replace github.com/FogMeta/meta-lib => github.com/codex8080/meta-lib v0.0.7
+replace github.com/FogMeta/meta-lib => github.com/codex8080/meta-lib v0.0.8
