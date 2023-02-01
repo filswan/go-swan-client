@@ -295,7 +295,6 @@ OPTIONS:
 
 - `car.json`: contains information for both source files and CAR files
 - `car.csv`: contains information for both source files and CAR files
-- `car.idx`: contains detail information for source files which included in CAR files
 - `[root-cid].car`: one or more CAR files
 
 #### root

@@ -296,7 +296,6 @@ OPTIONS:
 **此步骤后生成的文件：**
 - `car.json`: 包含源文件和 CAR 文件的信息
 - `car.csv`: 包含源文件和 CAR 文件的信息
-- `car.idx`: 包含 CAR 文件中源文件的详细信息
 - [root-cid].car: 一个或多个 CAR 文件
 
 #### root
