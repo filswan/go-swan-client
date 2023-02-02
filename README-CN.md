@@ -24,7 +24,7 @@ Swan Client 是一个重要的 Web3 工具包，提供不同的工具帮助用�
         - [ipfs-car](#ipfs-car)
     -   [1.5 CAR文件工具](#15-CAR文件工具)
         -   [Generate-car](#Generate-car)
-        -   [RootI](#Root)
+        -   [Root](#Root)
         -   [List](#List)
         -   [Restore](#Restore)
     -   [1.6 上传CAR文件到IPFS](#16-上传CAR文件到IPFS)
@@ -236,7 +236,7 @@ OPTIONS:
 
 CAR 文件是发送给存储提供商的一个独立的单元。Swan Client `meta-car` 提供了多个与 CAR 文件的交互工具命令。
 
-#### generate-car
+#### Generate-car
 
 \:bell: 此命令可以将源目录下的文件打包到输出目录中的一个或多个 CAR 文件。
 
@@ -256,7 +256,7 @@ OPTIONS:
 - `car.csv`: 包含源文件和 CAR 文件的信息
 - [root-cid].car: 一个或多个 CAR 文件
 
-#### root
+#### Root
 
 \:bell: 此命令将显示输入 CAR 文件的Root CID。
 
@@ -264,7 +264,7 @@ OPTIONS:
 swan-client meta-car root [input_file]
 ```
 
-#### list
+#### List
 
 \:bell: 此命令将显示 CAR 文件中包含源文件的 FILE/CID/UUID/SIZE 信息。
 
@@ -272,7 +272,7 @@ swan-client meta-car root [input_file]
 swan-client meta-car list [input_file]
 ```
 
-#### restore
+#### Restore
 
 \:bell: 此命令将包含在 CAR 文件中的源文件输出到指定文件夹。
 
