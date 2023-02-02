@@ -18,12 +18,17 @@ Swan Client 是一个重要的 Web3 工具包，提供不同的工具帮助用�
     -   [1.2 配置](#12-配置)
     -   [1.3 前提条件](#13-前提条件)
     -   [1.4 生成CAR文件](#14-生成CAR文件)
-        -   [Graphsplit](#Graphsplit)
-        -   [Lotus API](#Lotus-API)
-        -   [IPFS API](#IPFS-API)
-        -   [ipfs-car](#ipfs-car)
-    -   [1.5 上传CAR文件到IPFS](#15-上传CAR文件到IPFS)
-    -   [1.6 创建任务](#16-创建任务)
+        - [Graphsplit](#Graphsplit)
+        - [Lotus API](#Lotus-API)
+        - [IPFS API](#IPFS-API)
+        - [ipfs-car](#ipfs-car)
+    -   [1.5 CAR文件工具](#15-CAR文件工具)
+        -   [Generate-car](#Generate-car)
+        -   [RootI](#Root)
+        -   [List](#List)
+        -   [Restore](#Restore)
+    -   [1.6 上传CAR文件到IPFS](#16-上传CAR文件到IPFS)
+    -   [1.7 创建任务](#17-创建任务)
         -   [私有任务](#私有任务)
         -   [自动竞价任务](#自动竞价任务)
         -   [手动竞价任务](#手动竞价任务)
@@ -227,54 +232,7 @@ OPTIONS:
 -   `car.csv`: 包含 CAR 文件的信息
 -   `[source-files-dir-name].car`: 源文件将会被合并到 CAR 文件中
 
-### <a id="15-上传CAR文件到IPFS">1.5 上传CAR文件到IPFS</a>
-
-\:bell:- 需要正确配置 `[ipfs_server].download_url_prefix` 和 `[ipfs_server].upload_url_prefix` 
-
-```shell
-swan-client upload -input-dir [input_file_dir]
-
-OPTIONS:
-   --input-dir value, -i value  源文件所在的目录
-
-```
-
-**此步骤后更新的文件：**
-
--   `car.json`: CAR 文件的 `CarFileUrl` 将被更新
--   `car.csv`: CAR 文件的 `CarFileUrl` 将被更新
-
-### 1.6 创建任务
-
-Swan Client支持使用 `car.json` 或 `car.csv` 创建三种不同的任务。
-
-#### 私有任务
-
-Swan Client可以通过创建私有任务将订单直接发送给矿工。
-
-```shell
-swan-client task --input-dir [json_or_csv_absolute_path] --out-dir [output_files_dir] --miners [storage_provider_id1,storage_provider_id2,...]
-
-OPTIONS:
-   --name value                          任务名称
-   --input-dir value, -i value           json 或 csv 格式源文件的绝对路径
-   --out-dir value, -o value             目标文件将在的目录 (默认: "/tmp/tasks")
-   --auto-bid                            发送自动竞价任务 (默认: false)
-   --manual-bid                          发送手动竞价任务 (默认: false)
-   --miners value                        发送私有任务时'miners'是必填项 (以逗号分隔每个矿工ID)
-   --dataset value                       数据集名称
-   --description value, -d value         任务描述
-   --max-copy-number value, --max value  发送自动竞价任务或手动竞价任务时每个文件的最大备份数量 (默认: 1)
-```
-
-**此步骤后生成的文件：**
-
--   `[task-name]-metadata.json`: 包含 `Uuid` 和 `Deals`，供存储提供商导入订单。
-
-
-
-
-### <a id="17-生成CAR文件">1.7 CAR文件工具</a>
+### <a id="15-生成CAR文件">1.5 CAR文件工具</a>
 
 CAR 文件是发送给存储提供商的一个独立的单元。Swan Client `meta-car` 提供了多个与 CAR 文件的交互工具命令。
 
@@ -325,6 +283,52 @@ OPTIONS:
    --input-path value                CAR 文件的路径
    --output-dir value                源文件将会生成在此目录下 (默认: "/tmp/tasks")
 ```
+
+
+### <a id="16-上传CAR文件到IPFS">1.6 上传CAR文件到IPFS</a>
+
+\:bell:- 需要正确配置 `[ipfs_server].download_url_prefix` 和 `[ipfs_server].upload_url_prefix` 
+
+```shell
+swan-client upload -input-dir [input_file_dir]
+
+OPTIONS:
+   --input-dir value, -i value  源文件所在的目录
+
+```
+
+**此步骤后更新的文件：**
+
+-   `car.json`: CAR 文件的 `CarFileUrl` 将被更新
+-   `car.csv`: CAR 文件的 `CarFileUrl` 将被更新
+
+### 1.7 创建任务
+
+Swan Client支持使用 `car.json` 或 `car.csv` 创建三种不同的任务。
+
+#### 私有任务
+
+Swan Client可以通过创建私有任务将订单直接发送给矿工。
+
+```shell
+swan-client task --input-dir [json_or_csv_absolute_path] --out-dir [output_files_dir] --miners [storage_provider_id1,storage_provider_id2,...]
+
+OPTIONS:
+   --name value                          任务名称
+   --input-dir value, -i value           json 或 csv 格式源文件的绝对路径
+   --out-dir value, -o value             目标文件将在的目录 (默认: "/tmp/tasks")
+   --auto-bid                            发送自动竞价任务 (默认: false)
+   --manual-bid                          发送手动竞价任务 (默认: false)
+   --miners value                        发送私有任务时'miners'是必填项 (以逗号分隔每个矿工ID)
+   --dataset value                       数据集名称
+   --description value, -d value         任务描述
+   --max-copy-number value, --max value  发送自动竞价任务或手动竞价任务时每个文件的最大备份数量 (默认: 1)
+```
+
+**此步骤后生成的文件：**
+
+-   `[task-name]-metadata.json`: 包含 `Uuid` 和 `Deals`，供存储提供商导入订单。
+
 
 ### 自动竞价任务
 Swan Client可以创建自动竞价任务，通过 Swan Platform 的市场匹配器（Market-Matcher）来自动匹配合适的存储提供商。

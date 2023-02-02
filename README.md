@@ -17,13 +17,18 @@ Swan-client is an important Web3 toolkit. It provides different tools to help us
         -   [From Source Code](#From-Source-Code)
     -   [1.2 Configuration](#12-Configuration)
     -   [1.3 Prerequisites](13-Prerequisites)
-    -   [1.4 Generate CAR Files](#13-Generate-CAR-Files)
-        -   [Graphsplit](#Graphsplit)
-        -   [Lotus API](#Lotus-API)
-        -   [IPFS API](#IPFS-API)
-        -   [ipfs-car](#ipfs-car)
-    -   [1.5 Upload CAR Files to IPFS](#14-Upload-CAR-Files-to-IPFS)
-    -   [1.6 Create a Task](#15-Create-A-Task)
+    -   [1.4 Generate CAR Files](#14-Generate-CAR-Files)
+        - [Graphsplit](#Graphsplit)
+        - [Lotus API](#Lotus-API)
+        - [IPFS API](#IPFS-API)
+        - [ipfs-car](#ipfs-car)
+    -   [1.5 Tools of CAR File](#15-Tools-of-CAR-File)
+        -   [Generate-Car](#Generate-car)
+        -   [Root](#Root)
+        -   [List](#List)
+        -   [Restore](#Restore)
+    -   [1.6 Upload CAR Files to IPFS](#16-Upload-CAR-Files-to-IPFS)
+    -   [1.7 Create a Task](#17-Create-A-Task)
         -   [Private Task](#Private-Task)
         -   [Auto-bid Task](#Auto-bid-Task)
         -  [Manual-bid Task](#Manual-bid-Task)
@@ -227,7 +232,61 @@ OPTIONS:
 -   `car.csv`: contains information for the CAR file
 -   `[source-files-dir-name].car`: the source file(s) will be merged into this CAR file
 
-### 1.5 Upload CAR Files to IPFS
+
+### 1.5 Tools of CAR File
+
+A CAR file is an independent unit to be sent to storage providers, swan client 'meta-car' provides a number of interactive tools with CAR files.
+
+#### Generate-car
+
+\:bell: This option can package the files in a whole directory to one or more car file(s) in the output directory.
+
+```shell
+swan-client meta-car generate-car --input-dir [input_files_dir] --output-dir [car_files_output_dir]
+
+OPTIONS:
+   --input-dir                       directory where source file(s) is(are) in
+   --output-dir                      directory where CAR file(s) will be generated (default: "/tmp/tasks")
+   --import                          whether to import CAR files to lotus (default: true)
+   --parallel value                  number goroutines run when building ipld nodes (default: 2)
+   --slice-size value                bytes of each piece (default: 17179869184)
+```
+
+**Files generated after this step:**
+
+- `car.json`: contains information for both source files and CAR files
+- `car.csv`: contains information for both source files and CAR files
+- `[root-cid].car`: one or more CAR files
+
+#### Root
+
+\:bell: This command displays the Root CID of the input CAR file.
+
+```shell
+swan-client meta-car root [input_file]
+```
+
+#### List
+
+\:bell: This command displays the FILE/CID/UUID/SIZE information of the source file(s) in the CAR file.
+
+```shell
+swan-client meta-car list [input_file]
+```
+
+#### Restore
+
+\:bell: This command outputs the source files contained in the CAR file to the specified folder.
+
+```shell
+swan-client meta-car restore --input-path [input_file] --output-dir [source_file_output_dir]
+
+OPTIONS:
+   --input-path value            path of the CAR file
+   --output-dir value            directory where source file(s) will be generated (default: "/tmp/tasks")
+```
+
+### 1.6 Upload CAR Files to IPFS
 
 \:bell:- `[ipfs_server].download_url_prefix` and `[ipfs_server].upload_url_prefix` are required to upload CAR files to IPFS server.
 
@@ -244,7 +303,7 @@ OPTIONS:
 -   `car.json`: the `CarFileUrl` of CAR files will be updated
 -   `car.csv`: the `CarFileUrl` of CAR files will be updated
 
-### 1.6 Create a Task
+### 1.7 Create a Task
 
 You can create three different kinds of tasks using the `car.json` or `car.csv`
 
@@ -271,59 +330,6 @@ OPTIONS:
 **Files generated after this step:**
 
 -   `[task-name]-metadata.json`: contains `Uuid` and `Deals` for storage providers to import deals.
-
-### 1.7 Generate CAR Files
-
-A CAR file is an independent unit to be sent to storage providers, swan client 'meta-car' provides a number of interactive tools with CAR files.
-
-#### generate-car
-
-\:bell: This option can package the files in a whole directory to one or more car file(s) in the output directory.
-
-```shell
-swan-client meta-car generate-car --input-dir [input_files_dir] --output-dir [car_files_output_dir]
-
-OPTIONS:
-   --input-dir                       directory where source file(s) is(are) in
-   --output-dir                      directory where CAR file(s) will be generated (default: "/tmp/tasks")
-   --import                          whether to import CAR files to lotus (default: true)
-   --parallel value                  number goroutines run when building ipld nodes (default: 2)
-   --slice-size value                bytes of each piece (default: 17179869184)
-```
-
-**Files generated after this step:**
-
-- `car.json`: contains information for both source files and CAR files
-- `car.csv`: contains information for both source files and CAR files
-- `[root-cid].car`: one or more CAR files
-
-#### root
-
-\:bell: This command displays the Root CID of the input CAR file.
-
-```shell
-swan-client meta-car root [input_file]
-```
-
-#### list
-
-\:bell: This command displays the FILE/CID/UUID/SIZE information of the source file(s) in the CAR file.
-
-```shell
-swan-client meta-car list [input_file]
-```
-
-#### restore
-
-\:bell: This command outputs the source files contained in the CAR file to the specified folder.
-
-```shell
-swan-client meta-car restore --input-path [input_file] --output-dir [source_file_output_dir]
-
-OPTIONS:
-   --input-path value            path of the CAR file
-   --output-dir value            directory where source file(s) will be generated (default: "/tmp/tasks")
-```
 
 ### Auto-bid Task
 
