@@ -73,7 +73,7 @@ var metaCarCmd = &cli.Command{
 		&cli.BoolFlag{
 			Name:  "import",
 			Usage: "whether to import CAR file to lotus",
-			Value: true,
+			Value: false,
 		},
 	},
 }
