@@ -85,7 +85,7 @@ var cmdRestoreCar = &cli.Command{
 	Action:    metaCarRestore,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:     "input-dir",
+			Name:     "input-path",
 			Required: true,
 			Usage:    "directory where source file(s) is(are) in.",
 		},
@@ -175,7 +175,7 @@ func metaCarBuildFromDir(c *cli.Context) error {
 }
 
 func metaCarRestore(c *cli.Context) error {
-	inputDir := c.String("input-dir")
+	inputDir := c.String("input-path")
 	outputDir := c.String("output-dir")
 
 	err := metacar.RestoreCar(outputDir, inputDir)
