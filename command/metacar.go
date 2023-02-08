@@ -27,7 +27,7 @@ import (
 var MetaCarCmd = &cli.Command{
 	Name:            "meta-car",
 	Usage:           "Utility tools for CAR file(s)",
-	Subcommands:     []*cli.Command{metaCarCmd, getRootCmd, listCarCmd, cmdRestoreCar},
+	Subcommands:     []*cli.Command{metaCarCmd, getRootCmd, listCarCmd, cmdRestoreCar, cmdExtractFile},
 	HideHelpCommand: true,
 }
 
@@ -92,12 +92,36 @@ var cmdRestoreCar = &cli.Command{
 		&cli.StringFlag{
 			Name:     "output-dir",
 			Required: true,
-			Usage:    "directory where CAR file(s) will be generated. (default: \"/tmp/tasks\")",
+			Usage:    "directory where file(s) will be generated. (default: \"/tmp/tasks\")",
 		},
 		&cli.IntFlag{
 			Name:  "parallel",
 			Value: 2,
 			Usage: "specify how many number of goroutines runs when generate file node",
+		},
+	},
+}
+
+var cmdExtractFile = &cli.Command{
+	Name:      "extract",
+	Usage:     "Extract one original file from CAR(s)",
+	ArgsUsage: "[inputPath]",
+	Action:    metaCarExtract,
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:     "input-path",
+			Required: true,
+			Usage:    "directory where source file(s) is(are) in.",
+		},
+		&cli.StringFlag{
+			Name:     "file-name",
+			Required: true,
+			Usage:    "file name which in the CAR(s).",
+		},
+		&cli.StringFlag{
+			Name:     "output-dir",
+			Required: true,
+			Usage:    "directory where file will be generated. (default: \"/tmp/tasks\")",
 		},
 	},
 }
@@ -184,6 +208,22 @@ func metaCarRestore(c *cli.Context) error {
 	}
 
 	fmt.Println("Restore CAR To:", outputDir)
+
+	return nil
+}
+
+func metaCarExtract(c *cli.Context) error {
+	inputCar := c.String("input-path")
+
+	inFileName := c.String("file-name")
+	outputDir := c.String("output-dir")
+
+	err := metacar.ExtractFileFromCar(outputDir, inputCar, inFileName)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Extract ", inFileName, " To:", outputDir)
 
 	return nil
 }
