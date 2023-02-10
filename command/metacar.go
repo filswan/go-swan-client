@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	metacar "github.com/FogMeta/meta-lib/module/ipfs"
+	"github.com/FogMeta/meta-lib/util"
 	"github.com/codingsince1985/checksum"
 	"github.com/filecoin-project/go-commp-utils/ffiwrapper"
 	"github.com/filecoin-project/go-padreader"
@@ -155,6 +156,24 @@ func metaCarRoot(c *cli.Context) error {
 	return nil
 }
 
+func getFilesSize(args []string) (int64, error) {
+	totalSize := int64(0)
+	fileList, err := util.GetFileList(args)
+	if err != nil {
+		return int64(0), err
+	}
+
+	for _, path := range fileList {
+		finfo, err := os.Stat(path)
+		if err != nil {
+			return int64(0), err
+		}
+		totalSize += finfo.Size()
+	}
+
+	return totalSize, nil
+}
+
 func metaCarBuildFromDir(c *cli.Context) error {
 	outputDir := c.String("output-dir")
 	sliceSize := c.Uint64("slice-size")
@@ -176,6 +195,19 @@ func metaCarBuildFromDir(c *cli.Context) error {
 
 	if sliceSize <= 0 {
 		err := fmt.Errorf("gocar file size limit is too smal")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	dirSize, err := getFilesSize([]string{inputDir})
+	if err != nil {
+		err := fmt.Errorf("file size limit is too smal")
+		logs.GetLogger().Error(err)
+		return err
+	}
+
+	if uint64(dirSize) > sliceSize {
+		err := fmt.Errorf("all input files size(%d),bigger than slice size(%d) limit.", uint64(dirSize), sliceSize)
 		logs.GetLogger().Error(err)
 		return err
 	}
