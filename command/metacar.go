@@ -54,12 +54,12 @@ var metaCarCmd = &cli.Command{
 		&cli.StringFlag{
 			Name:     "input-dir",
 			Required: true,
-			Usage:    "directory where source file(s) is(are) in.",
+			Usage:    "directory where source files are in.",
 		},
 		&cli.StringFlag{
 			Name:     "output-dir",
 			Required: true,
-			Usage:    "directory where CAR file(s) will be generated. (default: \"/tmp/tasks\")",
+			Usage:    "directory where CAR file(s) will be generated.",
 		},
 		&cli.Uint64Flag{
 			Name:  "slice-size",
@@ -81,19 +81,19 @@ var metaCarCmd = &cli.Command{
 
 var cmdRestoreCar = &cli.Command{
 	Name:      "restore",
-	Usage:     "Restore original files from CAR(s)",
+	Usage:     "Restore original files from the CAR file",
 	ArgsUsage: "[inputPath]",
 	Action:    metaCarRestore,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:     "input-path",
+			Name:     "input-dir",
 			Required: true,
-			Usage:    "directory where source file(s) is(are) in.",
+			Usage:    "absolute directory to the CAR file.",
 		},
 		&cli.StringFlag{
 			Name:     "output-dir",
 			Required: true,
-			Usage:    "directory where file(s) will be generated. (default: \"/tmp/tasks\")",
+			Usage:    "directory where file(s) will be generated.",
 		},
 		&cli.IntFlag{
 			Name:  "parallel",
@@ -105,24 +105,24 @@ var cmdRestoreCar = &cli.Command{
 
 var cmdExtractFile = &cli.Command{
 	Name:      "extract",
-	Usage:     "Extract one original file from CAR(s)",
+	Usage:     "Extract one original file from the CAR file",
 	ArgsUsage: "[inputPath]",
 	Action:    metaCarExtract,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:     "input-path",
+			Name:     "input-dir",
 			Required: true,
-			Usage:    "directory where source file(s) is(are) in.",
+			Usage:    "absolute directory to the CAR file.",
 		},
 		&cli.StringFlag{
 			Name:     "file-name",
 			Required: true,
-			Usage:    "file name which in the CAR(s).",
+			Usage:    "file name which in the CAR file.",
 		},
 		&cli.StringFlag{
 			Name:     "output-dir",
 			Required: true,
-			Usage:    "directory where file will be generated. (default: \"/tmp/tasks\")",
+			Usage:    "directory where file will be generated.",
 		},
 	},
 }
@@ -194,7 +194,7 @@ func metaCarBuildFromDir(c *cli.Context) error {
 	}
 
 	if sliceSize <= 0 {
-		err := fmt.Errorf("slice size should be greater than 0")
+		err := fmt.Errorf("slice size should bigger than 0")
 		logs.GetLogger().Error(err)
 		return err
 	}
@@ -206,7 +206,7 @@ func metaCarBuildFromDir(c *cli.Context) error {
 	}
 
 	if uint64(dirSize) > sliceSize {
-		err := fmt.Errorf("all input files size(%d),bigger than slice size(%d) limit", uint64(dirSize), sliceSize)
+		err := fmt.Errorf("the total size of the input directory must be smaller than the slice size")
 		logs.GetLogger().Error(err)
 		return err
 	}
