@@ -194,20 +194,19 @@ func metaCarBuildFromDir(c *cli.Context) error {
 	}
 
 	if sliceSize <= 0 {
-		err := fmt.Errorf("gocar file size limit is too smal")
+		err := fmt.Errorf("slice size should be greater than 0")
 		logs.GetLogger().Error(err)
 		return err
 	}
 
 	dirSize, err := getFilesSize([]string{inputDir})
 	if err != nil {
-		err := fmt.Errorf("file size limit is too smal")
 		logs.GetLogger().Error(err)
 		return err
 	}
 
 	if uint64(dirSize) > sliceSize {
-		err := fmt.Errorf("all input files size(%d),bigger than slice size(%d) limit.", uint64(dirSize), sliceSize)
+		err := fmt.Errorf("all input files size(%d),bigger than slice size(%d) limit", uint64(dirSize), sliceSize)
 		logs.GetLogger().Error(err)
 		return err
 	}
