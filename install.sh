@@ -3,12 +3,11 @@
 URL_PREFIX=https://github.com/filswan/go-swan-client/releases/download
 BINARY_NAME=swan-client-2.1.0-linux-amd64
 TAG_NAME=2.1.0
-
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/${BINARY_NAME}
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/config.toml.example
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/chain-rpc.json
 
-sudo install -C $(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
+sudo install -C ${BINARY_NAME} /usr/local/bin/${BINARY_NAME}
 
 CONF_FILE_DIR=${HOME}/.swan/client
 mkdir -p ${CONF_FILE_DIR}
