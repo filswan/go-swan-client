@@ -13,6 +13,7 @@ COMMANDS:
    daemon        Start a API service process
    wallet        Manage wallets with Swan client
    generate-car  Generate CAR files from a file or directory
+   meta-car      Utility tools for CAR files
    upload        Upload CAR file to ipfs server
    task          Send task to swan
    deal          Send manual-bid deal
@@ -225,6 +226,93 @@ OPTIONS:
    --input-dir value, -i value  specify source CAR path, directory or file
    --parallel value             number goroutines run when building ipld nodes (default: 5)
    --help, -h                   show help (default: false)
+```
+
+## swan-client meta-car
+```
+NAME:
+   swan-client meta-car - Utility tools for CAR file(s)
+
+USAGE:
+   swan-client meta-car command [command options] [arguments...]
+
+COMMANDS:
+   generate-car  Generate CAR files of the specified size
+   root          Get a CAR's root CID
+   list          List the CIDs in a CAR
+   restore       Restore original files from CAR(s)
+   extract       Extract one original file from CAR(s)
+
+OPTIONS:
+   --help, -h  show help (default: false)
+```
+
+### swan-client meta-car generate-car
+```
+NAME:
+   swan-client meta-car generate-car - Generate CAR files of the specified size
+
+USAGE:
+   swan-client meta-car generate-car [command options] [arguments...]
+
+OPTIONS:
+   --import            whether to import CAR file to lotus (default: false)
+   --input-dir value   directory where source files are in.
+   --output-dir value  directory where CAR file(s) will be generated.
+   --parallel value    number goroutines run when building ipld nodes (default: 2)
+   --slice-size value  specify chunk piece size (default: 17179869184)
+```
+
+### swan-client meta-car root
+```
+NAME:
+   swan-client meta-car list - List the CIDs in a CAR
+
+USAGE:
+   swan-client meta-car list [command options] filename
+
+OPTIONS:
+   --help, -h  show help (default: false)
+```
+
+### swan-client meta-car list
+```
+NAME:
+   swan-client meta-car list - List the CIDs in a CAR
+
+USAGE:
+   swan-client meta-car list [command options] filename
+
+OPTIONS:
+   --help, -h  show help (default: false)
+```
+
+### swan-client meta-car restore
+```
+NAME:
+   swan-client meta-car restore - Restore original files from the CAR file
+
+USAGE:
+   swan-client meta-car restore [command options] [inputPath]
+
+OPTIONS:
+   --input-dir value   absolute directory to the CAR file.
+   --output-dir value  directory where file(s) will be generated.
+   --parallel value    specify how many number of goroutines runs when generate file node. (default: 2)
+```
+
+### swan-client meta-car extract
+```
+NAME:
+   swan-client meta-car extract - Extract one original file from the CAR file
+
+USAGE:
+   swan-client meta-car extract [command options] [inputPath]
+
+OPTIONS:
+   --file-name value   file name which in the CAR file.
+   --input-dir value   absolute directory to the CAR file.
+   --output-dir value  directory where file will be generated.
 ```
 
 ## swan-client upload
