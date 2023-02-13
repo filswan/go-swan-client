@@ -23,10 +23,11 @@ Swan Client 是一个重要的 Web3 工具包，提供不同的工具帮助用�
         - [IPFS API](#IPFS-API)
         - [ipfs-car](#ipfs-car)
     -   [1.5 CAR文件工具](#15-CAR文件工具)
-        -   [Generate-car](#Generate-car)
-        -   [Root](#Root)
-        -   [List](#List)
-        -   [Restore](#Restore)
+        - [Generate-car](#Generate-car)
+        - [Root](#Root)
+        - [List](#List)
+        - [Restore](#Restore)
+        - [Extract](#Extract)
     -   [1.6 上传CAR文件到IPFS](#16-上传CAR文件到IPFS)
     -   [1.7 创建任务](#17-创建任务)
         -   [私有任务](#私有任务)
@@ -234,7 +235,7 @@ OPTIONS:
 
 ### <a id="15-生成CAR文件">1.5 CAR文件工具</a>
 
-CAR 文件是发送给存储提供商的一个独立的单元。Swan Client `meta-car` 提供了多个与 CAR 文件的交互工具命令。
+`meta-car` 提供了多个与 CAR 文件的交互工具命令。
 
 #### Generate-car
 
@@ -245,7 +246,7 @@ swan-client meta-car generate-car --input-dir [input_files_dir] --output-dir [ca
 
 OPTIONS:
    --input-dir                       源文件所在的目录
-   --output-dir                      CAR 文件将会生成在此目录下 (默认: "/tmp/tasks")
+   --output-dir                      CAR 文件将会生成在此目录下
    --import                          是否导入 CAR 文件到 lotus (默认: true)
    --parallel value                  构建 ipld 节点时运行的线程数量 (默认: 2)
    --slice-size value                每个piece的字节 (默认: 17179869184)
@@ -277,11 +278,25 @@ swan-client meta-car list [input_file]
 \:bell: 此命令将包含在 CAR 文件中的源文件输出到指定文件夹。
 
 ```shell
-swan-client meta-car restore --input-path [input_file] --output-dir [source_file_output_dir]
+swan-client meta-car restore --input-dir [input_file] --output-dir [source_file_output_dir]
 
 OPTIONS:
-   --input-path value                CAR 文件的路径
-   --output-dir value                源文件将会生成在此目录下 (默认: "/tmp/tasks")
+   --input-dir value                 CAR 文件的路径
+   --output-dir value                源文件将会生成在此目录下
+```
+
+
+#### Extract
+
+\:bell: 此命令将包含在 CAR 文件中的一个源文件输出到指定文件夹。
+
+```shell
+swan-client meta-car extract --input-dir [input_car] --file-name [file_name] --output-dir [source_file_output_dir]
+
+OPTIONS:
+   --input-dir value                 CAR 文件的路径
+   --file-name value                 包含在 CAR 文件中的一个源文件名
+   --output-dir value                源文件将会生成在此目录下
 ```
 
 
