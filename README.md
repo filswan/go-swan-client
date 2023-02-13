@@ -236,7 +236,7 @@ OPTIONS:
 
 ### 1.5 Meta-CAR
 
-'meta-car' provides a number of interactive tools with CAR files.
+`meta-car` provides a number of interactive tools with CAR files.
 
 #### Generate-car
 
