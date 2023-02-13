@@ -23,11 +23,6 @@ Swan Client 是一个重要的 Web3 工具包，提供不同的工具帮助用�
         - [IPFS API](#IPFS-API)
         - [ipfs-car](#ipfs-car)
     -   [1.5 Meta-CAR](#15-Meta-CAR)
-        - [Generate-car](#Generate-car)
-        - [Root](#Root)
-        - [List](#List)
-        - [Restore](#Restore)
-        - [Extract](#Extract)
     -   [1.6 上传CAR文件到IPFS](#16-上传CAR文件到IPFS)
     -   [1.7 创建任务](#17-创建任务)
         -   [私有任务](#私有任务)
@@ -236,67 +231,24 @@ OPTIONS:
 ### <a id="15-Meta-CAR">1.5 Meta-CAR</a>
 
 `meta-car` 提供了多个与 CAR 文件的交互工具命令。
+```
+swan-client meta-car -h
 
-#### Generate-car
+NAME:
+   swan-client meta-car - Utility tools for CAR file(s)
 
-\:bell: 此命令可以将源目录下的文件打包到输出目录中的一个或多个 CAR 文件。
+USAGE:
+   swan-client meta-car command [command options] [arguments...]
 
-```shell
-swan-client meta-car generate-car --input-dir [input_files_dir] --output-dir [car_files_output_dir]
+COMMANDS:
+   generate-car  Generate CAR files of the specified size
+   root          Get a CAR's root CID
+   list          List the CIDs in a CAR
+   restore       Restore original files from CAR(s)
+   extract       Extract one original file from CAR(s)
 
 OPTIONS:
-   --input-dir                       源文件所在的目录
-   --output-dir                      CAR 文件将会生成在此目录下
-   --import                          是否导入 CAR 文件到 lotus (默认: true)
-   --parallel value                  构建 ipld 节点时运行的线程数量 (默认: 2)
-   --slice-size value                每个piece的字节 (默认: 17179869184)
-```
-
-**此步骤后生成的文件：**
-- `car.json`: 包含源文件和 CAR 文件的信息
-- `car.csv`: 包含源文件和 CAR 文件的信息
-- [root-cid].car: 一个或多个 CAR 文件
-
-#### Root
-
-\:bell: 此命令将显示输入 CAR 文件的Root CID。
-
-```shell
-swan-client meta-car root [input_file]
-```
-
-#### List
-
-\:bell: 此命令将显示 CAR 文件中包含源文件的 FILE/CID/UUID/SIZE 信息。
-
-```shell
-swan-client meta-car list [input_file]
-```
-
-#### Restore
-
-\:bell: 此命令将包含在 CAR 文件中的源文件输出到指定文件夹。
-
-```shell
-swan-client meta-car restore --input-dir [input_file] --output-dir [source_file_output_dir]
-
-OPTIONS:
-   --input-dir value                 CAR 文件的路径
-   --output-dir value                源文件将会生成在此目录下
-```
-
-
-#### Extract
-
-\:bell: 此命令将包含在 CAR 文件中的一个源文件输出到指定文件夹。
-
-```shell
-swan-client meta-car extract --input-dir [input_car] --file-name [file_name] --output-dir [source_file_output_dir]
-
-OPTIONS:
-   --input-dir value                 CAR 文件的路径
-   --file-name value                 包含在 CAR 文件中的一个源文件名
-   --output-dir value                源文件将会生成在此目录下
+   --help, -h  show help (default: false)
 ```
 
 
@@ -309,7 +261,6 @@ swan-client upload -input-dir [input_file_dir]
 
 OPTIONS:
    --input-dir value, -i value  源文件所在的目录
-
 ```
 
 **此步骤后更新的文件：**
