@@ -22,7 +22,7 @@ Swan Client 是一个重要的 Web3 工具包，提供不同的工具帮助用�
         - [Lotus API](#Lotus-API)
         - [IPFS API](#IPFS-API)
         - [ipfs-car](#ipfs-car)
-    -   [1.5 CAR文件工具](#15-CAR文件工具)
+    -   [1.5 Meta-CAR](#15-Meta-CAR)
         - [Generate-car](#Generate-car)
         - [Root](#Root)
         - [List](#List)
@@ -233,7 +233,7 @@ OPTIONS:
 -   `car.csv`: 包含 CAR 文件的信息
 -   `[source-files-dir-name].car`: 源文件将会被合并到 CAR 文件中
 
-### <a id="15-生成CAR文件">1.5 CAR文件工具</a>
+### <a id="15-Meta-CAR">1.5 Meta-CAR</a>
 
 `meta-car` 提供了多个与 CAR 文件的交互工具命令。
 
