@@ -2,7 +2,7 @@
 
 URL_PREFIX=https://github.com/filswan/go-swan-client/releases/download
 BINARY_NAME=swan-client-2.2.0-rc1-linux-amd64
-TAG_NAME=2.2.0-rc1
+TAG_NAME=v2.2.0-rc1
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/${BINARY_NAME}
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/config.toml.example
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/chain-rpc.json
