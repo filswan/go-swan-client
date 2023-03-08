@@ -40,12 +40,14 @@ const (
 	CSV_FILE_NAME_DEAL       = "-deals.csv"
 	CSV_FILE_NAME_DEAL_AUTO  = "-auto-deals.csv"
 
+	INDEX_FILE_NAME_CAR_UPLOAD = "car.idx"
+
 	DIR_NAME_INPUT  = "input"
 	DIR_NAME_OUTPUT = "output"
 
 	DURATION_MIN = 518400
 	DURATION_MAX = 1555200
-	VERSION      = "2.1.0-rc1"
+	VERSION      = "2.1.0"
 )
 
 var publicChain = map[string][]string{

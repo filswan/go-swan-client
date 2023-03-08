@@ -18,12 +18,13 @@ Swan-client is an important Web3 toolkit. It provides different tools to help us
     -   [1.2 Configuration](#12-Configuration)
     -   [1.3 Prerequisites](#13-Prerequisites)
     -   [1.4 Generate CAR Files](#14-Generate-CAR-Files)
-        -   [Graphsplit](#Graphsplit)
-        -   [Lotus API](#Lotus-API)
-        -   [IPFS API](#IPFS-API)
-        -   [ipfs-car](#ipfs-car)
-    -   [1.5 Upload CAR Files to IPFS](#15-Upload-CAR-Files-to-IPFS)
-    -   [1.6 Create a Task](#16-Create-A-Task)
+        - [Graphsplit](#Graphsplit)
+        - [Lotus API](#Lotus-API)
+        - [IPFS API](#IPFS-API)
+        - [ipfs-car](#ipfs-car)
+    -   [1.5 Meta-CAR](#15-Meta-CAR)
+    -   [1.6 Upload CAR Files to IPFS](#16-Upload-CAR-Files-to-IPFS)
+    -   [1.7 Create a Task](#17-Create-A-Task)
         -   [Private Task](#Private-Task)
         -   [Auto-bid Task](#Auto-bid-Task)
         -  [Manual-bid Task](#Manual-bid-Task)
@@ -41,7 +42,7 @@ As a PiB-level data onboarding tool for Filecoin Network, Swan-client can help u
 -   Generate a final metadata file for storage providers to import deals
 -   Create tasks and offline deals on [Swan Platform](https://console.filswan.com/#/dashboard)
 
-    **(Storage Providers can automatically import the deals by [Swan-Provider](https://github.com/filswan/go-swan-provider/tree/release-2.1.0-rc1))**
+    **(Storage Providers can automatically import the deals by [Swan-Provider](https://github.com/filswan/go-swan-provider/tree/release-2.1.0))**
 
 swan-client can help users send their data to storage providers by creating three different kinds of tasks. The complete process from the source file to the storage provider is as follows:
 
@@ -66,7 +67,7 @@ See [release assets](https://github.com/filswan/go-swan-client/releases)
 ```shell
 mkdir swan-client
 cd swan-client
-wget --no-check-certificate https://github.com/filswan/go-swan-client/releases/download/v2.1.0-rc1/install.sh
+wget --no-check-certificate https://github.com/filswan/go-swan-client/releases/download/v2.1.0/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -78,7 +79,7 @@ chmod +x install.sh
 ```shell
 git clone https://github.com/filswan/go-swan-client.git
 cd go-swan-client
-git checkout release-2.1.0-rc1
+git checkout release-2.1.0
 ./build_from_source.sh
 ```
 
@@ -227,7 +228,29 @@ OPTIONS:
 -   `car.csv`: contains information for the CAR file
 -   `[source-files-dir-name].car`: the source file(s) will be merged into this CAR file
 
-### 1.5 Upload CAR Files to IPFS
+
+### 1.5 Meta-CAR
+
+`meta-car` provides a number of interactive tools with CAR files.
+```
+swan-client meta-car -h
+
+NAME:
+   swan-client meta-car - Utility tools for CAR file(s)
+
+USAGE:
+   swan-client meta-car command [command options] [arguments...]
+
+COMMANDS:
+   generate-car  Generate CAR files of the specified size
+   root          Get a CAR's root CID
+   list          List the CIDs in a CAR
+   restore       Restore original files from CAR(s)
+   extract       Extract one original file from CAR(s)
+
+```
+
+### 1.6 Upload CAR Files to IPFS
 
 \:bell:- `[ipfs_server].download_url_prefix` and `[ipfs_server].upload_url_prefix` are required to upload CAR files to IPFS server.
 
@@ -244,7 +267,7 @@ OPTIONS:
 -   `car.json`: the `CarFileUrl` of CAR files will be updated
 -   `car.csv`: the `CarFileUrl` of CAR files will be updated
 
-### 1.6 Create a Task
+### 1.7 Create a Task
 
 You can create three different kinds of tasks using the `car.json` or `car.csv`
 

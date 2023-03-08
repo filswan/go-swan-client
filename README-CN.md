@@ -18,12 +18,13 @@ Swan Client 是一个重要的 Web3 工具包，提供不同的工具帮助用�
     -   [1.2 配置](#12-配置)
     -   [1.3 前提条件](#13-前提条件)
     -   [1.4 生成CAR文件](#14-生成CAR文件)
-        -   [Graphsplit](#Graphsplit)
-        -   [Lotus API](#Lotus-API)
-        -   [IPFS API](#IPFS-API)
-        -   [ipfs-car](#ipfs-car)
-    -   [1.5 上传CAR文件到IPFS](#15-上传CAR文件到IPFS)
-    -   [1.6 创建任务](#16-创建任务)
+        - [Graphsplit](#Graphsplit)
+        - [Lotus API](#Lotus-API)
+        - [IPFS API](#IPFS-API)
+        - [ipfs-car](#ipfs-car)
+    -   [1.5 Meta-CAR](#15-Meta-CAR)
+    -   [1.6 上传CAR文件到IPFS](#16-上传CAR文件到IPFS)
+    -   [1.7 创建任务](#17-创建任务)
         -   [私有任务](#私有任务)
         -   [自动竞价任务](#自动竞价任务)
         -   [手动竞价任务](#手动竞价任务)
@@ -41,7 +42,7 @@ Swan Client 是一个重要的 Web3 工具包，提供不同的工具帮助用�
 -   生成一个最终元数据文件，供存储提供商导入订单
 -   在 [Swan Platform](https://console.filswan.com/#/dashboard) 上创建任务和离线订单
 
-    **(存储供应商可以通过 [Swan Provider](https://github.com/filswan/go-swan-provider/tree/release-2.1.0-rc1) 自动导入订单)**
+    **(存储供应商可以通过 [Swan Provider](https://github.com/filswan/go-swan-provider/tree/release-2.1.0) 自动导入订单)**
 
 Swan Client 支持创建三种不同的任务，帮助用户将数据发送至存储供应商。从源文件到成功发送订单的整个流程如下：
 
@@ -66,7 +67,7 @@ Swan Client 支持创建三种不同的任务，帮助用户将数据发送至�
 ```shell
 mkdir swan-client
 cd swan-client
-wget --no-check-certificate https://github.com/filswan/go-swan-client/releases/download/v2.1.0-rc1/install.sh
+wget --no-check-certificate https://github.com/filswan/go-swan-client/releases/download/v2.1.0/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -78,7 +79,7 @@ chmod +x install.sh
 ```shell
 git clone https://github.com/filswan/go-swan-client.git
 cd go-swan-client
-git checkout release-2.1.0-rc1
+git checkout release-2.1.0
 ./build_from_source.sh
 ```
 
@@ -227,7 +228,31 @@ OPTIONS:
 -   `car.csv`: 包含 CAR 文件的信息
 -   `[source-files-dir-name].car`: 源文件将会被合并到 CAR 文件中
 
-### <a id="15-上传CAR文件到IPFS">1.5 上传CAR文件到IPFS</a>
+### <a id="15-Meta-CAR">1.5 Meta-CAR</a>
+
+`meta-car` 提供了多个与 CAR 文件的交互工具命令。
+```
+swan-client meta-car -h
+
+NAME:
+   swan-client meta-car - Utility tools for CAR file(s)
+
+USAGE:
+   swan-client meta-car command [command options] [arguments...]
+
+COMMANDS:
+   generate-car  Generate CAR files of the specified size
+   root          Get a CAR's root CID
+   list          List the CIDs in a CAR
+   restore       Restore original files from CAR(s)
+   extract       Extract one original file from CAR(s)
+
+OPTIONS:
+   --help, -h  show help (default: false)
+```
+
+
+### <a id="16-上传CAR文件到IPFS">1.6 上传CAR文件到IPFS</a>
 
 \:bell:- 需要正确配置 `[ipfs_server].download_url_prefix` 和 `[ipfs_server].upload_url_prefix` 
 
@@ -236,7 +261,6 @@ swan-client upload -input-dir [input_file_dir]
 
 OPTIONS:
    --input-dir value, -i value  源文件所在的目录
-
 ```
 
 **此步骤后更新的文件：**
@@ -244,7 +268,7 @@ OPTIONS:
 -   `car.json`: CAR 文件的 `CarFileUrl` 将被更新
 -   `car.csv`: CAR 文件的 `CarFileUrl` 将被更新
 
-### 1.6 创建任务
+### 1.7 创建任务
 
 Swan Client支持使用 `car.json` 或 `car.csv` 创建三种不同的任务。
 
