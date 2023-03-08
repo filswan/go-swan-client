@@ -513,8 +513,8 @@ github.com/filecoin-project/specs-storage v0.4.1/go.mod h1:Z2eK6uMwAOSLjek6+sy0j
 github.com/filecoin-project/test-vectors/schema v0.0.5/go.mod h1:iQ9QXLpYWL3m7warwvK1JC/pTri8mnfEmKygNDqqY6E=
 github.com/filedrive-team/go-graphsplit v0.5.0 h1:IYFenyqWmW7hyCgd5j9IHsdgA48pByd6BFIZnnNcVQU=
 github.com/filedrive-team/go-graphsplit v0.5.0/go.mod h1:160KtCvBMGi1BTDO1ObQUZ7d6XO6XWBphiVdFfA50pA=
-github.com/filswan/go-swan-lib v0.2.137-0.20230307072238-b45acc055a95 h1:Pz+FhDvZW0A1kKCfXVpJvFHTw72D5ESZQXuxBbEVA7g=
-github.com/filswan/go-swan-lib v0.2.137-0.20230307072238-b45acc055a95/go.mod h1:Mjb/fPvlkYp5mnrqFA4JqDgwNAz2inPJrR3d+38Ohb0=
+github.com/filswan/go-swan-lib v0.2.139 h1:vKHJ/+k5LDEnN93xTGQOd9IowB+v0Y/vr6UjWkkx4TU=
+github.com/filswan/go-swan-lib v0.2.139/go.mod h1:Mjb/fPvlkYp5mnrqFA4JqDgwNAz2inPJrR3d+38Ohb0=
 github.com/flosch/pongo2 v0.0.0-20190707114632-bbf5a6c351f4/go.mod h1:T9YF2M40nIgbVgp3rreNmTged+9HrbNTIQf1PsaIiTA=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI435gkrCt3MPfRiAkVrwSbHsst4LCFVfpJc=
 github.com/flynn/noise v0.0.0-20180327030543-2492fe189ae6/go.mod h1:1i71OnUq3iUe1ma7Lr6yG6/rjvM3emb6yoL7xLFzcVQ=
