@@ -9,16 +9,16 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/filecoin-project/go-commp-utils v0.1.3
 	github.com/filecoin-project/go-padreader v0.0.1
-	github.com/filecoin-project/go-state-types v0.9.9
+	github.com/filecoin-project/go-state-types v0.10.0-rc3
 	github.com/filedrive-team/go-graphsplit v0.5.0
-	github.com/filswan/go-swan-lib v0.2.136
+	github.com/filswan/go-swan-lib v0.2.139
 	github.com/google/uuid v1.3.0
 	github.com/ipld/go-car v0.5.0
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/shopspring/decimal v1.3.1
-	github.com/urfave/cli/v2 v2.10.3
-	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f
+	github.com/urfave/cli/v2 v2.16.3
+	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2
 )
 
 replace github.com/filecoin-project/filecoin-ffi => ./extern/filecoin-ffi
