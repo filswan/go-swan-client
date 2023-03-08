@@ -11,7 +11,7 @@ require (
 	github.com/filecoin-project/go-padreader v0.0.1
 	github.com/filecoin-project/go-state-types v0.10.0-rc3
 	github.com/filedrive-team/go-graphsplit v0.5.0
-	github.com/filswan/go-swan-lib v0.2.137-0.20230307072238-b45acc055a95
+	github.com/filswan/go-swan-lib v0.2.139
 	github.com/google/uuid v1.3.0
 	github.com/ipld/go-car v0.5.0
 	github.com/julienschmidt/httprouter v1.3.0
