@@ -6,31 +6,31 @@
 
 Swan Client 是一个重要的 Web3 工具包，提供不同的工具帮助用户连接到 Web3 世界，包含以下功能:
 
--   Filecoin 交易发送引擎 
--   区块链 RPC 服务 (Pocket Network 提供支持)
+*   Filecoin 交易发送引擎
+*   区块链 RPC 服务 (Pocket Network 提供支持)
 
 ## 目录
 
--   [1. Filecoin交易发送引擎](#1-Filecoin交易发送引擎)
-    -   [1.1 安装](#11-安装)
-        -   [安装包](#安装包)
-        -   [源代码](#源代码)
-    -   [1.2 配置](#12-配置)
-    -   [1.3 前提条件](#13-前提条件)
-    -   [1.4 生成CAR文件](#14-生成CAR文件)
-        - [Graphsplit](#Graphsplit)
-        - [Lotus API](#Lotus-API)
-        - [IPFS API](#IPFS-API)
-        - [ipfs-car](#ipfs-car)
-    -   [1.5 Meta-CAR](#15-Meta-CAR)
-    -   [1.6 上传CAR文件到IPFS](#16-上传CAR文件到IPFS)
-    -   [1.7 创建任务](#17-创建任务)
-        -   [私有任务](#私有任务)
-        -   [自动竞价任务](#自动竞价任务)
-        -   [手动竞价任务](#手动竞价任务)
--   [2. 区块链RPC服务](#2-区块链RPC服务)
-    -   [2.1 部署RPC服务](#21-部署RPC服务)
-	-   [2.2 RPC命令](#22-RPC命令)
+*   [1. Filecoin交易发送引擎](#1-Filecoin交易发送引擎)
+    *   [1.1 安装](#11-安装)
+        *   [安装包](#安装包)
+        *   [源代码](#源代码)
+    *   [1.2 配置](#12-配置)
+    *   [1.3 前提条件](#13-前提条件)
+    *   [1.4 生成CAR文件](#14-生成CAR文件)
+        *   [Graphsplit](#Graphsplit)
+        *   [Lotus API](#Lotus-API)
+        *   [IPFS API](#IPFS-API)
+        *   [ipfs-car](#ipfs-car)
+    *   [1.5 Meta-CAR](#15-Meta-CAR)
+    *   [1.6 上传CAR文件到IPFS](#16-上传CAR文件到IPFS)
+    *   [1.7 创建任务](#17-创建任务)
+        *   [私有任务](#私有任务)
+        *   [自动竞价任务](#自动竞价任务)
+        *   [手动竞价任务](#手动竞价任务)
+*   [2. 区块链RPC服务](#2-区块链RPC服务)
+    *   [2.1 部署RPC服务](#21-部署RPC服务)
+    *   [2.2 RPC命令](#22-RPC命令)
 
 ## <a id="1-Filecoin交易发送引擎">1. Filecoin交易发送引擎</a>
 
@@ -42,20 +42,20 @@ Swan Client 是一个重要的 Web3 工具包，提供不同的工具帮助用�
 -   生成一个最终元数据文件，供存储提供商导入订单
 -   在 [Swan Platform](https://console.filswan.com/#/dashboard) 上创建任务和离线订单
 
-    **(存储供应商可以通过 [Swan Provider](https://github.com/filswan/go-swan-provider/tree/release-2.1.0) 自动导入订单)**
+    **(存储供应商可以通过 [Swan Provider](https://github.com/filswan/go-swan-provider/tree/release-2.2.0-rc1) 自动导入订单)**
 
 Swan Client 支持创建三种不同的任务，帮助用户将数据发送至存储供应商。从源文件到成功发送订单的整个流程如下：
 
 -   **私有任务**
-    
+
     <img src="http://yuml.me/diagram/plain/activity/(start)-&gt;(Generate CAR Files)-&gt;(Upload CAR Files to IPFS)-&gt;(Create Private Task)-&gt;(end)">
 
 -   **自动竞价任务**
-    
+
     <img src="http://yuml.me/diagram/plain/activity/(start)-&gt;(Generate CAR Files)-&gt;(Upload CAR Files to IPFS)-&gt;(Create Auto-bid Task)-&gt;(end)">
 
 -   **手动竞价任务**
-    
+
     <img src="http://yuml.me/diagram/plain/activity/(start)-&gt;(Generate CAR Files)-&gt;(Upload CAR Files to IPFS)-&gt;(Create Manual-bid Task)-&gt;(Send Deals)-&gt;(end)">
 
 ### 1.1 安装
@@ -67,7 +67,7 @@ Swan Client 支持创建三种不同的任务，帮助用户将数据发送至�
 ```shell
 mkdir swan-client
 cd swan-client
-wget --no-check-certificate https://github.com/filswan/go-swan-client/releases/download/v2.1.0/install.sh
+wget --no-check-certificate https://github.com/filswan/go-swan-client/releases/download/v2.2.0-rc1/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -79,7 +79,7 @@ chmod +x install.sh
 ```shell
 git clone https://github.com/filswan/go-swan-client.git
 cd go-swan-client
-git checkout release-2.1.0
+git checkout release-2.2.0-rc1
 ./build_from_source.sh
 ```
 
@@ -129,13 +129,12 @@ vi ~/.swan/client/config.toml
 ```
     swan-client wallet import wallet.key
 ```
- - 给客户端钱包的 Market Actor 充值，以便发送订单：
+- 给客户端钱包的 Market Actor 充值，以便发送订单：
 
 ```
     lotus wallet market add --from <address> --address <market_address> <amount>
 ```
-<font color="red"> **Note：** </font>如果您使用的是 `market_version = "1.2"`, 请确保存储提供商使用的 `swan-provider` 版本为 [v2.1.0-rc1](https://github.com/filswan/go-swan-provider/releases/tag/v2.1.0-rc1) 及以上。
-
+<font color="red"> **Note：** </font>如果您使用的是 `market_version = "1.2"`, 请确保存储提供商使用的 `swan-provider` 版本为 [v2.2.0-rc1](https://github.com/filswan/go-swan-provider/releases/tag/v2.2.0-rc1) 及以上。
 
 ### <a id="14-生成CAR文件">1.4 生成CAR文件</a>
 
@@ -163,7 +162,7 @@ OPTIONS:
 -   `car.csv`: 包含源文件和 CAR 文件的信息
 -   `[dataCID].car`: 如果设置了 `--parent-path=true`，则 CAR 文件是基于整个目录构建，否则根据文件大小和 `--slice-size` 为每个文件创建独立的CAR文件
 
-此功能应该感谢 FileDrive 团队，了解更多[详情]((https://github.com/filedrive-team/go-graphsplit))。
+此功能应该感谢 FileDrive 团队，了解更多[详情](https://github.com/filedrive-team/go-graphsplit)。
 
 #### Lotus API
 
@@ -229,8 +228,7 @@ OPTIONS:
 -   `[source-files-dir-name].car`: 源文件将会被合并到 CAR 文件中
 
 ### <a id="15-Meta-CAR">1.5 Meta-CAR</a>
-
-`meta-car` 提供了多个与 CAR 文件的交互工具命令。
+meta-car 提供了一系列与 CAR 文件交互的工具。
 ```
 swan-client meta-car -h
 
@@ -246,21 +244,18 @@ COMMANDS:
    list          List the CIDs in a CAR
    restore       Restore original files from CAR(s)
    extract       Extract one original file from CAR(s)
-
-OPTIONS:
-   --help, -h  show help (default: false)
 ```
-
 
 ### <a id="16-上传CAR文件到IPFS">1.6 上传CAR文件到IPFS</a>
 
-\:bell:- 需要正确配置 `[ipfs_server].download_url_prefix` 和 `[ipfs_server].upload_url_prefix` 
+\:bell:- 需要正确配置 `[ipfs_server].download_url_prefix` 和 `[ipfs_server].upload_url_prefix`
 
 ```shell
 swan-client upload -input-dir [input_file_dir]
 
 OPTIONS:
    --input-dir value, -i value  源文件所在的目录
+
 ```
 
 **此步骤后更新的文件：**
@@ -295,9 +290,10 @@ OPTIONS:
 
 -   `[task-name]-metadata.json`: 包含 `Uuid` 和 `Deals`，供存储提供商导入订单。
 
-
 ### 自动竞价任务
+
 Swan Client可以创建自动竞价任务，通过 Swan Platform 的市场匹配器（Market-Matcher）来自动匹配合适的存储提供商。
+
 ```shell
 swan-client task --input-dir [json_or_csv_absolute_path] --out-dir [output_files_dir] --auto-bid true --max-copy-number 5
 
@@ -323,8 +319,7 @@ OPTIONS:
 
 用户可以在 Swan Platform 上创建手动竞价任务，每个存储提供商都可以从 Swan Platform 申请接单，然后用户将订单发送给申请的存储供应商。
 
-
- **(1) 创建手动竞价任务:**
+**(1) 创建手动竞价任务:**
 
 ```shell
 swan-client task --input-dir [json_or_csv_absolute_path] --out-dir [output_files_dir] --manual-bid true --max-copy-number 5
@@ -366,26 +361,26 @@ OPTIONS:
 ---
 
 ## <a id="2-区块链RPC服务">2. 区块链RPC服务</a>
-Swan Client 的第二个功能是由 [POKT RPCList](https://rpclist.info) 提供的区块链 RPC 服务。 作为第一个具有RPC服务功能的版本，Swan Client帮助用户 [部署 RPC 服务](#21-Deploy-RPC-Service)，以及使用 [RPC 服务命令](#22-RPC-Command-Service)。 值得一提的是目前 Swan Client 提供的区块链 RPC 服务是免费的。
 
+Swan Client 的第二个功能是由 [POKT RPCList](https://rpclist.info) 提供的区块链 RPC 服务。 作为第一个具有RPC服务功能的版本，Swan Client帮助用户 [部署 RPC 服务](#21-Deploy-RPC-Service)，以及使用 [RPC 服务命令](#22-RPC-Command-Service)。 值得一提的是目前 Swan Client 提供的区块链 RPC 服务是免费的。
 
 *   以下表格为目前 Swan Client 支持的所有链。
 
-	链ID | 链名
-	:-: | :-:
-	1| Ethereum Mainnet
-	2| Binance Smart Chain Mainnet
-	3 | Avalanche C-Chain
-	4 | Polygon Mainnet
-	5 | Fantom Opera
-	6 | Gnosis Chain (formerly xDai)
-	7 | IoTeX Network Mainnet
-	8 | Harmony Mainnet Shard 0
-	9 | Boba Network
-	10 | Fuse Mainnet
-	11 | DFK Chain
-	12 | Evmos
-	13 | Swimmer Network
+    | 链ID |              链名              |
+    | :-: | :--------------------------: |
+    |  1  |       Ethereum Mainnet       |
+    |  2  |  Binance Smart Chain Mainnet |
+    |  3  |       Avalanche C-Chain      |
+    |  4  |        Polygon Mainnet       |
+    |  5  |         Fantom Opera         |
+    |  6  | Gnosis Chain (formerly xDai) |
+    |  7  |     IoTeX Network Mainnet    |
+    |  8  |    Harmony Mainnet Shard 0   |
+    |  9  |         Boba Network         |
+    |  10 |         Fuse Mainnet         |
+    |  11 |           DFK Chain          |
+    |  12 |             Evmos            |
+    |  13 |        Swimmer Network       |
 
 ### <a id="21-部署RPC服务">2.1 部署RPC服务</a>
 
@@ -415,7 +410,7 @@ curl --location --request POST '127.0.0.1:8099/chain/rpc' \
     "params": "{\"jsonrpc\":\"2.0\",\"method\":\"eth_signTransaction\",\"params\": [{\"data\":\"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675\",\"from\": \"0xb60e8dd61c5d32be8058bb8eb970870f07233155\",\"gas\": \"0x76c0\",\"gasPrice\": \"0x9184e72a000\",\"to\": \"0xd46e8dd67c5d32be8058bb8eb970870f07244567\",\"value\": \"0x9184e72a\"}], \"id\":1}"
 }'
 ```
-       
+
 ### <a id="22-RPC命令">2.2 RPC命令</a>
 
 此 RPC 命令可以帮你查询最新的链高度和钱包余额，Ethereum 和 Binance Smart Chain的示例如下：
@@ -454,7 +449,7 @@ swan-client rpc height --chain BNB
 	Height: 22558967
 ```
 
-查询余额 
+查询余额
 ```
 swan-client rpc balance --chain BNB --address 0x4430b3230294D12c6AB2aAC5C2cd68E80B16b581
 ```
