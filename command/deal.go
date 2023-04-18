@@ -246,7 +246,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 			return nil, err
 		}
 
-		deals := []*libmodel.DealInfo{}
+		var deals []*libmodel.DealInfo
 		for _, minerFid := range cmdDeal.MinerFids {
 			dealConfig.MinerFid = minerFid
 
@@ -255,6 +255,12 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 			if cmdDeal.MarketVersion == libconstants.MARKET_VERSION_2 {
 				dealUuid, err := boost.GetClient(cmdDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
 				if err != nil {
+					deals = append(deals, &libmodel.DealInfo{
+						MinerFid:   dealConfig.MinerFid,
+						DealCid:    "",
+						StartEpoch: int(dealConfig.StartEpoch),
+						Cost:       "fail",
+					})
 					logs.GetLogger().Error(err)
 					continue
 				}
@@ -267,6 +273,12 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 			} else {
 				dealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
 				if err != nil {
+					deals = append(deals, &libmodel.DealInfo{
+						MinerFid:   dealConfig.MinerFid,
+						DealCid:    "",
+						StartEpoch: int(dealConfig.StartEpoch),
+						Cost:       "fail",
+					})
 					logs.GetLogger().Error(err)
 					continue
 				}
