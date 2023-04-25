@@ -42,7 +42,7 @@ As a PiB-level data onboarding tool for Filecoin Network, Swan-client can help u
 -   Generate a final metadata file for storage providers to import deals
 -   Create tasks and offline deals on [Swan Platform](https://console.filswan.com/#/dashboard)
 
-    **(Storage Providers can automatically import the deals by [Swan-Provider](https://github.com/filswan/go-swan-provider/tree/release-2.2.0-rc1))**
+    **(Storage Providers can automatically import the deals by [Swan-Provider](https://github.com/filswan/go-swan-provider/tree/release-2.2.0))**
 
 swan-client can help users send their data to storage providers by creating three different kinds of tasks. The complete process from the source file to the storage provider is as follows:
 
@@ -67,7 +67,7 @@ See [release assets](https://github.com/filswan/go-swan-client/releases)
 ```shell
 mkdir swan-client
 cd swan-client
-wget --no-check-certificate https://github.com/filswan/go-swan-client/releases/download/v2.2.0-rc1/install.sh
+wget --no-check-certificate https://github.com/filswan/go-swan-client/releases/download/v2.2.0/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -79,7 +79,7 @@ chmod +x install.sh
 ```shell
 git clone https://github.com/filswan/go-swan-client.git
 cd go-swan-client
-git checkout release-2.2.0-rc1
+git checkout release-2.2.0
 ./build_from_source.sh
 ```
 
@@ -92,13 +92,13 @@ Before creating a task, you should update your configuration in `~/.swan/client/
 ```shell
 vi ~/.swan/client/config.toml
 ```
-```
+```toml
     [lotus]
     client_api_url = "http://[ip]:[port]/rpc/v0"   # Url of lotus client web API, generally the [port] is 1234
     client_access_token = ""                       # Access token of lotus client web API, it should have admin access right
 
     [main]
-    market_version = "1.1"                         # Send deal type, 1.1 or 1.2, config(market_version=1.1) is DEPRECATION, will REMOVE SOON (default: "1.1")
+    market_version = "1.2"                         # Send deal type, 1.1 or 1.2, 1.2 is recommended, config(market_version=1.1) is DEPRECATED, and will be REMOVED SOON (default: "1.2")
     api_url = "https://go-swan-server.filswan.com" # Swan API address. For Swan production, it is `https://go-swan-server.filswan.com`. It can be ignored if `[sender].offline_swan=true`
     api_key = ""                                   # Swan API key. Acquired from [Swan Platform](https://console.filswan.com/#/dashboard) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_swan=true`.
     access_token = ""                              # Swan API access token. Acquired from [Swan Platform](https://console.filswan.com/#/dashboard) -> "My Profile"->"Developer Settings". It can be ignored if `[sender].offline_swan=true`.
@@ -126,15 +126,15 @@ If you have set `market_version = "1.2"` in the `config.toml`, you must do the f
 
 -   Import the client wallet private key to the `$SWAN_PATH`(default: `~/.swan`):
 
-```
+```shell
     swan-client wallet import wallet.key
 ```
 -   Add funds to client wallet Market Actor in order to send deals:
 
-```
+```shell
     lotus wallet market add --from <address> --address <market_address> <amount>
 ```
-<font color="red"> **Note：** </font>If you are using `market_version = "1.2"`, please make sure the storage providers are using the `swan-provider` [v2.2.0-rc1](https://github.com/filswan/go-swan-provider/releases/tag/v2.2.0-rc1) at least.
+<font color="red"> **Note：** </font>If you are using `market_version = "1.2"`, please make sure the storage providers are using the `swan-provider` [v2.2.0](https://github.com/filswan/go-swan-provider/releases/tag/v2.2.0) at least.
 
 ### 1.4 Generate CAR Files
 
@@ -420,7 +420,7 @@ The RPC command can help you query the latest chain height and wallet balance. T
 -   **Ethereum Mainnet**:
 
 Query the current height
-```
+```shell
 swan-client rpc height --chain ETH
 ```
 Output:
@@ -429,7 +429,7 @@ Output:
 	Height: 15844685
 ```
 Query the balance 
-```
+```shell
 swan-client rpc balance --chain ETH --address 0x29D5527CaA78f1946a409FA6aCaf14A0a4A0274b
 ```
 Output:
@@ -442,7 +442,7 @@ Output:
 -   **Binance Smart Chain Mainnet**:
 
 Query the current height
-```
+```shell
 swan-client rpc height --chain BNB
 ```
 Output:
@@ -452,7 +452,7 @@ Output:
 ```
 
 Query the balance 
-```
+```shell
 swan-client rpc balance --chain BNB --address 0x4430b3230294D12c6AB2aAC5C2cd68E80B16b581
 ```
 Output:

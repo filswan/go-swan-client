@@ -5,18 +5,18 @@ import (
 	"context"
 	"encoding/csv"
 	"encoding/json"
+	"io"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strconv"
+
 	"github.com/filedrive-team/go-graphsplit"
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/google/uuid"
 	"github.com/ipld/go-car"
 	"golang.org/x/xerrors"
-	"io"
-	"os"
-	"path/filepath"
-	"strconv"
-
-	"io/ioutil"
 )
 
 const (
@@ -47,7 +47,7 @@ const (
 
 	DURATION_MIN = 518400
 	DURATION_MAX = 1555200
-	VERSION      = "v2.2.0-rc1"
+	VERSION      = "v2.2.0"
 )
 
 var publicChain = map[string][]string{
