@@ -74,7 +74,7 @@ chmod +x install.sh
 
 #### **源代码**
 
-\:bell:需要 **go 1.18.1+**
+\:bell:需要 **go 1.19.7+**
 
 ```shell
 git clone https://github.com/filswan/go-swan-client.git
