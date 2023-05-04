@@ -3,6 +3,8 @@ package command
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/fatih/color"
+	"github.com/filswan/go-swan-lib/client/boost"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"math"
@@ -35,6 +37,8 @@ type CmdAutoBidDeal struct {
 	SenderWallet           string //required
 	OutputDir              string //required
 	DealSourceIds          []int  //required
+	SwanRepo               string
+	MarketVersion          string
 }
 
 func GetCmdAutoDeal(outputDir *string) *CmdAutoBidDeal {
@@ -45,6 +49,8 @@ func GetCmdAutoDeal(outputDir *string) *CmdAutoBidDeal {
 		LotusClientApiUrl:      config.GetConfig().Lotus.ClientApiUrl,
 		LotusClientAccessToken: config.GetConfig().Lotus.ClientAccessToken,
 		SenderWallet:           config.GetConfig().Sender.Wallet,
+		SwanRepo:               strings.TrimSpace(config.GetConfig().Main.SwanRepo),
+		MarketVersion:          strings.TrimSpace(config.GetConfig().Main.MarketVersion),
 	}
 
 	cmdAutoBidDeal.DealSourceIds = append(cmdAutoBidDeal.DealSourceIds, libconstants.TASK_SOURCE_ID_SWAN)
@@ -325,24 +331,34 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.Offl
 		//change start epoch to ensure that the deal cid is different
 		dealConfig.StartEpoch = dealConfig.StartEpoch - (int64)(i)
 
-		dealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
-		if err != nil {
-			logs.GetLogger().Error("tried ", i+1, " times,", err)
-
-			if strings.Contains(err.Error(), "already tracking identifier") {
+		var dealCid string
+		if cmdAutoBidDeal.MarketVersion == libconstants.MARKET_VERSION_2 {
+			dealCid, err = boost.GetClient(cmdAutoBidDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
+			if err != nil {
+				logs.GetLogger().Error(err)
 				continue
-			} else {
-				break
 			}
-		}
-		if dealCid == nil {
-			logs.GetLogger().Info("no deal CID returned")
-			continue
+		} else {
+			lotusDealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
+			if err != nil {
+				logs.GetLogger().Error("tried ", i+1, " times,", err)
+
+				if strings.Contains(err.Error(), "already tracking identifier") {
+					continue
+				} else {
+					break
+				}
+			}
+			if lotusDealCid == nil {
+				logs.GetLogger().Info("no deal CID returned")
+				continue
+			}
+			dealCid = *lotusDealCid
 		}
 
 		dealInfo := &libmodel.DealInfo{
 			MinerFid:   offlineDeal.MinerFid,
-			DealCid:    *dealCid,
+			DealCid:    dealCid,
 			StartEpoch: int(dealConfig.StartEpoch),
 		}
 
@@ -360,6 +376,10 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.Offl
 
 		logs.GetLogger().Info("deal sent successfully, task:", offlineDeal.TaskId, ", uuid:", *offlineDeal.TaskUuid, ", deal:", offlineDeal.Id, ", task name:", offlineDeal.TaskName, ", deal CID:", dealInfo.DealCid, ", start epoch:", dealInfo.StartEpoch, ", miner:", dealInfo.MinerFid)
 		return &fileDesc, nil
+	}
+
+	if cmdAutoBidDeal.MarketVersion == libconstants.MARKET_VERSION_1 {
+		fmt.Println(color.YellowString("You are using the MARKET(version=1.1 built-in Lotus) send deals, but it is deprecated, will remove soon. Please set [main.market_version=“1.2”]"))
 	}
 
 	err = fmt.Errorf("failed to send deal for task:%d,uuid:%s,deal:%d", offlineDeal.TaskId, *offlineDeal.TaskUuid, offlineDeal.Id)
@@ -493,9 +513,9 @@ func QueryChainInfo(chain string, height int64, address string) (ChainInfo, erro
 }
 
 func QueryHeight(chain string) (info ChainInfo, err error) {
-	urls, ok := chainUrlMap[chain]
-	if !ok {
-		return info, errors.New(fmt.Sprintf("not support chainId: %s", chain))
+	chainInfo, err := config.GetChainByChainName(chain)
+	if err != nil {
+		return info, err
 	}
 	var rpcParam rpcReq
 	switch chain {
@@ -512,7 +532,7 @@ func QueryHeight(chain string) (info ChainInfo, err error) {
 	}
 
 	var data []byte
-	for _, u := range urls {
+	for _, u := range chainInfo.RpcEndpoint {
 		copyUrl := u
 		rpcParamBytes, err := json.Marshal(rpcParam)
 		if err != nil {
@@ -522,7 +542,7 @@ func QueryHeight(chain string) (info ChainInfo, err error) {
 		data, err = doReq(copyUrl, string(rpcParamBytes))
 		if err != nil {
 			logs.GetLogger().Errorf("request url: %s failed, error: %v", copyUrl, err)
-			if len(urls) > 0 {
+			if len(chainInfo.RpcEndpoint) > 0 {
 				logs.GetLogger().Warnf("retry it by other request")
 				continue
 			}
@@ -560,9 +580,9 @@ func QueryHeight(chain string) (info ChainInfo, err error) {
 }
 
 func QueryBalance(chain string, height int64, address string) (info ChainInfo, err error) {
-	urls, ok := chainUrlMap[chain]
-	if !ok {
-		return info, errors.New(fmt.Sprintf("not support chainId: %s", chain))
+	chainInfo, err := config.GetChainByChainName(chain)
+	if err != nil {
+		return info, err
 	}
 
 	// IOTX need change wallet to eth wallet
@@ -603,7 +623,7 @@ func QueryBalance(chain string, height int64, address string) (info ChainInfo, e
 
 	info.Address = address
 	var data []byte
-	for _, u := range urls {
+	for _, u := range chainInfo.RpcEndpoint {
 		copyUrl := u
 		rpcParamBytes, err := json.Marshal(rpcParam)
 		if err != nil {
@@ -613,7 +633,7 @@ func QueryBalance(chain string, height int64, address string) (info ChainInfo, e
 		data, err = doReq(copyUrl, string(rpcParamBytes))
 		if err != nil {
 			logs.GetLogger().Errorf("request url: %s failed, error: %v", copyUrl, err)
-			if len(urls) > 0 {
+			if len(chainInfo.RpcEndpoint) > 0 {
 				logs.GetLogger().Warnf("retry it by other request")
 				continue
 			}
