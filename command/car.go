@@ -2,19 +2,16 @@ package command
 
 import (
 	"fmt"
-	"io/ioutil"
 	"path/filepath"
 	"time"
 
+	"github.com/codingsince1985/checksum"
 	"github.com/filswan/go-swan-client/config"
-	"github.com/google/uuid"
-
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
-
-	"github.com/codingsince1985/checksum"
+	"github.com/google/uuid"
 )
 
 type CmdCar struct {
@@ -68,7 +65,7 @@ func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	srcFiles, err := ioutil.ReadDir(cmdCar.InputDir)
+	srcFiles, err := io.ReadDir(cmdCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
