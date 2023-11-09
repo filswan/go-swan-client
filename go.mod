@@ -266,8 +266,6 @@ require (
 	lukechampine.com/blake3 v1.2.1 // indirect
 )
 
-replace github.com/filswan/swan-boost-lib => ../../filswan/swan-boost-lib
-
 replace github.com/filecoin-project/filecoin-ffi => ./extern/filecoin-ffi
 
 exclude (
