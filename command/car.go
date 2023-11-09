@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"io/ioutil"
 	"path/filepath"
 	"time"
 
@@ -65,7 +66,7 @@ func (cmdCar *CmdCar) CreateCarFiles() ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	srcFiles, err := io.ReadDir(cmdCar.InputDir)
+	srcFiles, err := ioutil.ReadDir(cmdCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
