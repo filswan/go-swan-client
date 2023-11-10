@@ -3,12 +3,10 @@ package command
 import (
 	"fmt"
 
-	"github.com/filswan/go-swan-lib/client/ipfs"
-	libmodel "github.com/filswan/go-swan-lib/model"
-
 	"github.com/filswan/go-swan-client/config"
-
+	"github.com/filswan/go-swan-lib/client/ipfs"
 	"github.com/filswan/go-swan-lib/logs"
+	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
 )
 

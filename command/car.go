@@ -6,15 +6,13 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/codingsince1985/checksum"
 	"github.com/filswan/go-swan-client/config"
-	"github.com/google/uuid"
-
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
-
-	"github.com/codingsince1985/checksum"
+	"github.com/google/uuid"
 )
 
 type CmdCar struct {

@@ -2,24 +2,22 @@ package command
 
 import (
 	"fmt"
-	"github.com/fatih/color"
-	"github.com/filswan/go-swan-lib/client/boost"
-	"github.com/filswan/go-swan-lib/client/web"
-	"github.com/pkg/errors"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/filswan/go-swan-client/config"
-	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
-
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/client/swan"
+	"github.com/filswan/go-swan-lib/client/web"
 	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
+	boost "github.com/filswan/swan-boost-lib/client"
+	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 type CmdDeal struct {
@@ -174,7 +172,7 @@ func (cmdDeal *CmdDeal) SendDeals() ([]*libmodel.FileDesc, error) {
 
 	if len(cmdDeal.MinerFids) > 0 {
 		if !minerFIdsIsExist(cmdDeal.MinerFids, minerFids) {
-			return nil, errors.New(fmt.Sprintf("this task is not assigned to these miners: %+v, should be: %+v", cmdDeal.MinerFids, minerFids))
+			return nil, fmt.Errorf("this task is not assigned to these miners: %+v, should be: %+v", cmdDeal.MinerFids, minerFids)
 		}
 	} else {
 		cmdDeal.MinerFids = minerFids
