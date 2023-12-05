@@ -245,7 +245,6 @@ func ReadFileFromCsvFileByFullPath(csvFileName string) (fileDesc []*libmodel.Fil
 			break
 		}
 		if err == io.EOF {
-			logs.GetLogger().Error(err)
 			break
 		}
 		if isFirst {
