@@ -269,7 +269,11 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 					Cost:       "0",
 				}
 			} else {
-				dealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
+				pieceSize, epochPrice, err := boost.CheckDealConfig(lotusClient, &dealConfig, true)
+				if err != nil {
+					return nil, err
+				}
+				dealCid, err := lotusClient.StartDeal(pieceSize, epochPrice, &dealConfig)
 				if err != nil {
 					deals = append(deals, &libmodel.DealInfo{
 						MinerFid:   dealConfig.MinerFid,

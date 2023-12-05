@@ -11,8 +11,8 @@ require (
 	github.com/filecoin-project/go-padreader v0.0.1
 	github.com/filecoin-project/go-state-types v0.12.8
 	github.com/filedrive-team/go-graphsplit v0.5.0
-	github.com/filswan/go-swan-lib v0.2.143
-	github.com/filswan/swan-boost-lib v0.0.0-20231128092030-6e9505879f44
+	github.com/filswan/go-swan-lib v0.3.3
+	github.com/filswan/swan-boost-lib v0.0.0-20231205103616-6923eb359e4f
 	github.com/google/uuid v1.3.0
 	github.com/ipld/go-car v0.6.1
 	github.com/julienschmidt/httprouter v1.3.0
@@ -63,6 +63,7 @@ require (
 	github.com/filecoin-project/go-crypto v0.0.1 // indirect
 	github.com/filecoin-project/go-data-transfer v1.15.4-boost // indirect
 	github.com/filecoin-project/go-data-transfer/v2 v2.0.0-rc7 // indirect
+	github.com/filecoin-project/go-ds-versioning v0.1.2 // indirect
 	github.com/filecoin-project/go-fil-commcid v0.1.0 // indirect
 	github.com/filecoin-project/go-fil-markets v1.28.3 // indirect
 	github.com/filecoin-project/go-hamt-ipld v0.1.5 // indirect
@@ -267,8 +268,3 @@ require (
 )
 
 replace github.com/filecoin-project/filecoin-ffi => ./extern/filecoin-ffi
-
-exclude (
-	github.com/filecoin-project/boost v1.4.0
-	github.com/filecoin-project/boost v1.7.0
-)
