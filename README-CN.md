@@ -11,26 +11,28 @@ Swan Client 是一个重要的 Web3 工具包，提供不同的工具帮助用�
 
 ## 目录
 
-*   [1. Filecoin交易发送引擎](#1-Filecoin交易发送引擎)
-    *   [1.1 安装](#11-安装)
-        *   [安装包](#安装包)
-        *   [源代码](#源代码)
-    *   [1.2 配置](#12-配置)
-    *   [1.3 前提条件](#13-前提条件)
-    *   [1.4 生成CAR文件](#14-生成CAR文件)
-        *   [Graphsplit](#Graphsplit)
-        *   [Lotus API](#Lotus-API)
-        *   [IPFS API](#IPFS-API)
-        *   [ipfs-car](#ipfs-car)
-    *   [1.5 Meta-CAR](#15-Meta-CAR)
-    *   [1.6 上传CAR文件到IPFS](#16-上传CAR文件到IPFS)
-    *   [1.7 创建任务](#17-创建任务)
-        *   [私有任务](#私有任务)
-        *   [自动竞价任务](#自动竞价任务)
-        *   [手动竞价任务](#手动竞价任务)
-*   [2. 区块链RPC服务](#2-区块链RPC服务)
-    *   [2.1 部署RPC服务](#21-部署RPC服务)
-    *   [2.2 RPC命令](#22-RPC命令)
+- [Swan Client 工具指南](#swan-client-工具指南)
+  - [目录](#目录)
+  - [1. Filecoin交易发送引擎](#1-filecoin交易发送引擎)
+    - [1.1 安装](#11-安装)
+      - [**安装包**](#安装包)
+      - [**源代码**](#源代码)
+    - [1.2 配置](#12-配置)
+    - [1.3 前提条件](#13-前提条件)
+    - [1.4 生成CAR文件](#14-生成car文件)
+      - [Graphsplit](#graphsplit)
+      - [Lotus API](#lotus-api)
+      - [IPFS API](#ipfs-api)
+      - [ipfs-car](#ipfs-car)
+    - [1.5 Meta-CAR](#15-meta-car)
+    - [1.6 上传CAR文件到IPFS](#16-上传car文件到ipfs)
+    - [1.7 创建任务](#17-创建任务)
+      - [私有任务](#私有任务)
+    - [自动竞价任务](#自动竞价任务)
+    - [手动竞价任务](#手动竞价任务)
+  - [2. 区块链RPC服务](#2-区块链rpc服务)
+    - [2.1 部署RPC服务](#21-部署rpc服务)
+    - [2.2 RPC命令](#22-rpc命令)
 
 ## <a id="1-Filecoin交易发送引擎">1. Filecoin交易发送引擎</a>
 
@@ -42,7 +44,7 @@ Swan Client 是一个重要的 Web3 工具包，提供不同的工具帮助用�
 -   生成一个最终元数据文件，供存储提供商导入订单
 -   在 [Swan Platform](https://console.filswan.com/#/dashboard) 上创建任务和离线订单
 
-    **(存储供应商可以通过 [Swan Provider](https://github.com/filswan/go-swan-provider/tree/release-2.2.0-rc1) 自动导入订单)**
+    **(存储供应商可以通过 [Swan Provider](https://github.com/filswan/go-swan-provider/tree/release-2.3.0) 自动导入订单)**
 
 Swan Client 支持创建三种不同的任务，帮助用户将数据发送至存储供应商。从源文件到成功发送订单的整个流程如下：
 
@@ -67,19 +69,19 @@ Swan Client 支持创建三种不同的任务，帮助用户将数据发送至�
 ```shell
 mkdir swan-client
 cd swan-client
-wget --no-check-certificate https://github.com/filswan/go-swan-client/releases/download/v2.2.0-rc1/install.sh
+wget --no-check-certificate https://github.com/filswan/go-swan-client/releases/download/v2.3.0/install.sh
 chmod +x install.sh
 ./install.sh
 ```
 
 #### **源代码**
 
-\:bell:需要 **go 1.18.1+**
+\:bell:需要 **go 1.20.0+**
 
 ```shell
 git clone https://github.com/filswan/go-swan-client.git
 cd go-swan-client
-git checkout release-2.2.0-rc1
+git checkout release-2.3.0
 ./build_from_source.sh
 ```
 
@@ -92,13 +94,13 @@ git checkout release-2.2.0-rc1
 ```shell
 vi ~/.swan/client/config.toml
 ```
-```
+```toml
     [lotus]
     client_api_url = "http://[ip]:[port]/rpc/v0"   # lotus 客户端 web API 的 Url, 通常 [port] 是 1234
     client_access_token = ""                       # lotus 客户端 web API 的 Token 令牌, 需要管理员权限
 
     [main]
-    market_version = "1.1"                         # 订单版本为 1.1 或 1.2。此配置 (market_version=1.1) 将被弃用，很快会被删除 (默认: "1.1")。
+    market_version = "1.2"                         # 订单版本为 1.1 或 1.2，推荐 1.2。此配置 (market_version=1.1) 已被弃用，很快会被删除 (默认: "1.2")。
     api_url = "https://go-swan-server.filswan.com" # Swan API 地址。生产环境默认为： `https://go-swan-server.filswan.com`. 如果 `[sender].offline_swan=true`，则可忽略。
     api_key = ""                                   # Swan API key. 获取方式：[Swan Platform](https://console.filswan.com/#/dashboard) -> "My Profile"->"Developer Settings"。 如果 `[sender].offline_swan=true`，则可忽略。
     access_token = ""                              # Swan API token. 获取方式： [Swan Platform](https://console.filswan.com/#/dashboard) -> "My Profile"->"Developer Settings"。如果 `[sender].offline_swan=true`，则可忽略。
@@ -126,15 +128,15 @@ vi ~/.swan/client/config.toml
 
 -   导入客户端钱包私钥到 `$SWAN_PATH`(default: `~/.swan`):
 
-```
+```shell
     swan-client wallet import wallet.key
 ```
 - 给客户端钱包的 Market Actor 充值，以便发送订单：
 
-```
+```shell
     lotus wallet market add --from <address> --address <market_address> <amount>
 ```
-<font color="red"> **Note：** </font>如果您使用的是 `market_version = "1.2"`, 请确保存储提供商使用的 `swan-provider` 版本为 [v2.2.0-rc1](https://github.com/filswan/go-swan-provider/releases/tag/v2.2.0-rc1) 及以上。
+<font color="red"> **Note：** </font>如果您使用的是 `market_version = "1.2"`, 请确保存储提供商使用的 `swan-provider` 版本为 [v2.3.0](https://github.com/filswan/go-swan-provider/releases/tag/v2.3.0) 及以上。
 
 ### <a id="14-生成CAR文件">1.4 生成CAR文件</a>
 
@@ -418,7 +420,7 @@ curl --location --request POST '127.0.0.1:8099/chain/rpc' \
 -   **Ethereum 主网**:
 
 查询当前链高度
-```
+```shell
 swan-client rpc height --chain ETH
 ```
 输出：
@@ -427,7 +429,7 @@ swan-client rpc height --chain ETH
 	Height: 15844685
 ```
 查询余额
-```
+```shell
 swan-client rpc balance --chain ETH --address 0x29D5527CaA78f1946a409FA6aCaf14A0a4A0274b
 ```
 输出：
@@ -440,7 +442,7 @@ swan-client rpc balance --chain ETH --address 0x29D5527CaA78f1946a409FA6aCaf14A0
 -   **Binance Smart Chain 主网**:
 
 查询当前链高度
-```
+```shell
 swan-client rpc height --chain BNB
 ```
 输出：
@@ -450,7 +452,7 @@ swan-client rpc height --chain BNB
 ```
 
 查询余额
-```
+```shell
 swan-client rpc balance --chain BNB --address 0x4430b3230294D12c6AB2aAC5C2cd68E80B16b581
 ```
 输出：

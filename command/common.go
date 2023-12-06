@@ -5,18 +5,18 @@ import (
 	"context"
 	"encoding/csv"
 	"encoding/json"
-	"github.com/filedrive-team/go-graphsplit"
-	"github.com/filswan/go-swan-lib/logs"
-	libmodel "github.com/filswan/go-swan-lib/model"
-	"github.com/google/uuid"
-	"github.com/ipld/go-car"
-	"golang.org/x/xerrors"
+	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strconv"
 
-	"io/ioutil"
+	"github.com/filedrive-team/go-graphsplit"
+	"github.com/filswan/go-swan-lib/logs"
+	libmodel "github.com/filswan/go-swan-lib/model"
+	"github.com/google/uuid"
+	"github.com/ipld/go-car"
 )
 
 const (
@@ -47,7 +47,7 @@ const (
 
 	DURATION_MIN = 518400
 	DURATION_MAX = 1555200
-	VERSION      = "v2.2.0-rc1"
+	VERSION      = "v2.3.0"
 )
 
 var publicChain = map[string][]string{
@@ -96,7 +96,7 @@ func WriteFileDescsToJsonFile(fileDescs []*libmodel.FileDesc, outputDir, jsonFil
 		return nil, err
 	}
 
-	err = ioutil.WriteFile(jsonFilePath, content, 0644)
+	err = os.WriteFile(jsonFilePath, content, 0644)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -118,7 +118,7 @@ func ReadFileDescsFromJsonFile(inputDir, jsonFilename string) ([]*libmodel.FileD
 }
 
 func ReadFileDescsFromJsonFileByFullPath(jsonFilePath string) ([]*libmodel.FileDesc, error) {
-	contents, err := ioutil.ReadFile(jsonFilePath)
+	contents, err := os.ReadFile(jsonFilePath)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -245,7 +245,6 @@ func ReadFileFromCsvFileByFullPath(csvFileName string) (fileDesc []*libmodel.Fil
 			break
 		}
 		if err == io.EOF {
-			logs.GetLogger().Error(err)
 			break
 		}
 		if isFirst {
@@ -373,19 +372,19 @@ func CalculateValueByCarFile(carFilePath string, playload, piece bool) (string, 
 	if playload {
 		f, err := os.Open(carFilePath)
 		if err != nil {
-			return "", "", 0, xerrors.Errorf("failed to open CAR file: %w", err)
+			return "", "", 0, fmt.Errorf("failed to open CAR file: %w", err)
 		}
 		defer f.Close() //nolint:errcheck
 
 		hd, err := car.ReadHeader(bufio.NewReader(f))
 		if err != nil {
-			return "", "", 0, xerrors.Errorf("failed to read CAR header: %w", err)
+			return "", "", 0, fmt.Errorf("failed to read CAR header: %w", err)
 		}
 		if len(hd.Roots) != 1 {
-			return "", "", 0, xerrors.New("car file can have one and only one header")
+			return "", "", 0, errors.New("car file can have one and only one header")
 		}
 		if hd.Version != 1 && hd.Version != 2 {
-			return "", "", 0, xerrors.Errorf("car version must be 1 or 2, is %d", hd.Version)
+			return "", "", 0, fmt.Errorf("car version must be 1 or 2, is %d", hd.Version)
 		}
 		dataCid = hd.Roots[0].String()
 	}

@@ -2,11 +2,9 @@ package command
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"github.com/fatih/color"
-	"github.com/filswan/go-swan-lib/client/boost"
-	"github.com/pkg/errors"
-	"io/ioutil"
+	"io"
 	"math"
 	"math/big"
 	"net/http"
@@ -15,16 +13,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/filswan/go-swan-client/config"
-	"github.com/google/uuid"
-
-	"github.com/filswan/go-swan-lib/logs"
-	"github.com/filswan/go-swan-lib/utils"
-
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/client/swan"
 	libconstants "github.com/filswan/go-swan-lib/constants"
+	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
+	"github.com/filswan/go-swan-lib/utils"
+	boost "github.com/filswan/swan-boost-lib/client"
+	"github.com/google/uuid"
 )
 
 type CmdAutoBidDeal struct {
@@ -310,6 +308,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.Offl
 		PayloadCid:       offlineDeal.PayloadCid,
 		PieceCid:         offlineDeal.PieceCid,
 		FileSize:         offlineDeal.CarFileSize,
+		ClientRepo:       cmdAutoBidDeal.SwanRepo,
 	}
 
 	msg := fmt.Sprintf("send deal for task:%d,%s, deal:%d", offlineDeal.TaskId, *offlineDeal.TaskUuid, offlineDeal.Id)
@@ -474,7 +473,7 @@ END:
 func SendRpcReqAndResp(chainId, params string) (result []byte, err error) {
 	urls, ok := publicChain[chainId]
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("not support chainId: %s", chainId))
+		return nil, fmt.Errorf("not support chainId: %s", chainId)
 	}
 
 	for _, u := range urls {
@@ -501,7 +500,7 @@ func doReq(reqUrl, params string) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	return ioutil.ReadAll(resp.Body)
+	return io.ReadAll(resp.Body)
 }
 
 func QueryChainInfo(chain string, height int64, address string) (ChainInfo, error) {

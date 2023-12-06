@@ -3,28 +3,28 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
-	big2 "github.com/filecoin-project/go-state-types/big"
-	"github.com/filswan/go-swan-client/command"
-	"github.com/filswan/go-swan-client/config"
-	"github.com/filswan/go-swan-lib/client/boost"
-	"github.com/filswan/go-swan-lib/client/lotus"
-	"github.com/filswan/go-swan-lib/client/swan"
-	"github.com/filswan/go-swan-lib/constants"
-	libconstants "github.com/filswan/go-swan-lib/constants"
-	"github.com/filswan/go-swan-lib/logs"
-	"github.com/filswan/go-swan-lib/utils"
-	"github.com/julienschmidt/httprouter"
-	"github.com/pkg/errors"
-	"github.com/urfave/cli/v2"
-	"golang.org/x/xerrors"
-	"io/ioutil"
+	"io"
 	"math/big"
 	"net/http"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
+
+	big2 "github.com/filecoin-project/go-state-types/big"
+	"github.com/filswan/go-swan-client/command"
+	"github.com/filswan/go-swan-client/config"
+	"github.com/filswan/go-swan-lib/client/lotus"
+	"github.com/filswan/go-swan-lib/client/swan"
+	"github.com/filswan/go-swan-lib/constants"
+	libconstants "github.com/filswan/go-swan-lib/constants"
+	"github.com/filswan/go-swan-lib/logs"
+	"github.com/filswan/go-swan-lib/utils"
+	boost "github.com/filswan/swan-boost-lib/client"
+	"github.com/julienschmidt/httprouter"
+	"github.com/urfave/cli/v2"
 )
 
 func main() {
@@ -45,7 +45,7 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		var phe *PrintHelpErr
 		fmt.Fprintf(os.Stderr, "ERROR: %s\n\n", err)
-		if xerrors.As(err, &phe) {
+		if errors.As(err, &phe) {
 			_ = cli.ShowCommandHelp(phe.Ctx, phe.Ctx.Command.Name)
 		}
 		os.Exit(1)
@@ -128,7 +128,7 @@ var walletImportCmd = &cli.Command{
 				}
 				inputData = indata
 			} else {
-				fdata, err := ioutil.ReadFile(ctx.Args().First())
+				fdata, err := os.ReadFile(ctx.Args().First())
 				if err != nil {
 					return err
 				}
@@ -209,7 +209,7 @@ var daemonCmd = &cli.Command{
 		router := httprouter.New()
 		router.POST("/chain/rpc", func(writer http.ResponseWriter, request *http.Request, _ httprouter.Params) {
 			defer request.Body.Close()
-			data, _ := ioutil.ReadAll(request.Body)
+			data, _ := io.ReadAll(request.Body)
 			var reqParam struct {
 				ChainId string `json:"chain_id"`
 				Params  string `json:"params"`
@@ -527,7 +527,7 @@ var inPutFlag = cli.StringFlag{
 var importFlag = cli.BoolFlag{
 	Name:  "import",
 	Usage: "whether to import CAR file to lotus",
-	Value: true,
+	Value: false,
 }
 
 var outPutFlag = cli.StringFlag{
