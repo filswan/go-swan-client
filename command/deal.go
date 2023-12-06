@@ -202,6 +202,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 	}
 
 	dealSentNum := 0
+	total := len(fileDescs) * len(cmdDeal.MinerFids)
 	for _, fileDesc := range fileDescs {
 		if fileDesc.CarFileSize <= 0 {
 			logs.GetLogger().Error("File:" + fileDesc.CarFilePath + " %s is too small")
@@ -305,7 +306,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 
 			deals = append(deals, deal)
 			dealSentNum = dealSentNum + 1
-			logs.GetLogger().Info("deal sent successfully, task name:", taskName, ", car file:", fileDesc.CarFilePath, ", dealCID|dealUuid:", deal.DealCid, ", start epoch:", deal.StartEpoch, ", miner:", deal.MinerFid)
+			logs.GetLogger().Infof("%d/%d deal sent successfully, task name: %s, car file: %s, dealCID|dealUuid: %s, start epoch: %d, miner: %s", dealSentNum, total, taskName, fileDesc.CarFilePath, deal.DealCid, deal.StartEpoch, deal.MinerFid)
 			if cmdDeal.StartDealTimeInterval > 0 {
 				time.Sleep(cmdDeal.StartDealTimeInterval * time.Millisecond)
 			}
