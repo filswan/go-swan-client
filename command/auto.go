@@ -308,6 +308,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.Offl
 		PayloadCid:       offlineDeal.PayloadCid,
 		PieceCid:         offlineDeal.PieceCid,
 		FileSize:         offlineDeal.CarFileSize,
+		ClientRepo:       cmdAutoBidDeal.SwanRepo,
 	}
 
 	msg := fmt.Sprintf("send deal for task:%d,%s, deal:%d", offlineDeal.TaskId, *offlineDeal.TaskUuid, offlineDeal.Id)
