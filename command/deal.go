@@ -260,7 +260,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 						StartEpoch: int(dealConfig.StartEpoch),
 						Cost:       "fail",
 					})
-					logs.GetLogger().Error(err)
+					logs.GetLogger().Infof("%d/%d deal sent failed, task name: %s, car file: %s, start epoch: %d, miner: %s, error: %v", len(deals), total, taskName, fileDesc.CarFilePath, deal.StartEpoch, deal.MinerFid, err)
 					continue
 				}
 				deal = &libmodel.DealInfo{
@@ -270,11 +270,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 					Cost:       "0",
 				}
 			} else {
-				pieceSize, epochPrice, err := boost.CheckDealConfig(lotusClient, &dealConfig, true)
-				if err != nil {
-					return nil, err
-				}
-				dealCid, err := lotusClient.StartDeal(pieceSize, epochPrice, &dealConfig)
+				dealCid, err := lotusStartDeal(lotusClient, &dealConfig)
 				if err != nil {
 					deals = append(deals, &libmodel.DealInfo{
 						MinerFid:   dealConfig.MinerFid,
@@ -282,7 +278,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 						StartEpoch: int(dealConfig.StartEpoch),
 						Cost:       "fail",
 					})
-					logs.GetLogger().Error(err)
+					logs.GetLogger().Infof("%d/%d deal sent failed, task name: %s, car file: %s, start epoch: %d, miner: %s, error: %v", len(deals), total, taskName, fileDesc.CarFilePath, deal.StartEpoch, deal.MinerFid, err)
 					continue
 				}
 				if dealCid == nil {
@@ -306,7 +302,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 
 			deals = append(deals, deal)
 			dealSentNum = dealSentNum + 1
-			logs.GetLogger().Infof("%d/%d deal sent successfully, task name: %s, car file: %s, dealCID|dealUuid: %s, start epoch: %d, miner: %s", dealSentNum, total, taskName, fileDesc.CarFilePath, deal.DealCid, deal.StartEpoch, deal.MinerFid)
+			logs.GetLogger().Infof("%d/%d deal sent successfully, task name: %s, car file: %s, dealCID|dealUuid: %s, start epoch: %d, miner: %s", len(deals), total, taskName, fileDesc.CarFilePath, deal.DealCid, deal.StartEpoch, deal.MinerFid)
 			if cmdDeal.StartDealTimeInterval > 0 {
 				time.Sleep(cmdDeal.StartDealTimeInterval * time.Millisecond)
 			}
@@ -330,6 +326,15 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 	}
 
 	return fileDescs, err
+}
+
+func lotusStartDeal(lotusClient *lotus.LotusClient, dealConfig *libmodel.DealConfig) (dealCid *string, err error) {
+	pieceSize, epochPrice, err := boost.CheckDealConfig(lotusClient, dealConfig, true)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
+	return lotusClient.StartDeal(pieceSize, epochPrice, dealConfig)
 }
 
 func (cmdDeal *CmdDeal) CheckDatacap(address string) (bool, error) {
