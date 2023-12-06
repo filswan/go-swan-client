@@ -315,7 +315,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 		fmt.Println(color.YellowString("You are using the MARKET(version=1.1 built-in Lotus) send deals, but it is deprecated, will remove soon. Please set [main.market_version=“1.2”]"))
 	}
 
-	logs.GetLogger().Infof("%d deal(s) has(ve) been sent for task: %s, minerID: %+v", dealSentNum, taskName, cmdDeal.MinerFids)
+	logs.GetLogger().Infof("%d successful deal(s) and %d failed deal(s) has(ve) been sent for task: %s, minerID: %+v", dealSentNum, total-dealSentNum, taskName, cmdDeal.MinerFids)
 
 	jsonFileName := taskName + JSON_FILE_NAME_DEAL
 	csvFileName := taskName + CSV_FILE_NAME_DEAL
