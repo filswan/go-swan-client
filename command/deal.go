@@ -260,7 +260,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 						StartEpoch: int(dealConfig.StartEpoch),
 						Cost:       "fail",
 					})
-					logs.GetLogger().Infof("%d/%d deal sent failed, task name: %s, car file: %s, start epoch: %d, miner: %s, error: %v", len(deals), total, taskName, fileDesc.CarFilePath, deal.StartEpoch, deal.MinerFid, err)
+					logs.GetLogger().Infof("%d/%d deal sent failed, task name: %s, car file: %s, start epoch: %d, miner: %s, error: %v", len(deals), total, taskName, fileDesc.CarFilePath, dealConfig.StartEpoch, dealConfig.MinerFid, err)
 					continue
 				}
 				deal = &libmodel.DealInfo{
