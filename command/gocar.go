@@ -4,22 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/filswan/go-swan-lib/client/lotus"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/filswan/go-swan-client/config"
-	"github.com/google/uuid"
-
-	"github.com/filswan/go-swan-lib/logs"
-
-	"github.com/filswan/go-swan-lib/utils"
-
 	"github.com/codingsince1985/checksum"
 	"github.com/filedrive-team/go-graphsplit"
+	"github.com/filswan/go-swan-client/config"
+	"github.com/filswan/go-swan-lib/client/lotus"
+	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
+	"github.com/filswan/go-swan-lib/utils"
+	"github.com/google/uuid"
 )
 
 type CmdGoCar struct {
@@ -96,7 +93,7 @@ func (cmdGoCar *CmdGoCar) CreateGoCarFiles() ([]*libmodel.FileDesc, error) {
 		return nil, err
 	}
 
-	srcFiles, err := ioutil.ReadDir(cmdGoCar.InputDir)
+	srcFiles, err := os.ReadDir(cmdGoCar.InputDir)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

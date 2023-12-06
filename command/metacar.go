@@ -5,6 +5,11 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+	"strconv"
+
 	metacar "github.com/FogMeta/meta-lib/module/ipfs"
 	"github.com/FogMeta/meta-lib/util"
 	"github.com/codingsince1985/checksum"
@@ -17,12 +22,6 @@ import (
 	"github.com/filswan/go-swan-lib/utils"
 	"github.com/ipld/go-car"
 	"github.com/urfave/cli/v2"
-	"golang.org/x/xerrors"
-	"io"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"strconv"
 )
 
 var MetaCarCmd = &cli.Command{
@@ -368,18 +367,18 @@ func calcCommP(inputCarFile string) (string, uint64, error) {
 	// check that the data is a car file; if it's not, retrieval won't work
 	_, err = car.ReadHeader(bufio.NewReader(rdr))
 	if err != nil {
-		return "", 0, xerrors.Errorf("not a car file: %w", err)
+		return "", 0, fmt.Errorf("not a car file: %w", err)
 	}
 
 	if _, err := rdr.Seek(0, io.SeekStart); err != nil {
-		return "", 0, xerrors.Errorf("seek to start: %w", err)
+		return "", 0, fmt.Errorf("seek to start: %w", err)
 	}
 
 	pieceReader, pieceSize := padreader.New(rdr, uint64(stat.Size()))
 	pieceCid, err := ffiwrapper.GeneratePieceCIDFromFile(arbitraryProofType, pieceReader, pieceSize)
 
 	if err != nil {
-		return "", 0, xerrors.Errorf("computing commP failed: %w", err)
+		return "", 0, fmt.Errorf("computing commP failed: %w", err)
 	}
 
 	return pieceCid.String(), uint64(pieceSize), nil
@@ -434,7 +433,7 @@ func metaWriteIndexToJsonFile(carInfos []metacar.CarInfo, outputDir, indexFileNa
 		return nil, err
 	}
 
-	err = ioutil.WriteFile(jsonFilePath, content, 0644)
+	err = os.WriteFile(jsonFilePath, content, 0644)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err
@@ -452,7 +451,7 @@ func metaWriteFileDescsToJsonFile(fileDescs []*MetaFileDesc, outputDir, jsonFile
 		return nil, err
 	}
 
-	err = ioutil.WriteFile(jsonFilePath, content, 0644)
+	err = os.WriteFile(jsonFilePath, content, 0644)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil, err

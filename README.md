@@ -11,26 +11,28 @@ Swan-client is an important Web3 toolkit. It provides different tools to help us
 
 ## Table of Contents
 
--   [1. Filecoin Deal Sender](#1-Filecoin-Deal-Sender)
-    -   [1.1 Installation](#11-Installation)
-        -   [From Prebuilt Package](#From-Prebuilt-Package)
-        -   [From Source Code](#From-Source-Code)
-    -   [1.2 Configuration](#12-Configuration)
-    -   [1.3 Prerequisites](#13-Prerequisites)
-    -   [1.4 Generate CAR Files](#14-Generate-CAR-Files)
-        - [Graphsplit](#Graphsplit)
-        - [Lotus API](#Lotus-API)
-        - [IPFS API](#IPFS-API)
-        - [ipfs-car](#ipfs-car)
-    -   [1.5 Meta-CAR](#15-Meta-CAR)
-    -   [1.6 Upload CAR Files to IPFS](#16-Upload-CAR-Files-to-IPFS)
-    -   [1.7 Create a Task](#17-Create-A-Task)
-        -   [Private Task](#Private-Task)
-        -   [Auto-bid Task](#Auto-bid-Task)
-        -  [Manual-bid Task](#Manual-bid-Task)
--   [2. Blockchain RPC Service](#2-Blockchain-RPC-Service)
-    -   [2.1 Deploy RPC Service](#21-Deploy-RPC-Service)
-    -   [2.2 RPC Command Service](#22-RPC-Command-Service)
+- [Swan-Client Tool Guide](#swan-client-tool-guide)
+  - [Table of Contents](#table-of-contents)
+  - [1. Filecoin Deal Sender](#1-filecoin-deal-sender)
+    - [1.1 Installation](#11-installation)
+      - [**From Prebuilt Package**](#from-prebuilt-package)
+      - [**From Source Code**](#from-source-code)
+    - [1.2 Configuration](#12-configuration)
+    - [1.3 Prerequisites](#13-prerequisites)
+    - [1.4 Generate CAR Files](#14-generate-car-files)
+      - [Graphsplit](#graphsplit)
+      - [Lotus API](#lotus-api)
+      - [IPFS API](#ipfs-api)
+      - [ipfs-car](#ipfs-car)
+    - [1.5 Meta-CAR](#15-meta-car)
+    - [1.6 Upload CAR Files to IPFS](#16-upload-car-files-to-ipfs)
+    - [1.7 Create a Task](#17-create-a-task)
+      - [Private Task](#private-task)
+    - [Auto-bid Task](#auto-bid-task)
+    - [Manual-bid Task](#manual-bid-task)
+  - [2. Blockchain RPC Service](#2-blockchain-rpc-service)
+    - [2.1 Deploy RPC Service](#21-deploy-rpc-service)
+    - [2.2 RPC Command Service](#22-rpc-command-service)
 
 ## 1. Filecoin Deal Sender
 
@@ -42,7 +44,7 @@ As a PiB-level data onboarding tool for Filecoin Network, Swan-client can help u
 -   Generate a final metadata file for storage providers to import deals
 -   Create tasks and offline deals on [Swan Platform](https://console.filswan.com/#/dashboard)
 
-    **(Storage Providers can automatically import the deals by [Swan-Provider](https://github.com/filswan/go-swan-provider/tree/release-2.2.0))**
+    **(Storage Providers can automatically import the deals by [Swan-Provider](https://github.com/filswan/go-swan-provider/tree/release-2.3.0))**
 
 swan-client can help users send their data to storage providers by creating three different kinds of tasks. The complete process from the source file to the storage provider is as follows:
 
@@ -67,19 +69,19 @@ See [release assets](https://github.com/filswan/go-swan-client/releases)
 ```shell
 mkdir swan-client
 cd swan-client
-wget --no-check-certificate https://github.com/filswan/go-swan-client/releases/download/v2.2.0/install.sh
+wget --no-check-certificate https://github.com/filswan/go-swan-client/releases/download/v2.3.0/install.sh
 chmod +x install.sh
 ./install.sh
 ```
 
 #### **From Source Code**
 
-\:bell:**go 1.19.7+** is required
+\:bell:**go 1.20.0+** is required
 
 ```shell
 git clone https://github.com/filswan/go-swan-client.git
 cd go-swan-client
-git checkout release-2.2.0
+git checkout release-2.3.0
 ./build_from_source.sh
 ```
 
@@ -134,7 +136,7 @@ If you have set `market_version = "1.2"` in the `config.toml`, you must do the f
 ```shell
     lotus wallet market add --from <address> --address <market_address> <amount>
 ```
-<font color="red"> **Note：** </font>If you are using `market_version = "1.2"`, please make sure the storage providers are using the `swan-provider` [v2.2.0](https://github.com/filswan/go-swan-provider/releases/tag/v2.2.0) at least.
+<font color="red"> **Note：** </font>If you are using `market_version = "1.2"`, please make sure the storage providers are using the `swan-provider` [v2.3.0](https://github.com/filswan/go-swan-provider/releases/tag/v2.3.0) at least.
 
 ### 1.4 Generate CAR Files
 

@@ -2,9 +2,9 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"github.com/pkg/errors"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -94,7 +94,7 @@ func initChain() {
 	if err != nil {
 		log.Fatalf("open chain-rpc.json failed,error: %v", err)
 	}
-	chainBytes, err := ioutil.ReadAll(chainFile)
+	chainBytes, err := io.ReadAll(chainFile)
 	if err != nil {
 		log.Fatalf("read chain-rpc.json failed,error: %v", err)
 	}
