@@ -527,7 +527,7 @@ var inPutFlag = cli.StringFlag{
 var importFlag = cli.BoolFlag{
 	Name:  "import",
 	Usage: "whether to import CAR file to lotus",
-	Value: true,
+	Value: false,
 }
 
 var outPutFlag = cli.StringFlag{

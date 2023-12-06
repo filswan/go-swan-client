@@ -9,10 +9,10 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/filecoin-project/go-commp-utils v0.1.4
 	github.com/filecoin-project/go-padreader v0.0.1
-	github.com/filecoin-project/go-state-types v0.12.5
+	github.com/filecoin-project/go-state-types v0.12.8
 	github.com/filedrive-team/go-graphsplit v0.5.0
-	github.com/filswan/go-swan-lib v0.2.142
-	github.com/filswan/swan-boost-lib v0.0.0-20231108085859-3ca47e1fedb9
+	github.com/filswan/go-swan-lib v0.3.3
+	github.com/filswan/swan-boost-lib v0.0.1
 	github.com/google/uuid v1.3.0
 	github.com/ipld/go-car v0.6.1
 	github.com/julienschmidt/httprouter v1.3.0
@@ -50,9 +50,9 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/elastic/go-elasticsearch/v7 v7.14.0 // indirect
 	github.com/elastic/gosigar v0.14.2 // indirect
-	github.com/filecoin-project/boost v0.0.0-20231101173716-1622d0ce2581 // indirect
+	github.com/filecoin-project/boost v1.7.5-0.20231124125934-3233c510357f // indirect
 	github.com/filecoin-project/boost-gfm v1.26.7 // indirect
-	github.com/filecoin-project/boost/extern/boostd-data v0.0.0-20231009154452-ca8daa2870f3 // indirect
+	github.com/filecoin-project/boost/extern/boostd-data v0.0.0-20231101173716-1622d0ce2581 // indirect
 	github.com/filecoin-project/filecoin-ffi v1.25.0-dev.1 // indirect
 	github.com/filecoin-project/go-address v1.1.0 // indirect
 	github.com/filecoin-project/go-amt-ipld/v2 v2.1.0 // indirect
@@ -63,6 +63,7 @@ require (
 	github.com/filecoin-project/go-crypto v0.0.1 // indirect
 	github.com/filecoin-project/go-data-transfer v1.15.4-boost // indirect
 	github.com/filecoin-project/go-data-transfer/v2 v2.0.0-rc7 // indirect
+	github.com/filecoin-project/go-ds-versioning v0.1.2 // indirect
 	github.com/filecoin-project/go-fil-commcid v0.1.0 // indirect
 	github.com/filecoin-project/go-fil-markets v1.28.3 // indirect
 	github.com/filecoin-project/go-hamt-ipld v0.1.5 // indirect
@@ -72,7 +73,7 @@ require (
 	github.com/filecoin-project/go-statemachine v1.0.3 // indirect
 	github.com/filecoin-project/go-statestore v0.2.0 // indirect
 	github.com/filecoin-project/kubo-api-client v0.0.2-0.20230829103503-14448166d14d // indirect
-	github.com/filecoin-project/lotus v1.25.0-rc1 // indirect
+	github.com/filecoin-project/lotus v1.25.0 // indirect
 	github.com/filecoin-project/specs-actors v0.9.15 // indirect
 	github.com/filecoin-project/specs-actors/v2 v2.3.6 // indirect
 	github.com/filecoin-project/specs-actors/v3 v3.1.2 // indirect
@@ -267,8 +268,3 @@ require (
 )
 
 replace github.com/filecoin-project/filecoin-ffi => ./extern/filecoin-ffi
-
-exclude (
-	github.com/filecoin-project/boost v1.4.0
-	github.com/filecoin-project/boost v1.7.0
-)
