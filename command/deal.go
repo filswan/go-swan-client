@@ -270,7 +270,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 					Cost:       "0",
 				}
 			} else {
-				dealCid, err := lotusStartDeal(lotusClient, &dealConfig)
+				dealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
 				if err != nil {
 					deals = append(deals, &libmodel.DealInfo{
 						MinerFid:   dealConfig.MinerFid,
@@ -326,15 +326,6 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 	}
 
 	return fileDescs, err
-}
-
-func lotusStartDeal(lotusClient *lotus.LotusClient, dealConfig *libmodel.DealConfig) (dealCid *string, err error) {
-	pieceSize, epochPrice, err := boost.CheckDealConfig(lotusClient, dealConfig, true)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return
-	}
-	return lotusClient.StartDeal(pieceSize, epochPrice, dealConfig)
 }
 
 func (cmdDeal *CmdDeal) CheckDatacap(address string) (bool, error) {

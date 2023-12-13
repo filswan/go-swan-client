@@ -267,7 +267,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutoBidDeals4Task(assignedOfflineDeals
 func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.OfflineDeal) (*libmodel.FileDesc, error) {
 	offlineDeal.DealCid = strings.Trim(offlineDeal.DealCid, " ")
 	if len(offlineDeal.DealCid) != 0 {
-		logs.GetLogger().Info("deal already be sent, task:%s, deal:%d", *offlineDeal.TaskUuid, offlineDeal.Id)
+		logs.GetLogger().Infof("deal already be sent, task:%s, deal:%d", *offlineDeal.TaskUuid, offlineDeal.Id)
 		return nil, nil
 	}
 
