@@ -261,7 +261,6 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 			dealConfig.MinerFid = minerFid
 
 			cost := "0"
-			var deal *libmodel.DealInfo
 			var dealCid string
 			var allocationId uint64
 			if cmdDeal.MarketVersion == libconstants.MARKET_VERSION_2 {
@@ -305,7 +304,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 				Type:         cmdDeal.Type,
 			})
 			dealSentNum++
-			logs.GetLogger().Infof("%d/%d deal sent successfully, task name: %s, car file: %s, dealCID|dealUuid: %s, start epoch: %d, miner: %s", len(deals), total, taskName, fileDesc.CarFilePath, deal.DealCid, dealConfig.StartEpoch, dealConfig.MinerFid)
+			logs.GetLogger().Infof("%d/%d deal sent successfully, task name: %s, car file: %s, dealCID|dealUuid: %s, start epoch: %d, miner: %s", len(deals), total, taskName, fileDesc.CarFilePath, dealCid, dealConfig.StartEpoch, dealConfig.MinerFid)
 			if cmdDeal.StartDealTimeInterval > 0 {
 				time.Sleep(cmdDeal.StartDealTimeInterval * time.Millisecond)
 			}

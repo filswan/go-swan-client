@@ -12,7 +12,7 @@ require (
 	github.com/filecoin-project/go-state-types v0.13.0-rc.2
 	github.com/filedrive-team/go-graphsplit v0.5.0
 	github.com/filswan/go-swan-lib v0.3.4-0.20240327061621-374e1ef2d917
-	github.com/filswan/swan-boost-lib v0.0.3-0.20240327090359-5948f8151eef
+	github.com/filswan/swan-boost-lib v0.0.3-0.20240327093810-f3b27495e8e1
 	github.com/google/uuid v1.3.0
 	github.com/ipld/go-car v0.6.1
 	github.com/julienschmidt/httprouter v1.3.0
