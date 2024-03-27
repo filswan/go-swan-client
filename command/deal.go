@@ -41,9 +41,14 @@ type CmdDeal struct {
 	StartDealTimeInterval  time.Duration   //required
 	SwanRepo               string
 	MarketVersion          string
+	Type                   int
 }
 
-func GetCmdDeal(outputDir *string, minerFids, metadataJsonPath, metadataCsvPath string) *CmdDeal {
+func GetCmdDeal(outputDir *string, minerFids, metadataJsonPath, metadataCsvPath string, ddo ...bool) *CmdDeal {
+	typ := libconstants.DEAL_TYPE_DEFAULT
+	if len(ddo) > 0 && ddo[0] {
+		typ = libconstants.DEAL_TYPE_DDO
+	}
 	cmdDeal := &CmdDeal{
 		SwanApiUrl:             config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:             config.GetConfig().Main.SwanApiKey,
@@ -62,6 +67,7 @@ func GetCmdDeal(outputDir *string, minerFids, metadataJsonPath, metadataCsvPath 
 		StartDealTimeInterval:  config.GetConfig().Sender.StartDealTimeInterval,
 		SwanRepo:               strings.TrimSpace(config.GetConfig().Main.SwanRepo),
 		MarketVersion:          strings.TrimSpace(config.GetConfig().Main.MarketVersion),
+		Type:                   typ,
 	}
 
 	minerFids = strings.Trim(minerFids, " ")
@@ -246,45 +252,26 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 		}
 
 		var deals []*libmodel.DealInfo
+
 		for _, minerFid := range cmdDeal.MinerFids {
 			dealConfig.MinerFid = minerFid
 
-			var cost string
+			cost := "0"
 			var deal *libmodel.DealInfo
+			var dealCid string
+			var allocationId uint64
 			if cmdDeal.MarketVersion == libconstants.MARKET_VERSION_2 {
-				dealUuid, err := boost.GetClient(cmdDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
-				if err != nil {
-					deals = append(deals, &libmodel.DealInfo{
-						MinerFid:   dealConfig.MinerFid,
-						DealCid:    "",
-						StartEpoch: int(dealConfig.StartEpoch),
-						Cost:       "fail",
-					})
-					logs.GetLogger().Infof("%d/%d deal sent failed, task name: %s, car file: %s, start epoch: %d, miner: %s, error: %v", len(deals), total, taskName, fileDesc.CarFilePath, dealConfig.StartEpoch, dealConfig.MinerFid, err)
-					continue
-				}
-				deal = &libmodel.DealInfo{
-					MinerFid:   dealConfig.MinerFid,
-					DealCid:    dealUuid,
-					StartEpoch: int(dealConfig.StartEpoch),
-					Cost:       "0",
+				if cmdDeal.Type == libconstants.DEAL_TYPE_DDO {
+					allocationId, err = boost.GetClient(cmdDeal.SwanRepo).WithClient(lotusClient).AllocateDeal(&dealConfig, cmdDeal.SenderWallet)
+				} else {
+					dealCid, err = boost.GetClient(cmdDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
 				}
 			} else {
-				dealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
-				if err != nil {
-					deals = append(deals, &libmodel.DealInfo{
-						MinerFid:   dealConfig.MinerFid,
-						DealCid:    "",
-						StartEpoch: int(dealConfig.StartEpoch),
-						Cost:       "fail",
-					})
-					logs.GetLogger().Infof("%d/%d deal sent failed, task name: %s, car file: %s, start epoch: %d, miner: %s, error: %v", len(deals), total, taskName, fileDesc.CarFilePath, dealConfig.StartEpoch, dealConfig.MinerFid, err)
-					continue
-				}
-				if dealCid == nil {
-					dealCid = new(string)
-				} else {
-					dealInfo, err := lotusClient.LotusClientGetDealInfo(*dealCid)
+				var cidPtr *string
+				cidPtr, err = lotusClient.LotusClientStartDeal(&dealConfig)
+				if err == nil {
+					dealCid = *cidPtr
+					dealInfo, err := lotusClient.LotusClientGetDealInfo(*cidPtr)
 					if err != nil {
 						logs.GetLogger().Error(err)
 						cost = "fail"
@@ -292,16 +279,28 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 						cost = dealInfo.CostComputed
 					}
 				}
-				deal = &libmodel.DealInfo{
-					MinerFid:   dealConfig.MinerFid,
-					DealCid:    *dealCid,
-					StartEpoch: int(dealConfig.StartEpoch),
-					Cost:       cost,
-				}
 			}
 
-			deals = append(deals, deal)
-			dealSentNum = dealSentNum + 1
+			if err != nil {
+				deals = append(deals, &libmodel.DealInfo{
+					MinerFid:   dealConfig.MinerFid,
+					StartEpoch: int(dealConfig.StartEpoch),
+					Cost:       "fail",
+				})
+				logs.GetLogger().Infof("%d/%d deal sent failed, task name: %s, car file: %s, start epoch: %d, miner: %s, error: %v", len(deals), total, taskName, fileDesc.CarFilePath, dealConfig.StartEpoch, dealConfig.MinerFid, err)
+				continue
+			}
+
+			deals = append(deals, &libmodel.DealInfo{
+				MinerFid:     dealConfig.MinerFid,
+				DealCid:      dealCid,
+				StartEpoch:   int(dealConfig.StartEpoch),
+				Cost:         cost,
+				ClientAddr:   cmdDeal.SenderWallet,
+				AllocationID: allocationId,
+				Type:         cmdDeal.Type,
+			})
+			dealSentNum++
 			logs.GetLogger().Infof("%d/%d deal sent successfully, task name: %s, car file: %s, dealCID|dealUuid: %s, start epoch: %d, miner: %s", len(deals), total, taskName, fileDesc.CarFilePath, deal.DealCid, dealConfig.StartEpoch, dealConfig.MinerFid)
 			if cmdDeal.StartDealTimeInterval > 0 {
 				time.Sleep(cmdDeal.StartDealTimeInterval * time.Millisecond)

@@ -339,16 +339,12 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.Offl
 		if cmdAutoBidDeal.MarketVersion == libconstants.MARKET_VERSION_2 {
 			if offlineDeal.Type == libconstants.DEAL_TYPE_DDO {
 				allocationId, err = boost.GetClient(cmdAutoBidDeal.SwanRepo).WithClient(lotusClient).AllocateDeal(&dealConfig, cmdAutoBidDeal.SenderWallet)
-				if err != nil {
-					logs.GetLogger().Error(err)
-					continue
-				}
 			} else {
 				dealCid, err = boost.GetClient(cmdAutoBidDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
-				if err != nil {
-					logs.GetLogger().Error(err)
-					continue
-				}
+			}
+			if err != nil {
+				logs.GetLogger().Error(err)
+				continue
 			}
 		} else {
 			lotusDealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)

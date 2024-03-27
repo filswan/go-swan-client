@@ -101,7 +101,7 @@ func CreateTaskByConfig(inputDir string, outputDir *string, taskName, minerFid, 
 	}
 
 	cmdTask := GetCmdTask(inputDir, outputDir, taskName, dataset, description, bidMode, maxCopyNumber, wallet, ddo)
-	cmdDeal := GetCmdDeal(outputDir, minerFid, "", "")
+	cmdDeal := GetCmdDeal(outputDir, minerFid, "", "", ddo)
 	jsonFileName, fileDescs, deals, total, err := cmdTask.CreateTask(cmdDeal)
 	if err != nil {
 		logs.GetLogger().Error(err)
