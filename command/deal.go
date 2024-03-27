@@ -44,10 +44,14 @@ type CmdDeal struct {
 	Type                   int
 }
 
-func GetCmdDeal(outputDir *string, minerFids, metadataJsonPath, metadataCsvPath string, ddo ...bool) *CmdDeal {
+func GetCmdDeal(outputDir *string, minerFids, metadataJsonPath, metadataCsvPath string, wallet string, ddo ...bool) *CmdDeal {
 	typ := libconstants.DEAL_TYPE_DEFAULT
 	if len(ddo) > 0 && ddo[0] {
 		typ = libconstants.DEAL_TYPE_DDO
+	}
+	sender := config.GetConfig().Sender.Wallet
+	if wallet != "" {
+		sender = wallet
 	}
 	cmdDeal := &CmdDeal{
 		SwanApiUrl:             config.GetConfig().Main.SwanApiUrl,
@@ -55,7 +59,7 @@ func GetCmdDeal(outputDir *string, minerFids, metadataJsonPath, metadataCsvPath 
 		SwanAccessToken:        config.GetConfig().Main.SwanAccessToken,
 		LotusClientApiUrl:      config.GetConfig().Lotus.ClientApiUrl,
 		LotusClientAccessToken: config.GetConfig().Lotus.ClientAccessToken,
-		SenderWallet:           config.GetConfig().Sender.Wallet,
+		SenderWallet:           sender,
 		VerifiedDeal:           config.GetConfig().Sender.VerifiedDeal,
 		FastRetrieval:          config.GetConfig().Sender.FastRetrieval,
 		SkipConfirmation:       config.GetConfig().Sender.SkipConfirmation,
@@ -99,7 +103,7 @@ func SendDealsByConfig(outputDir, minerFid, metadataJsonPath, metadataCsvPath st
 		return nil, err
 	}
 
-	cmdDeal := GetCmdDeal(&outputDir, minerFid, metadataJsonPath, metadataCsvPath)
+	cmdDeal := GetCmdDeal(&outputDir, minerFid, metadataJsonPath, metadataCsvPath, "")
 	fileDescs, err := cmdDeal.SendDeals()
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -262,7 +266,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 			var allocationId uint64
 			if cmdDeal.MarketVersion == libconstants.MARKET_VERSION_2 {
 				if cmdDeal.Type == libconstants.DEAL_TYPE_DDO {
-					allocationId, err = boost.GetClient(cmdDeal.SwanRepo).WithClient(lotusClient).AllocateDeal(&dealConfig, cmdDeal.SenderWallet)
+					allocationId, err = boost.GetClient(cmdDeal.SwanRepo).WithClient(lotusClient).AllocateDeal(&dealConfig)
 				} else {
 					dealCid, err = boost.GetClient(cmdDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
 				}
