@@ -39,14 +39,18 @@ type CmdAutoBidDeal struct {
 	MarketVersion          string
 }
 
-func GetCmdAutoDeal(outputDir *string) *CmdAutoBidDeal {
+func GetCmdAutoDeal(outputDir *string, wallet ...string) *CmdAutoBidDeal {
+	sender := config.GetConfig().Sender.Wallet
+	if len(wallet) > 0 {
+		sender = wallet[0]
+	}
 	cmdAutoBidDeal := &CmdAutoBidDeal{
 		SwanApiUrl:             config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:             config.GetConfig().Main.SwanApiKey,
 		SwanAccessToken:        config.GetConfig().Main.SwanAccessToken,
 		LotusClientApiUrl:      config.GetConfig().Lotus.ClientApiUrl,
 		LotusClientAccessToken: config.GetConfig().Lotus.ClientAccessToken,
-		SenderWallet:           config.GetConfig().Sender.Wallet,
+		SenderWallet:           sender,
 		SwanRepo:               strings.TrimSpace(config.GetConfig().Main.SwanRepo),
 		MarketVersion:          strings.TrimSpace(config.GetConfig().Main.MarketVersion),
 	}
@@ -331,11 +335,20 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.Offl
 		dealConfig.StartEpoch = dealConfig.StartEpoch - (int64)(i)
 
 		var dealCid string
+		var allocationId uint64
 		if cmdAutoBidDeal.MarketVersion == libconstants.MARKET_VERSION_2 {
-			dealCid, err = boost.GetClient(cmdAutoBidDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
-			if err != nil {
-				logs.GetLogger().Error(err)
-				continue
+			if offlineDeal.Type == libconstants.DEAL_TYPE_DDO {
+				allocationId, err = boost.GetClient(cmdAutoBidDeal.SwanRepo).WithClient(lotusClient).AllocateDeal(&dealConfig, cmdAutoBidDeal.SenderWallet)
+				if err != nil {
+					logs.GetLogger().Error(err)
+					continue
+				}
+			} else {
+				dealCid, err = boost.GetClient(cmdAutoBidDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
+				if err != nil {
+					logs.GetLogger().Error(err)
+					continue
+				}
 			}
 		} else {
 			lotusDealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
@@ -356,9 +369,11 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.Offl
 		}
 
 		dealInfo := &libmodel.DealInfo{
-			MinerFid:   offlineDeal.MinerFid,
-			DealCid:    dealCid,
-			StartEpoch: int(dealConfig.StartEpoch),
+			MinerFid:     offlineDeal.MinerFid,
+			DealCid:      dealCid,
+			StartEpoch:   int(dealConfig.StartEpoch),
+			ClientAddr:   cmdAutoBidDeal.SenderWallet,
+			AllocationID: allocationId,
 		}
 
 		fileDesc := libmodel.FileDesc{
@@ -436,11 +451,12 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) SendAutoBidDealsBySwanClientSourceId(input
 	}
 
 	timeout := time.After(60 * time.Minute)
-	tick := time.Tick(10 * time.Second)
+	ticker := time.NewTicker(10 * time.Second)
+	defer ticker.Stop()
 	var totalCount, successCount int
 	for {
 		select {
-		case <-tick:
+		case <-ticker.C:
 			assignedOfflineDeals, err := swanClient.GetOfflineDealsByStatus(params)
 			if err != nil {
 				logs.GetLogger().Error(err)

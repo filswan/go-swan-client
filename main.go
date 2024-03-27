@@ -337,10 +337,20 @@ var taskCmd = &cli.Command{
 			Usage:   "max copy numbers when send auto-bid or manual-bid task",
 			Value:   1,
 		},
+		&cli.BoolFlag{
+			Name:  "ddo",
+			Usage: "ddo flag, default false",
+			Value: false,
+		},
+		&cli.StringFlag{
+			Name:  "wallet",
+			Usage: "wallet address",
+			Value: config.GetConfig().Sender.Wallet,
+		},
 	},
 	Action: func(ctx *cli.Context) error {
 		repoPath := config.GetConfig().Main.SwanRepo
-		wallet := config.GetConfig().Sender.Wallet
+		wallet := ctx.String("wallet")
 		var first bool
 		if _, err := os.Stat(repoPath); err != nil {
 			first = true
@@ -386,10 +396,9 @@ var taskCmd = &cli.Command{
 		if auto && manual {
 			return errors.New("auto-bid and manual-bid cannot be set at the same time")
 		}
-
 		outputDir := ctx.String("out-dir")
 		_, fileDesc, _, total, err := command.CreateTaskByConfig(inputDir, &outputDir, ctx.String("name"), minerId,
-			ctx.String("dataset"), ctx.String("description"), auto, manual, ctx.Int("max-copy-number"))
+			ctx.String("dataset"), ctx.String("description"), auto, manual, ctx.Int("max-copy-number"), wallet, ctx.Bool("ddo"))
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return err
@@ -402,7 +411,7 @@ var taskCmd = &cli.Command{
 				defer func() {
 					exitCh <- struct{}{}
 				}()
-				command.GetCmdAutoDeal(&outputDir).SendAutoBidDealsBySwanClientSourceId(inputDir, taskId, total)
+				command.GetCmdAutoDeal(&outputDir, wallet).SendAutoBidDealsBySwanClientSourceId(inputDir, taskId, total)
 			}()
 			<-exitCh
 		}
