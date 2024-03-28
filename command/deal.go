@@ -304,7 +304,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 				Type:         cmdDeal.Type,
 			})
 			dealSentNum++
-			logs.GetLogger().Infof("%d/%d deal sent successfully, task name: %s, car file: %s, dealCID|dealUuid: %s, start epoch: %d, miner: %s", len(deals), total, taskName, fileDesc.CarFilePath, dealCid, dealConfig.StartEpoch, dealConfig.MinerFid)
+			logs.GetLogger().Infof("%d/%d deal sent successfully, task name: %s, car file: %s, dealCID|dealUuid: %s, deal type: %d, allocation id: %d, start epoch: %d, miner: %s", len(deals), total, taskName, fileDesc.CarFilePath, dealCid, cmdDeal.Type, allocationId, dealConfig.StartEpoch, dealConfig.MinerFid)
 			if cmdDeal.StartDealTimeInterval > 0 {
 				time.Sleep(cmdDeal.StartDealTimeInterval * time.Millisecond)
 			}
