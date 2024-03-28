@@ -41,9 +41,15 @@ type CmdTask struct {
 	StartEpochHours      int             //required
 	SourceId             int             //required
 	MaxAutoBidCopyNumber int             //required only for public autobid deal
+	ClientAddr           string
+	DealType             int
 }
 
-func GetCmdTask(inputDir string, outputDir *string, taskName, dataset, description string, bidMode, maxCopyNumber int) *CmdTask {
+func GetCmdTask(inputDir string, outputDir *string, taskName, dataset, description string, bidMode, maxCopyNumber int, wallet string, ddo bool) *CmdTask {
+	dealType := 0
+	if ddo {
+		dealType = 1
+	}
 	cmdTask := &CmdTask{
 		SwanApiUrl:           config.GetConfig().Main.SwanApiUrl,
 		SwanApiKey:           config.GetConfig().Main.SwanApiKey,
@@ -63,6 +69,8 @@ func GetCmdTask(inputDir string, outputDir *string, taskName, dataset, descripti
 		StartEpochHours:      config.GetConfig().Sender.StartEpochHours,
 		SourceId:             libconstants.TASK_SOURCE_ID_SWAN_CLIENT,
 		MaxAutoBidCopyNumber: maxCopyNumber,
+		ClientAddr:           wallet,
+		DealType:             dealType,
 	}
 
 	if !utils.IsStrEmpty(outputDir) {
@@ -82,7 +90,7 @@ func GetCmdTask(inputDir string, outputDir *string, taskName, dataset, descripti
 	return cmdTask
 }
 
-func CreateTaskByConfig(inputDir string, outputDir *string, taskName, minerFid, dataset, description string, auto, manual bool, maxCopyNumber int) (*string, []*libmodel.FileDesc, []*Deal, int, error) {
+func CreateTaskByConfig(inputDir string, outputDir *string, taskName, minerFid, dataset, description string, auto, manual bool, maxCopyNumber int, wallet string, ddo bool) (*string, []*libmodel.FileDesc, []*Deal, int, error) {
 	var bidMode int
 	bidMode = libconstants.TASK_BID_MODE_NONE
 	if auto {
@@ -92,8 +100,8 @@ func CreateTaskByConfig(inputDir string, outputDir *string, taskName, minerFid, 
 		bidMode = libconstants.TASK_BID_MODE_MANUAL
 	}
 
-	cmdTask := GetCmdTask(inputDir, outputDir, taskName, dataset, description, bidMode, maxCopyNumber)
-	cmdDeal := GetCmdDeal(outputDir, minerFid, "", "")
+	cmdTask := GetCmdTask(inputDir, outputDir, taskName, dataset, description, bidMode, maxCopyNumber, wallet, ddo)
+	cmdDeal := GetCmdDeal(outputDir, minerFid, "", "", wallet, ddo)
 	jsonFileName, fileDescs, deals, total, err := cmdTask.CreateTask(cmdDeal)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -218,6 +226,8 @@ func (cmdTask *CmdTask) CreateTask(cmdDeal *CmdDeal) (*string, []*libmodel.FileD
 		CuratedDataset:       cmdTask.Dataset,
 		Description:          cmdTask.Description,
 		MaxAutoBidCopyNumber: cmdTask.MaxAutoBidCopyNumber,
+		ClientAddr:           cmdTask.ClientAddr,
+		DealType:             cmdTask.DealType,
 	}
 
 	for _, fileDesc := range fileDescs {
