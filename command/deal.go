@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/fatih/color"
+	"github.com/filecoin-project/go-state-types/builtin/v9/verifreg"
 	"github.com/filswan/go-swan-client/config"
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/client/swan"
@@ -265,6 +266,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 			var allocationId uint64
 			if cmdDeal.MarketVersion == libconstants.MARKET_VERSION_2 {
 				if cmdDeal.Type == libconstants.DEAL_TYPE_DDO {
+					dealConfig.Duration = verifreg.MinimumVerifiedAllocationTerm
 					allocationId, err = boost.GetClient(cmdDeal.SwanRepo).WithClient(lotusClient).AllocateDeal(&dealConfig)
 				} else {
 					dealCid, err = boost.GetClient(cmdDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
