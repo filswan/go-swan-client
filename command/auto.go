@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/fatih/color"
+	"github.com/filecoin-project/go-state-types/builtin/v9/verifreg"
 	"github.com/filswan/go-swan-client/config"
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/client/swan"
@@ -338,6 +339,7 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.Offl
 		var allocationId uint64
 		if cmdAutoBidDeal.MarketVersion == libconstants.MARKET_VERSION_2 {
 			if offlineDeal.Type == libconstants.DEAL_TYPE_DDO {
+				dealConfig.Duration = verifreg.MinimumVerifiedAllocationTerm
 				allocationId, err = boost.GetClient(cmdAutoBidDeal.SwanRepo).WithClient(lotusClient).AllocateDeal(&dealConfig)
 			} else {
 				dealCid, err = boost.GetClient(cmdAutoBidDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)

@@ -44,7 +44,7 @@ As a PiB-level data onboarding tool for Filecoin Network, Swan-client can help u
 -   Generate a final metadata file for storage providers to import deals
 -   Create tasks and offline deals on [Swan Platform](https://console.filswan.com/#/dashboard)
 
-    **(Storage Providers can automatically import the deals by [Swan-Provider](https://github.com/filswan/go-swan-provider/tree/release-2.4.0))**
+    **(Storage Providers can automatically import the deals by [Swan-Provider](https://github.com/filswan/go-swan-provider/tree/release-2.4.1))**
 
 swan-client can help users send their data to storage providers by creating three different kinds of tasks. The complete process from the source file to the storage provider is as follows:
 
@@ -69,7 +69,7 @@ See [release assets](https://github.com/filswan/go-swan-client/releases)
 ```shell
 mkdir swan-client
 cd swan-client
-wget --no-check-certificate https://github.com/filswan/go-swan-client/releases/download/v2.4.0/install.sh
+wget --no-check-certificate https://github.com/filswan/go-swan-client/releases/download/v2.4.1/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -81,7 +81,7 @@ chmod +x install.sh
 ```shell
 git clone https://github.com/filswan/go-swan-client.git
 cd go-swan-client
-git checkout release-2.4.0
+git checkout release-2.4.1
 ./build_from_source.sh
 ```
 
@@ -136,7 +136,7 @@ If you have set `market_version = "1.2"` in the `config.toml`, you must do the f
 ```shell
     lotus wallet market add --from <address> --address <market_address> <amount>
 ```
-<font color="red"> **Note：** </font>If you are using `market_version = "1.2"`, please make sure the storage providers are using the `swan-provider` [v2.4.0](https://github.com/filswan/go-swan-provider/releases/tag/v2.4.0) at least.
+<font color="red"> **Note：** </font>If you are using `market_version = "1.2"`, please make sure the storage providers are using the `swan-provider` [v2.4.1](https://github.com/filswan/go-swan-provider/releases/tag/v2.4.1) at least.
 
 ### 1.4 Generate CAR Files
 
