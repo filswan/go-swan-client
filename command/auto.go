@@ -342,14 +342,16 @@ func (cmdAutoBidDeal *CmdAutoBidDeal) sendAutobidDeal(offlineDeal *libmodel.Offl
 				dealConfig.Duration = verifreg.MinimumVerifiedAllocationTerm
 				allocationId, err = boost.GetClient(cmdAutoBidDeal.SwanRepo).WithClient(lotusClient).AllocateDeal(&dealConfig)
 			} else {
-				dealCid, err = boost.GetClient(cmdAutoBidDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
+				pieceSize, _ := utils.CalculatePieceSize(dealConfig.FileSize, true)
+				dealCid, err = boost.GetClient(cmdAutoBidDeal.SwanRepo).WithClient(lotusClient).StartDealDirect(pieceSize, big.Int{}, &dealConfig)
 			}
 			if err != nil {
 				logs.GetLogger().Error(err)
 				continue
 			}
 		} else {
-			lotusDealCid, err := lotusClient.LotusClientStartDeal(&dealConfig)
+			pieceSize, _ := utils.CalculatePieceSize(dealConfig.FileSize, false)
+			lotusDealCid, err := lotusClient.StartDeal(pieceSize, big.Int{}, &dealConfig)
 			if err != nil {
 				logs.GetLogger().Error("tried ", i+1, " times,", err)
 
