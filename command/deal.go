@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"math/big"
 	"path/filepath"
 	"strings"
 	"time"
@@ -269,11 +270,13 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 					dealConfig.Duration = verifreg.MinimumVerifiedAllocationTerm
 					allocationId, err = boost.GetClient(cmdDeal.SwanRepo).WithClient(lotusClient).AllocateDeal(&dealConfig)
 				} else {
-					dealCid, err = boost.GetClient(cmdDeal.SwanRepo).WithClient(lotusClient).StartDeal(&dealConfig)
+					pieceSize, _ := utils.CalculatePieceSize(dealConfig.FileSize, true)
+					dealCid, err = boost.GetClient(cmdDeal.SwanRepo).WithClient(lotusClient).StartDealDirect(pieceSize, big.Int{}, &dealConfig)
 				}
 			} else {
 				var cidPtr *string
-				cidPtr, err = lotusClient.LotusClientStartDeal(&dealConfig)
+				pieceSize, _ := utils.CalculatePieceSize(dealConfig.FileSize, false)
+				cidPtr, err = lotusClient.StartDeal(pieceSize, big.Int{}, &dealConfig)
 				if err == nil {
 					dealCid = *cidPtr
 					dealInfo, err := lotusClient.LotusClientGetDealInfo(*cidPtr)
