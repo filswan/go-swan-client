@@ -431,8 +431,8 @@ github.com/filedrive-team/go-graphsplit v0.5.0 h1:IYFenyqWmW7hyCgd5j9IHsdgA48pBy
 github.com/filedrive-team/go-graphsplit v0.5.0/go.mod h1:160KtCvBMGi1BTDO1ObQUZ7d6XO6XWBphiVdFfA50pA=
 github.com/filswan/go-swan-lib v0.3.4 h1:qNHMeuDwi2Fyaec3MnhkZOSTQJFaKkkwz8lgRPxC3bM=
 github.com/filswan/go-swan-lib v0.3.4/go.mod h1:o66+BeOgakzHTK0HgGLV1AJEhFU8Xjj3q0/NXkcP7qU=
-github.com/filswan/swan-boost-lib v0.0.4-0.20240731102934-53da4c1da622 h1:Zes1Swj1va4QBa7ALPh2sQMown2sI/NrObyQPQRQgMk=
-github.com/filswan/swan-boost-lib v0.0.4-0.20240731102934-53da4c1da622/go.mod h1:ZJ31OcSwuT1N6CbCvl4v1nmdYRvsd0tE76sBOsgu8do=
+github.com/filswan/swan-boost-lib v0.0.4-0.20240801060232-268220cc5181 h1:T+5TPgYOnsteoK2MGV5shfspT01bSkFL3Xhnw1gKVkw=
+github.com/filswan/swan-boost-lib v0.0.4-0.20240801060232-268220cc5181/go.mod h1:ZJ31OcSwuT1N6CbCvl4v1nmdYRvsd0tE76sBOsgu8do=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI435gkrCt3MPfRiAkVrwSbHsst4LCFVfpJc=
 github.com/flynn/noise v0.0.0-20180327030543-2492fe189ae6/go.mod h1:1i71OnUq3iUe1ma7Lr6yG6/rjvM3emb6yoL7xLFzcVQ=
 github.com/flynn/noise v1.0.0/go.mod h1:xbMo+0i6+IGbYdJhF31t2eR1BIU0CYc12+BNAKwUTag=
