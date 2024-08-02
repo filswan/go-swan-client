@@ -213,6 +213,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 	}
 
 	dealSentNum := 0
+	index := 0
 	total := len(fileDescs) * len(cmdDeal.MinerFids)
 	for _, fileDesc := range fileDescs {
 		if fileDesc.CarFileSize <= 0 {
@@ -259,6 +260,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 		var deals []*libmodel.DealInfo
 
 		for _, minerFid := range cmdDeal.MinerFids {
+			index++
 			dealConfig.MinerFid = minerFid
 
 			cost := "0"
@@ -292,7 +294,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 					StartEpoch: int(dealConfig.StartEpoch),
 					Cost:       "fail",
 				})
-				logs.GetLogger().Infof("%d/%d deal sent failed, task name: %s, car file: %s, start epoch: %d, miner: %s, error: %v", len(deals), total, taskName, fileDesc.CarFilePath, dealConfig.StartEpoch, dealConfig.MinerFid, err)
+				logs.GetLogger().Infof("%d/%d deal sent failed, task name: %s, car file: %s, start epoch: %d, miner: %s, error: %v", index, total, taskName, fileDesc.CarFilePath, dealConfig.StartEpoch, dealConfig.MinerFid, err)
 				continue
 			}
 
@@ -306,7 +308,7 @@ func (cmdDeal *CmdDeal) sendDeals2Miner(taskName string, outputDir string, fileD
 				Type:         cmdDeal.Type,
 			})
 			dealSentNum++
-			logs.GetLogger().Infof("%d/%d deal sent successfully, task name: %s, car file: %s, dealCID|dealUuid: %s, deal type: %d, allocation id: %d, start epoch: %d, miner: %s", len(deals), total, taskName, fileDesc.CarFilePath, dealCid, cmdDeal.Type, allocationId, dealConfig.StartEpoch, dealConfig.MinerFid)
+			logs.GetLogger().Infof("%d/%d deal sent successfully, task name: %s, car file: %s, dealCID|dealUuid: %s, deal type: %d, allocation id: %d, start epoch: %d, miner: %s", index, total, taskName, fileDesc.CarFilePath, dealCid, cmdDeal.Type, allocationId, dealConfig.StartEpoch, dealConfig.MinerFid)
 			if cmdDeal.StartDealTimeInterval > 0 {
 				time.Sleep(cmdDeal.StartDealTimeInterval * time.Millisecond)
 			}

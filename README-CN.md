@@ -44,7 +44,7 @@ Swan Client 是一个重要的 Web3 工具包，提供不同的工具帮助用�
 -   生成一个最终元数据文件，供存储提供商导入订单
 -   在 [Swan Platform](https://console.filswan.com/#/dashboard) 上创建任务和离线订单
 
-    **(存储供应商可以通过 [Swan Provider](https://github.com/filswan/go-swan-provider/tree/release-2.4.1) 自动导入订单)**
+    **(存储供应商可以通过 [Swan Provider](https://github.com/filswan/go-swan-provider/tree/release-2.5.0) 自动导入订单)**
 
 Swan Client 支持创建三种不同的任务，帮助用户将数据发送至存储供应商。从源文件到成功发送订单的整个流程如下：
 
@@ -69,19 +69,19 @@ Swan Client 支持创建三种不同的任务，帮助用户将数据发送至�
 ```shell
 mkdir swan-client
 cd swan-client
-wget --no-check-certificate https://github.com/filswan/go-swan-client/releases/download/v2.4.1/install.sh
+wget --no-check-certificate https://github.com/filswan/go-swan-client/releases/download/v2.5.0/install.sh
 chmod +x install.sh
 ./install.sh
 ```
 
 #### **源代码**
 
-\:bell:需要 **go 1.22.0+**
+\:bell:需要 **go 1.22.3+**
 
 ```shell
 git clone https://github.com/filswan/go-swan-client.git
 cd go-swan-client
-git checkout release-2.4.1
+git checkout release-2.5.0
 ./build_from_source.sh
 ```
 
@@ -136,7 +136,7 @@ vi ~/.swan/client/config.toml
 ```shell
     lotus wallet market add --from <address> --address <market_address> <amount>
 ```
-<font color="red"> **Note：** </font>如果您使用的是 `market_version = "1.2"`, 请确保存储提供商使用的 `swan-provider` 版本为 [v2.4.1](https://github.com/filswan/go-swan-provider/releases/tag/v2.4.1) 及以上。
+<font color="red"> **Note：** </font>如果您使用的是 `market_version = "1.2"`, 请确保存储提供商使用的 `swan-provider` 版本为 [v2.5.0](https://github.com/filswan/go-swan-provider/releases/tag/v2.5.0) 及以上。
 
 ### <a id="14-生成CAR文件">1.4 生成CAR文件</a>
 
@@ -286,6 +286,7 @@ OPTIONS:
    --dataset value                       数据集名称
    --description value, -d value         任务描述
    --max-copy-number value, --max value  发送自动竞价任务或手动竞价任务时每个文件的最大备份数量 (默认: 1)
+   --ddo                                 ddo订单 (默认: false)
 ```
 
 **此步骤后生成的文件：**
