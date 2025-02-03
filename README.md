@@ -324,7 +324,7 @@ OPTIONS:
 
 You can create manual-bid tasks on the swan platform. And each storage provider can apply this task from swan platform. After that, you can send deals to the storage providers.
 
-**(1) Create manulal-bid task:**
+**(1) Create manual-bid task:**
 
 ```shell
 swan-client task --input-dir [json_or_csv_absolute_path] --out-dir [output_files_dir] --manual-bid true --max-copy-number 5
