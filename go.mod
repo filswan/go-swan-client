@@ -12,7 +12,7 @@ require (
 	github.com/filecoin-project/go-state-types v0.16.0
 	github.com/filedrive-team/go-graphsplit v0.5.0
 	github.com/filswan/go-swan-lib v0.3.4
-	github.com/filswan/swan-boost-lib v0.0.6-0.20250407024114-51e951bf0b0b
+	github.com/filswan/swan-boost-lib v0.0.6
 	github.com/google/uuid v1.6.0
 	github.com/ipld/go-car v0.6.2
 	github.com/julienschmidt/httprouter v1.3.0
@@ -350,7 +350,6 @@ require (
 	golang.org/x/tools v0.31.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gonum.org/v1/gonum v0.15.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250212204824-5a70512c5d8b // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250212204824-5a70512c5d8b // indirect
 	google.golang.org/grpc v1.70.0 // indirect
 	google.golang.org/protobuf v1.36.5 // indirect
